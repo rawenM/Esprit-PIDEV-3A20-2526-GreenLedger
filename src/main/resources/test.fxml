@@ -76,7 +76,7 @@
             </VBox>
 
             <!-- CENTER FORM -->
-            <ScrollPane fitToWidth="true" style="-fx-background:#F7F9F8;"
+            <ScrollPane fitToWidth="true"
                         AnchorPane.leftAnchor="350" AnchorPane.rightAnchor="0"
                         AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
                 <VBox spacing="18"
@@ -132,13 +132,10 @@
 
                     <HBox spacing="10">
                         <Button text="Ajouter Critere" onAction="#ajouterCritere"
-                                style="-fx-background-color:#2F483A; -fx-text-fill:white;"
                                 styleClass="btn btn-primary"/>
                         <Button text="Modifier Critere" onAction="#modifierCritere"
-                                style="-fx-background-color:#557C55; -fx-text-fill:white;"
                                 styleClass="btn btn-secondary"/>
                         <Button text="Supprimer Critere" onAction="#supprimerCritere"
-                                style="-fx-background-color:#355E3B; -fx-text-fill:white;"
                                 styleClass="btn btn-danger"/>
                     </HBox>
 
@@ -146,13 +143,10 @@
 
                     <HBox spacing="12">
                         <Button text="Ajouter Evaluation" onAction="#ajouterEvaluation"
-                                style="-fx-background-color:#2F483A; -fx-text-fill:white;"
                                 styleClass="btn btn-primary"/>
                         <Button text="Modifier Evaluation" onAction="#modifierEvaluation"
-                                style="-fx-background-color:#557C55; -fx-text-fill:white;"
                                 styleClass="btn btn-secondary"/>
                         <Button text="Supprimer Evaluation" onAction="#supprimerEvaluation"
-                                style="-fx-background-color:#355E3B; -fx-text-fill:white;"
                                 styleClass="btn btn-danger"/>
                     </HBox>
 
