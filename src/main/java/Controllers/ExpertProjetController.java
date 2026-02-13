@@ -71,6 +71,8 @@ public class ExpertProjetController extends BaseController {
     public void initialize() {
         super.initialize();
 
+        setActiveNav(btnGestionProjets);
+
         if (btnGestionProjets != null) {
             btnGestionProjets.setOnAction(event -> showGestionProjets());
         }
@@ -108,6 +110,18 @@ public class ExpertProjetController extends BaseController {
 
         tableProjets.setItems(data);
         refreshTable();
+    }
+
+    private void setActiveNav(Button active) {
+        if (btnGestionProjets != null) {
+            btnGestionProjets.getStyleClass().remove("nav-btn-active");
+        }
+        if (btnGestionEvaluations != null) {
+            btnGestionEvaluations.getStyleClass().remove("nav-btn-active");
+        }
+        if (active != null) {
+            active.getStyleClass().add("nav-btn-active");
+        }
     }
 
     @FXML

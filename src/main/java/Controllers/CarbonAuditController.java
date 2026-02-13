@@ -2,6 +2,7 @@ package Controllers;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.application.Platform;
 import javafx.scene.layout.FlowPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -60,6 +61,10 @@ public class CarbonAuditController extends BaseController {
     @FXML private TextArea txtCommentaireCritere;
     @FXML private TextField txtNote;
 
+    @FXML private Label lblProjetsAudit;
+    @FXML private Label lblProjetsEvalues;
+    @FXML private Label lblCriteresImpact;
+
     private final EvaluationService evaluationService = new EvaluationService();
     private final ProjetService projetService = new ProjetService();
     private final CritereImpactService critereImpactService = new CritereImpactService();
@@ -69,7 +74,12 @@ public class CarbonAuditController extends BaseController {
     @FXML
     public void initialize() {
         super.initialize(); // Enable theme switching
-        
+
+        setActiveNav(btnGestionEvaluations);
+        if (btnGestionEvaluations != null) {
+            Platform.runLater(() -> btnGestionEvaluations.requestFocus());
+        }
+
         // Initialiser les gestionnaires des boutons de navigation
         if (btnGestionProjets != null) {
             btnGestionProjets.setOnAction(event -> showGestionProjets());
@@ -83,12 +93,17 @@ public class CarbonAuditController extends BaseController {
 
         if (tableAudits != null) {
             tableAudits.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_SUBSEQUENT_COLUMNS);
+            tableAudits.setFixedCellSize(36);
+            tableAudits.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         }
         if (tableProjets != null) {
             tableProjets.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_SUBSEQUENT_COLUMNS);
+            tableProjets.setFixedCellSize(36);
         }
         if (tableCriteres != null) {
             tableCriteres.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_SUBSEQUENT_COLUMNS);
+            tableCriteres.setFixedCellSize(34);
+            tableCriteres.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
         }
 
         if (colDate != null) {
@@ -121,9 +136,16 @@ public class CarbonAuditController extends BaseController {
         if (tableAudits != null) {
             tableAudits.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selected) -> {
                 if (selected != null) {
-                    txtObservations.setText(selected.getObservations());
-                    txtDecision.setText(selected.getDecision());
-                    txtIdProjet.setText(String.valueOf(selected.getIdProjet()));
+                    if (txtObservations != null) {
+                        txtObservations.setText(selected.getObservations());
+                    }
+                    if (txtDecision != null) {
+                        txtDecision.setText(selected.getDecision());
+                        txtDecision.requestFocus();
+                    }
+                    if (txtIdProjet != null) {
+                        txtIdProjet.setText(String.valueOf(selected.getIdProjet()));
+                    }
                     selectedEvaluationId = selected.getIdEvaluation();
                     refreshCriteres();
                 }
@@ -142,7 +164,9 @@ public class CarbonAuditController extends BaseController {
             tableProjets.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selected) -> {
                 if (selected != null) {
                     String label = selected.getId() + " - " + selected.getTitre();
-                    txtIdProjet.setText(String.valueOf(selected.getId()));
+                    if (txtIdProjet != null) {
+                        txtIdProjet.setText(String.valueOf(selected.getId()));
+                    }
                     if (comboProjet != null) {
                         comboProjet.getSelectionModel().select(label);
                     }
@@ -153,7 +177,7 @@ public class CarbonAuditController extends BaseController {
             comboProjet.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selected) -> {
                 if (selected != null) {
                     Integer extracted = extractLeadingNumber(selected);
-                    if (extracted != null) {
+                    if (extracted != null && txtIdProjet != null) {
                         txtIdProjet.setText(String.valueOf(extracted));
                     }
                 }
@@ -175,7 +199,52 @@ public class CarbonAuditController extends BaseController {
             }
             comboProjet.setItems(labels);
         }
+        updateProjetStats(projets);
         selectProjetIfSet();
+    }
+
+    private void refreshEvaluations() {
+        ObservableList<Evaluation> evaluations = FXCollections.observableArrayList(evaluationService.afficher());
+        if (tableAudits != null) {
+            tableAudits.setItems(evaluations);
+            tableAudits.refresh();
+        }
+    }
+
+    private void refreshCriteres() {
+        if (tableCriteres == null) {
+            return;
+        }
+        if (selectedEvaluationId == null) {
+            tableCriteres.setItems(FXCollections.observableArrayList());
+            updateCritereStats(0);
+            return;
+        }
+        ObservableList<CritereImpact> criteres = FXCollections.observableArrayList(
+                critereImpactService.afficherParEvaluation(selectedEvaluationId)
+        );
+        tableCriteres.setItems(criteres);
+        updateCritereStats(criteres.size());
+    }
+
+    private void updateProjetStats(ObservableList<Projet> projets) {
+        if (lblProjetsAudit == null || lblProjetsEvalues == null) {
+            return;
+        }
+        long pending = projets.stream().filter(p -> {
+            String s = p.getStatutEvaluation();
+            return s == null || s.isEmpty() || s.equalsIgnoreCase("En attente");
+        }).count();
+        long evaluated = projets.size() - pending;
+        lblProjetsAudit.setText(String.valueOf(pending));
+        lblProjetsEvalues.setText(String.valueOf(evaluated));
+    }
+
+    private void updateCritereStats(int total) {
+        if (lblCriteresImpact == null) {
+            return;
+        }
+        lblCriteresImpact.setText(String.valueOf(total));
     }
 
     private void selectProjetIfSet() {
@@ -184,7 +253,9 @@ public class CarbonAuditController extends BaseController {
         }
         String label = selectedProjet.getId() + " - " + selectedProjet.getTitre();
         comboProjet.getSelectionModel().select(label);
-        txtIdProjet.setText(String.valueOf(selectedProjet.getId()));
+        if (txtIdProjet != null) {
+            txtIdProjet.setText(String.valueOf(selectedProjet.getId()));
+        }
     }
 
     @FXML
@@ -280,29 +351,11 @@ public class CarbonAuditController extends BaseController {
         clearCritereForm();
     }
 
-    private void refreshEvaluations() {
-        ObservableList<Evaluation> evaluations = FXCollections.observableArrayList(evaluationService.afficher());
-        if (tableAudits != null) {
-            tableAudits.setItems(evaluations);
-        }
-    }
-
-
-    private void refreshCriteres() {
-        if (tableCriteres == null) {
-            return;
-        }
-        if (selectedEvaluationId == null) {
-            tableCriteres.setItems(FXCollections.observableArrayList());
-            return;
-        }
-        ObservableList<CritereImpact> criteres = FXCollections.observableArrayList(
-                critereImpactService.afficherParEvaluation(selectedEvaluationId)
-        );
-        tableCriteres.setItems(criteres);
-    }
-
     private Evaluation readEvaluationFromForm(boolean requireId) {
+        if (txtObservations == null || txtDecision == null || txtIdProjet == null) {
+            showError("Formulaire evaluation incomplet.");
+            return null;
+        }
         String observations = requireLength(txtObservations, "Observations", 10, 250);
         String decision = requireText(txtDecision, "Decision");
         Integer idProjet = parseInt(txtIdProjet.getText(), "ID Projet");
@@ -322,9 +375,15 @@ public class CarbonAuditController extends BaseController {
     }
 
     private void clearEvaluationForm() {
-        txtObservations.clear();
-        txtDecision.clear();
-        txtIdProjet.clear();
+        if (txtObservations != null) {
+            txtObservations.clear();
+        }
+        if (txtDecision != null) {
+            txtDecision.clear();
+        }
+        if (txtIdProjet != null) {
+            txtIdProjet.clear();
+        }
     }
 
     private void clearCritereForm() {
@@ -455,6 +514,18 @@ public class CarbonAuditController extends BaseController {
             MainFX.setRoot("settings");
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void setActiveNav(Button active) {
+        if (btnGestionProjets != null) {
+            btnGestionProjets.getStyleClass().remove("nav-btn-active");
+        }
+        if (btnGestionEvaluations != null) {
+            btnGestionEvaluations.getStyleClass().remove("nav-btn-active");
+        }
+        if (active != null) {
+            active.getStyleClass().add("nav-btn-active");
         }
     }
 }

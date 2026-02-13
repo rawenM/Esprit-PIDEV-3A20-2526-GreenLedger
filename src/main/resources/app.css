@@ -68,12 +68,12 @@
 
 /* Navigation Buttons - Vibrant Hover Effects */
 .nav-btn {
-    -fx-padding: 11 14 11 14;
+    -fx-padding: 14 16 14 16;
     -fx-background-color: transparent;
     -fx-border-width: 0;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-font-weight: 500;
-    -fx-text-fill: #596D66;
+    -fx-text-fill: #1A2E26;
     -fx-cursor: hand;
     -fx-background-radius: 8;
     -fx-alignment: CENTER_LEFT;
@@ -87,10 +87,17 @@
 
 .nav-btn:pressed {
     -fx-background-color: #E1EBE6;
+    -fx-text-fill: #2D5F3F;
     -fx-scale-y: 0.98;
 }
 
 .nav-btn:focused {
+    -fx-background-color: #2D5F3F;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: 600;
+}
+
+.nav-btn-active {
     -fx-background-color: #2D5F3F;
     -fx-text-fill: #FFFFFF;
     -fx-font-weight: 600;
@@ -223,20 +230,21 @@
 /* Button Base - Override JavaFX Defaults */
 .button {
     -fx-background-insets: 0;
-    -fx-padding: 11 20 11 20;
+    -fx-padding: 14 22 14 22;
     -fx-background-radius: 8;
     -fx-border-radius: 8;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-font-weight: 600;
     -fx-cursor: hand;
     -fx-letter-spacing: 0.2px;
+    -fx-text-fill: #1A2E26;
 }
 
 .btn {
-    -fx-padding: 11 20 11 20;
+    -fx-padding: 14 22 14 22;
     -fx-background-radius: 8;
     -fx-border-radius: 8;
-    -fx-font-size: 13px;
+    -fx-font-size: 14px;
     -fx-font-weight: 600;
     -fx-cursor: hand;
     -fx-letter-spacing: 0.2px;
@@ -362,17 +370,37 @@
     -fx-border-width: 0 0 1 0;
 }
 
+.table-view .table-row-cell:odd {
+    -fx-background-color: #FBFCFB;
+}
+
 .table-view .table-row-cell:hover {
     -fx-background-color: #F7FAF8;
 }
 
 .table-view .table-row-cell:selected {
-    -fx-background-color: #EEF4F1;
+    -fx-background-color: #E6F2EC;
 }
 
 .table-view .table-row-cell:selected .table-cell {
     -fx-text-fill: #1E4D2B;
     -fx-font-weight: 600;
+}
+
+.table-view .button {
+    -fx-text-fill: #FFFFFF;
+    -fx-min-width: 90px;
+    -fx-pref-width: 90px;
+}
+
+.table-view .btn-secondary {
+    -fx-text-fill: #2D5F3F !important;
+}
+
+.select-hint {
+    -fx-text-fill: #7B8F88;
+    -fx-font-size: 11px;
+    -fx-padding: 0 0 6 0;
 }
 
 .placeholder-label {
@@ -937,6 +965,15 @@
 .spinner > .increment-arrow-button:hover,
 .spinner > .decrement-arrow-button:hover {
     -fx-background-color: rgba(16, 185, 129, 0.2);
+}
+
+/* Column Alignment Styles */
+.col-center .label {
+    -fx-alignment: CENTER;
+}
+
+.col-left .label {
+    -fx-alignment: CENTER_LEFT;
 }
 
 /* =====================================

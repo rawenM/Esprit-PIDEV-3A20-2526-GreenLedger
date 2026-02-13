@@ -5,6 +5,7 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.scene.image.Image;
 import Utils.ThemeManager;
 import Utils.NavigationContext;
 
@@ -18,14 +19,19 @@ public class MainFX extends Application {
     public void start(Stage stage) throws IOException {
 
         // Charger l'interface FXML disponible
-        Parent root = loadFXML("gestioncarbone");
+        Parent root = loadFXML("expertProjet");
 
         scene = new Scene(root, 1100, 720);
         
         // Initialize ThemeManager with the scene (applies saved theme)
         ThemeManager.getInstance().initialize(scene);
-        
-        stage.setTitle("Green Finance Audit - Green Ledger Wallet");
+
+        java.net.URL iconUrl = MainFX.class.getResource("/images/bg.png");
+        if (iconUrl != null) {
+            stage.getIcons().add(new Image(iconUrl.toExternalForm()));
+        }
+
+        stage.setTitle("Green Ledger");
         stage.setScene(scene);
         stage.setMinWidth(1000);
         stage.setMinHeight(600);

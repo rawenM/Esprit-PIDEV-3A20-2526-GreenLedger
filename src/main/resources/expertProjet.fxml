@@ -90,7 +90,7 @@
                     <TableColumn fx:id="colBudget" text="Budget" prefWidth="100"/>
                     <TableColumn fx:id="colStatut" text="Statut" prefWidth="100"/>
                     <TableColumn fx:id="colScore" text="Score ESG" prefWidth="90"/>
-                    <TableColumn fx:id="colAction" text="Action" prefWidth="100"/>
+                    <TableColumn fx:id="colAction" text="Action" prefWidth="140"/>
                 </columns>
             </TableView>
         </VBox>
