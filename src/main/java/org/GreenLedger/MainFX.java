@@ -16,7 +16,7 @@ public class MainFX extends Application {
     public void start(Stage stage) throws IOException {
 
         // Charger l'interface FXML disponible
-        Parent root = loadFXML("test");
+        Parent root = loadFXML("expertProjet");
 
         scene = new Scene(root, 1200, 800);
         stage.setTitle("Carbon Expert Audit - Green Financing Platform");

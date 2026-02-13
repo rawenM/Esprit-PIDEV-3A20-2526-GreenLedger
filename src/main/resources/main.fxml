@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.MainController"
+            stylesheets="@app.css"
+            fx:id="rootPane"
+            styleClass="page">
+
+    <top>
+        <HBox spacing="10" alignment="CENTER_LEFT" styleClass="topbar">
+            <padding>
+                <Insets top="12" right="18" bottom="12" left="18"/>
+            </padding>
+            <Label text="Gestion Evaluation Carbone" styleClass="topbar-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label text="Session active" styleClass="topbar-subtitle"/>
+            <Button text="Deconnexion" onAction="#handleLogout" styleClass="btn btn-muted"/>
+        </HBox>
+    </top>
+
+    <left>
+        <VBox spacing="10" prefWidth="230" styleClass="sidebar">
+            <padding>
+                <Insets top="18" right="12" bottom="18" left="12"/>
+            </padding>
+
+            <Label text="Navigation" styleClass="section-title-sidebar"/>
+
+            <Button fx:id="btnUsers" text="Gestion Users" onAction="#showUsers" styleClass="nav-btn"/>
+            <Button fx:id="btnProjet" text="Gestion Projets" onAction="#showProjet" styleClass="nav-btn"/>
+            <Button fx:id="btnEvaluation" text="Gestion Evaluation" onAction="#showEvaluation" styleClass="nav-btn"/>
+            <Button fx:id="btnFinancement" text="Gestion Financement" onAction="#showFinancement" styleClass="nav-btn"/>
+            <Button fx:id="btnWallet" text="Gestion Wallet" onAction="#showWallet" styleClass="nav-btn"/>
+
+            <Separator styleClass="sidebar-sep"/>
+
+            <Label text="Acces" styleClass="section-title-sidebar"/>
+            <Label text="Modules visibles selon role" styleClass="sidebar-note"/>
+        </VBox>
+    </left>
+
+    <center>
+        <StackPane fx:id="contentPane" styleClass="content-area"/>
+    </center>
+</BorderPane>
+

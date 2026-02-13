@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+
+<HBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.CarbonAuditController"
+      spacing="0" styleClass="app-container" stylesheets="@app.css">
+
+    <!-- Navigation Sidebar -->
+    <VBox spacing="10" prefWidth="230" styleClass="sidebar">
+        <padding>
+            <Insets top="18" right="12" bottom="18" left="12"/>
+        </padding>
+
+        <Label text="Navigation" styleClass="section-title-sidebar"/>
+
+        <Button fx:id="btnGestionProjets" text="Gestion Projets" styleClass="nav-btn"/>
+        <Button fx:id="btnGestionEvaluations" text="Gestion Evaluations" styleClass="nav-btn"/>
+
+        <Separator styleClass="sidebar-sep"/>
+    </VBox>
+
+    <!-- Content -->
+    <ScrollPane fitToWidth="true" style="-fx-background:#F7F9F8;" HBox.hgrow="ALWAYS">
+        <content>
+            <AnchorPane>
+
+                <!-- SIDEBAR -->
+                <VBox spacing="15" prefWidth="350"
+                      styleClass="sidebar"
+                      AnchorPane.leftAnchor="0" AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
+                    <padding>
+                        <Insets top="15" right="15" bottom="15" left="15"/>
+                    </padding>
+
+                    <ImageView fitWidth="220" preserveRatio="true" smooth="true">
+                        <image>
+                            <Image url="@images/bg.png"/>
+                        </image>
+                    </ImageView>
+
+                    <Label text="Green Finance Audit"
+                           styleClass="brand-title"/>
+                    <Label text="Impact &amp; sustainability scoring"
+                           styleClass="brand-subtitle"/>
+
+                    <ComboBox fx:id="comboProjet"
+                              promptText="Selectionner un projet"
+                              styleClass="field"/>
+
+                    <Label text="Evaluations recentes"
+                           styleClass="section-title-sidebar"/>
+
+                    <TableView fx:id="tableAudits" prefHeight="220"
+                               styleClass="table-card">
+                        <placeholder>
+                            <Label text="Aucune evaluation" styleClass="placeholder-label"/>
+                        </placeholder>
+                        <columns>
+                            <TableColumn fx:id="colDate" text="Date"/>
+                            <TableColumn fx:id="colDecision" text="Decision"/>
+                            <TableColumn fx:id="colProjetNom" text="Titre projet"/>
+                            <TableColumn fx:id="colObservations" text="Observations"/>
+                        </columns>
+                    </TableView>
+
+                    <!-- projects table removed; now shown in expert dashboard -->
+
+                </VBox>
+
+                <!-- CENTER FORM -->
+                <ScrollPane fitToWidth="true" style="-fx-background:#F7F9F8;"
+                            AnchorPane.leftAnchor="350" AnchorPane.rightAnchor="0"
+                            AnchorPane.topAnchor="0" AnchorPane.bottomAnchor="0">
+                    <VBox spacing="18"
+                          styleClass="card">
+                        <padding>
+                            <Insets top="22" right="22" bottom="22" left="22"/>
+                        </padding>
+
+                        <Label text="Evaluation de finance verte"
+                               styleClass="section-title"/>
+
+                        <HBox spacing="10">
+                            <TextField fx:id="txtIdProjet" promptText="ID Projet"
+                                       editable="false" focusTraversable="false"
+                                       styleClass="field"/>
+                            <TextField fx:id="txtDecision" promptText="Decision"
+                                       styleClass="field"/>
+                        </HBox>
+
+                        <TextArea fx:id="txtObservations"
+                                  promptText="Observations generales"
+                                  prefHeight="120"
+                                  styleClass="field textarea"/>
+
+                        <Separator/>
+                        <HBox spacing="12" alignment="CENTER_LEFT">
+                            <Button text="Ajouter Evaluation"
+                                    onAction="#ajouterEvaluation"
+                                    styleClass="action-btn action-btn--add"
+                                    style="-fx-background-color:#2F483A; -fx-text-fill:white;"/>
+
+                            <Button text="Modifier Evaluation"
+                                    onAction="#modifierEvaluation"
+                                    styleClass="action-btn action-btn--edit"
+                                    style="-fx-background-color:#557C55; -fx-text-fill:white;"/>
+
+                            <Button text="Supprimer Evaluation"
+                                    onAction="#supprimerEvaluation"
+                                    styleClass="action-btn action-btn--delete"
+                                    style="-fx-background-color:#355E3B; -fx-text-fill:white;"/>
+                        </HBox>
+                        <Label text="Criteres d'impact"
+                               styleClass="section-title"/>
+
+                        <TableView fx:id="tableCriteres" prefHeight="160"
+                                   styleClass="table-card">
+                            <placeholder>
+                                <Label text="Aucun critere" styleClass="placeholder-label"/>
+                            </placeholder>
+                            <columns>
+                                <TableColumn fx:id="colCritereNom" text="Nom"/>
+                                <TableColumn fx:id="colCritereNote" text="Note"/>
+                                <TableColumn fx:id="colCritereCommentaire" text="Commentaire"/>
+                            </columns>
+                        </TableView>
+
+                        <HBox spacing="10">
+                            <TextField fx:id="txtNomCritere" promptText="Nom du critere"
+                                       styleClass="field"/>
+                            <TextField fx:id="txtNote" promptText="Note"
+                                       styleClass="field"/>
+                        </HBox>
+
+                        <TextArea fx:id="txtCommentaireCritere"
+                                  promptText="Commentaire technique"
+                                  prefHeight="90"
+                                  styleClass="field textarea"/>
+
+                        <HBox spacing="10">
+                            <Button text="Ajouter Critere" onAction="#ajouterCritere"
+                                    style="-fx-background-color:#2F483A; -fx-text-fill:white;"
+                                    styleClass="btn btn-primary"/>
+                            <Button text="Modifier Critere" onAction="#modifierCritere"
+                                    style="-fx-background-color:#557C55; -fx-text-fill:white;"
+                                    styleClass="btn btn-secondary"/>
+                            <Button text="Supprimer Critere" onAction="#supprimerCritere"
+                                    style="-fx-background-color:#355E3B; -fx-text-fill:white;"
+                                    styleClass="btn btn-danger"/>
+                        </HBox>
+
+                        <Separator/>
+
+                        <HBox spacing="12">
+
+                        </HBox>
+
+                    </VBox>
+                </ScrollPane>
+
+            </AnchorPane>
+        </content>
+    </ScrollPane>
+
+</HBox>

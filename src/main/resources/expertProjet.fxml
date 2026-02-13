@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<HBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.ExpertProjetController"
+      spacing="0" styleClass="app-container" stylesheets="@app.css">
+
+    <!-- Sidebar -->
+    <VBox spacing="10" prefWidth="230" styleClass="sidebar">
+        <padding>
+            <Insets top="18" right="12" bottom="18" left="12"/>
+        </padding>
+
+        <Label text="Navigation" styleClass="section-title-sidebar"/>
+
+        <Button fx:id="btnGestionProjets" text="Gestion Projets" styleClass="nav-btn"/>
+        <Button fx:id="btnGestionEvaluations" text="Gestion Evaluations" styleClass="nav-btn"/>
+
+        <Separator styleClass="sidebar-sep"/>
+    </VBox>
+
+    <!-- Contenu principal -->
+    <VBox fx:id="contentPane" spacing="16" alignment="TOP_LEFT" styleClass="page" HBox.hgrow="ALWAYS">
+        <padding>
+            <Insets top="18" right="18" bottom="18" left="18"/>
+        </padding>
+
+        <HBox spacing="10" alignment="CENTER_LEFT">
+            <VBox spacing="4">
+                <Label text="Dashboard Projets" styleClass="page-title"/>
+                <Label text="Liste des projets disponibles pour l'audit carbone" styleClass="page-subtitle"/>
+            </VBox>
+        </HBox>
+
+        <HBox spacing="12">
+            <VBox styleClass="stat-card">
+                <Label text="Projets disponibles" styleClass="stat-title"/>
+                <Label fx:id="lblTotal" text="0" styleClass="stat-value"/>
+            </VBox>
+            <VBox styleClass="stat-card">
+                <Label text="En attente" styleClass="stat-title"/>
+                <Label fx:id="lblPending" text="0" styleClass="stat-value"/>
+            </VBox>
+            <VBox styleClass="stat-card">
+                <Label text="Evaluees" styleClass="stat-title"/>
+                <Label fx:id="lblEvaluated" text="0" styleClass="stat-value"/>
+            </VBox>
+        </HBox>
+
+        <VBox spacing="10" styleClass="card">
+            <padding>
+                <Insets top="14" right="14" bottom="14" left="14"/>
+            </padding>
+
+            <Label text="Projets disponibles" styleClass="section-title"/>
+            <TableView fx:id="tableProjets" prefHeight="340" styleClass="table-card">
+                <columns>
+                    <TableColumn fx:id="colIcon" text=""/>
+                    <TableColumn fx:id="colId" text="ID"/>
+                    <TableColumn fx:id="colTitre" text="Titre"/>
+                    <TableColumn fx:id="colDescription" text="Description"/>
+                    <TableColumn fx:id="colBudget" text="Budget"/>
+                    <TableColumn fx:id="colStatut" text="Statut"/>
+                    <TableColumn fx:id="colScore" text="Score ESG"/>
+                    <TableColumn fx:id="colAction" text="Action"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </VBox>
+</HBox>
