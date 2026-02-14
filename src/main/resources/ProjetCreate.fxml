@@ -68,7 +68,6 @@
                           style="-fx-pref-height: 200px;"/>
             </VBox>
 
-            <!-- ✅ Boutons centrés -->
             <HBox spacing="15" alignment="CENTER">
                 <Button text="💾  DRAFT"
                         onAction="#onSaveDraft"

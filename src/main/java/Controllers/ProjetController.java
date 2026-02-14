@@ -39,7 +39,6 @@ public class ProjetController {
 
         table.setItems(data);
 
-        // ✅ Double clic -> ouvrir fenêtre détail
         table.setRowFactory(tv -> {
             TableRow<Projet> row = new TableRow<>();
             row.setOnMouseClicked(e -> {

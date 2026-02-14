@@ -30,41 +30,83 @@ public class Projet {
 
     }
 
-    public int getId() { return id; }
-    public void setId(int id) { this.id = id; }
+    public int getId() {
+        return id;
+    }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-    public int getEntrepriseId() { return entrepriseId; }
-    public void setEntrepriseId(int entrepriseId) { this.entrepriseId = entrepriseId; }
+    public int getEntrepriseId() {
+        return entrepriseId;
+    }
+    public void setEntrepriseId(int entrepriseId) {
+        this.entrepriseId = entrepriseId;
+    }
 
-    public String getTitre() { return titre; }
-    public void setTitre(String titre) { this.titre = titre; }
+    public String getTitre() {
+        return titre;
+    }
+    public void setTitre(String titre) {
+        this.titre = titre;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getDescription() {
+        return description;
+    }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-    public double getBudget() { return budget; }
-    public void setBudget(double budget) { this.budget = budget; }
+    public double getBudget() {
+        return budget;
+    }
+    public void setBudget(double budget) {
+        this.budget = budget;
+    }
 
-    public int getScoreEsg() { return scoreEsg; }
-    public void setScoreEsg(int scoreEsg) { this.scoreEsg = scoreEsg; }
+    public int getScoreEsg() {
+        return scoreEsg;
+    }
+    public void setScoreEsg(int scoreEsg) {
+        this.scoreEsg = scoreEsg;
+    }
 
-    public String getCompanyAddress() { return companyAddress; }
-    public void setCompanyAddress(String companyAddress) { this.companyAddress = companyAddress; }
+    public String getCompanyAddress() {
+        return companyAddress;
+    }
+    public void setCompanyAddress(String companyAddress) {
+        this.companyAddress = companyAddress;
+    }
 
-    public String getCompanyEmail() { return companyEmail; }
-    public void setCompanyEmail(String companyEmail) { this.companyEmail = companyEmail; }
+    public String getCompanyEmail() {
+        return companyEmail;
+    }
+    public void setCompanyEmail(String companyEmail) {
+        this.companyEmail = companyEmail;
+    }
 
-    public String getCompanyPhone() { return companyPhone; }
-    public void setCompanyPhone(String companyPhone) { this.companyPhone = companyPhone; }
+    public String getCompanyPhone() {
+        return companyPhone;
+    }
+    public void setCompanyPhone(String companyPhone) {
+        this.companyPhone = companyPhone;
+    }
 
-
-    // --- champs DB ---
-    public String getStatut() { return statut; }
-    public void setStatut(String statut) { this.statut = statut; }
+    public String getStatut() {
+        return statut;
+    }
+    public void setStatut(String statut) {
+        this.statut = statut;
+    }
 
     // --- ALIAS compatibilité (pour tes controllers existants) ---
     // Tes controllers appellent getStatutEvaluation() + PropertyValueFactory("statutEvaluation")
-    public String getStatutEvaluation() { return statut; }
-    public void setStatutEvaluation(String statutEvaluation) { this.statut = statutEvaluation; }
+    public String getStatutEvaluation() {
+        return statut;
+    }
+    public void setStatutEvaluation(String statutEvaluation) {
+        this.statut = statutEvaluation;
+    }
 
 }

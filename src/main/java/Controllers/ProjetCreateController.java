@@ -27,7 +27,6 @@ public class ProjetCreateController {
 
     @FXML
     private void onAdd() {
-        // si tu veux "Ajouter" = DRAFT, remplace SUBMITTED par DRAFT
         createWithStatus("SUBMITTED");
     }
 
@@ -54,8 +53,6 @@ public class ProjetCreateController {
         p.setScoreEsg(score);
         p.setDescription(taDescription.getText());
         p.setStatut(statut);
-
-        // ✅ nouveaux champs entreprise
         p.setCompanyAddress(safeNull(tfCompanyAddress.getText()));
         p.setCompanyEmail(safeNull(tfCompanyEmail.getText()));
         p.setCompanyPhone(safeNull(tfCompanyPhone.getText()));
@@ -72,7 +69,9 @@ public class ProjetCreateController {
         }
     }
 
-    private String safe(String s) { return s == null ? "" : s.trim(); }
+    private String safe(String s) {
+        return s == null ? "" : s.trim();
+    }
     private String safeNull(String s) {
         String v = safe(s);
         return v.isEmpty() ? null : v;

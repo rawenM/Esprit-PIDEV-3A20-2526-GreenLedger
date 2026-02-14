@@ -11,9 +11,7 @@ public class ProjetService {
 
     private final Connection cnx = MyConnection.getConnection();
 
-    // -------------------------
-    // READ: tous les projets
-    // -------------------------
+
     public List<Projet> afficher() {
         String sql = "SELECT id, entreprise_id, titre, description, budget, statut, score_esg, " +
                 "       company_address, company_email, company_phone " +
@@ -49,9 +47,7 @@ public class ProjetService {
         return list;
     }
 
-    // -------------------------
-    // READ: projets par entreprise
-    // -------------------------
+
     public List<Projet> getByEntreprise(int entrepriseId) {
         String sql = "SELECT id, entreprise_id, titre, description, budget, statut, score_esg, " +
                 "       company_address, company_email, company_phone " +
@@ -90,9 +86,7 @@ public class ProjetService {
         return list;
     }
 
-    // -------------------------
-    // CREATE
-    // -------------------------
+
     public void insert(Projet p) {
         String sql = "INSERT INTO projet (" +
                 "  entreprise_id, titre, description, budget, statut, score_esg, " +
@@ -118,9 +112,6 @@ public class ProjetService {
         }
     }
 
-    // -------------------------
-    // UPDATE complet (DRAFT)
-    // -------------------------
     public void update(Projet p) {
         String sql = "UPDATE projet SET " +
                 "  titre=?, description=?, budget=?, statut=?, score_esg=?, " +
@@ -147,9 +138,7 @@ public class ProjetService {
         }
     }
 
-    // -------------------------
-    // UPDATE description seulement
-    // -------------------------
+
     public void updateDescriptionOnly(int id,
                                       String description,
                                       String address,
@@ -171,9 +160,7 @@ public class ProjetService {
     }
 
 
-    // -------------------------
-    // DELETE (si tu veux vraiment)
-    // -------------------------
+
     public void delete(int id) {
         String sql = "DELETE FROM projet WHERE id=?";
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
@@ -184,9 +171,7 @@ public class ProjetService {
         }
     }
 
-    // -------------------------
-    // OPTION B: Annuler => CANCELLED
-    // -------------------------
+
     public void cancel(int id) {
         String sql = "UPDATE projet SET statut='CANCELLED' WHERE id=?";
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {

@@ -78,7 +78,6 @@
 
         </VBox>
 
-        <!-- ✅ Boutons centrés en bas -->
         <HBox spacing="15"
               alignment="CENTER"
               style="-fx-padding: 10 0 0 0;">

@@ -46,15 +46,15 @@ public class ProjetDetailController {
         boolean isDraft = "DRAFT".equalsIgnoreCase(projet.getStatut());
 
         String msg = isDraft
-                ? "Supprimer définitivement ce projet DRAFT ?"
-                : "Annuler le projet (statut CANCELLED) ?";
+                ? "Supprimer définitivement ce DRAFT ?"
+                : "Annuler le projet ? (sera marqué CANCELLED, pas de suppression physique)";
 
         if (!confirm(msg)) return;
 
-        if (isDraft) {
-            service.delete(projet.getId());        // ✅ suppression réelle
+        if (isDraft) {                         // supression si DRAFT et CANCELLED pour les autres statuts
+            service.delete(projet.getId());    //ken theou taamlou kifha hezou l'partie hedhi w'badlou feha
         } else {
-            service.cancel(projet.getId());        // ✅ CANCELLED pour les autres statuts
+            service.cancel(projet.getId());
         }
 
         if (onChanged != null) onChanged.run();
@@ -71,15 +71,12 @@ public class ProjetDetailController {
 
         boolean lockedTitreBudgetScore = !"DRAFT".equalsIgnoreCase(projet.getStatut());
 
-        // ✅ règles: après DRAFT -> titre/budget/score verrouillés
-        tfTitre.setDisable(lockedTitreBudgetScore);
+
+        tfTitre.setDisable(lockedTitreBudgetScore);       // tsaker les champs
         tfBudget.setDisable(lockedTitreBudgetScore);
         tfScoreEsg.setDisable(lockedTitreBudgetScore);
 
-        // ✅ toi tu veux pouvoir modifier description
-        taDescription.setDisable(false);
-
-        // ✅ et aussi infos entreprise (puisqu'elles seront auto plus tard)
+        taDescription.setDisable(false);                 // tnajem tbadel les champs
         tfCompanyAddress.setDisable(false);
         tfCompanyEmail.setDisable(false);
         tfCompanyPhone.setDisable(false);
@@ -118,7 +115,7 @@ public class ProjetDetailController {
             return;
         }
 
-        // ✅ DRAFT: update complet
+
         String titre = safe(tfTitre.getText());
         if (titre.length() < 3) { error("Titre: min 3 caractères."); return; }
 

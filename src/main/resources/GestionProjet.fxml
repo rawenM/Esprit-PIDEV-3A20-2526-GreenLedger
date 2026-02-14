@@ -57,7 +57,7 @@
                 </VBox>
 
                 <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                    <Label text="SOUMIS / AUTRES" styleClass="stat-title"/>
+                    <Label text="SOUMIS" styleClass="stat-title"/>
                     <Label fx:id="lblLocked" text="0" styleClass="stat-value accent-green"/>
                     <Label text="🔒" style="-fx-font-size: 18px;"/>
                 </VBox>
