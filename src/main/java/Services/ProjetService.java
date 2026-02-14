@@ -109,4 +109,27 @@ public class ProjetService {
             System.out.println("Erreur delete projet: " + e.getMessage());
         }
     }
+
+    public void cancel(int id) {
+        String sql = "UPDATE projet SET statut='CANCELLED' WHERE id=?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Erreur cancel projet: " + e.getMessage());
+        }
+    }
+
+    public void updateDescriptionOnly(int id, String description) {
+        String sql = "UPDATE projet SET description=? WHERE id=?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setString(1, description);
+            ps.setInt(2, id);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Erreur updateDescriptionOnly: " + e.getMessage());
+        }
+    }
+
+
 }
