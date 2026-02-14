@@ -9,32 +9,25 @@ import org.GreenLedger.MainFX;
 public class ProjetCreateController {
 
     private static final int TEST_ENTREPRISE_ID = 1;
-
     private final ProjetService service = new ProjetService();
 
     @FXML private TextField tfTitre;
     @FXML private TextField tfBudget;
     @FXML private TextField tfScoreEsg;
+    @FXML private TextField tfCompanyAddress;
+    @FXML private TextField tfCompanyEmail;
+    @FXML private TextField tfCompanyPhone;
     @FXML private TextArea taDescription;
 
     @FXML
-    private void onBack() {
-        goHome();
-    }
+    private void onBack() { goHome(); }
 
     @FXML
-    private void onCancel() {
-        goHome();
-    }
-
-    @FXML
-    private void onSaveDraft() {
-        createWithStatus("DRAFT");
-    }
+    private void onSaveDraft() { createWithStatus("DRAFT"); }
 
     @FXML
     private void onAdd() {
-        // ✅ “Ajouter” = créer + SUBMITTED (tu peux changer si tu veux)
+        // si tu veux "Ajouter" = DRAFT, remplace SUBMITTED par DRAFT
         createWithStatus("SUBMITTED");
     }
 
@@ -62,6 +55,11 @@ public class ProjetCreateController {
         p.setDescription(taDescription.getText());
         p.setStatut(statut);
 
+        // ✅ nouveaux champs entreprise
+        p.setCompanyAddress(safeNull(tfCompanyAddress.getText()));
+        p.setCompanyEmail(safeNull(tfCompanyEmail.getText()));
+        p.setCompanyPhone(safeNull(tfCompanyPhone.getText()));
+
         service.insert(p);
         goHome();
     }
@@ -74,8 +72,10 @@ public class ProjetCreateController {
         }
     }
 
-    private String safe(String s) {
-        return s == null ? "" : s.trim();
+    private String safe(String s) { return s == null ? "" : s.trim(); }
+    private String safeNull(String s) {
+        String v = safe(s);
+        return v.isEmpty() ? null : v;
     }
 
     private void error(String msg) {

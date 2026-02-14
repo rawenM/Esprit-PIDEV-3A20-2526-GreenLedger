@@ -150,16 +150,26 @@ public class ProjetService {
     // -------------------------
     // UPDATE description seulement
     // -------------------------
-    public void updateDescriptionOnly(int id, String description) {
-        String sql = "UPDATE projet SET description=? WHERE id=?";
+    public void updateDescriptionOnly(int id,
+                                      String description,
+                                      String address,
+                                      String email,
+                                      String phone) {
+
+        String sql = "UPDATE projet SET description=?, company_address=?, company_email=?, company_phone=? WHERE id=?";
+
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setString(1, description);
-            ps.setInt(2, id);
+            ps.setString(2, address);
+            ps.setString(3, email);
+            ps.setString(4, phone);
+            ps.setInt(5, id);
             ps.executeUpdate();
         } catch (SQLException e) {
             System.out.println("Erreur updateDescriptionOnly: " + e.getMessage());
         }
     }
+
 
     // -------------------------
     // DELETE (si tu veux vraiment)

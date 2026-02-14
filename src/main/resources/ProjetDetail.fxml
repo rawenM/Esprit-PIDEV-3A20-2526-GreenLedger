@@ -7,66 +7,104 @@
 <VBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.ProjetDetailController"
+      spacing="0"
       styleClass="page">
 
     <VBox spacing="16" styleClass="content-area">
         <padding>
-            <Insets top="18" right="18" bottom="18" left="18"/>
+            <Insets top="20" right="24" bottom="20" left="24"/>
         </padding>
 
-        <HBox alignment="CENTER_LEFT" spacing="10">
-            <Button text="←" onAction="#onBack" styleClass="btn-secondary"/>
-            <Label text="Détails Projet" styleClass="page-title"/>
-            <Region HBox.hgrow="ALWAYS"/>
-            <Button text="✏ Modifier" onAction="#onModifier" styleClass="btn-primary"/>
-            <Button text="🗑 Annuler (CANCELLED)" onAction="#onAnnulerProjet" styleClass="btn-danger"/>
-        </HBox>
-
-        <VBox spacing="12" styleClass="card">
+        <!-- Card -->
+        <VBox spacing="14" styleClass="card">
             <padding>
-                <Insets top="16" right="16" bottom="16" left="16"/>
+                <Insets top="18" right="18" bottom="18" left="18"/>
             </padding>
 
             <HBox spacing="12">
                 <VBox spacing="6" prefWidth="120">
-                    <Label text="ID" styleClass="form-label"/>
-                    <Label fx:id="lblId" text="-" />
+                    <Label text="ID" styleClass="form-label" />
+                    <Label fx:id="lblId"/>
                 </VBox>
-                <VBox spacing="6" HBox.hgrow="ALWAYS">
+
+                <VBox spacing="6">
                     <Label text="Statut" styleClass="form-label"/>
-                    <Label fx:id="lblStatut" text="-" />
+                    <Label fx:id="lblStatut"/>
                 </VBox>
             </HBox>
 
             <VBox spacing="6">
                 <Label text="Titre" styleClass="form-label"/>
-                <TextField fx:id="tfTitre" styleClass="field" disable="true"/>
+                <TextField fx:id="tfTitre" disable="true" styleClass="field"/>
             </VBox>
 
             <HBox spacing="12">
                 <VBox spacing="6" HBox.hgrow="ALWAYS">
                     <Label text="Budget" styleClass="form-label"/>
-                    <TextField fx:id="tfBudget" styleClass="field" disable="true"/>
+                    <TextField fx:id="tfBudget" disable="true" styleClass="field"/>
                 </VBox>
-                <VBox spacing="6" prefWidth="180">
+
+                <VBox spacing="6" prefWidth="160">
                     <Label text="Score ESG" styleClass="form-label"/>
-                    <TextField fx:id="tfScoreEsg" styleClass="field" disable="true"/>
+                    <TextField fx:id="tfScoreEsg" disable="true" styleClass="field"/>
+                </VBox>
+            </HBox>
+
+            <VBox spacing="6">
+                <Label text="Adresse entreprise" styleClass="form-label"/>
+                <TextField fx:id="tfCompanyAddress" disable="true" styleClass="field"/>
+            </VBox>
+
+            <HBox spacing="12">
+                <VBox spacing="6" HBox.hgrow="ALWAYS">
+                    <Label text="Email entreprise" styleClass="form-label"/>
+                    <TextField fx:id="tfCompanyEmail" disable="true" styleClass="field"/>
+                </VBox>
+
+                <VBox spacing="6" prefWidth="200">
+                    <Label text="Téléphone entreprise" styleClass="form-label"/>
+                    <TextField fx:id="tfCompanyPhone" disable="true" styleClass="field"/>
                 </VBox>
             </HBox>
 
             <VBox spacing="6">
                 <Label text="Description" styleClass="form-label"/>
-                <TextArea fx:id="taDescription" styleClass="field textarea" wrapText="true" disable="true"
-                          style="-fx-pref-height: 180px;"/>
-                <Label text="🛈 Après soumission: seuls Titre/Budget/Score restent verrouillés. Description modifiable."
-                       style="-fx-opacity: 0.65; -fx-font-size: 11px;"/>
+                <TextArea fx:id="taDescription"
+                          disable="true"
+                          wrapText="true"
+                          styleClass="field textarea"
+                          style="-fx-pref-height: 150px;"/>
             </VBox>
 
-            <HBox spacing="12">
-                <Button fx:id="btnSaveChanges" text="💾 Enregistrer" onAction="#onSaveChanges" styleClass="btn-secondary" visible="false"/>
-                <Button fx:id="btnCancelEdit" text="↩ Annuler modif" onAction="#onCancelEdit" styleClass="btn-secondary" visible="false"/>
-            </HBox>
         </VBox>
 
+        <!-- ✅ Boutons centrés en bas -->
+        <HBox spacing="15"
+              alignment="CENTER"
+              style="-fx-padding: 10 0 0 0;">
+
+            <Button text="✏ Modifier"
+                    onAction="#onModifier"
+                    styleClass="btn-primary"/>
+
+            <Button text="🗑 Supprimer "
+                    onAction="#onAnnulerProjet"
+                    styleClass="btn-danger"/>
+
+            <Button fx:id="btnSaveChanges"
+                    text="💾 Enregistrer"
+                    onAction="#onSaveChanges"
+                    styleClass="btn-secondary"
+                    visible="false"/>
+
+            <Button fx:id="btnCancelEdit"
+                    text="↩ Annuler"
+                    onAction="#onCancelEdit"
+                    styleClass="btn-secondary"
+                    visible="false"/>
+
+        </HBox>
+
     </VBox>
+
 </VBox>

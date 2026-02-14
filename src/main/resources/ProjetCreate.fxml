@@ -7,13 +7,15 @@
 <VBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.ProjetCreateController"
-      spacing="0" styleClass="page">
+      spacing="0"
+      styleClass="page">
 
     <VBox spacing="16" styleClass="content-area">
         <padding>
             <Insets top="24" right="32" bottom="32" left="32"/>
         </padding>
 
+        <!-- Header -->
         <HBox alignment="CENTER_LEFT" spacing="10">
             <Button text="←" onAction="#onBack" styleClass="btn-secondary"/>
             <Label text="Nouveau Projet" styleClass="page-title"/>
@@ -26,34 +28,57 @@
 
             <VBox spacing="8">
                 <Label text="Titre" styleClass="form-label"/>
-                <TextField fx:id="tfTitre" promptText="Ex: Parc solaire" styleClass="field"/>
+                <TextField fx:id="tfTitre" styleClass="field"/>
             </VBox>
 
             <HBox spacing="12">
                 <VBox spacing="8" HBox.hgrow="ALWAYS">
                     <Label text="Budget" styleClass="form-label"/>
-                    <TextField fx:id="tfBudget" promptText="Ex: 350000" styleClass="field"/>
+                    <TextField fx:id="tfBudget" styleClass="field"/>
                 </VBox>
-                <VBox spacing="8" prefWidth="180">
-                    <Label text="Score ESG (0..100)" styleClass="form-label"/>
-                    <TextField fx:id="tfScoreEsg" promptText="Ex: 60" styleClass="field"/>
+
+                <VBox spacing="8" prefWidth="160">
+                    <Label text="Score ESG" styleClass="form-label"/>
+                    <TextField fx:id="tfScoreEsg" styleClass="field"/>
+                </VBox>
+            </HBox>
+
+            <VBox spacing="8">
+                <Label text="Adresse entreprise" styleClass="form-label"/>
+                <TextField fx:id="tfCompanyAddress" styleClass="field"/>
+            </VBox>
+
+            <HBox spacing="12">
+                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                    <Label text="Email entreprise" styleClass="form-label"/>
+                    <TextField fx:id="tfCompanyEmail" styleClass="field"/>
+                </VBox>
+
+                <VBox spacing="8" prefWidth="200">
+                    <Label text="Téléphone entreprise" styleClass="form-label"/>
+                    <TextField fx:id="tfCompanyPhone" styleClass="field"/>
                 </VBox>
             </HBox>
 
             <VBox spacing="8">
                 <Label text="Description" styleClass="form-label"/>
                 <TextArea fx:id="taDescription"
-                          promptText="Décrire le projet..."
                           wrapText="true"
                           styleClass="field textarea"
-                          style="-fx-pref-height: 220px;"/>
+                          style="-fx-pref-height: 200px;"/>
             </VBox>
 
-            <HBox spacing="12">
-                <Button text="💾 Sauvegarder en DRAFT" onAction="#onSaveDraft" styleClass="btn-secondary"/>
-                <Button text="➕ Ajouter" onAction="#onAdd" styleClass="btn-primary"/>
-                <Button text="✖ Annuler" onAction="#onCancel" styleClass="btn-danger"/>
+            <!-- ✅ Boutons centrés -->
+            <HBox spacing="15" alignment="CENTER">
+                <Button text="💾  DRAFT"
+                        onAction="#onSaveDraft"
+                        styleClass="btn-secondary"/>
+
+                <Button text="➕ Ajouter"
+                        onAction="#onAdd"
+                        styleClass="btn-primary"/>
             </HBox>
+
         </VBox>
 
     </VBox>
