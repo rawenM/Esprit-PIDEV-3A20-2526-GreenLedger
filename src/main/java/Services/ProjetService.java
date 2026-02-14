@@ -11,7 +11,6 @@ public class ProjetService {
 
     private final Connection cnx = MyConnection.getConnection();
 
-
     public List<Projet> afficher() {
         String sql = "SELECT id, entreprise_id, titre, description, budget, statut, score_esg, " +
                 "       company_address, company_email, company_phone " +
@@ -24,13 +23,15 @@ public class ProjetService {
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
+                Integer score = (Integer) rs.getObject("score_esg");
+
                 Projet p = new Projet(
                         rs.getInt("id"),
                         rs.getInt("entreprise_id"),
                         rs.getString("titre"),
                         rs.getString("description"),
                         rs.getDouble("budget"),
-                        rs.getInt("score_esg"),
+                        score,
                         rs.getString("statut"),
                         rs.getString("company_address"),
                         rs.getString("company_email"),
@@ -47,7 +48,6 @@ public class ProjetService {
         return list;
     }
 
-
     public List<Projet> getByEntreprise(int entrepriseId) {
         String sql = "SELECT id, entreprise_id, titre, description, budget, statut, score_esg, " +
                 "       company_address, company_email, company_phone " +
@@ -62,13 +62,14 @@ public class ProjetService {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
+                    Integer score = (Integer) rs.getObject("score_esg");
                     Projet p = new Projet(
                             rs.getInt("id"),
                             rs.getInt("entreprise_id"),
                             rs.getString("titre"),
                             rs.getString("description"),
                             rs.getDouble("budget"),
-                            rs.getInt("score_esg"),
+                            score,
                             rs.getString("statut"),
                             rs.getString("company_address"),
                             rs.getString("company_email"),
@@ -86,7 +87,6 @@ public class ProjetService {
         return list;
     }
 
-
     public void insert(Projet p) {
         String sql = "INSERT INTO projet (" +
                 "  entreprise_id, titre, description, budget, statut, score_esg, " +
@@ -99,7 +99,10 @@ public class ProjetService {
             ps.setString(3, p.getDescription());
             ps.setDouble(4, p.getBudget());
             ps.setString(5, p.getStatut());
-            ps.setInt(6, p.getScoreEsg());
+
+            //null khater liaison expert carbon
+            if (p.getScoreEsg() == null) ps.setNull(6, Types.INTEGER);
+            else ps.setInt(6, p.getScoreEsg());
 
             ps.setString(7, p.getCompanyAddress());
             ps.setString(8, p.getCompanyEmail());
@@ -123,7 +126,8 @@ public class ProjetService {
             ps.setString(2, p.getDescription());
             ps.setDouble(3, p.getBudget());
             ps.setString(4, p.getStatut());
-            ps.setInt(5, p.getScoreEsg());
+            if (p.getScoreEsg() == null) ps.setNull(5, Types.INTEGER);
+            else ps.setInt(5, p.getScoreEsg());
 
             ps.setString(6, p.getCompanyAddress());
             ps.setString(7, p.getCompanyEmail());
@@ -139,14 +143,8 @@ public class ProjetService {
     }
 
 
-    public void updateDescriptionOnly(int id,
-                                      String description,
-                                      String address,
-                                      String email,
-                                      String phone) {
-
+    public void updateDescriptionOnly(int id, String description, String address, String email, String phone) {
         String sql = "UPDATE projet SET description=?, company_address=?, company_email=?, company_phone=? WHERE id=?";
-
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setString(1, description);
             ps.setString(2, address);
@@ -159,8 +157,6 @@ public class ProjetService {
         }
     }
 
-
-
     public void delete(int id) {
         String sql = "DELETE FROM projet WHERE id=?";
         try (PreparedStatement ps = cnx.prepareStatement(sql)) {
@@ -170,7 +166,6 @@ public class ProjetService {
             System.out.println("Erreur delete projet: " + e.getMessage());
         }
     }
-
 
     public void cancel(int id) {
         String sql = "UPDATE projet SET statut='CANCELLED' WHERE id=?";

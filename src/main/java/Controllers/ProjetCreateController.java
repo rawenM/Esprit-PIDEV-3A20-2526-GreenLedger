@@ -13,7 +13,6 @@ public class ProjetCreateController {
 
     @FXML private TextField tfTitre;
     @FXML private TextField tfBudget;
-    @FXML private TextField tfScoreEsg;
     @FXML private TextField tfCompanyAddress;
     @FXML private TextField tfCompanyEmail;
     @FXML private TextField tfCompanyPhone;
@@ -40,22 +39,16 @@ public class ProjetCreateController {
             if (budget <= 0) throw new Exception();
         } catch (Exception e) { error("Budget invalide (>0)."); return; }
 
-        int score;
-        try {
-            score = Integer.parseInt(safe(tfScoreEsg.getText()));
-            if (score < 0 || score > 100) throw new Exception();
-        } catch (Exception e) { error("Score ESG invalide (0..100)."); return; }
-
         Projet p = new Projet();
         p.setEntrepriseId(TEST_ENTREPRISE_ID);
         p.setTitre(titre);
         p.setBudget(budget);
-        p.setScoreEsg(score);
         p.setDescription(taDescription.getText());
         p.setStatut(statut);
-        p.setCompanyAddress(safeNull(tfCompanyAddress.getText()));
-        p.setCompanyEmail(safeNull(tfCompanyEmail.getText()));
-        p.setCompanyPhone(safeNull(tfCompanyPhone.getText()));
+        p.setScoreEsg(null);
+        p.setCompanyAddress(emptyToNull(tfCompanyAddress.getText()));
+        p.setCompanyEmail(emptyToNull(tfCompanyEmail.getText()));
+        p.setCompanyPhone(emptyToNull(tfCompanyPhone.getText()));
 
         service.insert(p);
         goHome();
@@ -69,10 +62,8 @@ public class ProjetCreateController {
         }
     }
 
-    private String safe(String s) {
-        return s == null ? "" : s.trim();
-    }
-    private String safeNull(String s) {
+    private String safe(String s) { return s == null ? "" : s.trim(); }
+    private String emptyToNull(String s) {
         String v = safe(s);
         return v.isEmpty() ? null : v;
     }

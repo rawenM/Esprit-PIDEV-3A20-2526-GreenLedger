@@ -15,7 +15,6 @@
             <Insets top="24" right="32" bottom="32" left="32"/>
         </padding>
 
-        <!-- Header -->
         <HBox alignment="CENTER_LEFT" spacing="10">
             <Button text="←" onAction="#onBack" styleClass="btn-secondary"/>
             <Label text="Nouveau Projet" styleClass="page-title"/>
@@ -31,17 +30,10 @@
                 <TextField fx:id="tfTitre" styleClass="field"/>
             </VBox>
 
-            <HBox spacing="12">
-                <VBox spacing="8" HBox.hgrow="ALWAYS">
-                    <Label text="Budget" styleClass="form-label"/>
-                    <TextField fx:id="tfBudget" styleClass="field"/>
-                </VBox>
-
-                <VBox spacing="8" prefWidth="160">
-                    <Label text="Score ESG" styleClass="form-label"/>
-                    <TextField fx:id="tfScoreEsg" styleClass="field"/>
-                </VBox>
-            </HBox>
+            <VBox spacing="8">
+                <Label text="Budget" styleClass="form-label"/>
+                <TextField fx:id="tfBudget" styleClass="field"/>
+            </VBox>
 
             <VBox spacing="8">
                 <Label text="Adresse entreprise" styleClass="form-label"/>
@@ -54,7 +46,7 @@
                     <TextField fx:id="tfCompanyEmail" styleClass="field"/>
                 </VBox>
 
-                <VBox spacing="8" prefWidth="200">
+                <VBox spacing="8" prefWidth="220">
                     <Label text="Téléphone entreprise" styleClass="form-label"/>
                     <TextField fx:id="tfCompanyPhone" styleClass="field"/>
                 </VBox>

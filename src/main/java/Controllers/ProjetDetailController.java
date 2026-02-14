@@ -38,29 +38,23 @@ public class ProjetDetailController {
         this.onChanged = r;
     }
 
-
     @FXML
     private void onAnnulerProjet() {
         if (projet == null) return;
 
         boolean isDraft = "DRAFT".equalsIgnoreCase(projet.getStatut());
-
         String msg = isDraft
-                ? "Supprimer définitivement ce DRAFT ?"
-                : "Annuler le projet ? (sera marqué CANCELLED, pas de suppression physique)";
+                ? "Supprimer définitivement le DRAFT ?"
+                : "Annuler le projet (statut CANCELLED) ?";
 
         if (!confirm(msg)) return;
 
-        if (isDraft) {                         // supression si DRAFT et CANCELLED pour les autres statuts
-            service.delete(projet.getId());    //ken theou taamlou kifha hezou l'partie hedhi w'badlou feha
-        } else {
-            service.cancel(projet.getId());
-        }
+        if (isDraft) service.delete(projet.getId());
+        else service.cancel(projet.getId());
 
         if (onChanged != null) onChanged.run();
         closeWindow();
     }
-
 
     @FXML
     private void onModifier() {
@@ -69,14 +63,14 @@ public class ProjetDetailController {
         btnSaveChanges.setVisible(true);
         btnCancelEdit.setVisible(true);
 
-        boolean lockedTitreBudgetScore = !"DRAFT".equalsIgnoreCase(projet.getStatut());
 
+        tfScoreEsg.setDisable(true);
 
-        tfTitre.setDisable(lockedTitreBudgetScore);       // tsaker les champs
-        tfBudget.setDisable(lockedTitreBudgetScore);
-        tfScoreEsg.setDisable(lockedTitreBudgetScore);
+        boolean lockedTitreBudget = !"DRAFT".equalsIgnoreCase(projet.getStatut());
+        tfTitre.setDisable(lockedTitreBudget);
+        tfBudget.setDisable(lockedTitreBudget);
 
-        taDescription.setDisable(false);                 // tnajem tbadel les champs
+        taDescription.setDisable(false);
         tfCompanyAddress.setDisable(false);
         tfCompanyEmail.setDisable(false);
         tfCompanyPhone.setDisable(false);
@@ -95,14 +89,12 @@ public class ProjetDetailController {
 
         boolean isDraft = "DRAFT".equalsIgnoreCase(projet.getStatut());
 
-        // Description + company fields toujours modifiables
         projet.setDescription(taDescription.getText());
         projet.setCompanyAddress(emptyToNull(tfCompanyAddress.getText()));
         projet.setCompanyEmail(emptyToNull(tfCompanyEmail.getText()));
         projet.setCompanyPhone(emptyToNull(tfCompanyPhone.getText()));
 
         if (!isDraft) {
-            // ✅ non-DRAFT: update description + company fields (sans toucher titre/budget/score)
             service.updateDescriptionOnly(
                     projet.getId(),
                     projet.getDescription(),
@@ -125,15 +117,8 @@ public class ProjetDetailController {
             if (budget <= 0) throw new Exception();
         } catch (Exception e) { error("Budget invalide (>0)."); return; }
 
-        int score;
-        try {
-            score = Integer.parseInt(safe(tfScoreEsg.getText()));
-            if (score < 0 || score > 100) throw new Exception();
-        } catch (Exception e) { error("Score ESG invalide (0..100)."); return; }
-
         projet.setTitre(titre);
         projet.setBudget(budget);
-        projet.setScoreEsg(score);
 
         service.update(projet);
         if (onChanged != null) onChanged.run();
@@ -148,9 +133,9 @@ public class ProjetDetailController {
 
         tfTitre.setText(projet.getTitre());
         tfBudget.setText(String.valueOf(projet.getBudget()));
-        tfScoreEsg.setText(String.valueOf(projet.getScoreEsg()));
+        Integer score = projet.getScoreEsg();
+        tfScoreEsg.setText(score == null ? "En attente d'évaluation" : String.valueOf(score));
         taDescription.setText(projet.getDescription());
-
         tfCompanyAddress.setText(projet.getCompanyAddress());
         tfCompanyEmail.setText(projet.getCompanyEmail());
         tfCompanyPhone.setText(projet.getCompanyPhone());

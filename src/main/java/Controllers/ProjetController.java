@@ -94,7 +94,7 @@ public class ProjetController {
 
             ProjetDetailController ctrl = loader.getController();
             ctrl.setProjet(projet);
-            ctrl.setOnChanged(this::refresh); // callback refresh après modif/annulation
+            ctrl.setOnChanged(this::refresh);
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);

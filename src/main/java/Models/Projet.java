@@ -6,16 +6,18 @@ public class Projet {
     private String titre;
     private String description;
     private double budget;
-    private int scoreEsg;
-    private String statut; // correspond à la colonne "statut" en DB
+
+    // null khater mehdi bech yaamel score bel evaluation
+    private Integer scoreEsg;
+    private String statut;
     private String companyAddress;
     private String companyEmail;
     private String companyPhone;
 
-
     public Projet() {}
 
-    public Projet(int id, int entrepriseId, String titre, String description, double budget, int scoreEsg, String statut, String companyAddress, String companyEmail, String companyPhone) {
+    public Projet(int id, int entrepriseId, String titre, String description, double budget, Integer scoreEsg, String statut,
+                  String companyAddress, String companyEmail, String companyPhone) {
         this.id = id;
         this.entrepriseId = entrepriseId;
         this.titre = titre;
@@ -26,8 +28,6 @@ public class Projet {
         this.companyAddress = companyAddress;
         this.companyEmail = companyEmail;
         this.companyPhone = companyPhone;
-
-
     }
 
     public int getId() {
@@ -65,11 +65,18 @@ public class Projet {
         this.budget = budget;
     }
 
-    public int getScoreEsg() {
+    public Integer getScoreEsg() {
         return scoreEsg;
     }
-    public void setScoreEsg(int scoreEsg) {
+    public void setScoreEsg(Integer scoreEsg) {
         this.scoreEsg = scoreEsg;
+    }
+
+    public String getStatut() {
+        return statut;
+    }
+    public void setStatut(String statut) {
+        this.statut = statut;
     }
 
     public String getCompanyAddress() {
@@ -93,18 +100,10 @@ public class Projet {
         this.companyPhone = companyPhone;
     }
 
-    public String getStatut() {
-        return statut;
-    }
-    public void setStatut(String statut) {
-        this.statut = statut;
+    public String getStatutEvaluation() {
+        return this.statut;
     }
 
-    // --- ALIAS compatibilité (pour tes controllers existants) ---
-    // Tes controllers appellent getStatutEvaluation() + PropertyValueFactory("statutEvaluation")
-    public String getStatutEvaluation() {
-        return statut;
-    }
     public void setStatutEvaluation(String statutEvaluation) {
         this.statut = statutEvaluation;
     }
