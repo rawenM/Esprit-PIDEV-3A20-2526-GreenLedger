@@ -11,7 +11,6 @@
 
     <!-- Sidebar -->
     <VBox prefWidth="220" styleClass="sidebar">
-
         <HBox alignment="CENTER_LEFT" spacing="8">
             <Label text="🌿" style="-fx-font-size: 20px;"/>
             <Label text="GreenLedger" styleClass="sidebar-title"/>
@@ -19,13 +18,11 @@
 
         <Separator styleClass="sidebar-sep"/>
 
-        <!-- Si tu n'as pas de navigation dans ton controller, tu peux laisser les boutons sans onAction -->
         <Button text="📁 Gestion Projets" styleClass="nav-btn"/>
         <Button text="📊 Audit Carbone" styleClass="nav-btn"/>
         <Button text="⚙ Settings" styleClass="nav-btn"/>
 
         <Region VBox.vgrow="ALWAYS"/>
-
         <Label text="Module Projet" style="-fx-opacity: 0.6; -fx-font-size: 11px;"/>
     </VBox>
 
@@ -43,6 +40,7 @@
                 <Label text="Gestion des Projets" styleClass="page-title"/>
                 <Region HBox.hgrow="ALWAYS"/>
                 <Button text="⟳ Rafraîchir" onAction="#onRefresh" styleClass="btn-secondary"/>
+                <Button text="+ Nouveau" onAction="#onNew" styleClass="btn-primary"/>
             </HBox>
 
             <HBox spacing="16" alignment="CENTER_LEFT">
@@ -66,7 +64,7 @@
             </HBox>
         </VBox>
 
-        <!-- Main body -->
+        <!-- Table only -->
         <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS"
                     style="-fx-background-color: transparent; -fx-background: transparent;">
             <VBox spacing="18">
@@ -74,92 +72,33 @@
                     <Insets top="8" right="32" bottom="32" left="32"/>
                 </padding>
 
-                <HBox spacing="18">
+                <VBox spacing="12" styleClass="card">
+                    <padding>
+                        <Insets top="18" right="18" bottom="18" left="18"/>
+                    </padding>
 
-                    <!-- LEFT: Table -->
-                    <VBox spacing="12" styleClass="card" HBox.hgrow="ALWAYS">
-                        <padding>
-                            <Insets top="18" right="18" bottom="18" left="18"/>
-                        </padding>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="📋" style="-fx-font-size: 18px;"/>
+                        <Label text="Liste des projets" styleClass="page-title"/>
+                    </HBox>
 
-                        <HBox alignment="CENTER_LEFT" spacing="8">
-                            <Label text="📋" style="-fx-font-size: 18px;"/>
-                            <Label text="Liste des projets" styleClass="page-title"/>
-                            <Region HBox.hgrow="ALWAYS"/>
-                            <Button text="➕ Nouveau" onAction="#onNew" styleClass="btn-primary"/>
-                        </HBox>
+                    <TableView fx:id="table" prefHeight="520"
+                               VBox.vgrow="ALWAYS"
+                               styleClass="table-card table-projects">
+                        <placeholder>
+                            <Label text="Aucun projet" styleClass="placeholder-label"/>
+                        </placeholder>
+                        <columns>
+                            <TableColumn fx:id="colId" text="ID" prefWidth="70" styleClass="col-center"/>
+                            <TableColumn fx:id="colTitre" text="Titre" prefWidth="320" styleClass="col-left"/>
+                            <TableColumn fx:id="colStatut" text="Statut" prefWidth="160" styleClass="col-center"/>
+                            <TableColumn fx:id="colBudget" text="Budget" prefWidth="160" styleClass="col-center"/>
+                        </columns>
+                    </TableView>
+                </VBox>
 
-                        <TableView fx:id="table" prefHeight="520"
-                                   VBox.vgrow="ALWAYS"
-                                   styleClass="table-card table-projects">
-                            <placeholder>
-                                <Label text="Aucun projet pour le moment" styleClass="placeholder-label"/>
-                            </placeholder>
-                            <columns>
-                                <TableColumn fx:id="colId" text="ID" prefWidth="70" styleClass="col-center"/>
-                                <TableColumn fx:id="colTitre" text="Titre" prefWidth="300" styleClass="col-left"/>
-                                <TableColumn fx:id="colStatut" text="Statut" prefWidth="150" styleClass="col-center"/>
-                                <TableColumn fx:id="colBudget" text="Budget" prefWidth="150" styleClass="col-center"/>
-                            </columns>
-                        </TableView>
-
-                        <HBox spacing="12">
-                            <Button text="💾 Sauvegarder" onAction="#onSave" styleClass="btn-primary"/>
-                            <Button text="🗑️ Annuler (CANCELLED)" onAction="#onDelete" styleClass="btn-danger"/>
-                            <!-- Si tu as le bouton submit -->
-                            <!-- <Button text="📤 Soumettre" onAction="#onSubmit" styleClass="btn-secondary"/> -->
-                        </HBox>
-                    </VBox>
-
-                    <!-- RIGHT: Form -->
-                    <VBox spacing="12" styleClass="card" prefWidth="420">
-                        <padding>
-                            <Insets top="18" right="18" bottom="18" left="18"/>
-                        </padding>
-
-                        <HBox alignment="CENTER_LEFT" spacing="8">
-                            <Label text="✍️" style="-fx-font-size: 18px;"/>
-                            <Label text="Formulaire Projet" styleClass="page-title"/>
-                        </HBox>
-
-                        <VBox spacing="8">
-                            <Label text="Titre" styleClass="form-label"/>
-                            <TextField fx:id="tfTitre" promptText="Ex: Parc solaire" styleClass="field"/>
-                        </VBox>
-
-                        <HBox spacing="12">
-                            <VBox spacing="8" HBox.hgrow="ALWAYS">
-                                <Label text="Budget" styleClass="form-label"/>
-                                <TextField fx:id="tfBudget" promptText="Ex: 350000" styleClass="field"/>
-                            </VBox>
-                            <VBox spacing="8" prefWidth="160">
-                                <Label text="Statut" styleClass="form-label"/>
-                                <ComboBox fx:id="cbStatut" styleClass="field" prefWidth="160"/>
-                            </VBox>
-                        </HBox>
-
-                        <VBox spacing="8">
-                            <Label text="Score ESG" styleClass="form-label"/>
-                            <TextField fx:id="tfScoreEsg" promptText="0-100" styleClass="field"/>
-                        </VBox>
-
-                        <VBox spacing="8">
-                            <Label text="Description" styleClass="form-label"/>
-                            <TextArea fx:id="taDescription"
-                                      promptText="Décrire le projet..."
-                                      wrapText="true"
-                                      styleClass="field textarea"
-                                      style="-fx-pref-height: 220px;"/>
-                            <Label text="🛈 Après soumission, seuls les champs Titre/Budget/Score sont verrouillés."
-                                   style="-fx-opacity: 0.65; -fx-font-size: 11px;"/>
-                        </VBox>
-
-                    </VBox>
-
-                </HBox>
             </VBox>
         </ScrollPane>
 
     </VBox>
-
 </HBox>
