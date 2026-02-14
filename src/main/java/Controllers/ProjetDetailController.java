@@ -15,17 +15,13 @@ public class ProjetDetailController {
 
     @FXML private Label lblId;
     @FXML private Label lblStatut;
-
     @FXML private TextField tfTitre;
     @FXML private TextField tfBudget;
     @FXML private TextField tfScoreEsg;
-
     @FXML private TextField tfCompanyAddress;
     @FXML private TextField tfCompanyEmail;
     @FXML private TextField tfCompanyPhone;
-
     @FXML private TextArea taDescription;
-
     @FXML private Button btnSaveChanges;
     @FXML private Button btnCancelEdit;
 
