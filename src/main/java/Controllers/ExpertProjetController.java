@@ -93,9 +93,11 @@ public class ExpertProjetController extends BaseController {
                         ? "En attente"
                         : cellData.getValue().getStatutEvaluation()
         ));
-        colScore.setCellValueFactory(cellData -> new SimpleStringProperty(
-                cellData.getValue().getScoreEsg() <= 0 ? "Pending" : String.valueOf(cellData.getValue().getScoreEsg())
-        ));
+        colScore.setCellValueFactory(cellData -> {
+            Integer score = cellData.getValue().getScoreEsg();
+            String label = (score == null || score <= 0) ? "Pending" : String.valueOf(score);
+            return new SimpleStringProperty(label);
+        });
         colAction.setCellFactory(createActionCell());
         colIcon.setCellFactory(column -> new TableCell<>() {
             private final Label icon = new Label(">>");
@@ -181,7 +183,15 @@ public class ExpertProjetController extends BaseController {
     }
 
     private void refreshTable() {
-        data.setAll(projetService.afficher());
+        java.util.List<Projet> projets = projetService.afficher();
+        java.util.List<Projet> submitted = new java.util.ArrayList<>();
+        for (Projet projet : projets) {
+            String statut = projet.getStatut();
+            if (statut != null && statut.equalsIgnoreCase("SUBMITTED")) {
+                submitted.add(projet);
+            }
+        }
+        data.setAll(submitted);
         updateStats();
     }
 

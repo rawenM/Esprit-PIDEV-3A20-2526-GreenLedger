@@ -21,7 +21,7 @@
 
         <Separator styleClass="sidebar-sep"/>
 
-        <Button fx:id="btnGestionProjets" text="📁 Gestion Projets" styleClass="nav-btn"/>
+        <Button fx:id="btnGestionProjets" text="📁 Voir Projets" styleClass="nav-btn"/>
         <Button fx:id="btnGestionEvaluations" text="📊 Gestion Évaluations" styleClass="nav-btn"/>
         <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn"/>
         

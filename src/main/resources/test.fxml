@@ -6,7 +6,7 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 
-<HBox xmlns="http://javafx.com/javafx/23.0.1"
+<HBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="Controllers.CarbonAuditController"
     styleClass="page">

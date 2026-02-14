@@ -176,4 +176,31 @@ public class ProjetService {
             System.out.println("Erreur cancel projet: " + e.getMessage());
         }
     }
+
+    public boolean updateStatut(int idProjet, String statut) {
+        String sql = "UPDATE projet SET statut=? WHERE id=?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setString(1, statut);
+            ps.setInt(2, idProjet);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Erreur updateStatut: " + e.getMessage());
+            return false;
+        }
+    }
+
+    public String getStatutById(int idProjet) {
+        String sql = "SELECT statut FROM projet WHERE id=?";
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, idProjet);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getString("statut");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur getStatutById: " + e.getMessage());
+        }
+        return null;
+    }
 }

@@ -18,9 +18,8 @@
 
         <Separator styleClass="sidebar-sep"/>
 
-        <Button text="📁 Gestion Projets" styleClass="nav-btn"/>
-        <Button text="📊 Audit Carbone" styleClass="nav-btn"/>
-        <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
+        <Button text="📁 Gestion Projets" styleClass="nav-btn" onAction="#onGestionProjets"/>
+        <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn" style="-fx-padding: 10 12;" onAction="#onSettings"/>
 
         <Region VBox.vgrow="ALWAYS"/>
         <Label text="Module Projet" style="-fx-opacity: 0.6; -fx-font-size: 11px;"/>
@@ -93,6 +92,7 @@
                             <TableColumn fx:id="colTitre" text="Titre" prefWidth="320" styleClass="col-left"/>
                             <TableColumn fx:id="colStatut" text="Statut" prefWidth="160" styleClass="col-center"/>
                             <TableColumn fx:id="colBudget" text="Budget" prefWidth="160" styleClass="col-center"/>
+                            <TableColumn fx:id="colEvaluation" text="Evaluation" prefWidth="160" styleClass="col-center"/>
                         </columns>
                     </TableView>
                 </VBox>

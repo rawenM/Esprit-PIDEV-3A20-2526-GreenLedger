@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.ProjectEvaluationViewController"
+      spacing="14" alignment="TOP_LEFT" styleClass="page">
+    <padding>
+        <Insets top="18" right="18" bottom="18" left="18"/>
+    </padding>
+
+    <HBox alignment="CENTER_LEFT" spacing="10">
+        <Label text="📊" style="-fx-font-size: 18px;"/>
+        <Label text="Evaluation du projet" styleClass="page-title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="⟳ Rafraichir" onAction="#onRefresh" styleClass="btn-secondary"/>
+        <Button text="← Retour" onAction="#onBack" styleClass="btn-secondary"/>
+    </HBox>
+
+    <HBox spacing="12">
+        <VBox styleClass="stat-card">
+            <Label text="Projet" styleClass="stat-title"/>
+            <Label fx:id="lblProjet" text="Projet: non defini" styleClass="stat-value"/>
+        </VBox>
+        <VBox styleClass="stat-card">
+            <Label text="Evaluations" styleClass="stat-title"/>
+            <Label fx:id="lblTotal" text="0" styleClass="stat-value"/>
+        </VBox>
+    </HBox>
+
+    <VBox spacing="10" styleClass="card">
+        <padding>
+            <Insets top="14" right="14" bottom="14" left="14"/>
+        </padding>
+
+        <Label text="Liste des evaluations" styleClass="section-title"/>
+        <TableView fx:id="tableEvaluations" prefHeight="260" styleClass="table-card">
+            <placeholder>
+                <Label text="Aucune evaluation" styleClass="placeholder-label"/>
+            </placeholder>
+            <columns>
+                <TableColumn fx:id="colDate" text="Date" prefWidth="140"/>
+                <TableColumn fx:id="colDecision" text="Decision" prefWidth="120"/>
+                <TableColumn fx:id="colScore" text="Score" prefWidth="100"/>
+                <TableColumn fx:id="colObservations" text="Observations" prefWidth="360"/>
+            </columns>
+        </TableView>
+    </VBox>
+
+    <VBox spacing="10" styleClass="card">
+        <padding>
+            <Insets top="14" right="14" bottom="14" left="14"/>
+        </padding>
+
+        <Label text="Criteres d'impact" styleClass="section-title"/>
+        <TableView fx:id="tableCriteres" prefHeight="220" styleClass="table-card">
+            <placeholder>
+                <Label text="Aucun critere" styleClass="placeholder-label"/>
+            </placeholder>
+            <columns>
+                <TableColumn fx:id="colCritereNom" text="Nom" prefWidth="200"/>
+                <TableColumn fx:id="colCritereNote" text="Note" prefWidth="100"/>
+                <TableColumn fx:id="colCritereCommentaire" text="Commentaire" prefWidth="420"/>
+            </columns>
+        </TableView>
+    </VBox>
+</VBox>
+

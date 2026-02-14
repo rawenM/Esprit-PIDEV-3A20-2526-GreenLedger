@@ -28,7 +28,8 @@ public class EvaluationService {
     public List<Evaluation> afficher() {
         List<Evaluation> list = new ArrayList<>();
         String sql = "SELECT e.*, p.titre AS titre_projet FROM evaluation e " +
-                "LEFT JOIN projet p ON p.id = e.id_projet";
+                "LEFT JOIN projet p ON p.id = e.id_projet " +
+                "ORDER BY e.date_evaluation DESC";
         try {
             Statement st = conn.createStatement();
             ResultSet rs = st.executeQuery(sql);
@@ -78,5 +79,75 @@ public class EvaluationService {
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
+    }
+
+    public List<Evaluation> afficherParEntreprise(int entrepriseId) {
+        List<Evaluation> list = new ArrayList<>();
+        String sql = "SELECT e.*, p.titre AS titre_projet " +
+                "FROM evaluation e " +
+                "JOIN projet p ON p.id = e.id_projet " +
+                "WHERE p.entreprise_id = ? " +
+                "ORDER BY e.date_evaluation DESC";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, entrepriseId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Evaluation e = new Evaluation();
+                    e.setIdEvaluation(rs.getInt("id_evaluation"));
+                    e.setDateEvaluation(rs.getTimestamp("date_evaluation"));
+                    e.setObservations(rs.getString("observations"));
+                    e.setScoreGlobal(rs.getDouble("score_global"));
+                    e.setDecision(rs.getString("decision"));
+                    e.setIdProjet(rs.getInt("id_projet"));
+                    e.setTitreProjet(rs.getString("titre_projet"));
+                    list.add(e);
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return list;
+    }
+
+    public List<Evaluation> afficherParProjet(int projetId) {
+        List<Evaluation> list = new ArrayList<>();
+        String sql = "SELECT e.*, p.titre AS titre_projet " +
+                "FROM evaluation e " +
+                "JOIN projet p ON p.id = e.id_projet " +
+                "WHERE e.id_projet = ? " +
+                "ORDER BY e.date_evaluation DESC";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, projetId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Evaluation e = new Evaluation();
+                    e.setIdEvaluation(rs.getInt("id_evaluation"));
+                    e.setDateEvaluation(rs.getTimestamp("date_evaluation"));
+                    e.setObservations(rs.getString("observations"));
+                    e.setScoreGlobal(rs.getDouble("score_global"));
+                    e.setDecision(rs.getString("decision"));
+                    e.setIdProjet(rs.getInt("id_projet"));
+                    e.setTitreProjet(rs.getString("titre_projet"));
+                    list.add(e);
+                }
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return list;
+    }
+
+    public java.util.Set<Integer> getProjetIdsWithEvaluations() {
+        java.util.Set<Integer> ids = new java.util.HashSet<>();
+        String sql = "SELECT DISTINCT id_projet FROM evaluation";
+        try (Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                ids.add(rs.getInt("id_projet"));
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return ids;
     }
 }
