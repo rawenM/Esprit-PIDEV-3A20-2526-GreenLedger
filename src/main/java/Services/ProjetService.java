@@ -28,6 +28,7 @@ public class ProjetService {
                 p.setBudget(rs.getDouble("budget"));
                 double score = rs.getObject("score_esg") == null ? 0.0 : rs.getDouble("score_esg");
                 p.setScoreEsg(score);
+                p.setStatut(rs.getString("statut"));
                 String statut = rs.getString("statut_evaluation");
                 p.setStatutEvaluation(statut == null || statut.trim().isEmpty() ? "En attente" : statut);
                 list.add(p);
@@ -78,5 +79,31 @@ public class ProjetService {
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
+    }
+
+    public boolean updateStatut(int idProjet, String statut) {
+        String sql = "UPDATE projet SET statut = ? WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, statut);
+            ps.setInt(2, idProjet);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+            return false;
+        }
+    }
+
+    public String getStatutById(int idProjet) {
+        String sql = "SELECT statut FROM projet WHERE id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idProjet);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("statut");
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return null;
     }
 }

@@ -41,6 +41,7 @@ public class CarbonAuditController extends BaseController {
     @FXML private TableColumn<Evaluation, String> colDecision;
     @FXML private TableColumn<Evaluation, String> colProjetNom;
     @FXML private TableColumn<Evaluation, String> colObservations;
+    @FXML private TableColumn<Evaluation, Void> colAction;
 
     @FXML private TableColumn<Projet, String> colProjetTitre;
     @FXML private TableColumn<Projet, String> colProjetDescription;
@@ -53,8 +54,9 @@ public class CarbonAuditController extends BaseController {
     @FXML private TableColumn<CritereImpact, String> colCritereCommentaire;
 
     @FXML private TextArea txtObservations;
-    @FXML private TextField txtDecision;
     @FXML private TextField txtIdProjet;
+    @FXML private CheckBox chkDecisionApproved;
+    @FXML private CheckBox chkDecisionRejected;
 
     @FXML private FlowPane flowCriteres;
     @FXML private TextField txtNomCritere;
@@ -112,6 +114,29 @@ public class CarbonAuditController extends BaseController {
             colProjetNom.setCellValueFactory(new PropertyValueFactory<>("titreProjet"));
             colObservations.setCellValueFactory(new PropertyValueFactory<>("observations"));
         }
+        if (colAction != null) {
+            colAction.setSortable(false);
+            colAction.setCellFactory(col -> new TableCell<Evaluation, Void>() {
+                private final Button actionButton = new Button("Update Status");
+                {
+                    actionButton.getStyleClass().add("btn-secondary");
+                    actionButton.setOnAction(event -> {
+                        Evaluation evaluation = getTableView().getItems().get(getIndex());
+                        applyDecisionToStatus(evaluation);
+                    });
+                }
+
+                @Override
+                protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                    } else {
+                        setGraphic(actionButton);
+                    }
+                }
+            });
+        }
         if (colProjetTitre != null) {
             colProjetTitre.setCellValueFactory(new PropertyValueFactory<>("titre"));
             colProjetDescription.setCellValueFactory(new PropertyValueFactory<>("description"));
@@ -139,10 +164,7 @@ public class CarbonAuditController extends BaseController {
                     if (txtObservations != null) {
                         txtObservations.setText(selected.getObservations());
                     }
-                    if (txtDecision != null) {
-                        txtDecision.setText(selected.getDecision());
-                        txtDecision.requestFocus();
-                    }
+                    setDecisionCheckboxes(selected.getDecision());
                     if (txtIdProjet != null) {
                         txtIdProjet.setText(String.valueOf(selected.getIdProjet()));
                     }
@@ -195,6 +217,10 @@ public class CarbonAuditController extends BaseController {
         if (comboProjet != null) {
             ObservableList<String> labels = FXCollections.observableArrayList();
             for (Projet projet : projets) {
+                String statut = projet.getStatut();
+                if (statut == null || !statut.equalsIgnoreCase("SUBMITTED")) {
+                    continue;
+                }
                 labels.add(projet.getId() + " - " + projet.getTitre());
             }
             comboProjet.setItems(labels);
@@ -352,17 +378,24 @@ public class CarbonAuditController extends BaseController {
     }
 
     private Evaluation readEvaluationFromForm(boolean requireId) {
-        if (txtObservations == null || txtDecision == null || txtIdProjet == null) {
+        if (txtObservations == null || txtIdProjet == null) {
             showError("Formulaire evaluation incomplet.");
             return null;
         }
         String observations = requireLength(txtObservations, "Observations", 10, 250);
-        String decision = requireText(txtDecision, "Decision");
+        String decision = decisionFromSelection();
         Integer idProjet = parseInt(txtIdProjet.getText(), "ID Projet");
 
         if (observations == null || decision == null || idProjet == null) {
             return null;
         }
+
+        String statut = projetService.getStatutById(idProjet);
+        if (statut != null && statut.trim().equalsIgnoreCase("CANCELLED")) {
+            showError("Impossible d'evaluer un projet cancelled.");
+            return null;
+        }
+
         Evaluation evaluation = new Evaluation(observations, 0, decision, idProjet);
         if (requireId) {
             if (selectedEvaluationId == null) {
@@ -378,18 +411,55 @@ public class CarbonAuditController extends BaseController {
         if (txtObservations != null) {
             txtObservations.clear();
         }
-        if (txtDecision != null) {
-            txtDecision.clear();
-        }
         if (txtIdProjet != null) {
             txtIdProjet.clear();
         }
+        clearDecisionSelection();
     }
 
     private void clearCritereForm() {
         txtNomCritere.clear();
         txtNote.clear();
         txtCommentaireCritere.clear();
+    }
+
+    private String decisionFromSelection() {
+        if (chkDecisionApproved == null || chkDecisionRejected == null) {
+            showError("Decision manquante.");
+            return null;
+        }
+        boolean approved = chkDecisionApproved.isSelected();
+        boolean rejected = chkDecisionRejected.isSelected();
+        if (approved == rejected) {
+            showError("Selectionnez une seule decision.");
+            return null;
+        }
+        return approved ? "Approuve" : "Rejete";
+    }
+
+    private void setDecisionCheckboxes(String decision) {
+        if (chkDecisionApproved == null || chkDecisionRejected == null) {
+            return;
+        }
+        clearDecisionSelection();
+        if (decision == null) {
+            return;
+        }
+        String value = decision.trim().toLowerCase();
+        if (value.contains("approuve") || value.contains("accept") || value.contains("accepte")) {
+            chkDecisionApproved.setSelected(true);
+        } else if (value.contains("rejete") || value.contains("refuse") || value.contains("refus")) {
+            chkDecisionRejected.setSelected(true);
+        }
+    }
+
+    private void clearDecisionSelection() {
+        if (chkDecisionApproved != null) {
+            chkDecisionApproved.setSelected(false);
+        }
+        if (chkDecisionRejected != null) {
+            chkDecisionRejected.setSelected(false);
+        }
     }
 
     private Integer parseInt(String text, String fieldName) {
@@ -444,6 +514,42 @@ public class CarbonAuditController extends BaseController {
         alert.setHeaderText("Erreur de saisie");
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    private void applyDecisionToStatus(Evaluation evaluation) {
+        if (evaluation == null) {
+            showError("Selectionnez une evaluation.");
+            return;
+        }
+        String status = mapDecisionToStatus(evaluation.getDecision());
+        if (status == null) {
+            showError("Decision invalide. Utilisez accepte/approuve ou refuse/rejete.");
+            return;
+        }
+        boolean updated = projetService.updateStatut(evaluation.getIdProjet(), status);
+        if (!updated) {
+            showError("Mise a jour statut echouee.");
+            return;
+        }
+        refreshProjets();
+        refreshEvaluations();
+    }
+
+    private String mapDecisionToStatus(String decision) {
+        if (decision == null) {
+            return null;
+        }
+        String value = decision.trim().toLowerCase();
+        if (value.isEmpty()) {
+            return null;
+        }
+        if (value.contains("accepte") || value.contains("accept") || value.contains("approuve") || value.contains("approve")) {
+            return "IN_PROGRESS";
+        }
+        if (value.contains("refuse") || value.contains("refus") || value.contains("rejete") || value.contains("reject")) {
+            return "CANCELLED";
+        }
+        return null;
     }
 
     private Integer extractLeadingNumber(String value) {

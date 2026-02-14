@@ -90,6 +90,7 @@
                             <TableColumn fx:id="colDecision" text="Decision" prefWidth="120" styleClass="col-center"/>
                             <TableColumn fx:id="colProjetNom" text="Titre projet" prefWidth="220" styleClass="col-left"/>
                             <TableColumn fx:id="colObservations" text="Observations" prefWidth="360" styleClass="col-left"/>
+                            <TableColumn fx:id="colAction" text="Statut" prefWidth="140" styleClass="col-center"/>
                         </columns>
                     </TableView>
                 </VBox>
@@ -112,7 +113,10 @@
                         </VBox>
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
                             <Label text="Decision" styleClass="form-label"/>
-                            <TextField fx:id="txtDecision" promptText="Approuver / Rejeter" styleClass="field"/>
+                            <HBox spacing="16">
+                                <CheckBox fx:id="chkDecisionApproved" text="Approuver"/>
+                                <CheckBox fx:id="chkDecisionRejected" text="Rejeter"/>
+                            </HBox>
                         </VBox>
                     </HBox>
 
