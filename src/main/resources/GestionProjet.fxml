@@ -20,7 +20,7 @@
 
         <Button text="📁 Gestion Projets" styleClass="nav-btn"/>
         <Button text="📊 Audit Carbone" styleClass="nav-btn"/>
-        <Button text="⚙ Settings" styleClass="nav-btn"/>
+        <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
 
         <Region VBox.vgrow="ALWAYS"/>
         <Label text="Module Projet" style="-fx-opacity: 0.6; -fx-font-size: 11px;"/>

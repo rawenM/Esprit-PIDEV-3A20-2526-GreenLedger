@@ -30,6 +30,8 @@ public class ProjetController {
     @FXML private Label lblDraft;
     @FXML private Label lblLocked;
 
+    @FXML private Button btnSettings;
+
     @FXML
     public void initialize() {
         colId.setCellValueFactory(v -> new SimpleIntegerProperty(v.getValue().getId()));
@@ -48,6 +50,10 @@ public class ProjetController {
             });
             return row;
         });
+
+        if (btnSettings != null) {
+            btnSettings.setOnAction(e -> showSettings());
+        }
 
         refresh();
     }
@@ -105,5 +111,13 @@ public class ProjetController {
         Alert a = new Alert(Alert.AlertType.ERROR, msg, ButtonType.OK);
         a.setHeaderText(null);
         a.showAndWait();
+    }
+
+    private void showSettings() {
+        try {
+            MainFX.setRoot("settings");
+        } catch (Exception ex) {
+            showError("Navigation impossible: " + ex.getMessage());
+        }
     }
 }
