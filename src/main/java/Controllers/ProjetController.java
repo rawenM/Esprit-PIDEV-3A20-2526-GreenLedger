@@ -18,19 +18,24 @@ import org.GreenLedger.MainFX;
 public class ProjetController {
 
     private final ProjetService service = new ProjetService();
+    private final Services.EvaluationService evaluationService = new Services.EvaluationService();
     private final ObservableList<Projet> data = FXCollections.observableArrayList();
+    private java.util.Set<Integer> evaluatedProjectIds = java.util.Collections.emptySet();
 
     @FXML private TableView<Projet> table;
     @FXML private TableColumn<Projet, Number> colId;
     @FXML private TableColumn<Projet, String> colTitre;
     @FXML private TableColumn<Projet, String> colStatut;
     @FXML private TableColumn<Projet, Number> colBudget;
+    @FXML private TableColumn<Projet, Void> colEvaluation;
 
     @FXML private Label lblTotal;
     @FXML private Label lblDraft;
     @FXML private Label lblLocked;
 
     @FXML private Button btnSettings;
+    @FXML private Button btnAuditCarbone;
+    @FXML private Button btnGestionProjets;
 
     @FXML
     public void initialize() {
@@ -38,6 +43,38 @@ public class ProjetController {
         colTitre.setCellValueFactory(v -> new SimpleStringProperty(v.getValue().getTitre()));
         colStatut.setCellValueFactory(v -> new SimpleStringProperty(v.getValue().getStatut()));
         colBudget.setCellValueFactory(v -> new SimpleDoubleProperty(v.getValue().getBudget()));
+        if (colEvaluation != null) {
+            colEvaluation.setCellFactory(column -> new TableCell<>() {
+                private final Button button = new Button("Voir evaluation");
+                {
+                    button.getStyleClass().addAll("btn", "btn-secondary");
+                    button.setOnAction(event -> {
+                        Projet projet = getTableView().getItems().get(getIndex());
+                        ProjectEvaluationViewController.setCurrentProjet(projet.getId(), projet.getTitre());
+                        try {
+                            MainFX.setRoot("projectEvaluationView");
+                        } catch (Exception ex) {
+                            showError("Navigation impossible: " + ex.getMessage());
+                        }
+                    });
+                }
+
+                @Override
+                protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                        return;
+                    }
+                    Projet projet = getTableView().getItems().get(getIndex());
+                    if (projet == null || !evaluatedProjectIds.contains(projet.getId())) {
+                        setGraphic(null);
+                    } else {
+                        setGraphic(button);
+                    }
+                }
+            });
+        }
 
         table.setItems(data);
 
@@ -72,8 +109,32 @@ public class ProjetController {
         refresh();
     }
 
+    @FXML
+    private void onGestionProjets() {
+        try {
+            MainFX.setRoot("expertProjet");
+        } catch (Exception ex) {
+            showError("Navigation impossible: " + ex.getMessage());
+        }
+    }
+
+    @FXML
+    private void onAuditCarbone() {
+        try {
+            MainFX.setRoot("gestionCarbone");
+        } catch (Exception ex) {
+            showError("Navigation impossible: " + ex.getMessage());
+        }
+    }
+
+    @FXML
+    private void onSettings() {
+        showSettings();
+    }
+
     private void refresh() {
         data.setAll(service.afficher());
+        evaluatedProjectIds = evaluationService.getProjetIdsWithEvaluations();
         updateStats();
     }
 

@@ -16,7 +16,7 @@ public class MainFX extends Application {
     private static Scene scene;
 
     // ✅ Démarre uniquement sur ton écran Projet (change ici si besoin)
-    private static final String START_SCREEN = "GestionProjet"; // -> fichier: /projet_crud.fxml
+    private static final String START_SCREEN = "GestionProjet"; // -> fichier: /GestionProjet.fxml
 
     @Override
     public void start(Stage stage) throws IOException {
@@ -34,7 +34,7 @@ public class MainFX extends Application {
             stage.getIcons().add(new Image(iconUrl.toExternalForm()));
         }
 
-        stage.setTitle("Green Ledger - Projet (Test)");
+        stage.setTitle("Green Ledger - Expert Carbone");
         stage.setScene(scene);
         stage.setMinWidth(1000);
         stage.setMinHeight(600);
