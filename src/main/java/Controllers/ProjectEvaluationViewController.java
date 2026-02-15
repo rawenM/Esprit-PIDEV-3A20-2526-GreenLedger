@@ -1,6 +1,7 @@
 package Controllers;
 
 import Models.Evaluation;
+import Models.EvaluationResult;
 import Services.EvaluationService;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,16 +29,16 @@ public class ProjectEvaluationViewController {
     @FXML private Label lblProjet;
     @FXML private Label lblTotal;
     @FXML private TableView<Evaluation> tableEvaluations;
-    @FXML private TableView<Models.CritereImpact> tableCriteres;
+    @FXML private TableView<EvaluationResult> tableCriteres;
 
     @FXML private TableColumn<Evaluation, Timestamp> colDate;
     @FXML private TableColumn<Evaluation, String> colDecision;
     @FXML private TableColumn<Evaluation, Number> colScore;
     @FXML private TableColumn<Evaluation, String> colObservations;
 
-    @FXML private TableColumn<Models.CritereImpact, String> colCritereNom;
-    @FXML private TableColumn<Models.CritereImpact, Number> colCritereNote;
-    @FXML private TableColumn<Models.CritereImpact, String> colCritereCommentaire;
+    @FXML private TableColumn<EvaluationResult, String> colCritereNom;
+    @FXML private TableColumn<EvaluationResult, Number> colCritereNote;
+    @FXML private TableColumn<EvaluationResult, String> colCritereCommentaire;
 
     private final EvaluationService evaluationService = new EvaluationService();
     private final Services.CritereImpactService critereImpactService = new Services.CritereImpactService();
@@ -49,9 +50,9 @@ public class ProjectEvaluationViewController {
         colScore.setCellValueFactory(new PropertyValueFactory<>("scoreGlobal"));
         colObservations.setCellValueFactory(new PropertyValueFactory<>("observations"));
 
-        colCritereNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
+        colCritereNom.setCellValueFactory(new PropertyValueFactory<>("nomCritere"));
         colCritereNote.setCellValueFactory(new PropertyValueFactory<>("note"));
-        colCritereCommentaire.setCellValueFactory(new PropertyValueFactory<>("commentaireTechnique"));
+        colCritereCommentaire.setCellValueFactory(new PropertyValueFactory<>("commentaireExpert"));
 
         if (tableEvaluations != null) {
             tableEvaluations.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selected) -> {
@@ -109,7 +110,7 @@ public class ProjectEvaluationViewController {
             tableCriteres.setItems(FXCollections.observableArrayList());
             return;
         }
-        ObservableList<Models.CritereImpact> items = FXCollections.observableArrayList(
+        ObservableList<EvaluationResult> items = FXCollections.observableArrayList(
                 critereImpactService.afficherParEvaluation(evaluation.getIdEvaluation())
         );
         tableCriteres.setItems(items);

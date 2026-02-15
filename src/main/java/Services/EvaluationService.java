@@ -12,12 +12,12 @@ public class EvaluationService {
     Connection conn = MyConnection.getConnection();
 
     public void ajouter(Evaluation e) {
-        String sql = "INSERT INTO evaluation(observations, score_global, decision, id_projet) VALUES (?,?,?,?)";
+        String sql = "INSERT INTO evaluation(observations_globales, score_final, est_valide, id_projet) VALUES (?,?,?,?)";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, e.getObservations());
             ps.setDouble(2, e.getScoreGlobal());
-            ps.setString(3, e.getDecision());
+            ps.setBoolean(3, decisionToFlag(e.getDecision()));
             ps.setInt(4, e.getIdProjet());
             ps.executeUpdate();
         } catch (SQLException ex) {
@@ -37,9 +37,9 @@ public class EvaluationService {
                 Evaluation e = new Evaluation();
                 e.setIdEvaluation(rs.getInt("id_evaluation"));
                 e.setDateEvaluation(rs.getTimestamp("date_evaluation"));
-                e.setObservations(rs.getString("observations"));
-                e.setScoreGlobal(rs.getDouble("score_global"));
-                e.setDecision(rs.getString("decision"));
+                e.setObservations(rs.getString("observations_globales"));
+                e.setScoreGlobal(rs.getDouble("score_final"));
+                e.setDecision(flagToDecision(rs.getBoolean("est_valide")));
                 e.setIdProjet(rs.getInt("id_projet"));
                 e.setTitreProjet(rs.getString("titre_projet"));
                 list.add(e);
@@ -51,7 +51,7 @@ public class EvaluationService {
     }
 
     public void supprimer(int id) {
-        String sqlCritere = "DELETE FROM critere_impact WHERE id_evaluation=?";
+        String sqlCritere = "DELETE FROM evaluation_resultat WHERE id_evaluation=?";
         String sqlEvaluation = "DELETE FROM evaluation WHERE id_evaluation=?";
         try {
             PreparedStatement psCritere = conn.prepareStatement(sqlCritere);
@@ -67,12 +67,12 @@ public class EvaluationService {
     }
 
     public void modifier(Evaluation e) {
-        String sql = "UPDATE evaluation SET observations=?, score_global=?, decision=?, id_projet=? WHERE id_evaluation=?";
+        String sql = "UPDATE evaluation SET observations_globales=?, score_final=?, est_valide=?, id_projet=? WHERE id_evaluation=?";
         try {
             PreparedStatement ps = conn.prepareStatement(sql);
             ps.setString(1, e.getObservations());
             ps.setDouble(2, e.getScoreGlobal());
-            ps.setString(3, e.getDecision());
+            ps.setBoolean(3, decisionToFlag(e.getDecision()));
             ps.setInt(4, e.getIdProjet());
             ps.setInt(5, e.getIdEvaluation());
             ps.executeUpdate();
@@ -95,9 +95,9 @@ public class EvaluationService {
                     Evaluation e = new Evaluation();
                     e.setIdEvaluation(rs.getInt("id_evaluation"));
                     e.setDateEvaluation(rs.getTimestamp("date_evaluation"));
-                    e.setObservations(rs.getString("observations"));
-                    e.setScoreGlobal(rs.getDouble("score_global"));
-                    e.setDecision(rs.getString("decision"));
+                    e.setObservations(rs.getString("observations_globales"));
+                    e.setScoreGlobal(rs.getDouble("score_final"));
+                    e.setDecision(flagToDecision(rs.getBoolean("est_valide")));
                     e.setIdProjet(rs.getInt("id_projet"));
                     e.setTitreProjet(rs.getString("titre_projet"));
                     list.add(e);
@@ -123,9 +123,9 @@ public class EvaluationService {
                     Evaluation e = new Evaluation();
                     e.setIdEvaluation(rs.getInt("id_evaluation"));
                     e.setDateEvaluation(rs.getTimestamp("date_evaluation"));
-                    e.setObservations(rs.getString("observations"));
-                    e.setScoreGlobal(rs.getDouble("score_global"));
-                    e.setDecision(rs.getString("decision"));
+                    e.setObservations(rs.getString("observations_globales"));
+                    e.setScoreGlobal(rs.getDouble("score_final"));
+                    e.setDecision(flagToDecision(rs.getBoolean("est_valide")));
                     e.setIdProjet(rs.getInt("id_projet"));
                     e.setTitreProjet(rs.getString("titre_projet"));
                     list.add(e);
@@ -137,23 +137,8 @@ public class EvaluationService {
         return list;
     }
 
-    public java.util.Set<Integer> getProjetIdsWithEvaluations() {
-        java.util.Set<Integer> ids = new java.util.HashSet<>();
-        String sql = "SELECT DISTINCT id_projet FROM evaluation";
-        try (Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
-            while (rs.next()) {
-                ids.add(rs.getInt("id_projet"));
-            }
-        } catch (SQLException ex) {
-            System.out.println(ex.getMessage());
-        }
-        return ids;
-    }
-
-    public int ajouterAvecCriteres(Evaluation e, java.util.List<Models.CritereImpact> criteres) {
-        String sqlEval = "INSERT INTO evaluation(observations, score_global, decision, id_projet) VALUES (?,?,?,?)";
-        String sqlCritere = "INSERT INTO critere_impact(nom, note, commentaire_technique, id_evaluation) VALUES (?,?,?,?)";
+    public int ajouterAvecCriteres(Evaluation e, java.util.List<Models.EvaluationResult> criteres) {
+        String sqlEval = "INSERT INTO evaluation(observations_globales, score_final, est_valide, id_projet) VALUES (?,?,?,?)";
         boolean previousAutoCommit = true;
         try {
             previousAutoCommit = conn.getAutoCommit();
@@ -163,7 +148,7 @@ public class EvaluationService {
             try (PreparedStatement psEval = conn.prepareStatement(sqlEval, Statement.RETURN_GENERATED_KEYS)) {
                 psEval.setString(1, e.getObservations());
                 psEval.setDouble(2, e.getScoreGlobal());
-                psEval.setString(3, e.getDecision());
+                psEval.setBoolean(3, decisionToFlag(e.getDecision()));
                 psEval.setInt(4, e.getIdProjet());
                 psEval.executeUpdate();
                 try (ResultSet rs = psEval.getGeneratedKeys()) {
@@ -175,16 +160,8 @@ public class EvaluationService {
                 }
             }
 
-            try (PreparedStatement psCrit = conn.prepareStatement(sqlCritere)) {
-                for (Models.CritereImpact critere : criteres) {
-                    psCrit.setString(1, critere.getNom());
-                    psCrit.setInt(2, critere.getNote());
-                    psCrit.setString(3, critere.getCommentaireTechnique());
-                    psCrit.setInt(4, evaluationId);
-                    psCrit.addBatch();
-                }
-                psCrit.executeBatch();
-            }
+            Services.CritereImpactService critereService = new Services.CritereImpactService();
+            critereService.ajouterResultats(evaluationId, criteres);
 
             conn.commit();
             return evaluationId;
@@ -203,5 +180,30 @@ public class EvaluationService {
                 // ignore restore failures
             }
         }
+    }
+
+    public java.util.Set<Integer> getProjetIdsWithEvaluations() {
+        java.util.Set<Integer> ids = new java.util.HashSet<>();
+        String sql = "SELECT DISTINCT id_projet FROM evaluation";
+        try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+            while (rs.next()) {
+                ids.add(rs.getInt("id_projet"));
+            }
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+        return ids;
+    }
+
+    private boolean decisionToFlag(String decision) {
+        if (decision == null) {
+            return false;
+        }
+        String value = decision.trim().toLowerCase();
+        return value.contains("approuve") || value.contains("accepte") || value.contains("approve") || value.contains("accept");
+    }
+
+    private String flagToDecision(boolean valid) {
+        return valid ? "Approuve" : "Rejete";
     }
 }

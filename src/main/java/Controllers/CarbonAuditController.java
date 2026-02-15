@@ -7,8 +7,9 @@ import javafx.scene.layout.FlowPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.control.cell.PropertyValueFactory;
-import Models.CritereImpact;
+import Models.CritereReference;
 import Models.Evaluation;
+import Models.EvaluationResult;
 import Models.Projet;
 import Services.CritereImpactService;
 import Services.EvaluationService;
@@ -18,6 +19,7 @@ import Services.ProjetService;
 
 import java.io.IOException;
 import java.sql.Timestamp;
+import java.util.List;
 
 public class CarbonAuditController extends BaseController {
 
@@ -37,7 +39,7 @@ public class CarbonAuditController extends BaseController {
     @FXML private ComboBox<String> comboProjet;
     @FXML private TableView<Evaluation> tableAudits;
     @FXML private TableView<Projet> tableProjets;
-    @FXML private TableView<CritereImpact> tableCriteres;
+    @FXML private TableView<CritereReference> tableCriteres;
 
     @FXML private TableColumn<Evaluation, Timestamp> colDate;
     @FXML private TableColumn<Evaluation, String> colDecision;
@@ -51,14 +53,14 @@ public class CarbonAuditController extends BaseController {
     @FXML private TableColumn<Projet, Number> colProjetScore;
     @FXML private TableColumn<Projet, String> colProjetStatut;
 
-    @FXML private TableColumn<CritereImpact, String> colCritereNom;
-    @FXML private TableColumn<CritereImpact, Number> colCritereNote;
-    @FXML private TableColumn<CritereImpact, String> colCritereCommentaire;
+    @FXML private TableColumn<CritereReference, String> colCritereNom;
+    @FXML private TableColumn<CritereReference, Number> colCritereNote;
+    @FXML private TableColumn<CritereReference, String> colCritereCommentaire;
 
     @FXML private TextArea txtObservations;
     @FXML private TextField txtIdProjet;
-    @FXML private CheckBox chkDecisionApproved;
-    @FXML private CheckBox chkDecisionRejected;
+    @FXML private RadioButton chkDecisionApproved;
+    @FXML private RadioButton chkDecisionRejected;
 
     @FXML private FlowPane flowCriteres;
     @FXML private TextField txtNomCritere;
@@ -70,13 +72,20 @@ public class CarbonAuditController extends BaseController {
     @FXML private Label lblProjetsEvalues;
     @FXML private Label lblCriteresImpact;
 
+    @FXML private TextField txtScoreFinal;
+
+    @FXML private CheckBox chkAddCritere;
+    @FXML private javafx.scene.layout.VBox boxAddCritere;
+
     private final EvaluationService evaluationService = new EvaluationService();
     private final ProjetService projetService = new ProjetService();
     private final CritereImpactService critereImpactService = new CritereImpactService();
 
-    private final ObservableList<CritereImpact> pendingCriteres = FXCollections.observableArrayList();
+    private final ObservableList<CritereReference> referenceCriteres = FXCollections.observableArrayList();
 
     private Integer selectedEvaluationId;
+
+    private final ToggleGroup decisionGroup = new ToggleGroup();
 
     @FXML
     public void initialize() {
@@ -86,6 +95,9 @@ public class CarbonAuditController extends BaseController {
         if (btnGestionEvaluations != null) {
             Platform.runLater(() -> btnGestionEvaluations.requestFocus());
         }
+
+        critereImpactService.ensureDefaultReferences();
+        enforceSingleDecision();
 
         // Initialiser les gestionnaires des boutons de navigation
         if (btnGestionProjets != null) {
@@ -102,6 +114,31 @@ public class CarbonAuditController extends BaseController {
             tableAudits.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_SUBSEQUENT_COLUMNS);
             tableAudits.setFixedCellSize(36);
             tableAudits.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
+            tableAudits.setFocusTraversable(true);
+            tableAudits.addEventFilter(javafx.scene.input.MouseEvent.MOUSE_PRESSED, event -> {
+                javafx.scene.Node node = event.getPickResult().getIntersectedNode();
+                while (node != null && !(node instanceof javafx.scene.control.TableRow)) {
+                    node = node.getParent();
+                }
+                if (node instanceof javafx.scene.control.TableRow) {
+                    javafx.scene.control.TableRow<?> row = (javafx.scene.control.TableRow<?>) node;
+                    if (!row.isEmpty()) {
+                        tableAudits.getSelectionModel().select(row.getIndex());
+                        tableAudits.requestFocus();
+                        applyEvaluationToForm((Evaluation) row.getItem());
+                    }
+                }
+            });
+            tableAudits.setRowFactory(tv -> {
+                TableRow<Evaluation> row = new TableRow<>();
+                row.setOnMouseClicked(event -> {
+                    if (!row.isEmpty() && event.getButton() == javafx.scene.input.MouseButton.PRIMARY) {
+                        tableAudits.getSelectionModel().select(row.getIndex());
+                        applyEvaluationToForm(row.getItem());
+                    }
+                });
+                return row;
+            });
         }
         if (tableProjets != null) {
             tableProjets.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_SUBSEQUENT_COLUMNS);
@@ -150,9 +187,9 @@ public class CarbonAuditController extends BaseController {
             colProjetStatut.setCellValueFactory(new PropertyValueFactory<>("statutEvaluation"));
         }
         if (colCritereNom != null) {
-            colCritereNom.setCellValueFactory(new PropertyValueFactory<>("nom"));
-            colCritereNote.setCellValueFactory(new PropertyValueFactory<>("note"));
-            colCritereCommentaire.setCellValueFactory(new PropertyValueFactory<>("commentaireTechnique"));
+            colCritereNom.setCellValueFactory(new PropertyValueFactory<>("nomCritere"));
+            colCritereNote.setCellValueFactory(new PropertyValueFactory<>("poids"));
+            colCritereCommentaire.setCellValueFactory(new PropertyValueFactory<>("description"));
         }
 
         // Wrap long text so it remains readable within the available width.
@@ -163,29 +200,21 @@ public class CarbonAuditController extends BaseController {
 
         refreshProjets();
         refreshEvaluations();
+        refreshCriteres();
+        rebuildCriteriaFields(null);
         if (tableAudits != null) {
             tableAudits.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selected) -> {
                 if (selected != null) {
-                    if (txtObservations != null) {
-                        txtObservations.setText(selected.getObservations());
-                    }
-                    setDecisionCheckboxes(selected.getDecision());
-                    if (txtIdProjet != null) {
-                        txtIdProjet.setText(String.valueOf(selected.getIdProjet()));
-                    }
-                    selectedEvaluationId = selected.getIdEvaluation();
-                    lastSelectedEvaluationId = selectedEvaluationId;
-                    pendingCriteres.clear();
-                    refreshCriteres();
+                    applyEvaluationToForm(selected);
                 }
             });
         }
         if (tableCriteres != null) {
             tableCriteres.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selected) -> {
                 if (selected != null) {
-                    txtNomCritere.setText(selected.getNom());
-                    txtNote.setText(String.valueOf(selected.getNote()));
-                    txtCommentaireCritere.setText(selected.getCommentaireTechnique());
+                    txtNomCritere.setText(selected.getNomCritere());
+                    txtNote.setText(String.valueOf(selected.getPoids()));
+                    txtCommentaireCritere.setText(selected.getDescription());
                 }
             });
         }
@@ -210,14 +239,27 @@ public class CarbonAuditController extends BaseController {
                         txtIdProjet.setText(String.valueOf(extracted));
                     }
                     if (selectedEvaluationId == null) {
-                        pendingCriteres.clear();
-                        refreshCriteres();
+                        rebuildCriteriaFields(null);
                     }
                 }
             });
         }
 
         selectProjetIfSet();
+
+        if (boxAddCritere != null) {
+            boxAddCritere.setVisible(true);
+            boxAddCritere.setManaged(true);
+        }
+    }
+
+    private void refreshCriteres() {
+        if (tableCriteres == null) {
+            return;
+        }
+        referenceCriteres.setAll(critereImpactService.afficherReferences());
+        tableCriteres.setItems(referenceCriteres);
+        updateCritereStats(referenceCriteres.size());
     }
 
     private void refreshProjets() {
@@ -258,39 +300,22 @@ public class CarbonAuditController extends BaseController {
             }
             if (match != null) {
                 tableAudits.getSelectionModel().select(match);
-                selectedEvaluationId = match.getIdEvaluation();
-            } else {
-                tableAudits.getSelectionModel().clearSelection();
-                selectedEvaluationId = null;
+                return;
             }
-            refreshCriteres();
-            return;
+        }
+
+        if (lastSelectedEvaluationId != null) {
+            for (Evaluation evaluation : evaluations) {
+                if (evaluation != null && evaluation.getIdEvaluation() == lastSelectedEvaluationId) {
+                    tableAudits.getSelectionModel().select(evaluation);
+                    return;
+                }
+            }
         }
 
         if (!evaluations.isEmpty()) {
             tableAudits.getSelectionModel().selectFirst();
-            Evaluation selected = tableAudits.getSelectionModel().getSelectedItem();
-            if (selected != null) {
-                selectedEvaluationId = selected.getIdEvaluation();
-                refreshCriteres();
-            }
         }
-    }
-
-    private void refreshCriteres() {
-        if (tableCriteres == null) {
-            return;
-        }
-        if (selectedEvaluationId == null) {
-            tableCriteres.setItems(pendingCriteres);
-            updateCritereStats(pendingCriteres.size());
-            return;
-        }
-        ObservableList<CritereImpact> criteres = FXCollections.observableArrayList(
-                critereImpactService.afficherParEvaluation(selectedEvaluationId)
-        );
-        tableCriteres.setItems(criteres);
-        updateCritereStats(criteres.size());
     }
 
     private void updateProjetStats(ObservableList<Projet> projets) {
@@ -321,14 +346,13 @@ public class CarbonAuditController extends BaseController {
             txtIdProjet.setText(String.valueOf(selectedProjet.getId()));
         }
         selectedEvaluationId = null;
-        refreshCriteres();
+        rebuildCriteriaFields(null);
     }
 
     private void selectEvaluationForProjet(int projetId) {
         if (tableAudits == null) {
             selectedEvaluationId = null;
-            pendingCriteres.clear();
-            refreshCriteres();
+            rebuildCriteriaFields(null);
             return;
         }
         Evaluation match = null;
@@ -345,8 +369,7 @@ public class CarbonAuditController extends BaseController {
         } else {
             selectedEvaluationId = null;
         }
-        pendingCriteres.clear();
-        refreshCriteres();
+        rebuildCriteriaFields(selectedEvaluationId);
     }
 
     @FXML
@@ -355,20 +378,24 @@ public class CarbonAuditController extends BaseController {
         if (evaluation == null) {
             return;
         }
-        if (pendingCriteres.isEmpty()) {
+        List<EvaluationResult> resultats = collectResultatsFromFields();
+        if (resultats == null || resultats.isEmpty()) {
             showError("Ajoutez au moins un critere avant de creer l'evaluation.");
             return;
         }
-        evaluation.setScoreGlobal(calculateScore(pendingCriteres));
-        int createdId = evaluationService.ajouterAvecCriteres(evaluation, pendingCriteres);
+        evaluation.setScoreGlobal(calculateScore(resultats));
+        if (txtScoreFinal != null) {
+            txtScoreFinal.setText(formatScore(evaluation.getScoreGlobal()));
+        }
+        int createdId = evaluationService.ajouterAvecCriteres(evaluation, resultats);
         if (createdId <= 0) {
             showError("Creation evaluation echouee.");
             return;
         }
-        pendingCriteres.clear();
         refreshEvaluations();
         refreshProjets();
         refreshCriteres();
+        rebuildCriteriaFields(createdId);
         clearEvaluationForm();
     }
 
@@ -378,7 +405,17 @@ public class CarbonAuditController extends BaseController {
         if (evaluation == null) {
             return;
         }
+        List<EvaluationResult> resultats = collectResultatsFromFields();
+        if (resultats == null || resultats.isEmpty()) {
+            showError("Ajoutez au moins un critere avant de modifier l'evaluation.");
+            return;
+        }
+        evaluation.setScoreGlobal(calculateScore(resultats));
+        if (txtScoreFinal != null) {
+            txtScoreFinal.setText(formatScore(evaluation.getScoreGlobal()));
+        }
         evaluationService.modifier(evaluation);
+        critereImpactService.modifierResultats(evaluation.getIdEvaluation(), resultats);
         refreshEvaluations();
         refreshProjets();
     }
@@ -395,142 +432,67 @@ public class CarbonAuditController extends BaseController {
         refreshEvaluations();
         refreshProjets();
         refreshCriteres();
+        rebuildCriteriaFields(null);
         clearEvaluationForm();
     }
 
     @FXML
-    private void addCritereField() {
-        if (criteriaFieldsBox == null) {
-            return;
-        }
-        javafx.scene.layout.HBox row = new javafx.scene.layout.HBox(12);
-        javafx.scene.control.TextField nomField = new javafx.scene.control.TextField();
-        nomField.setPromptText("Nom du critere");
-        nomField.getStyleClass().add("field");
-
-        javafx.scene.control.TextField noteField = new javafx.scene.control.TextField();
-        noteField.setPromptText("Note 0-100");
-        noteField.getStyleClass().add("field");
-        noteField.setPrefWidth(120);
-
-        javafx.scene.control.TextArea commentaireField = new javafx.scene.control.TextArea();
-        commentaireField.setPromptText("Commentaire technique");
-        commentaireField.getStyleClass().addAll("field", "textarea");
-        commentaireField.setPrefRowCount(2);
-
-        row.getChildren().addAll(nomField, noteField, commentaireField);
-        criteriaFieldsBox.getChildren().add(row);
-    }
-
-    @FXML
     void ajouterCritere() {
-        if (criteriaFieldsBox != null && !criteriaFieldsBox.getChildren().isEmpty()) {
-            java.util.List<CritereImpact> toAdd = new java.util.ArrayList<>();
-            for (javafx.scene.Node node : criteriaFieldsBox.getChildren()) {
-                if (!(node instanceof javafx.scene.layout.HBox)) {
-                    continue;
-                }
-                javafx.scene.layout.HBox row = (javafx.scene.layout.HBox) node;
-                if (row.getChildren().size() < 3) {
-                    continue;
-                }
-                javafx.scene.control.TextField nomField = (javafx.scene.control.TextField) row.getChildren().get(0);
-                javafx.scene.control.TextField noteField = (javafx.scene.control.TextField) row.getChildren().get(1);
-                javafx.scene.control.TextArea commentaireField = (javafx.scene.control.TextArea) row.getChildren().get(2);
-
-                String nom = requireLength(nomField, "Nom du critere", 3, 50);
-                String commentaire = requireText(commentaireField, "Commentaire technique");
-                Integer note = requireNote(noteField.getText());
-                if (nom == null || commentaire == null || note == null) {
-                    return;
-                }
-                toAdd.add(new CritereImpact(nom, note, commentaire, selectedEvaluationId == null ? 0 : selectedEvaluationId));
-            }
-
-            if (selectedEvaluationId == null) {
-                pendingCriteres.addAll(toAdd);
-                refreshCriteres();
-            } else {
-                for (CritereImpact critere : toAdd) {
-                    critereImpactService.ajouter(critere);
-                }
-                refreshCriteres();
-            }
-
-            criteriaFieldsBox.getChildren().clear();
-            addCritereField();
+        String nom = requireLength(txtNomCritere, "Nom du critere", 3, 100);
+        String description = requireText(txtCommentaireCritere, "Description");
+        Integer poids = requireNote(txtNote.getText());
+        if (nom == null || description == null || poids == null) {
             return;
         }
-
-        String nom = requireLength(txtNomCritere, "Nom du critere", 10, 50);
-        String commentaire = requireText(txtCommentaireCritere, "Commentaire technique");
-        Integer note = requireNote(txtNote.getText());
-        if (nom == null || commentaire == null || note == null) {
-            return;
-        }
-        if (selectedEvaluationId == null) {
-            CritereImpact critere = new CritereImpact(
-                    nom,
-                    note,
-                    commentaire,
-                    0
-            );
-            pendingCriteres.add(critere);
-            refreshCriteres();
-            clearCritereForm();
-            return;
-        }
-        CritereImpact critere = new CritereImpact(
-                nom,
-                note,
-                commentaire,
-                selectedEvaluationId
-        );
-        critereImpactService.ajouter(critere);
+        CritereReference critere = new CritereReference(nom, description, poids);
+        critereImpactService.ajouterReference(critere);
         refreshCriteres();
+        rebuildCriteriaFields(selectedEvaluationId);
         clearCritereForm();
     }
 
     @FXML
     void modifierCritere() {
-        CritereImpact selected = tableCriteres != null ? tableCriteres.getSelectionModel().getSelectedItem() : null;
+        CritereReference selected = tableCriteres != null ? tableCriteres.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             showError("Selectionnez un critere.");
             return;
         }
-        String nom = requireLength(txtNomCritere, "Nom du critere", 10, 50);
-        String commentaire = requireText(txtCommentaireCritere, "Commentaire technique");
-        Integer note = requireNote(txtNote.getText());
-        if (nom == null || commentaire == null || note == null) {
+        String nom = requireLength(txtNomCritere, "Nom du critere", 3, 100);
+        String description = requireText(txtCommentaireCritere, "Description");
+        Integer poids = requireNote(txtNote.getText());
+        if (nom == null || description == null || poids == null) {
             return;
         }
-        selected.setNom(nom);
-        selected.setNote(note);
-        selected.setCommentaireTechnique(commentaire);
-        if (selectedEvaluationId == null) {
-            tableCriteres.refresh();
-            return;
-        }
-        critereImpactService.modifier(selected);
+        selected.setNomCritere(nom);
+        selected.setPoids(poids);
+        selected.setDescription(description);
+        critereImpactService.modifierReference(selected);
         refreshCriteres();
+        rebuildCriteriaFields(selectedEvaluationId);
     }
 
     @FXML
     void supprimerCritere() {
-        CritereImpact selected = tableCriteres != null ? tableCriteres.getSelectionModel().getSelectedItem() : null;
+        CritereReference selected = tableCriteres != null ? tableCriteres.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             showError("Selectionnez un critere.");
             return;
         }
-        if (selectedEvaluationId == null) {
-            pendingCriteres.remove(selected);
-            refreshCriteres();
-            clearCritereForm();
+        boolean deleted = critereImpactService.supprimerReference(selected.getIdCritere());
+        if (!deleted) {
+            showError("Suppression echouee.");
             return;
         }
-        critereImpactService.supprimer(selected.getIdCritere());
         refreshCriteres();
+        rebuildCriteriaFields(selectedEvaluationId);
         clearCritereForm();
+    }
+
+    private void clearCritereForm() {
+        txtNomCritere.clear();
+        txtNote.clear();
+        txtCommentaireCritere.clear();
     }
 
     private Evaluation readEvaluationFromForm(boolean requireId) {
@@ -570,13 +532,10 @@ public class CarbonAuditController extends BaseController {
         if (txtIdProjet != null) {
             txtIdProjet.clear();
         }
+        if (txtScoreFinal != null) {
+            txtScoreFinal.clear();
+        }
         clearDecisionSelection();
-    }
-
-    private void clearCritereForm() {
-        txtNomCritere.clear();
-        txtNote.clear();
-        txtCommentaireCritere.clear();
     }
 
     private String decisionFromSelection() {
@@ -584,26 +543,24 @@ public class CarbonAuditController extends BaseController {
             showError("Decision manquante.");
             return null;
         }
-        boolean approved = chkDecisionApproved.isSelected();
-        boolean rejected = chkDecisionRejected.isSelected();
-        if (approved == rejected) {
+        if (chkDecisionApproved.isSelected() == chkDecisionRejected.isSelected()) {
             showError("Selectionnez une seule decision.");
             return null;
         }
-        return approved ? "Approuve" : "Rejete";
+        return chkDecisionApproved.isSelected() ? "Approuve" : "Rejete";
     }
 
     private void enforceSingleDecision() {
-        chkDecisionApproved.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-            if (isSelected && chkDecisionRejected.isSelected()) {
-                chkDecisionRejected.setSelected(false);
-            }
-        });
-        chkDecisionRejected.selectedProperty().addListener((obs, wasSelected, isSelected) -> {
-            if (isSelected && chkDecisionApproved.isSelected()) {
-                chkDecisionApproved.setSelected(false);
-            }
-        });
+        // ToggleGroup already enforces single selection.
+        chkDecisionApproved.setToggleGroup(decisionGroup);
+        chkDecisionRejected.setToggleGroup(decisionGroup);
+
+        if (chkDecisionApproved != null) {
+            chkDecisionApproved.setDisable(false);
+        }
+        if (chkDecisionRejected != null) {
+            chkDecisionRejected.setDisable(false);
+        }
     }
 
     private void setDecisionCheckboxes(String decision) {
@@ -623,11 +580,8 @@ public class CarbonAuditController extends BaseController {
     }
 
     private void clearDecisionSelection() {
-        if (chkDecisionApproved != null) {
-            chkDecisionApproved.setSelected(false);
-        }
-        if (chkDecisionRejected != null) {
-            chkDecisionRejected.setSelected(false);
+        if (decisionGroup != null) {
+            decisionGroup.selectToggle(null);
         }
     }
 
@@ -645,8 +599,8 @@ public class CarbonAuditController extends BaseController {
         if (note == null) {
             return null;
         }
-        if (note < 0 || note > 100) {
-            showError("Note doit etre entre 0 et 100.");
+        if (note < 1 || note > 10) {
+            showError("Note doit etre entre 1 et 10.");
             return null;
         }
         return note;
@@ -804,28 +758,190 @@ public class CarbonAuditController extends BaseController {
         }
     }
 
-    private double calculateScore(java.util.List<CritereImpact> criteres) {
+    private double calculateScore(java.util.List<EvaluationResult> criteres) {
         if (criteres.isEmpty()) {
             return 0.0;
         }
-        int total = 0;
-        for (CritereImpact critere : criteres) {
-            total += critere.getNote();
+        int totalWeight = 0;
+        int weightedSum = 0;
+        for (EvaluationResult critere : criteres) {
+            int poids = getPoidsForCritere(critere.getIdCritere());
+            weightedSum += critere.getNote() * poids;
+            totalWeight += poids;
         }
-        return total / (double) criteres.size();
+        return totalWeight == 0 ? 0.0 : weightedSum / (double) totalWeight;
     }
 
-    @FXML
-    private void preSelectApproved() {
-        if (chkDecisionRejected != null) {
-            chkDecisionRejected.setSelected(false);
+    private int getPoidsForCritere(int idCritere) {
+        for (CritereReference ref : referenceCriteres) {
+            if (ref.getIdCritere() == idCritere) {
+                return Math.max(ref.getPoids(), 1);
+            }
         }
+        return 1;
     }
 
-    @FXML
-    private void preSelectRejected() {
-        if (chkDecisionApproved != null) {
-            chkDecisionApproved.setSelected(false);
-        }
+    private double calculateScoreFromFields() {
+        List<EvaluationResult> results = collectResultatsFromFields();
+        return results == null ? 0.0 : calculateScore(results);
     }
+
+    private double calculateScoreFromFieldsLenient() {
+        if (criteriaFieldsBox == null || criteriaFieldsBox.getChildren().isEmpty()) {
+            return 0.0;
+        }
+        int totalWeight = 0;
+        int weightedSum = 0;
+        for (javafx.scene.Node node : criteriaFieldsBox.getChildren()) {
+            if (!(node instanceof javafx.scene.layout.HBox)) {
+                continue;
+            }
+            javafx.scene.layout.HBox row = (javafx.scene.layout.HBox) node;
+            Integer idCritere = (Integer) row.getProperties().get("critereId");
+            javafx.scene.control.TextField noteField = (javafx.scene.control.TextField) row.getProperties().get("noteField");
+            if (noteField == null) {
+                continue;
+            }
+            String text = noteField.getText() == null ? "" : noteField.getText().trim();
+            if (text.isEmpty()) {
+                continue;
+            }
+            try {
+                int note = Integer.parseInt(text);
+                if (note < 1 || note > 10) {
+                    continue;
+                }
+                int poids = idCritere == null ? 1 : getPoidsForCritere(idCritere);
+                weightedSum += note * poids;
+                totalWeight += poids;
+            } catch (NumberFormatException ignore) {
+                // ignore invalid values in preview
+            }
+        }
+        return totalWeight == 0 ? 0.0 : weightedSum / (double) totalWeight;
+    }
+
+    private String formatScore(double score) {
+        return String.format(java.util.Locale.US, "%.2f", score);
+    }
+
+    private List<EvaluationResult> collectResultatsFromFields() {
+        if (criteriaFieldsBox == null) {
+            return java.util.Collections.emptyList();
+        }
+        List<EvaluationResult> results = new java.util.ArrayList<>();
+        for (javafx.scene.Node node : criteriaFieldsBox.getChildren()) {
+            if (!(node instanceof javafx.scene.layout.HBox)) {
+                continue;
+            }
+            javafx.scene.layout.HBox row = (javafx.scene.layout.HBox) node;
+            Integer idCritere = (Integer) row.getProperties().get("critereId");
+            javafx.scene.control.TextField noteField = (javafx.scene.control.TextField) row.getProperties().get("noteField");
+            javafx.scene.control.TextArea commentField = (javafx.scene.control.TextArea) row.getProperties().get("commentField");
+            javafx.scene.control.CheckBox respectBox = (javafx.scene.control.CheckBox) row.getProperties().get("respectBox");
+
+            if (noteField == null || commentField == null) {
+                continue;
+            }
+
+            Integer note = requireNote(noteField.getText());
+            String commentaire = requireText(commentField, "Commentaire technique");
+            if (idCritere == null || note == null || commentaire == null) {
+                return null;
+            }
+
+            EvaluationResult result = new EvaluationResult();
+            result.setIdCritere(idCritere);
+            result.setNote(note);
+            result.setCommentaireExpert(commentaire);
+            result.setEstRespecte(respectBox != null && respectBox.isSelected());
+            results.add(result);
+        }
+        return results;
+    }
+
+    private void rebuildCriteriaFields(Integer evaluationId) {
+        if (criteriaFieldsBox == null) {
+            return;
+        }
+        java.util.Map<Integer, EvaluationResult> existing = new java.util.HashMap<>();
+        if (evaluationId != null) {
+            for (EvaluationResult critere : critereImpactService.afficherParEvaluation(evaluationId)) {
+                existing.put(critere.getIdCritere(), critere);
+            }
+        }
+
+        criteriaFieldsBox.getChildren().clear();
+        for (CritereReference reference : referenceCriteres) {
+            javafx.scene.layout.HBox row = new javafx.scene.layout.HBox(12);
+            javafx.scene.control.Label name = new javafx.scene.control.Label(reference.getNomCritere());
+            name.getStyleClass().add("form-label");
+            name.setPrefWidth(180);
+
+            javafx.scene.control.CheckBox respectBox = new javafx.scene.control.CheckBox("Respecte");
+
+            javafx.scene.control.TextField noteField = new javafx.scene.control.TextField();
+            noteField.setPromptText("Note 1-10");
+            noteField.getStyleClass().add("field");
+            noteField.setPrefWidth(120);
+
+            javafx.scene.control.TextArea commentField = new javafx.scene.control.TextArea();
+            commentField.setPromptText("Commentaire technique");
+            commentField.getStyleClass().addAll("field", "textarea");
+            commentField.setPrefRowCount(2);
+
+            EvaluationResult existingResult = existing.get(reference.getIdCritere());
+            if (existingResult != null) {
+                noteField.setText(String.valueOf(existingResult.getNote()));
+                commentField.setText(existingResult.getCommentaireExpert());
+                respectBox.setSelected(existingResult.isEstRespecte());
+            }
+
+            noteField.textProperty().addListener((obs, oldVal, newVal) -> updateScorePreview());
+
+            row.getProperties().put("critereId", reference.getIdCritere());
+            row.getProperties().put("noteField", noteField);
+            row.getProperties().put("commentField", commentField);
+            row.getProperties().put("respectBox", respectBox);
+            row.getChildren().addAll(name, respectBox, noteField, commentField);
+            criteriaFieldsBox.getChildren().add(row);
+        }
+        updateScorePreview();
+    }
+
+    private void updateScorePreview() {
+        if (txtScoreFinal == null) {
+            return;
+        }
+        double score = calculateScoreFromFieldsLenient();
+        txtScoreFinal.setText(score > 0 ? formatScore(score) : "");
+    }
+
+    private void updateDecisionAvailability() {
+        // Decision is always enabled; no gating.
+    }
+
+    private boolean areCriteriaComplete() {
+        return true;
+    }
+
+    private void applyEvaluationToForm(Evaluation selected) {
+        if (selected == null) {
+            return;
+        }
+        if (txtObservations != null) {
+            txtObservations.setText(selected.getObservations());
+        }
+        setDecisionCheckboxes(selected.getDecision());
+        if (txtIdProjet != null) {
+            txtIdProjet.setText(String.valueOf(selected.getIdProjet()));
+        }
+        if (txtScoreFinal != null) {
+            txtScoreFinal.setText(formatScore(selected.getScoreGlobal()));
+        }
+        selectedEvaluationId = selected.getIdEvaluation();
+        lastSelectedEvaluationId = selectedEvaluationId;
+        rebuildCriteriaFields(selectedEvaluationId);
+    }
+
 }
