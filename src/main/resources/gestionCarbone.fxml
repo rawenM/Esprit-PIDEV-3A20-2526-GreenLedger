@@ -64,82 +64,10 @@
                     <Insets top="8" right="32" bottom="32" left="32"/>
                 </padding>
 
-                <!-- Project Selection Section -->
-                <VBox spacing="12">
-                    <HBox alignment="CENTER_LEFT" spacing="8">
-                        <Label text="📁" style="-fx-font-size: 18px;"/>
-                        <Label text="Sélection Projet" styleClass="page-title"/>
-                    </HBox>
-                    <ComboBox fx:id="comboProjet"
-                              promptText="Sélectionner un projet à auditer"
-                              styleClass="field"
-                              prefWidth="400"/>
-
-                    <Label text="Evaluations recentes"
-                           styleClass="section-title-sidebar"/>
-                    <Label text="Cliquez une évaluation pour la charger dans le formulaire" styleClass="select-hint"/>
-
-                    <TableView fx:id="tableAudits" prefHeight="220" minHeight="220"
-                               VBox.vgrow="ALWAYS"
-                               styleClass="table-card table-projects">
-                        <placeholder>
-                            <Label text="Aucune evaluation" styleClass="placeholder-label"/>
-                        </placeholder>
-                        <columns>
-                            <TableColumn fx:id="colDate" text="Date" prefWidth="140" styleClass="col-center"/>
-                            <TableColumn fx:id="colDecision" text="Decision" prefWidth="120" styleClass="col-center"/>
-                            <TableColumn fx:id="colProjetNom" text="Titre projet" prefWidth="220" styleClass="col-left"/>
-                            <TableColumn fx:id="colObservations" text="Observations" prefWidth="360" styleClass="col-left"/>
-                            <TableColumn fx:id="colAction" text="Statut" prefWidth="140" styleClass="col-center"/>
-                        </columns>
-                    </TableView>
-                </VBox>
-
-                <!-- Evaluation CRUD Section -->
+                <!-- Evaluation + Criteria Section -->
                 <VBox spacing="12" styleClass="card">
                     <padding>
                         <Insets top="20" right="20" bottom="20" left="20"/>
-                    </padding>
-
-                    <HBox alignment="CENTER_LEFT" spacing="8">
-                        <Label text="📝" style="-fx-font-size: 18px;"/>
-                        <Label text="Évaluer le Projet" styleClass="page-title"/>
-                    </HBox>
-
-                    <HBox spacing="12">
-                        <VBox spacing="8" prefWidth="220">
-                            <Label text="ID Projet" styleClass="form-label"/>
-                            <TextField fx:id="txtIdProjet" editable="false" styleClass="field"/>
-                        </VBox>
-                        <VBox spacing="8" HBox.hgrow="ALWAYS">
-                            <Label text="Decision" styleClass="form-label"/>
-                            <HBox spacing="16">
-                                <CheckBox fx:id="chkDecisionApproved" text="Approuver"/>
-                                <CheckBox fx:id="chkDecisionRejected" text="Rejeter"/>
-                            </HBox>
-                        </VBox>
-                    </HBox>
-
-                    <VBox spacing="8">
-                        <Label text="Observations" styleClass="form-label"/>
-                        <TextArea fx:id="txtObservations"
-                                  promptText="Commentaires sur l'evaluation..."
-                                  wrapText="true"
-                                  styleClass="field textarea"
-                                  style="-fx-pref-height: 100px;"/>
-                    </VBox>
-
-                    <HBox spacing="12">
-                        <Button text="➕ Ajouter" onAction="#ajouterEvaluation" styleClass="btn-primary"/>
-                        <Button text="✏️ Modifier" onAction="#modifierEvaluation" styleClass="btn-secondary"/>
-                        <Button text="🗑️ Supprimer" onAction="#supprimerEvaluation" styleClass="btn-danger"/>
-                    </HBox>
-                </VBox>
-
-                <!-- Criteria Section -->
-                <VBox spacing="16" styleClass="card">
-                    <padding>
-                        <Insets top="24" right="24" bottom="24" left="24"/>
                     </padding>
 
                     <HBox alignment="CENTER_LEFT" spacing="8">
@@ -200,6 +128,66 @@
                                 onAction="#supprimerCritere"
                                 styleClass="btn-danger"/>
                     </HBox>
+
+                    <Separator/>
+
+                    <VBox fx:id="criteriaFieldsBox" spacing="10"/>
+
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="📝" style="-fx-font-size: 18px;"/>
+                        <Label text="Évaluer le Projet" styleClass="page-title"/>
+                    </HBox>
+
+                    <HBox spacing="12">
+                        <VBox spacing="8" prefWidth="220">
+                            <Label text="ID Projet" styleClass="form-label"/>
+                            <TextField fx:id="txtIdProjet" editable="false" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Decision" styleClass="form-label"/>
+                            <HBox spacing="16">
+                                <CheckBox fx:id="chkDecisionApproved" text="Approuver" onMousePressed="#preSelectApproved"/>
+                                <CheckBox fx:id="chkDecisionRejected" text="Rejeter" onMousePressed="#preSelectRejected"/>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+
+                    <VBox spacing="8">
+                        <Label text="Observations" styleClass="form-label"/>
+                        <TextArea fx:id="txtObservations"
+                                  promptText="Commentaires sur l'evaluation..."
+                                  wrapText="true"
+                                  styleClass="field textarea"
+                                  style="-fx-pref-height: 100px;"/>
+                    </VBox>
+
+                    <HBox spacing="12">
+                        <Button text="➕ Creer Evaluation" onAction="#ajouterEvaluation" styleClass="btn-primary"/>
+                        <Button text="✏️ Modifier" onAction="#modifierEvaluation" styleClass="btn-secondary"/>
+                        <Button text="🗑️ Supprimer" onAction="#supprimerEvaluation" styleClass="btn-danger"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Evaluations Table Section -->
+                <VBox spacing="12">
+                    <Label text="Evaluations recentes"
+                           styleClass="section-title-sidebar"/>
+                    <Label text="Cliquez une évaluation pour la charger dans le formulaire" styleClass="select-hint"/>
+
+                    <TableView fx:id="tableAudits" prefHeight="220" minHeight="220"
+                               VBox.vgrow="ALWAYS"
+                               styleClass="table-card table-projects">
+                        <placeholder>
+                            <Label text="Aucune evaluation" styleClass="placeholder-label"/>
+                        </placeholder>
+                        <columns>
+                            <TableColumn fx:id="colDate" text="Date" prefWidth="140" styleClass="col-center"/>
+                            <TableColumn fx:id="colDecision" text="Decision" prefWidth="120" styleClass="col-center"/>
+                            <TableColumn fx:id="colProjetNom" text="Titre projet" prefWidth="220" styleClass="col-left"/>
+                            <TableColumn fx:id="colObservations" text="Observations" prefWidth="360" styleClass="col-left"/>
+                            <TableColumn fx:id="colAction" text="Statut" prefWidth="140" styleClass="col-center"/>
+                        </columns>
+                    </TableView>
                 </VBox>
 
             </VBox>

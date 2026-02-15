@@ -150,4 +150,58 @@ public class EvaluationService {
         }
         return ids;
     }
+
+    public int ajouterAvecCriteres(Evaluation e, java.util.List<Models.CritereImpact> criteres) {
+        String sqlEval = "INSERT INTO evaluation(observations, score_global, decision, id_projet) VALUES (?,?,?,?)";
+        String sqlCritere = "INSERT INTO critere_impact(nom, note, commentaire_technique, id_evaluation) VALUES (?,?,?,?)";
+        boolean previousAutoCommit = true;
+        try {
+            previousAutoCommit = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+
+            int evaluationId;
+            try (PreparedStatement psEval = conn.prepareStatement(sqlEval, Statement.RETURN_GENERATED_KEYS)) {
+                psEval.setString(1, e.getObservations());
+                psEval.setDouble(2, e.getScoreGlobal());
+                psEval.setString(3, e.getDecision());
+                psEval.setInt(4, e.getIdProjet());
+                psEval.executeUpdate();
+                try (ResultSet rs = psEval.getGeneratedKeys()) {
+                    if (!rs.next()) {
+                        conn.rollback();
+                        return -1;
+                    }
+                    evaluationId = rs.getInt(1);
+                }
+            }
+
+            try (PreparedStatement psCrit = conn.prepareStatement(sqlCritere)) {
+                for (Models.CritereImpact critere : criteres) {
+                    psCrit.setString(1, critere.getNom());
+                    psCrit.setInt(2, critere.getNote());
+                    psCrit.setString(3, critere.getCommentaireTechnique());
+                    psCrit.setInt(4, evaluationId);
+                    psCrit.addBatch();
+                }
+                psCrit.executeBatch();
+            }
+
+            conn.commit();
+            return evaluationId;
+        } catch (SQLException ex) {
+            try {
+                conn.rollback();
+            } catch (SQLException ignore) {
+                // ignore rollback failures
+            }
+            System.out.println(ex.getMessage());
+            return -1;
+        } finally {
+            try {
+                conn.setAutoCommit(previousAutoCommit);
+            } catch (SQLException ignore) {
+                // ignore restore failures
+            }
+        }
+    }
 }
