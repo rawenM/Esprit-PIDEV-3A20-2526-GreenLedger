@@ -7,7 +7,6 @@
       fx:controller="Controllers.FinancementController"
       spacing="0" styleClass="page">
 
-    <!-- Navigation Sidebar -->
     <VBox prefWidth="220" styleClass="sidebar">
         <HBox alignment="CENTER_LEFT" spacing="8">
             <Label text="💼" style="-fx-font-size:20px;"/>
@@ -23,16 +22,13 @@
         <Separator styleClass="sidebar-sep"/>
 
         <Button fx:id="btnNewFinancement" text="➕ Nouveau" styleClass="nav-btn"/>
-        <Button fx:id="btnRefresh" text="🔄 Actualiser" styleClass="nav-btn"/>
+        <Button fx:id="btnRefresh" text="🔄 Actualiser" styleClass="nav-btn" onAction="#refreshAll"/>
 
-        <!-- Spacer to push content to bottom -->
         <Region VBox.vgrow="ALWAYS"/>
     </VBox>
 
-    <!-- Content -->
     <VBox spacing="0" HBox.hgrow="ALWAYS" styleClass="content-area">
 
-        <!-- Stats Section -->
         <HBox spacing="16" alignment="CENTER_LEFT">
             <padding>
                 <Insets top="28" right="32" bottom="20" left="32"/>
@@ -64,7 +60,6 @@
                     <Insets top="8" right="32" bottom="32" left="32"/>
                 </padding>
 
-                <!-- Project Selection Section -->
                 <VBox spacing="12">
                     <HBox alignment="CENTER_LEFT" spacing="8">
                         <Label text="📁" style="-fx-font-size:18px;"/>
@@ -76,7 +71,6 @@
                               prefWidth="400"/>
                 </VBox>
 
-                <!-- Financement Section -->
                 <VBox spacing="12" styleClass="card">
                     <padding>
                         <Insets top="20" right="20" bottom="20" left="20"/>
@@ -107,39 +101,41 @@
 
                     <Separator/>
 
-                    <!-- Financement Form -->
                     <HBox spacing="12">
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
                             <Label text="Projet ID" styleClass="form-label"/>
-                            <TextField promptText="Ex:12" styleClass="field"/>
+                            <TextField fx:id="txtProjetId" promptText="Ex:12" styleClass="field"/>
                         </VBox>
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
                             <Label text="Banque ID" styleClass="form-label"/>
-                            <TextField promptText="Ex:5" styleClass="field"/>
+                            <TextField fx:id="txtBanqueId" promptText="Ex:5" styleClass="field"/>
                         </VBox>
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
                             <Label text="Montant" styleClass="form-label"/>
-                            <TextField promptText="Ex:15000" styleClass="field"/>
+                            <TextField fx:id="txtMontant" promptText="Ex:15000" styleClass="field"/>
                         </VBox>
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
                             <Label text="Date" styleClass="form-label"/>
-                            <TextField promptText="YYYY-MM-DD" styleClass="field"/>
+                            <TextField fx:id="txtDateFinancement" promptText="YYYY-MM-DD" styleClass="field"/>
                         </VBox>
                     </HBox>
 
                     <HBox spacing="12">
                         <Button fx:id="btnAddFinancement"
                                 text="➕ Ajouter"
+                                onAction="#ajouterFinancement"
                                 styleClass="btn btn-primary"
                                 prefHeight="36"
                                 prefWidth="140"/>
                         <Button fx:id="btnEditFinancement"
                                 text="✏️ Modifier"
+                                onAction="#modifierFinancement"
                                 styleClass="btn btn-secondary"
                                 prefHeight="36"
                                 prefWidth="140"/>
                         <Button fx:id="btnDeleteFinancement"
                                 text="🗑️ Supprimer"
+                                onAction="#supprimerFinancement"
                                 styleClass="btn btn-danger"
                                 prefHeight="36"
                                 prefWidth="140"/>
@@ -152,7 +148,6 @@
                     </HBox>
                 </VBox>
 
-                <!-- Offres Section -->
                 <VBox spacing="12" styleClass="card">
                     <padding>
                         <Insets top="20" right="20" bottom="20" left="20"/>
@@ -180,30 +175,29 @@
 
                     <Separator/>
 
-                    <!-- Offre Form -->
                     <HBox spacing="12">
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
                             <Label text="Type Offre" styleClass="form-label"/>
-                            <TextField promptText="Ex: Long terme" styleClass="field"/>
+                            <TextField fx:id="txtTypeOffre" promptText="Ex: Long terme" styleClass="field"/>
                         </VBox>
                         <VBox spacing="8" prefWidth="150">
                             <Label text="Taux" styleClass="form-label"/>
-                            <TextField promptText="%%" styleClass="field"/>
+                            <TextField fx:id="txtTaux" promptText="%%" styleClass="field"/>
                         </VBox>
                         <VBox spacing="8" prefWidth="150">
                             <Label text="Durée" styleClass="form-label"/>
-                            <TextField promptText="Mois" styleClass="field"/>
+                            <TextField fx:id="txtDuree" promptText="Mois" styleClass="field"/>
                         </VBox>
                         <VBox spacing="8" prefWidth="180">
                             <Label text="Financement ID" styleClass="form-label"/>
-                            <TextField promptText="Ex:3" styleClass="field"/>
+                            <TextField fx:id="txtOffreFinancementId" promptText="Ex:3" styleClass="field"/>
                         </VBox>
                     </HBox>
 
                     <HBox spacing="12">
-                        <Button text="➕ Ajouter Offre" styleClass="btn-primary"/>
-                        <Button text="✏️ Modifier Offre" styleClass="btn-secondary"/>
-                        <Button text="🗑️ Supprimer Offre" styleClass="btn-danger"/>
+                        <Button text="➕ Ajouter Offre" onAction="#ajouterOffre" styleClass="btn-primary"/>
+                        <Button text="✏️ Modifier Offre" onAction="#modifierOffre" styleClass="btn-secondary"/>
+                        <Button text="🗑️ Supprimer Offre" onAction="#supprimerOffre" styleClass="btn-danger"/>
                     </HBox>
                 </VBox>
 
