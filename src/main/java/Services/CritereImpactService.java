@@ -105,13 +105,34 @@ public class CritereImpactService {
     }
 
     public boolean supprimerReference(int idCritere) {
-        String sql = "DELETE FROM critere_reference WHERE id_critere=?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, idCritere);
-            return ps.executeUpdate() > 0;
+        String deleteResultsSql = "DELETE FROM evaluation_resultat WHERE id_critere=?";
+        String deleteRefSql = "DELETE FROM critere_reference WHERE id_critere=?";
+        try {
+            conn.setAutoCommit(false);
+            try (PreparedStatement ps = conn.prepareStatement(deleteResultsSql)) {
+                ps.setInt(1, idCritere);
+                ps.executeUpdate();
+            }
+            try (PreparedStatement ps = conn.prepareStatement(deleteRefSql)) {
+                ps.setInt(1, idCritere);
+                boolean deleted = ps.executeUpdate() > 0;
+                conn.commit();
+                return deleted;
+            }
         } catch (SQLException ex) {
+            try {
+                conn.rollback();
+            } catch (SQLException ignore) {
+                // ignore rollback failures
+            }
             System.out.println(ex.getMessage());
             return false;
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException ignore) {
+                // ignore restore failures
+            }
         }
     }
 
