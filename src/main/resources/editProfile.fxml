@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<HBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.EditProfileController"
+      spacing="0" styleClass="page">
+
+    <!-- Sidebar -->
+    <VBox prefWidth="220" styleClass="sidebar">
+        <HBox alignment="CENTER_LEFT" spacing="8">
+            <Label text="🌿" style="-fx-font-size: 20px;"/>
+            <Label text="GreenLedger" styleClass="sidebar-title"/>
+        </HBox>
+
+        <Separator styleClass="sidebar-sep"/>
+
+        <Button text="📁 Gestion Projets" styleClass="nav-btn" onAction="#onGestionProjets"/>
+        <Button text="⚙ Settings" styleClass="nav-btn" onAction="#onSettings"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+        <Label text="Module Projet" style="-fx-opacity: 0.6; -fx-font-size: 11px;"/>
+    </VBox>
+
+    <!-- Content -->
+    <VBox spacing="0" HBox.hgrow="ALWAYS" styleClass="content-area">
+        <VBox spacing="12" styleClass="card">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="✏️" style="-fx-font-size: 16px;"/>
+                <Label text="Modifier mon profil" styleClass="page-title"/>
+            </HBox>
+
+            <Label fx:id="messageLabel" styleClass="page-subtitle"/>
+
+            <GridPane hgap="12" vgap="12">
+                <Label text="Nom" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                <TextField fx:id="nomField" styleClass="field" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                <Label text="Prenom" styleClass="form-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                <TextField fx:id="prenomField" styleClass="field" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                <Label text="Email" styleClass="form-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                <TextField fx:id="emailField" styleClass="field" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+                <Label text="Telephone" styleClass="form-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                <TextField fx:id="telephoneField" styleClass="field" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+                <Label text="Type" styleClass="form-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="typeCombo" styleClass="combo-box" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+
+                <Label text="Statut" styleClass="form-label" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <ComboBox fx:id="statutCombo" styleClass="combo-box" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+                <columnConstraints>
+                    <ColumnConstraints minWidth="120"/>
+                    <ColumnConstraints hgrow="ALWAYS"/>
+                </columnConstraints>
+            </GridPane>
+
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+                <Button text="Annuler" onAction="#handleCancel" styleClass="btn-secondary"/>
+                <Button text="Sauvegarder" onAction="#handleSave" styleClass="btn-primary"/>
+            </HBox>
+        </VBox>
+    </VBox>
+</HBox>
+

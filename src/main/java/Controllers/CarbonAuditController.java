@@ -77,6 +77,9 @@ public class CarbonAuditController extends BaseController {
     @FXML private CheckBox chkAddCritere;
     @FXML private javafx.scene.layout.VBox boxAddCritere;
 
+    @FXML private Label lblProfileName;
+    @FXML private Label lblProfileType;
+
     private final EvaluationService evaluationService = new EvaluationService();
     private final ProjetService projetService = new ProjetService();
     private final CritereImpactService critereImpactService = new CritereImpactService();
@@ -90,6 +93,8 @@ public class CarbonAuditController extends BaseController {
     @FXML
     public void initialize() {
         super.initialize(); // Enable theme switching
+
+        applyProfile(lblProfileName, lblProfileType);
 
         setActiveNav(btnGestionEvaluations);
         if (btnGestionEvaluations != null) {
@@ -741,6 +746,15 @@ public class CarbonAuditController extends BaseController {
         System.out.println("Affichage des parametres");
         try {
             MainFX.setRoot("settings");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleEditProfile() {
+        try {
+            MainFX.setRoot("editProfile");
         } catch (IOException e) {
             e.printStackTrace();
         }

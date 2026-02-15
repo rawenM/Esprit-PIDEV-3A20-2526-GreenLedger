@@ -23,6 +23,12 @@
 
         <Region VBox.vgrow="ALWAYS"/>
         <Label text="Module Projet" style="-fx-opacity: 0.6; -fx-font-size: 11px;"/>
+
+        <VBox spacing="2" alignment="TOP_LEFT" style="-fx-padding: 10 0 0 0;">
+            <Label fx:id="lblProfileName" styleClass="page-title"/>
+            <Label fx:id="lblProfileType" styleClass="page-subtitle"/>
+            <Button text="✏️ Modifier profil" styleClass="btn-secondary" onAction="#handleEditProfile"/>
+        </VBox>
     </VBox>
 
     <!-- Content -->
@@ -31,7 +37,7 @@
         <!-- Header + Stats -->
         <VBox spacing="14">
             <padding>
-                <Insets top="28" right="32" bottom="12" left="32"/>
+                <Insets top="12" right="32" bottom="12" left="32"/>
             </padding>
 
             <HBox alignment="CENTER_LEFT" spacing="10">
@@ -99,6 +105,5 @@
 
             </VBox>
         </ScrollPane>
-
     </VBox>
 </HBox>

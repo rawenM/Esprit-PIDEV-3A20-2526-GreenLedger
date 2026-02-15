@@ -37,6 +37,9 @@ public class ProjetController {
     @FXML private Button btnAuditCarbone;
     @FXML private Button btnGestionProjets;
 
+    @FXML private Label lblProfileName;
+    @FXML private Label lblProfileType;
+
     @FXML
     public void initialize() {
         colId.setCellValueFactory(v -> new SimpleIntegerProperty(v.getValue().getId()));
@@ -92,7 +95,22 @@ public class ProjetController {
             btnSettings.setOnAction(e -> showSettings());
         }
 
+        applyProfile();
+
         refresh();
+    }
+
+    private void applyProfile() {
+        Models.User user = Utils.SessionManager.getInstance().getCurrentUser();
+        if (user == null) {
+            return;
+        }
+        if (lblProfileName != null) {
+            lblProfileName.setText(user.getNomComplet());
+        }
+        if (lblProfileType != null) {
+            lblProfileType.setText(user.getTypeUtilisateur().getLibelle());
+        }
     }
 
     @FXML
@@ -111,11 +129,7 @@ public class ProjetController {
 
     @FXML
     private void onGestionProjets() {
-        try {
-            MainFX.setRoot("expertProjet");
-        } catch (Exception ex) {
-            showError("Navigation impossible: " + ex.getMessage());
-        }
+        refresh();
     }
 
     @FXML
@@ -179,6 +193,15 @@ public class ProjetController {
             MainFX.setRoot("settings");
         } catch (Exception ex) {
             showError("Navigation impossible: " + ex.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleEditProfile() {
+        try {
+            MainFX.setRoot("editProfile");
+        } catch (Exception e) {
+            showError("Navigation impossible: " + e.getMessage());
         }
     }
 }

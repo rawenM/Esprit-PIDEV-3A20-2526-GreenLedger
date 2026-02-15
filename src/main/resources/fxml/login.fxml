@@ -8,12 +8,12 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="Controllers.LoginController"
-            stylesheets="@../css/style.css"
-            prefHeight="600" prefWidth="800">
+            prefHeight="600" prefWidth="800"
+            styleClass="page">
 
     <!-- CENTRE: Formulaire de connexion -->
     <center>
-        <VBox alignment="CENTER" spacing="20" styleClass="container">
+        <VBox alignment="CENTER" spacing="20" styleClass="content-area">
             <padding>
                 <Insets top="50" right="50" bottom="50" left="50"/>
             </padding>
@@ -25,8 +25,8 @@
                 </padding>
 
                 <!-- Titre -->
-                <Label text="Connexion" styleClass="label-title"/>
-                <Text text="Plateforme de Financement Participatif" style="-fx-fill: #6B7280;"/>
+                <Label text="Connexion" styleClass="page-title"/>
+                <Text text="Plateforme de Financement Participatif" styleClass="page-subtitle"/>
 
                 <Separator/>
 
@@ -35,18 +35,20 @@
 
                 <!-- Champ Email -->
                 <VBox spacing="5">
-                    <Label text="Email"/>
+                    <Label text="Email" styleClass="form-label"/>
                     <TextField fx:id="emailField"
                                promptText="votre.email@example.com"
-                               prefHeight="40"/>
+                               prefHeight="40"
+                               styleClass="field"/>
                 </VBox>
 
                 <!-- Champ Mot de passe -->
                 <VBox spacing="5">
-                    <Label text="Mot de passe"/>
+                    <Label text="Mot de passe" styleClass="form-label"/>
                     <PasswordField fx:id="passwordField"
                                    promptText="Votre mot de passe"
-                                   prefHeight="40"/>
+                                   prefHeight="40"
+                                   styleClass="field"/>
                 </VBox>
 
                 <!-- Se souvenir de moi -->
@@ -57,7 +59,8 @@
                         text="Se connecter"
                         onAction="#handleLogin"
                         maxWidth="Infinity"
-                        prefHeight="45"/>
+                        prefHeight="45"
+                        styleClass="btn-primary"/>
 
                 <!-- Liens -->
                 <HBox spacing="10" alignment="CENTER">
@@ -75,9 +78,9 @@
 
     <!-- BOTTOM: Footer -->
     <bottom>
-        <HBox alignment="CENTER" style="-fx-padding: 20; -fx-background-color: #F3F4F6;">
+        <HBox alignment="CENTER" styleClass="card" style="-fx-padding: 12;">
             <Text text="© 2025 Plateforme Énergie Renouvelable - PIDEV 3A"
-                  style="-fx-fill: #6B7280;"/>
+                  styleClass="page-subtitle"/>
         </HBox>
     </bottom>
 </BorderPane>

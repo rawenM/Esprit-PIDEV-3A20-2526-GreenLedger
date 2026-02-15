@@ -27,6 +27,12 @@
         
         <!-- Spacer to push content to bottom -->
         <Region VBox.vgrow="ALWAYS"/>
+
+        <VBox spacing="2" alignment="TOP_LEFT" style="-fx-padding: 10 0 0 0;">
+            <Label fx:id="lblProfileName" styleClass="page-title"/>
+            <Label fx:id="lblProfileType" styleClass="page-subtitle"/>
+            <Button text="✏️ Modifier profil" styleClass="btn-secondary" onAction="#handleEditProfile"/>
+        </VBox>
     </VBox>
 
     <!-- Content -->
@@ -35,7 +41,7 @@
         <!-- Stats Section -->
         <HBox spacing="16" alignment="CENTER_LEFT">
             <padding>
-                <Insets top="28" right="32" bottom="20" left="32"/>
+                <Insets top="12" right="32" bottom="20" left="32"/>
             </padding>
 
             <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">

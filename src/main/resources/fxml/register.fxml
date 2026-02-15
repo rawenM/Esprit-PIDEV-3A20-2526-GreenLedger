@@ -8,66 +8,66 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="Controllers.RegisterController"
             fx:id="rootPane"
-            prefHeight="700" prefWidth="900">
+            prefHeight="700" prefWidth="900"
+            styleClass="page">
 
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: white;">
-            <VBox alignment="CENTER" spacing="20" style="-fx-background-color: white; -fx-padding: 30;">
+        <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox alignment="CENTER" spacing="20" styleClass="content-area">
                 <padding>
                     <Insets top="30" right="30" bottom="30" left="30"/>
                 </padding>
 
-                <VBox spacing="20" maxWidth="600" style="-fx-background-color: white; -fx-padding: 30; -fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 10; -fx-background-radius: 10;">
+                <VBox spacing="20" maxWidth="600" styleClass="card">
                     <padding>
                         <Insets top="30" right="30" bottom="30" left="30"/>
                     </padding>
 
                     <!-- Titre -->
-                    <Label text="Créer un compte" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #1F2937;"/>
+                    <Label text="Créer un compte" styleClass="page-title"/>
                     <Separator/>
 
                     <!-- Messages -->
-                    <Label fx:id="errorLabel" visible="false" wrapText="true" style="-fx-text-fill: #EF4444; -fx-font-size: 12px;"/>
-                    <Label fx:id="successLabel" visible="false" wrapText="true" style="-fx-text-fill: #10B981; -fx-font-size: 12px;"/>
+                    <Label fx:id="errorLabel" visible="false" wrapText="true" styleClass="label-error"/>
+                    <Label fx:id="successLabel" visible="false" wrapText="true" styleClass="accent-green"/>
 
                     <!-- Informations personnelles -->
-                    <Label text="Informations personnelles" style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #374151;"/>
+                    <Label text="Informations personnelles" styleClass="section-title"/>
 
                     <GridPane hgap="15" vgap="15">
                         <!-- Nom -->
-                        <Label text="Nom *" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-font-size: 14px;"/>
+                        <Label text="Nom *" styleClass="form-label" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                         <TextField fx:id="nomField"
                                    promptText="Votre nom"
                                    GridPane.rowIndex="0" GridPane.columnIndex="1"
-                                   style="-fx-font-size: 14px; -fx-pref-height: 35px;"/>
+                                   styleClass="field"/>
 
-                        <!-- Prénom -->
-                        <Label text="Prénom *" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-font-size: 14px;"/>
+                        <!-- Prenom -->
+                        <Label text="Prenom *" styleClass="form-label" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                         <TextField fx:id="prenomField"
-                                   promptText="Votre prénom"
+                                   promptText="Votre prenom"
                                    GridPane.rowIndex="1" GridPane.columnIndex="1"
-                                   style="-fx-font-size: 14px; -fx-pref-height: 35px;"/>
+                                   styleClass="field"/>
 
                         <!-- Email -->
-                        <Label text="Email *" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-font-size: 14px;"/>
+                        <Label text="Email *" styleClass="form-label" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
                         <TextField fx:id="emailField"
                                    promptText="votre.email@example.com"
                                    GridPane.rowIndex="2" GridPane.columnIndex="1"
-                                   style="-fx-font-size: 14px; -fx-pref-height: 35px;"/>
+                                   styleClass="field"/>
 
-                        <!-- Téléphone -->
-                        <Label text="Téléphone" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-font-size: 14px;"/>
+                        <!-- Telephone -->
+                        <Label text="Telephone" styleClass="form-label" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
                         <TextField fx:id="telephoneField"
                                    promptText="0612345678"
                                    GridPane.rowIndex="3" GridPane.columnIndex="1"
-                                   style="-fx-font-size: 14px; -fx-pref-height: 35px;"/>
+                                   styleClass="field"/>
 
                         <!-- Date de naissance -->
-                        <Label text="Date de naissance" GridPane.rowIndex="4" GridPane.columnIndex="0" style="-fx-font-size: 14px;"/>
+                        <Label text="Date de naissance" styleClass="form-label" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
                         <DatePicker fx:id="dateNaissancePicker"
                                     GridPane.rowIndex="4" GridPane.columnIndex="1"
-                                    prefWidth="300"
-                                    style="-fx-font-size: 14px;"/>
+                                    prefWidth="300"/>
 
                         <columnConstraints>
                             <ColumnConstraints minWidth="150" prefWidth="150"/>
@@ -77,47 +77,46 @@
 
                     <!-- Adresse -->
                     <VBox spacing="5">
-                        <Label text="Adresse" style="-fx-font-size: 14px;"/>
+                        <Label text="Adresse" styleClass="form-label"/>
                         <TextArea fx:id="adresseField"
                                   promptText="Votre adresse complète"
                                   prefRowCount="3"
-                                  style="-fx-font-size: 14px;"/>
+                                  styleClass="field textarea"/>
                     </VBox>
 
                     <Separator/>
 
                     <!-- Type de compte -->
-                    <Label text="Type de compte" style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #374151;"/>
-                    <ComboBox fx:id="typeUtilisateurCombo" prefWidth="Infinity" style="-fx-font-size: 14px; -fx-pref-height: 35px;"/>
+                    <Label text="Type de compte" styleClass="section-title"/>
+                    <ComboBox fx:id="typeUtilisateurCombo" prefWidth="Infinity" styleClass="combo-box"/>
 
                     <Separator/>
 
                     <!-- Mot de passe -->
-                    <Label text="Sécurité" style="-fx-font-weight: bold; -fx-font-size: 16px; -fx-text-fill: #374151;"/>
+                    <Label text="Securite" styleClass="section-title"/>
 
                     <VBox spacing="5">
-                        <Label text="Mot de passe *" style="-fx-font-size: 14px;"/>
+                        <Label text="Mot de passe *" styleClass="form-label"/>
                         <PasswordField fx:id="passwordField"
-                                       promptText="Minimum 8 caractères"
-                                       style="-fx-font-size: 14px; -fx-pref-height: 35px;"/>
-                        <Label text="Doit contenir: majuscule, minuscule, chiffre, caractère spécial"
-                               style="-fx-text-fill: #6B7280; -fx-font-size: 11px;"/>
+                                       promptText="Minimum 8 caracteres"
+                                       styleClass="field"/>
+                        <Label text="Doit contenir: majuscule, minuscule, chiffre, caractere special"
+                               styleClass="page-subtitle"/>
                     </VBox>
 
                     <VBox spacing="5">
-                        <Label text="Confirmer le mot de passe *" style="-fx-font-size: 14px;"/>
+                        <Label text="Confirmer le mot de passe *" styleClass="form-label"/>
                         <PasswordField fx:id="confirmPasswordField"
                                        promptText="Confirmez votre mot de passe"
-                                       style="-fx-font-size: 14px; -fx-pref-height: 35px;"/>
+                                       styleClass="field"/>
                     </VBox>
 
                     <Separator/>
 
                     <!-- CGU -->
                     <CheckBox fx:id="acceptCGUCheckbox"
-                              text="J'accepte les conditions générales d'utilisation"
-                              wrapText="true"
-                              style="-fx-font-size: 13px;"/>
+                              text="J'accepte les conditions generales d'utilisation"
+                              wrapText="true"/>
 
                     <!-- Boutons -->
                     <HBox spacing="10" alignment="CENTER">
@@ -126,13 +125,13 @@
                                 onAction="#handleRegister"
                                 prefWidth="150"
                                 prefHeight="40"
-                                style="-fx-background-color: #2563EB; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 6px; -fx-cursor: hand;"/>
+                                styleClass="btn-primary"/>
 
-                        <Button text="Retour à la connexion"
+                        <Button text="Retour a la connexion"
                                 onAction="#handleBackToLogin"
                                 prefWidth="180"
                                 prefHeight="40"
-                                style="-fx-background-color: #6B7280; -fx-text-fill: white; -fx-font-size: 14px; -fx-font-weight: bold; -fx-background-radius: 6px; -fx-cursor: hand;"/>
+                                styleClass="btn-secondary"/>
                     </HBox>
                 </VBox>
             </VBox>

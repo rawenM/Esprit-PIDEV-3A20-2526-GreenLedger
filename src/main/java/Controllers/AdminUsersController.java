@@ -13,6 +13,8 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import Models.StatutUtilisateur;
 import Models.TypeUtilisateur;
@@ -20,6 +22,7 @@ import Models.User;
 import Services.IUserService;
 import Services.UserServiceImpl;
 import Utils.SessionManager;
+import org.GreenLedger.MainFX;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -48,7 +51,11 @@ public class AdminUsersController {
     @FXML private Label activeUsersLabel;
     @FXML private Label pendingUsersLabel;
     @FXML private Label blockedUsersLabel;
-    @FXML private Label currentUserLabel;
+    @FXML private Label lblProfileName;
+    @FXML private Label lblProfileType;
+
+    @FXML private StackPane contentPane;
+    @FXML private VBox usersContent;
 
     private final IUserService userService = new UserServiceImpl();
     private ObservableList<User> usersList = FXCollections.observableArrayList();
@@ -117,9 +124,15 @@ public class AdminUsersController {
         }
         if (this.currentUser == null) return;
 
+        if (lblProfileName != null) {
+            lblProfileName.setText(this.currentUser.getNomComplet());
+        }
+        if (lblProfileType != null) {
+            lblProfileType.setText(this.currentUser.getTypeUtilisateur().getLibelle());
+        }
+
         // Si l'utilisateur connecté n'est pas admin, désactiver les actions d'administration
         if (!this.currentUser.isAdmin()) {
-            currentUserLabel.setText("[CLEAN] " + this.currentUser.getNomComplet() + " (" + this.currentUser.getTypeUtilisateur().getLibelle() + ")");
             // Désactiver les contrôles sensibles
             try {
                 if (usersTable != null) usersTable.setDisable(true);
@@ -131,8 +144,6 @@ public class AdminUsersController {
             showWarning("Accès réservé aux administrateurs. Les actions sont désactivées.");
             return;
         }
-
-        currentUserLabel.setText("[CLEAN] " + this.currentUser.getNomComplet() + " (" + this.currentUser.getTypeUtilisateur().getLibelle() + ")");
     }
 
     private void setupTableColumns() {
@@ -496,5 +507,69 @@ public class AdminUsersController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void handleNavUsers() {
+        showUsersContent();
+    }
+
+    @FXML
+    private void handleNavProjets() {
+        loadContent("GestionProjet");
+    }
+
+    @FXML
+    private void handleNavEvaluations() {
+        loadContent("gestionCarbone");
+    }
+
+    @FXML
+    private void handleNavSettings() {
+        loadContent("settings");
+    }
+
+    private void showUsersContent() {
+        if (contentPane != null && usersContent != null) {
+            contentPane.getChildren().setAll(usersContent);
+        }
+        handleRefresh();
+    }
+
+    private void loadContent(String fxml) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/" + fxml + ".fxml"));
+            Parent root = loader.load();
+            Parent content = stripSidebar(root);
+            if (contentPane != null) {
+                contentPane.getChildren().setAll(content);
+            }
+        } catch (IOException e) {
+            showWarning("Navigation impossible");
+        }
+    }
+
+    private Parent stripSidebar(Parent root) {
+        if (root instanceof javafx.scene.layout.HBox) {
+            javafx.scene.layout.HBox hbox = (javafx.scene.layout.HBox) root;
+            java.util.List<javafx.scene.Node> toRemove = new java.util.ArrayList<>();
+            for (javafx.scene.Node child : hbox.getChildren()) {
+                if (child.getStyleClass().contains("sidebar")) {
+                    toRemove.add(child);
+                }
+            }
+            hbox.getChildren().removeAll(toRemove);
+            return hbox;
+        }
+        return root;
+    }
+
+    @FXML
+    private void handleEditProfile() {
+        try {
+            MainFX.setRoot("editProfile");
+        } catch (IOException e) {
+            showWarning("Navigation impossible");
+        }
     }
 }

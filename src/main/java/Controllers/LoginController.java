@@ -13,6 +13,8 @@ import Models.User;
 import Services.IUserService;
 import Services.UserServiceImpl;
 import Utils.SessionManager;
+import Utils.ThemeManager;
+import org.GreenLedger.MainFX;
 
 import java.io.IOException;
 import java.util.Optional;
@@ -147,9 +149,7 @@ public class LoginController {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/register.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Inscription");
-            stage.show();
+            switchScene(stage, root, "Inscription");
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -157,55 +157,59 @@ public class LoginController {
 
     private void navigateToDashboard(ActionEvent event, User user) {
         try {
-            // Si l'utilisateur est admin, ouvrir la vue d'administration
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             if (user.isAdmin()) {
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin_users.fxml"));
                 Parent root = loader.load();
 
-                // Passer l'utilisateur au contrôleur admin
                 AdminUsersController controller = loader.getController();
                 controller.setCurrentUser(user);
 
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.setTitle("Gestion des Utilisateurs - " + user.getNomComplet());
-                stage.setMaximized(true);
-                stage.show();
+                switchScene(stage, root, "Gestion des Utilisateurs - " + user.getNomComplet());
 
             } else if (user.getTypeUtilisateur() == Models.TypeUtilisateur.EXPERT_CARBONE) {
-                // Expert Carbone dashboard
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/expert_carbon_dashboard.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/expertProjet.fxml"));
                 Parent root = loader.load();
 
-                ExpertCarbonController controller = loader.getController();
-                controller.setCurrentUser(user);
+                switchScene(stage, root, "Expert Carbone - " + user.getNomComplet());
 
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.setTitle("Expert Carbone - " + user.getNomComplet());
-                stage.setMaximized(true);
-                stage.show();
+            } else if (user.getTypeUtilisateur() == Models.TypeUtilisateur.PORTEUR_PROJET) {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/GestionProjet.fxml"));
+                Parent root = loader.load();
+
+                switchScene(stage, root, "Porteur de Projet - " + user.getNomComplet());
 
             } else {
-                // Pour les autres types (Investisseur, Porteur de Projet), ouvrir le dashboard utilisateur
                 FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard.fxml"));
                 Parent root = loader.load();
 
-                // Passer l'utilisateur au contrôleur de dashboard
                 DashboardController controller = loader.getController();
                 controller.setCurrentUser(user);
 
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.setTitle("Tableau de bord - " + user.getNomComplet());
-                stage.setMaximized(true);
-                stage.show();
+                switchScene(stage, root, "Tableau de bord - " + user.getNomComplet());
             }
 
         } catch (IOException e) {
             showError("Erreur lors du chargement du tableau de bord");
             e.printStackTrace();
         }
+    }
+
+    private void switchScene(Stage stage, Parent root, String title) {
+        Scene scene = MainFX.getScene();
+        if (scene == null) {
+            scene = stage.getScene();
+        }
+        if (scene == null) {
+            scene = new Scene(root);
+        } else {
+            scene.setRoot(root);
+        }
+        ThemeManager.getInstance().initialize(scene);
+        stage.setScene(scene);
+        stage.setTitle(title);
+        stage.setMaximized(true);
+        stage.show();
     }
 
     private void showError(String message) {

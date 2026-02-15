@@ -65,12 +65,17 @@ public class ExpertProjetController extends BaseController {
     @FXML
     private Label lblEvaluated;
 
+    @FXML private Label lblProfileName;
+    @FXML private Label lblProfileType;
+
     private final ObservableList<Projet> data = FXCollections.observableArrayList();
     private final ProjetService projetService = new ProjetService();
 
     @FXML
     public void initialize() {
         super.initialize();
+
+        applyProfile(lblProfileName, lblProfileType);
 
         setActiveNav(btnGestionProjets);
 
@@ -206,5 +211,14 @@ public class ExpertProjetController extends BaseController {
         lblTotal.setText(String.valueOf(total));
         lblPending.setText(String.valueOf(pending));
         lblEvaluated.setText(String.valueOf(evaluated));
+    }
+
+    @FXML
+    private void handleEditProfile() {
+        try {
+            MainFX.setRoot("editProfile");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

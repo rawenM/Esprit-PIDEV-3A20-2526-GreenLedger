@@ -8,7 +8,6 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="Controllers.DashboardController"
-            stylesheets="@../css/style.css"
             prefHeight="700" prefWidth="1200">
 
     <!-- TOP: Header -->
