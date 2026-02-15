@@ -78,28 +78,24 @@
 
                     <HBox alignment="CENTER_LEFT" spacing="8">
                         <Label text="🏦" style="-fx-font-size:18px;"/>
-                        <Label text="Financement + Offre" styleClass="page-title"/>
+                        <Label text="Table: Financement" styleClass="page-title"/>
                     </HBox>
 
-                    <TableView fx:id="tableFusion"
+                    <TableView fx:id="tableFinancement"
                                styleClass="table-card selectable-table"
-                               style="-fx-pref-height:240px;">
+                               style="-fx-pref-height:200px;">
                         <placeholder>
                             <VBox alignment="CENTER" spacing="8" style="-fx-padding:40;">
                                 <Label text="📋" style="-fx-font-size:32px; -fx-opacity:0.3;"/>
-                                <Label text="Aucune donnees" styleClass="placeholder-label"/>
+                                <Label text="Aucun financement" styleClass="placeholder-label"/>
                             </VBox>
                         </placeholder>
                         <columns>
                             <TableColumn fx:id="colFinId" text="ID" prefWidth="70"/>
                             <TableColumn fx:id="colFinProjetId" text="Projet ID" prefWidth="100"/>
                             <TableColumn fx:id="colFinBanqueId" text="Banque ID" prefWidth="110"/>
-                            <TableColumn fx:id="colFinMontant" text="Montant" prefWidth="120"/>
-                            <TableColumn fx:id="colFinDate" text="Date" prefWidth="130"/>
-                            <TableColumn fx:id="colOffreId" text="ID Offre" prefWidth="90"/>
-                            <TableColumn fx:id="colOffreType" text="Type Offre" prefWidth="140"/>
-                            <TableColumn fx:id="colOffreTaux" text="Taux" prefWidth="90"/>
-                            <TableColumn fx:id="colOffreDuree" text="Duree" prefWidth="90"/>
+                            <TableColumn fx:id="colFinMontant" text="Montant" prefWidth="140"/>
+                            <TableColumn fx:id="colFinDate" text="Date Financement" prefWidth="160"/>
                         </columns>
                     </TableView>
 
@@ -125,21 +121,6 @@
                     </HBox>
 
                     <HBox spacing="12">
-                        <VBox spacing="8" HBox.hgrow="ALWAYS">
-                            <Label text="Type Offre" styleClass="form-label"/>
-                            <TextField fx:id="txtTypeOffre" promptText="Ex: Long terme" styleClass="field"/>
-                        </VBox>
-                        <VBox spacing="8" prefWidth="150">
-                            <Label text="Taux" styleClass="form-label"/>
-                            <TextField fx:id="txtTaux" promptText="\%" styleClass="field"/>
-                        </VBox>
-                        <VBox spacing="8" prefWidth="150">
-                            <Label text="Duree" styleClass="form-label"/>
-                            <TextField fx:id="txtDuree" promptText="Mois" styleClass="field"/>
-                        </VBox>
-                    </HBox>
-
-                    <HBox spacing="12">
                         <Button fx:id="btnAddFinancement"
                                 text="➕ Ajouter"
                                 onAction="#ajouterFinancement"
@@ -159,12 +140,64 @@
                                 prefHeight="36"
                                 prefWidth="140"/>
                         <Region HBox.hgrow="ALWAYS"/>
-                        <Button
-                                text="🔄 Actualiser"
+                        <Button text="🔄 Actualiser"
                                 onAction="#refreshAll"
                                 styleClass="btn btn-secondary"
                                 prefHeight="36"
                                 prefWidth="140"/>
+                    </HBox>
+                </VBox>
+
+                <VBox spacing="12" styleClass="card">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="🧾" style="-fx-font-size:18px;"/>
+                        <Label text="Table: Offre Financement" styleClass="page-title"/>
+                    </HBox>
+
+                    <TableView fx:id="tableOffres" prefHeight="220" minHeight="220"
+                               VBox.vgrow="ALWAYS"
+                               styleClass="table-card table-projects">
+                        <placeholder>
+                            <Label text="Aucune offre" styleClass="placeholder-label"/>
+                        </placeholder>
+                        <columns>
+                            <TableColumn fx:id="colOffreId" text="ID Offre" prefWidth="80"/>
+                            <TableColumn fx:id="colOffreType" text="Type Offre" prefWidth="130"/>
+                            <TableColumn fx:id="colOffreTaux" text="Taux" prefWidth="90"/>
+                            <TableColumn fx:id="colOffreDuree" text="Durée" prefWidth="110"/>
+                            <TableColumn fx:id="colOffreFinancementId" text="Financement ID" prefWidth="140"/>
+                        </columns>
+                    </TableView>
+
+                    <Separator/>
+
+                    <HBox spacing="12">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Type Offre" styleClass="form-label"/>
+                            <TextField fx:id="txtTypeOffre" promptText="Ex: Long terme" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" prefWidth="150">
+                            <Label text="Taux" styleClass="form-label"/>
+                            <TextField fx:id="txtTaux" promptText="\%" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" prefWidth="150">
+                            <Label text="Durée" styleClass="form-label"/>
+                            <TextField fx:id="txtDuree" promptText="Mois" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" prefWidth="180">
+                            <Label text="Financement ID" styleClass="form-label"/>
+                            <TextField fx:id="txtOffreFinancementId" promptText="Ex:3" styleClass="field"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="12">
+                        <Button text="➕ Ajouter Offre" onAction="#ajouterOffre" styleClass="btn-primary"/>
+                        <Button text="✏️ Modifier Offre" onAction="#modifierOffre" styleClass="btn-secondary"/>
+                        <Button text="🗑️ Supprimer Offre" onAction="#supprimerOffre" styleClass="btn-danger"/>
                     </HBox>
                 </VBox>
 

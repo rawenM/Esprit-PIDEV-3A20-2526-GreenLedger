@@ -11,23 +11,31 @@ public class FinancementService {
     private final Connection conn = MyConnection.getConnection();
 
     public List<Financement> getAll() {
+        return afficherAll();
+    }
+
+    public List<Financement> afficherAll() {
         List<Financement> list = new ArrayList<>();
         String sql = "SELECT id, projet_id, banque_id, montant, date_financement FROM financement";
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                Financement f = new Financement(
-                        rs.getInt("id"),
-                        rs.getInt("projet_id"),
-                        rs.getInt("banque_id"),
-                        rs.getDouble("montant"),
-                        rs.getString("date_financement")
-                );
-                list.add(f);
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Financement f = new Financement(
+                            rs.getInt("id"),
+                            rs.getInt("projet_id"),
+                            rs.getInt("banque_id"),
+                            rs.getDouble("montant"),
+                            rs.getString("date_financement")
+                    );
+                    list.add(f);
+                    //System.out.println(f.getId() + " / " + f.getProjetId() + " / " + f.getBanqueId()
+                      //      + " / " + f.getMontant() + " / " + f.getDateFinancement());
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
+        //System.out.println(list);
         return list;
     }
 

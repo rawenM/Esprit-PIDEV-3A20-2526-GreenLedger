@@ -11,22 +11,27 @@ public class OffreFinancementService {
     private final Connection conn = MyConnection.getConnection();
 
     public List<OffreFinancement> getAll() {
+        return afficherAll();
+    }
+
+    public List<OffreFinancement> afficherAll() {
         List<OffreFinancement> list = new ArrayList<>();
         String sql = "SELECT id_offre, type_offre, taux, duree, id_financement FROM offre_financement";
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-            while (rs.next()) {
-                OffreFinancement o = new OffreFinancement(
-                        rs.getInt("id_offre"),
-                        rs.getString("type_offre"),
-                        rs.getDouble("taux"),
-                        rs.getInt("duree"),
-                        rs.getInt("id_financement")
-                );
-                list.add(o);
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    OffreFinancement o = new OffreFinancement(
+                            rs.getInt("id_offre"),
+                            rs.getString("type_offre"),
+                            rs.getDouble("taux"),
+                            rs.getInt("duree"),
+                            rs.getInt("id_financement")
+                    );
+                    list.add(o);
+                }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            System.out.println(e.getMessage());
         }
         return list;
     }

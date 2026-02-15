@@ -9,13 +9,15 @@ import java.util.List;
 
 public class FinancementOffreService {
     private final Connection conn = MyConnection.getConnection();
+    private String cachedOffreTable;
 
     public List<FinancementOffre> getAll() {
         List<FinancementOffre> list = new ArrayList<>();
+        String offreTable = resolveOffreTable();
         String sql = "SELECT f.id AS financement_id, f.projet_id, f.banque_id, f.montant, f.date_financement, "
                 + "o.id_offre, o.type_offre, o.taux, o.duree "
                 + "FROM financement f "
-                + "LEFT JOIN offre_financement o ON o.id_financement = f.id "
+                + "LEFT JOIN " + offreTable + " o ON o.id_financement = f.id "
                 + "ORDER BY f.id";
         try (PreparedStatement ps = conn.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -40,7 +42,8 @@ public class FinancementOffreService {
 
     public void add(FinancementOffre data) {
         String finSql = "INSERT INTO financement (projet_id, banque_id, montant, date_financement) VALUES (?,?,?,?)";
-        String offSql = "INSERT INTO offre_financement (type_offre, taux, duree, id_financement) VALUES (?,?,?,?)";
+        String offreTable = resolveOffreTable();
+        String offSql = "INSERT INTO " + offreTable + " (type_offre, taux, duree, id_financement) VALUES (?,?,?,?)";
         try {
             conn.setAutoCommit(false);
             int financementId;
@@ -57,12 +60,14 @@ public class FinancementOffreService {
                     financementId = keys.getInt(1);
                 }
             }
-            try (PreparedStatement ps = conn.prepareStatement(offSql)) {
-                ps.setString(1, data.getTypeOffre());
-                ps.setDouble(2, safeDouble(data.getTaux()));
-                ps.setInt(3, safeInt(data.getDuree()));
-                ps.setInt(4, financementId);
-                ps.executeUpdate();
+            if (hasOffreData(data)) {
+                try (PreparedStatement ps = conn.prepareStatement(offSql)) {
+                    ps.setString(1, data.getTypeOffre());
+                    ps.setDouble(2, safeDouble(data.getTaux()));
+                    ps.setInt(3, safeInt(data.getDuree()));
+                    ps.setInt(4, financementId);
+                    ps.executeUpdate();
+                }
             }
             conn.commit();
         } catch (SQLException e) {
@@ -75,8 +80,9 @@ public class FinancementOffreService {
 
     public void update(FinancementOffre data) {
         String finSql = "UPDATE financement SET projet_id=?, banque_id=?, montant=?, date_financement=? WHERE id=?";
-        String offUpdateSql = "UPDATE offre_financement SET type_offre=?, taux=?, duree=? WHERE id_offre=?";
-        String offInsertSql = "INSERT INTO offre_financement (type_offre, taux, duree, id_financement) VALUES (?,?,?,?)";
+        String offreTable = resolveOffreTable();
+        String offUpdateSql = "UPDATE " + offreTable + " SET type_offre=?, taux=?, duree=? WHERE id_offre=?";
+        String offInsertSql = "INSERT INTO " + offreTable + " (type_offre, taux, duree, id_financement) VALUES (?,?,?,?)";
         try {
             conn.setAutoCommit(false);
             try (PreparedStatement ps = conn.prepareStatement(finSql)) {
@@ -87,21 +93,23 @@ public class FinancementOffreService {
                 ps.setInt(5, safeInt(data.getFinancementId()));
                 ps.executeUpdate();
             }
-            if (data.getOffreId() != null && data.getOffreId() > 0) {
-                try (PreparedStatement ps = conn.prepareStatement(offUpdateSql)) {
-                    ps.setString(1, data.getTypeOffre());
-                    ps.setDouble(2, safeDouble(data.getTaux()));
-                    ps.setInt(3, safeInt(data.getDuree()));
-                    ps.setInt(4, data.getOffreId());
-                    ps.executeUpdate();
-                }
-            } else {
-                try (PreparedStatement ps = conn.prepareStatement(offInsertSql)) {
-                    ps.setString(1, data.getTypeOffre());
-                    ps.setDouble(2, safeDouble(data.getTaux()));
-                    ps.setInt(3, safeInt(data.getDuree()));
-                    ps.setInt(4, safeInt(data.getFinancementId()));
-                    ps.executeUpdate();
+            if (hasOffreData(data)) {
+                if (data.getOffreId() != null && data.getOffreId() > 0) {
+                    try (PreparedStatement ps = conn.prepareStatement(offUpdateSql)) {
+                        ps.setString(1, data.getTypeOffre());
+                        ps.setDouble(2, safeDouble(data.getTaux()));
+                        ps.setInt(3, safeInt(data.getDuree()));
+                        ps.setInt(4, data.getOffreId());
+                        ps.executeUpdate();
+                    }
+                } else {
+                    try (PreparedStatement ps = conn.prepareStatement(offInsertSql)) {
+                        ps.setString(1, data.getTypeOffre());
+                        ps.setDouble(2, safeDouble(data.getTaux()));
+                        ps.setInt(3, safeInt(data.getDuree()));
+                        ps.setInt(4, safeInt(data.getFinancementId()));
+                        ps.executeUpdate();
+                    }
                 }
             }
             conn.commit();
@@ -114,8 +122,9 @@ public class FinancementOffreService {
     }
 
     public void delete(FinancementOffre data) {
-        String offDeleteById = "DELETE FROM offre_financement WHERE id_offre=?";
-        String offDeleteByFin = "DELETE FROM offre_financement WHERE id_financement=?";
+        String offreTable = resolveOffreTable();
+        String offDeleteById = "DELETE FROM " + offreTable + " WHERE id_offre=?";
+        String offDeleteByFin = "DELETE FROM " + offreTable + " WHERE id_financement=?";
         String finDelete = "DELETE FROM financement WHERE id=?";
         try {
             conn.setAutoCommit(false);
@@ -174,5 +183,24 @@ public class FinancementOffreService {
         } catch (SQLException ignored) {
         }
     }
-}
 
+    private boolean hasOffreData(FinancementOffre data) {
+        return data.getTypeOffre() != null && !data.getTypeOffre().trim().isEmpty();
+    }
+
+    private String resolveOffreTable() {
+        if (cachedOffreTable != null) {
+            return cachedOffreTable;
+        }
+        cachedOffreTable = tableExists("offre_financement") ? "offre_financement" : "offres";
+        return cachedOffreTable;
+    }
+
+    private boolean tableExists(String tableName) {
+        try (ResultSet rs = conn.getMetaData().getTables(null, null, tableName, null)) {
+            return rs.next();
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+}
