@@ -10,6 +10,7 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.scene.layout.GridPane;
 
 public class FinancementController {
 
@@ -36,6 +37,9 @@ public class FinancementController {
     @FXML private TextField txtTaux;
     @FXML private TextField txtDuree;
     @FXML private TextField txtOffreFinancementId;
+
+    @FXML private TextField txtDeleteFinancementId;
+    @FXML private TextField txtFinancementIdToModify;
 
     private final FinancementService financementService = new FinancementService();
     private final OffreFinancementService offreService = new OffreFinancementService();
@@ -92,7 +96,7 @@ public class FinancementController {
             f.setMontant(requireDouble(txtMontant.getText()));
             f.setDateFinancement(requireText(txtDateFinancement.getText()));
             financementService.add(f);
-            loadFinancements();
+            refreshAll();
             clearFinFields();
         } catch (NumberFormatException ex) {
             showError("Valeurs invalides", "Veuillez verifier les champs numeriques.");
@@ -102,20 +106,56 @@ public class FinancementController {
     @FXML
     private void modifierFinancement() {
         Financement selected = tableFinancement.getSelectionModel().getSelectedItem();
-        if (selected == null) {
-            showError("Selection requise", "Choisissez un financement a modifier.");
-            return;
+        Integer targetId = selected != null ? selected.getId() : null;
+
+        if (targetId == null) {
+            try {
+                targetId = requireInt(txtFinancementIdToModify.getText());
+            } catch (NumberFormatException ex) {
+                showError("Selection requise", "Selectionnez une ligne ou saisissez un ID a modifier.");
+                return;
+            }
         }
-        try {
-            selected.setProjetId(requireInt(txtProjetId.getText()));
-            selected.setBanqueId(requireInt(txtBanqueId.getText()));
-            selected.setMontant(requireDouble(txtMontant.getText()));
-            selected.setDateFinancement(requireText(txtDateFinancement.getText()));
-            financementService.update(selected);
-            loadFinancements();
-        } catch (NumberFormatException ex) {
-            showError("Valeurs invalides", "Veuillez verifier les champs numeriques.");
-        }
+
+        Dialog<Financement> dialog = new Dialog<>();
+        dialog.setTitle("Modifier financement");
+        dialog.setHeaderText("Mettre a jour les informations du financement");
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+
+        TextField projetField = new TextField(selected != null ? String.valueOf(selected.getProjetId()) : txtProjetId.getText());
+        TextField banqueField = new TextField(selected != null ? String.valueOf(selected.getBanqueId()) : txtBanqueId.getText());
+        TextField montantField = new TextField(selected != null ? String.valueOf(selected.getMontant()) : txtMontant.getText());
+        TextField dateField = new TextField(selected != null ? nullSafeString(selected.getDateFinancement()) : txtDateFinancement.getText());
+
+        grid.addRow(0, new Label("Projet ID"), projetField);
+        grid.addRow(1, new Label("Banque ID"), banqueField);
+        grid.addRow(2, new Label("Montant"), montantField);
+        grid.addRow(3, new Label("Date (YYYY-MM-DD)"), dateField);
+
+        dialog.getDialogPane().setContent(grid);
+
+        Integer finalTargetId = targetId;
+        dialog.setResultConverter(button -> {
+            if (button == ButtonType.OK) {
+                Financement updated = new Financement();
+                updated.setId(finalTargetId);
+                updated.setProjetId(requireInt(projetField.getText()));
+                updated.setBanqueId(requireInt(banqueField.getText()));
+                updated.setMontant(requireDouble(montantField.getText()));
+                updated.setDateFinancement(requireText(dateField.getText()));
+                return updated;
+            }
+            return null;
+        });
+
+        dialog.showAndWait().ifPresent(updated -> {
+            financementService.update(updated);
+            refreshAll();
+        });
     }
 
     @FXML
@@ -139,7 +179,7 @@ public class FinancementController {
             o.setDuree(requireInt(txtDuree.getText()));
             o.setIdFinancement(requireInt(txtOffreFinancementId.getText()));
             offreService.add(o);
-            loadOffres();
+            refreshAll();
             clearOffreFields();
         } catch (NumberFormatException ex) {
             showError("Valeurs invalides", "Veuillez verifier les champs numeriques.");
@@ -175,6 +215,18 @@ public class FinancementController {
         offreService.delete(selected.getIdOffre());
         loadOffres();
         clearOffreFields();
+    }
+
+    @FXML
+    private void supprimerFinancementParId() {
+        try {
+            int id = requireInt(txtDeleteFinancementId.getText());
+            financementService.delete(id);
+            refreshAll();
+            txtDeleteFinancementId.clear();
+        } catch (NumberFormatException ex) {
+            showError("Valeurs invalides", "Veuillez saisir un ID valide.");
+        }
     }
 
     @FXML
