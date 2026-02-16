@@ -19,6 +19,7 @@
         <Separator styleClass="sidebar-sep"/>
 
         <Button text="📁 Gestion Projets" styleClass="nav-btn" onAction="#onGestionProjets"/>
+        <Button fx:id="btnGreenWallet" text="💳 GreenWallet" styleClass="nav-btn" onAction="#onGreenWallet"/>
         <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn" style="-fx-padding: 10 12;" onAction="#onSettings"/>
 
         <Region VBox.vgrow="ALWAYS"/>
@@ -65,6 +66,13 @@
                     <Label text="SOUMIS" styleClass="stat-title"/>
                     <Label fx:id="lblLocked" text="0" styleClass="stat-value accent-green"/>
                     <Label text="🔒" style="-fx-font-size: 18px;"/>
+                </VBox>
+
+                <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS"
+                      onMouseClicked="#onGreenWallet" style="-fx-cursor: hand;">
+                    <Label text="GREEN CARBON DISPONIBLE" styleClass="stat-title"/>
+                    <Label fx:id="lblWalletAvailable" text="0.00 tCO₂" styleClass="stat-value accent-blue"/>
+                    <Label text="💳" style="-fx-font-size: 18px;"/>
                 </VBox>
             </HBox>
         </VBox>

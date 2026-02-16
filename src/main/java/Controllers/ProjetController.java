@@ -1,7 +1,10 @@
 package Controllers;
 
 import Models.Projet;
+import Models.Wallet;
+import Models.User;
 import Services.ProjetService;
+import Services.WalletService;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -15,9 +18,12 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.GreenLedger.MainFX;
 
+import java.util.List;
+
 public class ProjetController {
 
     private final ProjetService service = new ProjetService();
+    private final WalletService walletService = new WalletService();
     private final Services.EvaluationService evaluationService = new Services.EvaluationService();
     private final ObservableList<Projet> data = FXCollections.observableArrayList();
     private java.util.Set<Integer> evaluatedProjectIds = java.util.Collections.emptySet();
@@ -32,10 +38,12 @@ public class ProjetController {
     @FXML private Label lblTotal;
     @FXML private Label lblDraft;
     @FXML private Label lblLocked;
+    @FXML private Label lblWalletAvailable;
 
     @FXML private Button btnSettings;
     @FXML private Button btnAuditCarbone;
     @FXML private Button btnGestionProjets;
+    @FXML private Button btnGreenWallet;
 
     @FXML private Label lblProfileName;
     @FXML private Label lblProfileType;
@@ -94,6 +102,9 @@ public class ProjetController {
         if (btnSettings != null) {
             btnSettings.setOnAction(e -> showSettings());
         }
+        if (btnGreenWallet != null) {
+            btnGreenWallet.setOnAction(e -> onGreenWallet());
+        }
 
         applyProfile();
 
@@ -146,10 +157,20 @@ public class ProjetController {
         showSettings();
     }
 
+    @FXML
+    private void onGreenWallet() {
+        try {
+            MainFX.setRoot("greenwallet");
+        } catch (Exception ex) {
+            showError("Navigation impossible: " + ex.getMessage());
+        }
+    }
+
     private void refresh() {
         data.setAll(service.afficher());
         evaluatedProjectIds = evaluationService.getProjetIdsWithEvaluations();
         updateStats();
+        refreshWalletBalance();
     }
 
     private void updateStats() {
@@ -160,6 +181,30 @@ public class ProjetController {
         lblTotal.setText(String.valueOf(total));
         lblDraft.setText(String.valueOf(drafts));
         lblLocked.setText(String.valueOf(locked));
+    }
+
+    private void refreshWalletBalance() {
+        if (lblWalletAvailable == null) {
+            return;
+        }
+
+        User user = Utils.SessionManager.getInstance().getCurrentUser();
+        if (user == null || user.getId() == null) {
+            lblWalletAvailable.setText("0.00 tCO₂");
+            return;
+        }
+
+        try {
+            int ownerId = user.getId().intValue();
+            List<Wallet> wallets = walletService.getAllWallets();
+            double totalAvailableCredits = wallets.stream()
+                    .filter(wallet -> wallet.getOwnerId() == ownerId)
+                    .mapToDouble(Wallet::getAvailableCredits)
+                    .sum();
+            lblWalletAvailable.setText(String.format("%.2f tCO₂", totalAvailableCredits));
+        } catch (Exception ex) {
+            lblWalletAvailable.setText("0.00 tCO₂");
+        }
     }
 
     private void openDetailWindow(Projet projet) {
