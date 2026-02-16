@@ -12,7 +12,9 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
 
-public class FinancementController {
+import java.io.IOException;
+
+public class FinancementController extends BaseController {
 
     @FXML private TableView<Financement> tableFinancement;
     @FXML private TableColumn<Financement, Integer> colFinId;
@@ -47,7 +49,7 @@ public class FinancementController {
     private final javafx.collections.ObservableList<OffreFinancement> offreItems = FXCollections.observableArrayList();
 
     @FXML
-    private void initialize() {
+    public void initialize() {
         colFinId.setCellValueFactory(cd -> new SimpleIntegerProperty(cd.getValue().getId()).asObject());
         colFinProjetId.setCellValueFactory(cd -> new SimpleIntegerProperty(cd.getValue().getProjetId()).asObject());
         colFinBanqueId.setCellValueFactory(cd -> new SimpleIntegerProperty(cd.getValue().getBanqueId()).asObject());
@@ -292,5 +294,61 @@ public class FinancementController {
         alert.setHeaderText(null);
         alert.setContentText(message);
         alert.showAndWait();
+    }
+
+    /**
+     * Navigate to dashboard
+     */
+    @FXML
+    private void handleGoDashboard() {
+        try {
+            org.GreenLedger.MainFX.setRoot("fxml/dashboard");
+        } catch (IOException ex) {
+            System.err.println("[ERROR] Navigation error: " + ex.getMessage());
+            ex.printStackTrace();
+            showError("Erreur", "Impossible de naviguer au tableau de bord");
+        }
+    }
+
+    /**
+     * Stay on financement (no-op or refresh)
+     */
+    @FXML
+    private void handleGoFinancement() {
+        try {
+            refreshAll();
+        } catch (Exception ex) {
+            System.err.println("[ERROR] Refresh error: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
+
+    /**
+     * Navigate to investor financing
+     */
+    @FXML
+    private void handleGoInvestments() {
+        try {
+            org.GreenLedger.MainFX.setRoot("fxml/investor_financing");
+        } catch (IOException ex) {
+            System.err.println("[ERROR] Navigation error: " + ex.getMessage());
+            ex.printStackTrace();
+            showError("Erreur", "Impossible de naviguer aux investissements");
+        }
+    }
+
+    /**
+     * Navigate to settings
+     */
+    @FXML
+    private void handleGoSettings() {
+        try {
+            // Navigate to settings - using dashboard as fallback
+            org.GreenLedger.MainFX.setRoot("fxml/dashboard");
+        } catch (IOException ex) {
+            System.err.println("[ERROR] Navigation error: " + ex.getMessage());
+            ex.printStackTrace();
+            showError("Erreur", "Impossible de naviguer aux paramètres");
+        }
     }
 }

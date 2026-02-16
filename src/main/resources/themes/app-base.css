@@ -678,6 +678,16 @@
     -fx-text-fill: #2D5F3F;
 }
 
+.message-success {
+    -fx-text-fill: #10B981;
+    -fx-font-weight: 600;
+}
+
+.message-error {
+    -fx-text-fill: #EF4444;
+    -fx-font-weight: 600;
+}
+
 /* Readonly Fields */
 .field-readonly {
     -fx-background-color: #F3F4F6;

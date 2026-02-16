@@ -8,61 +8,65 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="Controllers.DashboardController"
-            prefHeight="700" prefWidth="1200">
+            prefHeight="700" prefWidth="1200"
+            styleClass="page">
 
     <!-- TOP: Header -->
     <top>
-        <VBox style="-fx-background-color: #1F2937; -fx-padding: 20;">
+        <VBox styleClass="topbar">
             <HBox alignment="CENTER_LEFT" spacing="20">
                 <padding>
-                    <Insets left="20" right="20"/>
+                    <Insets top="16" right="24" bottom="16" left="24"/>
                 </padding>
 
                 <Label fx:id="welcomeLabel"
                        text="Bienvenue"
-                       style="-fx-text-fill: white; -fx-font-size: 28px; -fx-font-weight: bold;"/>
+                       styleClass="topbar-title"/>
 
                 <Region HBox.hgrow="ALWAYS"/>
 
                 <VBox alignment="CENTER_RIGHT" spacing="5">
                     <Label fx:id="userNameLabel"
                            text="Nom Utilisateur"
-                           style="-fx-text-fill: white; -fx-font-size: 16px; -fx-font-weight: bold;"/>
+                          styleClass="topbar-title"/>
                     <Label fx:id="userEmailLabel"
                            text="email@example.com"
-                           style="-fx-text-fill: #9CA3AF; -fx-font-size: 12px;"/>
+                          styleClass="muted-note"/>
                 </VBox>
 
                 <Button fx:id="logoutButton"
                         text="Déconnexion"
-                        styleClass="button-danger"
+                       styleClass="btn btn-danger"
                         onAction="#handleLogout"/>
             </HBox>
 
             <!-- Informations utilisateur -->
-            <HBox spacing="30" style="-fx-padding: 15 20 0 20;">
+                 <HBox spacing="30">
+                  <padding>
+                      <Insets top="0" right="24" bottom="16" left="24"/>
+                  </padding>
                 <Label fx:id="userTypeLabel"
                        text="Type: Investisseur"
-                       style="-fx-text-fill: #60A5FA; -fx-font-size: 14px;"/>
+                      styleClass="status-text status-text-success"/>
                 <Label fx:id="memberSinceLabel"
                        text="Membre depuis le 01/01/2025"
-                       style="-fx-text-fill: #9CA3AF; -fx-font-size: 14px;"/>
+                      styleClass="muted-note"/>
                 <Label fx:id="lastLoginLabel"
                        text="Dernière connexion : 13/02/2025 14:30"
-                       style="-fx-text-fill: #9CA3AF; -fx-font-size: 14px;"/>
+                      styleClass="muted-note"/>
             </HBox>
         </VBox>
     </top>
 
     <!-- LEFT: Menu de navigation -->
     <left>
-        <VBox spacing="10" style="-fx-background-color: #F3F4F6; -fx-padding: 20;">
+        <VBox spacing="10" styleClass="sidebar">
             <padding>
                 <Insets top="20" right="10" bottom="20" left="10"/>
             </padding>
 
             <Label text="Navigation"
-                   style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #6B7280;"/>
+                   styleClass="section-title-sidebar"/>
 
             <Separator/>
 
@@ -70,85 +74,87 @@
                     text="👤 Mon Profil"
                     onAction="#handleProfile"
                     maxWidth="Infinity"
-                    styleClass="button-secondary"
-                    style="-fx-alignment: CENTER_LEFT;"/>
+                    styleClass="nav-btn"/>
 
             <Button fx:id="projectsButton"
                     text="📊 Projets"
                     onAction="#handleProjects"
                     maxWidth="Infinity"
-                    styleClass="button-secondary"
-                    style="-fx-alignment: CENTER_LEFT;"/>
+                    styleClass="nav-btn"/>
 
             <Button fx:id="investmentsButton"
                     text="💰 Investissements"
                     onAction="#handleInvestments"
                     maxWidth="Infinity"
-                    styleClass="button-secondary"
-                    style="-fx-alignment: CENTER_LEFT;"/>
+                    styleClass="nav-btn"/>
 
             <Button fx:id="settingsButton"
                     text="⚙️ Paramètres"
                     onAction="#handleSettings"
                     maxWidth="Infinity"
-                    styleClass="button-secondary"
-                    style="-fx-alignment: CENTER_LEFT;"/>
+                    styleClass="nav-btn"/>
+
+            <Button fx:id="financingButton"
+                    text="💳 Gestion Financement Avancée"
+                    onAction="#handleAdvancedFinancing"
+                    maxWidth="Infinity"
+                    styleClass="nav-btn"/>
 
             <Region VBox.vgrow="ALWAYS"/>
 
             <Separator/>
 
             <Text text="Module Gestion Utilisateurs"
-                  style="-fx-fill: #9CA3AF; -fx-font-size: 11px;"
+                styleClass="muted-note"
                   wrappingWidth="150"/>
         </VBox>
     </left>
 
     <!-- CENTER: Contenu principal -->
     <center>
-        <ScrollPane fitToWidth="true" style="-fx-background-color: white;">
-            <VBox spacing="20" style="-fx-padding: 30;">
+        <ScrollPane fitToWidth="true" styleClass="content-area">
+            <VBox spacing="20" styleClass="content-area">
+                <padding>
+                    <Insets top="30" right="30" bottom="30" left="30"/>
+                </padding>
 
                 <!-- Statistiques -->
                 <VBox spacing="15">
                     <Label text="Statistiques"
-                           style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+                           styleClass="section-title"/>
 
                     <HBox spacing="20">
                         <!-- Stat 1 -->
-                        <VBox alignment="CENTER" styleClass="card" spacing="10"
-                              style="-fx-background-color: white; -fx-padding: 20; -fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 8;"
+                           <VBox alignment="CENTER" styleClass="stat-card" spacing="10"
                               HBox.hgrow="ALWAYS">
                             <Label fx:id="stat1Label"
                                    text="Statistique 1"
-                                   style="-fx-text-fill: #6B7280; -fx-font-size: 14px;"/>
+                                styleClass="stat-title"/>
                             <Label fx:id="stat1Value"
                                    text="0"
-                                   style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #2563EB;"/>
+                                styleClass="stat-value accent-blue"/>
                         </VBox>
 
                         <!-- Stat 2 -->
-                        <VBox alignment="CENTER" styleClass="card" spacing="10"
-                              style="-fx-background-color: white; -fx-padding: 20; -fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 8;"
+                           <VBox alignment="CENTER" styleClass="stat-card" spacing="10"
                               HBox.hgrow="ALWAYS">
                             <Label fx:id="stat2Label"
                                    text="Statistique 2"
-                                   style="-fx-text-fill: #6B7280; -fx-font-size: 14px;"/>
+                                styleClass="stat-title"/>
                             <Label fx:id="stat2Value"
                                    text="0"
-                                   style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #10B981;"/>
+                                styleClass="stat-value accent-green"/>
                         </VBox>
 
                         <!-- Stat 3 -->
-                        <VBox alignment="CENTER" styleClass="card" spacing="10"
-                              style="-fx-background-color: white; -fx-padding: 20; -fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 8;"
+                           <VBox alignment="CENTER" styleClass="stat-card" spacing="10"
                               HBox.hgrow="ALWAYS">
                             <Label fx:id="stat3Label"
                                    text="Statistique 3"
-                                   style="-fx-text-fill: #6B7280; -fx-font-size: 14px;"/>
+                                styleClass="stat-title"/>
                             <Label fx:id="stat3Value"
                                    text="0"
-                                   style="-fx-font-size: 36px; -fx-font-weight: bold; -fx-text-fill: #F59E0B;"/>
+                                styleClass="stat-value accent-amber"/>
                         </VBox>
                     </HBox>
                 </VBox>
@@ -156,41 +162,44 @@
                 <Separator/>
 
                 <!-- Modifier le profil -->
-                <VBox spacing="15" styleClass="card"
-                      style="-fx-padding: 25; -fx-border-color: #E5E7EB; -fx-border-width: 1; -fx-border-radius: 8;">
+                    <VBox spacing="15" styleClass="card">
 
                     <Label text="Modifier mon profil"
-                           style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                              styleClass="section-title"/>
 
                     <Label fx:id="profileMessageLabel"
                            text=""
                            visible="false"
                            wrapText="true"
-                           style="-fx-font-size: 13px;"/>
+                              styleClass="muted-note"/>
 
                     <GridPane hgap="15" vgap="15">
                         <!-- Nom -->
                         <Label text="Nom" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
                         <TextField fx:id="nomField"
                                    GridPane.rowIndex="0" GridPane.columnIndex="1"
+                                   styleClass="field"
                                    prefWidth="300"/>
 
                         <!-- Prénom -->
                         <Label text="Prénom" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                         <TextField fx:id="prenomField"
                                    GridPane.rowIndex="1" GridPane.columnIndex="1"
+                                   styleClass="field"
                                    prefWidth="300"/>
 
                         <!-- Email -->
                         <Label text="Email" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
                         <TextField fx:id="emailField"
                                    GridPane.rowIndex="2" GridPane.columnIndex="1"
+                                   styleClass="field"
                                    prefWidth="300"/>
 
                         <!-- Téléphone -->
                         <Label text="Téléphone" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
                         <TextField fx:id="telephoneField"
                                    GridPane.rowIndex="3" GridPane.columnIndex="1"
+                                   styleClass="field"
                                    prefWidth="300"/>
 
                         <columnConstraints>
@@ -203,6 +212,7 @@
                     <VBox spacing="5">
                         <Label text="Adresse"/>
                         <TextArea fx:id="adresseField"
+                                  styleClass="field"
                                   prefRowCount="3"
                                   maxWidth="415"/>
                     </VBox>
@@ -212,6 +222,7 @@
                         <Button fx:id="saveProfileButton"
                                 text="💾 Sauvegarder les modifications"
                                 onAction="#handleSaveProfile"
+                            styleClass="btn btn-primary"
                                 prefWidth="250"
                                 prefHeight="40"/>
                     </HBox>
@@ -222,26 +233,26 @@
                 <!-- Actions rapides -->
                 <VBox spacing="15">
                     <Label text="Actions rapides"
-                           style="-fx-font-size: 18px; -fx-font-weight: bold;"/>
+                           styleClass="section-title"/>
 
                     <HBox spacing="15">
                         <Button text="📊 Voir mes projets"
                                 onAction="#handleProjects"
                                 prefWidth="200"
                                 prefHeight="50"
-                                styleClass="button-secondary"/>
+                            styleClass="btn btn-secondary"/>
 
                         <Button text="💰 Mes investissements"
                                 onAction="#handleInvestments"
                                 prefWidth="200"
                                 prefHeight="50"
-                                styleClass="button-secondary"/>
+                            styleClass="btn btn-secondary"/>
 
                         <Button text="⚙️ Paramètres"
                                 onAction="#handleSettings"
                                 prefWidth="200"
                                 prefHeight="50"
-                                styleClass="button-secondary"/>
+                            styleClass="btn btn-secondary"/>
                     </HBox>
                 </VBox>
 
@@ -251,9 +262,12 @@
 
     <!-- BOTTOM: Footer -->
     <bottom>
-        <HBox alignment="CENTER" style="-fx-padding: 15; -fx-background-color: #F3F4F6;">
+        <HBox alignment="CENTER" styleClass="topbar">
+            <padding>
+                <Insets top="12" right="12" bottom="12" left="12"/>
+            </padding>
             <Text text="© 2025 Plateforme Énergie Renouvelable - Module Gestion Utilisateurs - PIDEV 3A"
-                  style="-fx-fill: #6B7280; -fx-font-size: 12px;"/>
+                  styleClass="muted-note"/>
         </HBox>
     </bottom>
 </BorderPane>

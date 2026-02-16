@@ -14,6 +14,7 @@ import Models.User;
 import Services.IUserService;
 import Services.UserServiceImpl;
 import Utils.SessionManager;
+import org.GreenLedger.MainFX;
 
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
@@ -44,6 +45,7 @@ public class DashboardController {
     @FXML private Button projectsButton;
     @FXML private Button investmentsButton;
     @FXML private Button settingsButton;
+    @FXML private Button financingButton;
     @FXML private Button logoutButton;
 
     // Section de modification de profil (optionnel)
@@ -68,6 +70,17 @@ public class DashboardController {
         // Cette méthode sera appelée automatiquement après le chargement du FXML
         if (profileMessageLabel != null) {
             profileMessageLabel.setVisible(false);
+        }
+
+        if (currentUser == null) {
+            try {
+                User sessionUser = SessionManager.getInstance().getCurrentUser();
+                if (sessionUser != null) {
+                    setCurrentUser(sessionUser);
+                }
+            } catch (Exception ex) {
+                System.err.println("[CLEAN] Erreur session initialize dashboard: " + ex.getMessage());
+            }
         }
 
         // S'assurer que les champs de profil sont éditables et peuvent recevoir le focus
@@ -356,16 +369,7 @@ public class DashboardController {
     @FXML
     private void handleProfile(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/profile.fxml"));
-            Parent root = loader.load();
-
-            ProfileController controller = loader.getController();
-            controller.setCurrentUser(currentUser);
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Mon Profil");
-            stage.show();
+            MainFX.setRoot("editProfile");
 
         } catch (IOException e) {
             showAlert("Erreur", "Impossible de charger le profil", Alert.AlertType.ERROR);
@@ -388,9 +392,13 @@ public class DashboardController {
      */
     @FXML
     private void handleInvestments(ActionEvent event) {
-        showAlert("Information",
-                "La gestion des investissements sera disponible dans le module 'Gestion Financement'",
-                Alert.AlertType.INFORMATION);
+        try {
+            MainFX.setRoot("fxml/investor_financing");
+
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible de charger le module de gestion des investissements", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -401,6 +409,20 @@ public class DashboardController {
         showAlert("Information",
                 "Les paramètres seront disponibles prochainement",
                 Alert.AlertType.INFORMATION);
+    }
+
+    /**
+     * Gérer la navigation vers la gestion financement avancée
+     */
+    @FXML
+    private void handleAdvancedFinancing(ActionEvent event) {
+        try {
+            MainFX.setRoot("financement");
+
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible de charger le module de financement avancé", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
     }
 
     /**
@@ -473,12 +495,13 @@ public class DashboardController {
 
         profileMessageLabel.setText(message);
         profileMessageLabel.setVisible(true);
+        profileMessageLabel.getStyleClass().removeAll("message-success", "message-error");
 
         // Style selon le type
         if (type.equals("success")) {
-            profileMessageLabel.setStyle("-fx-text-fill: #10B981;");
+            profileMessageLabel.getStyleClass().add("message-success");
         } else {
-            profileMessageLabel.setStyle("-fx-text-fill: #EF4444;");
+            profileMessageLabel.getStyleClass().add("message-error");
         }
 
         // Masquer après 3 secondes

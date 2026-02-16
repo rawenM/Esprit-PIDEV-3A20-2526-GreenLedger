@@ -15,14 +15,15 @@
 
         <Separator styleClass="sidebar-sep"/>
 
-        <Button fx:id="btnDashboard" text="📊 Tableau de bord" styleClass="nav-btn"/>
-        <Button fx:id="btnFinancement" text="💳 Financement" styleClass="nav-btn"/>
-        <Button fx:id="btnOffres" text="🧾 Offres" styleClass="nav-btn"/>
+        <Button fx:id="btnDashboard" text="📊 Tableau de bord" onAction="#handleGoDashboard" styleClass="nav-btn"/>
+        <Button fx:id="btnFinancement" text="💳 Financement" onAction="#handleGoFinancement" styleClass="nav-btn nav-btn-active"/>
+        <Button fx:id="btnOffres" text="🧾 Offres" onAction="#handleGoInvestments" styleClass="nav-btn"/>
 
         <Separator styleClass="sidebar-sep"/>
 
         <Button fx:id="btnNewFinancement" text="➕ Nouveau" styleClass="nav-btn"/>
         <Button fx:id="btnRefresh" text="🔄 Actualiser" styleClass="nav-btn" onAction="#refreshAll"/>
+        <Button fx:id="btnNavSettings" text="⚙️ Paramètres" onAction="#handleGoSettings" styleClass="nav-btn"/>
 
         <Region VBox.vgrow="ALWAYS"/>
     </VBox>
