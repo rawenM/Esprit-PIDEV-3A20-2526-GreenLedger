@@ -12,17 +12,20 @@
     <!-- Sidebar -->
     <VBox prefWidth="220" styleClass="sidebar">
         <HBox alignment="CENTER_LEFT" spacing="8">
-            <Label text="🌿" style="-fx-font-size: 20px;"/>
-            <Label text="GreenLedger" styleClass="sidebar-title"/>
+            <Label text="👤" style="-fx-font-size: 20px;"/>
+            <Label text="Mon Profil" styleClass="sidebar-title"/>
         </HBox>
 
         <Separator styleClass="sidebar-sep"/>
 
-        <Button text="📁 Gestion Projets" styleClass="nav-btn" onAction="#onGestionProjets"/>
-        <Button text="⚙ Settings" styleClass="nav-btn" onAction="#onSettings"/>
+        <Button text="← Retour" styleClass="btn btn-secondary" onAction="#handleCancel"/>
+
+        <Label text="NAVIGATION" styleClass="section-title-sidebar"/>
+        <Button text="🏠 Tableau de bord" styleClass="nav-btn" onAction="#handleCancel"/>
+        <Button text="⚙ Parametres" styleClass="nav-btn" onAction="#onSettings"/>
 
         <Region VBox.vgrow="ALWAYS"/>
-        <Label text="Module Projet" style="-fx-opacity: 0.6; -fx-font-size: 11px;"/>
+        <Label text="Profil utilisateur" style="-fx-opacity: 0.6; -fx-font-size: 11px;"/>
     </VBox>
 
     <!-- Content -->

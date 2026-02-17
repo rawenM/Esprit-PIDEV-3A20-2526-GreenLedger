@@ -36,7 +36,7 @@ public class WalletService {
                 wallet.setWalletNumber(generateUniqueWalletNumber());
             }
             
-            ps.setInt(1, wallet.getWalletNumber());
+            ps.setString(1, String.valueOf(wallet.getWalletNumber()));
             ps.setString(2, wallet.getName());
             ps.setString(3, wallet.getOwnerType());
             ps.setInt(4, wallet.getOwnerId());
@@ -49,7 +49,36 @@ public class WalletService {
                 return rs.getInt(1);
             }
         } catch (SQLException ex) {
+            if (isUnknownColumnError(ex, "name")) {
+                return createWalletWithoutName(wallet);
+            }
             System.out.println("Error creating wallet: " + ex.getMessage());
+        }
+        return -1;
+    }
+
+    private int createWalletWithoutName(Wallet wallet) {
+        String sql = "INSERT INTO wallet (wallet_number, owner_type, owner_id, available_credits, retired_credits) " +
+                     "VALUES (?, ?, ?, ?, ?)";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            if (wallet.getWalletNumber() == null) {
+                wallet.setWalletNumber(generateUniqueWalletNumber());
+            }
+
+            ps.setString(1, String.valueOf(wallet.getWalletNumber()));
+            ps.setString(2, wallet.getOwnerType());
+            ps.setInt(3, wallet.getOwnerId());
+            ps.setDouble(4, wallet.getAvailableCredits());
+            ps.setDouble(5, wallet.getRetiredCredits());
+
+            ps.executeUpdate();
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException nestedEx) {
+            System.out.println("Error creating wallet (legacy schema): " + nestedEx.getMessage());
         }
         return -1;
     }
@@ -121,7 +150,23 @@ public class WalletService {
             
             return ps.executeUpdate() > 0;
         } catch (SQLException ex) {
+            if (isUnknownColumnError(ex, "name")) {
+                return updateWalletWithoutName(wallet);
+            }
             System.out.println("Error updating wallet: " + ex.getMessage());
+        }
+        return false;
+    }
+
+    private boolean updateWalletWithoutName(Wallet wallet) {
+        String sql = "UPDATE wallet SET owner_type = ? WHERE id = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, wallet.getOwnerType());
+            ps.setInt(2, wallet.getId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException ex) {
+            System.out.println("Error updating wallet (legacy schema): " + ex.getMessage());
         }
         return false;
     }
@@ -331,10 +376,10 @@ public class WalletService {
             }
             
             // 3. Record transactions
-            String note = String.format("%s (Transfer to Wallet #%d)", referenceNote, toWallet.getWalletNumber());
+            String note = String.format("%s (Transfer to Wallet #%s)", referenceNote, safeWalletNumber(toWallet.getWalletNumber()));
             recordTransaction(fromWalletId, null, "TRANSFER_OUT", amount, note);
             
-            String noteIn = String.format("%s (Transfer from Wallet #%d)", referenceNote, fromWallet.getWalletNumber());
+            String noteIn = String.format("%s (Transfer from Wallet #%s)", referenceNote, safeWalletNumber(fromWallet.getWalletNumber()));
             recordTransaction(toWalletId, null, "TRANSFER_IN", amount, noteIn);
             
             conn.commit();
@@ -465,14 +510,34 @@ public class WalletService {
     private void recordTransaction(int walletId, Integer batchId, String type, double amount, String note) throws SQLException {
         String sql = "INSERT INTO wallet_transactions (wallet_id, batch_id, type, amount, reference_note, created_at) " +
                      "VALUES (?, ?, ?, ?, ?, ?)";
+        Integer effectiveBatchId = batchId != null ? batchId : 0;
+        String effectiveType = normalizeTransactionType(type);
         
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, walletId);
-            ps.setObject(2, batchId);
-            ps.setString(3, type);
+            ps.setInt(2, effectiveBatchId);
+            ps.setString(3, effectiveType);
             ps.setDouble(4, amount);
             ps.setString(5, note);
             ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+            ps.executeUpdate();
+        } catch (SQLException ex) {
+            if (isUnknownColumnError(ex, "created_at")) {
+                recordTransactionWithoutCreatedAt(walletId, effectiveBatchId, effectiveType, amount, note);
+                return;
+            }
+            throw ex;
+        }
+    }
+
+    private void recordTransactionWithoutCreatedAt(int walletId, Integer batchId, String type, double amount, String note) throws SQLException {
+        String sql = "INSERT INTO wallet_transactions (wallet_id, batch_id, type, amount, reference_note) VALUES (?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, walletId);
+            ps.setInt(2, batchId != null ? batchId : 0);
+            ps.setString(3, normalizeTransactionType(type));
+            ps.setDouble(4, amount);
+            ps.setString(5, note);
             ps.executeUpdate();
         }
     }
@@ -512,13 +577,14 @@ public class WalletService {
     private Wallet mapResultSetToWallet(ResultSet rs) throws SQLException {
         Wallet wallet = new Wallet();
         wallet.setId(rs.getInt("id"));
-        wallet.setWalletNumber((Integer) rs.getObject("wallet_number"));
-        wallet.setName(rs.getString("name"));
+        wallet.setWalletNumber(readInteger(rs, "wallet_number"));
+        wallet.setName(readString(rs, "name"));
         wallet.setOwnerType(rs.getString("owner_type"));
-        wallet.setOwnerId(rs.getInt("owner_id"));
+        Integer ownerId = readInteger(rs, "owner_id");
+        wallet.setOwnerId(ownerId != null ? ownerId : 0);
         wallet.setAvailableCredits(rs.getDouble("available_credits"));
         wallet.setRetiredCredits(rs.getDouble("retired_credits"));
-        wallet.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+        wallet.setCreatedAt(readLocalDateTime(rs, "created_at"));
         return wallet;
     }
 
@@ -530,7 +596,7 @@ public class WalletService {
         batch.setTotalAmount(rs.getBigDecimal("total_amount"));
         batch.setRemainingAmount(rs.getBigDecimal("remaining_amount"));
         batch.setStatus(rs.getString("status"));
-        batch.setIssuedAt(rs.getTimestamp("issued_at").toLocalDateTime());
+        batch.setIssuedAt(readLocalDateTime(rs, "issued_at"));
         return batch;
     }
 
@@ -538,11 +604,72 @@ public class WalletService {
         OperationWallet transaction = new OperationWallet();
         transaction.setId(rs.getInt("id"));
         transaction.setWalletId(rs.getInt("wallet_id"));
-        transaction.setBatchId((Integer) rs.getObject("batch_id"));
+        transaction.setBatchId(readInteger(rs, "batch_id"));
         transaction.setType(rs.getString("type"));
         transaction.setAmount(rs.getBigDecimal("amount"));
         transaction.setReferenceNote(rs.getString("reference_note"));
-        transaction.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
+        transaction.setCreatedAt(readLocalDateTime(rs, "created_at"));
         return transaction;
+    }
+
+    private Integer readInteger(ResultSet rs, String columnName) throws SQLException {
+        Object value = rs.getObject(columnName);
+        if (value == null) {
+            return null;
+        }
+
+        if (value instanceof Integer) {
+            return (Integer) value;
+        }
+        if (value instanceof Number) {
+            return ((Number) value).intValue();
+        }
+
+        String text = value.toString().trim();
+        if (text.isEmpty()) {
+            return null;
+        }
+
+        try {
+            return Integer.parseInt(text);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    private LocalDateTime readLocalDateTime(ResultSet rs, String columnName) throws SQLException {
+        Timestamp timestamp = rs.getTimestamp(columnName);
+        return timestamp != null ? timestamp.toLocalDateTime() : null;
+    }
+
+    private String readString(ResultSet rs, String columnName) {
+        try {
+            return rs.getString(columnName);
+        } catch (SQLException ex) {
+            return null;
+        }
+    }
+
+    private String normalizeTransactionType(String type) {
+        if (type == null) {
+            return "ISSUE";
+        }
+        return switch (type) {
+            case "TRANSFER_IN" -> "ISSUE";
+            case "TRANSFER_OUT" -> "RETIRE";
+            default -> type;
+        };
+    }
+
+    private boolean isUnknownColumnError(SQLException ex, String columnName) {
+        if (ex == null || ex.getMessage() == null) {
+            return false;
+        }
+        String msg = ex.getMessage().toLowerCase();
+        return msg.contains("unknown column") && msg.contains(columnName.toLowerCase());
+    }
+
+    private String safeWalletNumber(Integer walletNumber) {
+        return walletNumber == null ? "—" : String.valueOf(walletNumber);
     }
 }

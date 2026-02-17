@@ -21,6 +21,8 @@
 
         <Separator styleClass="sidebar-sep"/>
 
+        <Button text="← Retour" styleClass="btn btn-secondary" onAction="#handleBack"/>
+
         <Button fx:id="btnGestionProjets" text="📁 Voir Projets" styleClass="nav-btn"/>
         <Button fx:id="btnGestionEvaluations" text="📊 Gestion Évaluations" styleClass="nav-btn"/>
         <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn"/>

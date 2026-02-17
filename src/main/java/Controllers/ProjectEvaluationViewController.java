@@ -2,7 +2,11 @@ package Controllers;
 
 import Models.Evaluation;
 import Models.EvaluationResult;
+import Models.TypeUtilisateur;
+import Models.User;
 import Services.EvaluationService;
+import Utils.NavigationContext;
+import Utils.SessionManager;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -66,10 +70,22 @@ public class ProjectEvaluationViewController {
     @FXML
     private void onBack() {
         try {
-            MainFX.setRoot("GestionProjet");
+            MainFX.setRoot(resolveBackTarget());
         } catch (IOException e) {
             showError("Navigation impossible: " + e.getMessage());
         }
+    }
+
+    private String resolveBackTarget() {
+        User user = SessionManager.getInstance().getCurrentUser();
+        if (user != null && user.getTypeUtilisateur() == TypeUtilisateur.PORTEUR_PROJET) {
+            return "fxml/dashboard";
+        }
+        String previous = NavigationContext.getInstance().getPreviousPage();
+        if (previous != null && !previous.isBlank()) {
+            return previous;
+        }
+        return "GestionProjet";
     }
 
     @FXML

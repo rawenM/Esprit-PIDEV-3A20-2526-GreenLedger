@@ -15,6 +15,12 @@ import Models.Projet;
 import org.GreenLedger.MainFX;
 import Services.ProjetService;
 
+import Services.EvaluationService;
+import Models.Evaluation;
+import Utils.SessionManager;
+import Models.TypeUtilisateur;
+import Models.User;
+
 
 import java.io.IOException;
 
@@ -70,6 +76,7 @@ public class ExpertProjetController extends BaseController {
 
     private final ObservableList<Projet> data = FXCollections.observableArrayList();
     private final ProjetService projetService = new ProjetService();
+    private final EvaluationService evaluationService = new EvaluationService();
 
     @FXML
     public void initialize() {
@@ -202,11 +209,15 @@ public class ExpertProjetController extends BaseController {
 
     private void updateStats() {
         long total = data.size();
-        long pending = data.stream().filter(p -> {
-            String s = p.getStatutEvaluation();
-            return s == null || s.isEmpty() || s.equalsIgnoreCase("En attente");
-        }).count();
-        long evaluated = total - pending;
+        java.util.Set<Integer> evaluatedIds = new java.util.HashSet<>();
+        java.util.List<Evaluation> evaluations = evaluationService.afficher();
+        if (evaluations != null) {
+            for (Evaluation evaluation : evaluations) {
+                evaluatedIds.add(evaluation.getIdProjet());
+            }
+        }
+        long evaluated = data.stream().filter(p -> evaluatedIds.contains(p.getId())).count();
+        long pending = Math.max(0, total - evaluated);
 
         lblTotal.setText(String.valueOf(total));
         lblPending.setText(String.valueOf(pending));
@@ -220,5 +231,18 @@ public class ExpertProjetController extends BaseController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @FXML
+    private void handleBack() {
+        try {
+            MainFX.setRoot(resolveBackTarget());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String resolveBackTarget() {
+        return "fxml/dashboard";
     }
 }

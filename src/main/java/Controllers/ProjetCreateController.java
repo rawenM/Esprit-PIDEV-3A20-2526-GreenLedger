@@ -5,6 +5,10 @@ import Services.ProjetService;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import org.GreenLedger.MainFX;
+import Utils.NavigationContext;
+import Utils.SessionManager;
+import Models.TypeUtilisateur;
+import Models.User;
 
 public class ProjetCreateController {
 
@@ -56,10 +60,22 @@ public class ProjetCreateController {
 
     private void goHome() {
         try {
-            MainFX.setRoot("GestionProjet");
+            MainFX.setRoot(resolveBackTarget());
         } catch (Exception ex) {
             error("Navigation impossible: " + ex.getMessage());
         }
+    }
+
+    private String resolveBackTarget() {
+        User user = SessionManager.getInstance().getCurrentUser();
+        if (user != null && user.getTypeUtilisateur() == TypeUtilisateur.PORTEUR_PROJET) {
+            return "fxml/dashboard";
+        }
+        String previous = NavigationContext.getInstance().getPreviousPage();
+        if (previous != null && !previous.isBlank()) {
+            return previous;
+        }
+        return "GestionProjet";
     }
 
     private String safe(String s) { return s == null ? "" : s.trim(); }

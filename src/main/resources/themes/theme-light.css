@@ -122,6 +122,11 @@
     -fx-text-fill: #2B6A4A;
 }
 
+.nav-btn-active {
+    -fx-background-color: #2B6A4A;
+    -fx-text-fill: #FFFFFF;
+}
+
 /* ===== FORM FIELDS ===== */
 .field {
     -fx-background-color: #FFFFFF;

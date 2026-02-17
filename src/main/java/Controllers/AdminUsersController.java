@@ -461,12 +461,7 @@ public class AdminUsersController {
             try {
                 userService.logout(currentUser);
 
-                Parent root = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.setTitle("Connexion");
-                stage.setMaximized(false);
-                stage.show();
+                MainFX.setRoot("fxml/login");
             } catch (IOException e) {
                 e.printStackTrace();
             }

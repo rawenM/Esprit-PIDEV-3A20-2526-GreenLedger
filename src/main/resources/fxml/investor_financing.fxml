@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.InvestorFinancingController"
+            prefHeight="600" prefWidth="900"
+            styleClass="page">
+
+    <left>
+        <VBox prefWidth="220" spacing="10" styleClass="sidebar">
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <padding>
+                    <Insets top="16" right="12" bottom="16" left="12"/>
+                </padding>
+                <Label text="💼" style="-fx-font-size:18px;"/>
+                <Label fx:id="lblSidebarTitle" text="GreenLedger Investisseur" styleClass="sidebar-title"/>
+            </HBox>
+            <Separator styleClass="sidebar-sep"/>
+            <Button fx:id="btnNavDashboard" text="📊 Tableau de bord" onAction="#handleGoDashboard" styleClass="nav-btn"/>
+            <Button fx:id="btnNavInvestments" text="💰 Investissements" onAction="#handleGoInvestments" styleClass="nav-btn nav-btn-active"/>
+            <Button fx:id="btnNavFinancement" text="💳 Financement avancé" onAction="#handleGoFinancement" styleClass="nav-btn"/>
+            <Button fx:id="btnNavSettings" text="⚙️ Paramètres" onAction="#handleGoSettings" styleClass="nav-btn"/>
+            <Region VBox.vgrow="ALWAYS"/>
+            <VBox spacing="2" alignment="TOP_LEFT" style="-fx-padding: 10 0 0 12;">
+                <Label fx:id="lblProfileName" styleClass="page-title"/>
+                <Label fx:id="lblProfileType" styleClass="page-subtitle"/>
+                <Button text="✏️ Modifier profil" styleClass="btn-secondary" onAction="#handleEditProfile"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <top>
+        <VBox styleClass="topbar">
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <padding>
+                    <Insets top="16" right="24" bottom="16" left="24"/>
+                </padding>
+                <Label fx:id="lblPageTitle" text="💰 Gestion des Investissements"
+                       styleClass="page-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="← Retour"
+                        onAction="#handleBack"
+                        styleClass="btn btn-secondary"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="content-area">
+            <VBox spacing="20" styleClass="content-area">
+                <padding>
+                    <Insets top="30" right="30" bottom="30" left="30"/>
+                </padding>
+
+                <!-- Statistiques Investisseur -->
+                <VBox spacing="15">
+                    <Label text="📊 Mes Investissements"
+                           styleClass="section-title"/>
+
+                    <HBox spacing="20">
+                        <!-- Total Investments -->
+                           <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="stat-card">
+                            <Label text="Nombre d'investissements"
+                                styleClass="stat-title"/>
+                            <Label fx:id="lblTotalInvestments" text="0"
+                                styleClass="stat-value accent-blue"/>
+                        </VBox>
+
+                        <!-- Total Amount -->
+                           <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="stat-card">
+                            <Label text="Montant total investi"
+                                styleClass="stat-title"/>
+                            <Label fx:id="lblTotalAmount" text="0 EUR"
+                                styleClass="stat-value accent-green"/>
+                        </VBox>
+
+                        <!-- Projects Followed -->
+                           <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="stat-card">
+                            <Label text="Projets suivis"
+                                styleClass="stat-title"/>
+                            <Label fx:id="lblProjectsFollowed" text="0"
+                                styleClass="stat-value accent-amber"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <Separator/>
+
+                <!-- Mes Investissements Table -->
+                <VBox spacing="12" styleClass="card">
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="📋 Mes Investissements"
+                               styleClass="section-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="🔄 Actualiser"
+                                onAction="#refreshInvestments"
+                                styleClass="btn btn-secondary"
+                                prefWidth="120"/>
+                    </HBox>
+
+                    <TableView fx:id="tableMyInvestments" prefHeight="250" VBox.vgrow="ALWAYS" styleClass="table-card">
+                        <placeholder>
+                            <VBox alignment="CENTER" spacing="8">
+                                <padding>
+                                    <Insets top="30" right="12" bottom="30" left="12"/>
+                                </padding>
+                                <Label text="📋"/>
+                                <Label text="Aucun investissement actuellement"
+                                       styleClass="placeholder-label"/>
+                            </VBox>
+                        </placeholder>
+                        <columns>
+                            <TableColumn fx:id="colInvProjetId" text="Projet ID" prefWidth="90"/>
+                            <TableColumn fx:id="colInvMontant" text="Montant (EUR)" prefWidth="120"/>
+                            <TableColumn fx:id="colInvDate" text="Date d'investissement" prefWidth="150"/>
+                            <TableColumn fx:id="colInvStatut" text="Statut" prefWidth="100"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+
+                <Separator/>
+
+                <!-- Offres de Financement Disponibles -->
+                <VBox spacing="12" styleClass="card">
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="🧾 Offres de Financement Disponibles"
+                               styleClass="section-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="🔄 Actualiser"
+                                onAction="#refreshOffers"
+                                styleClass="btn btn-secondary"
+                                prefWidth="120"/>
+                    </HBox>
+
+                    <TableView fx:id="tableFinancingOffers" prefHeight="220" styleClass="table-card">
+                        <placeholder>
+                            <VBox alignment="CENTER" spacing="8">
+                                <padding>
+                                    <Insets top="30" right="12" bottom="30" left="12"/>
+                                </padding>
+                                <Label text="📋"/>
+                                <Label text="Aucune offre disponible"
+                                       styleClass="placeholder-label"/>
+                            </VBox>
+                        </placeholder>
+                        <columns>
+                            <TableColumn fx:id="colOffreType" text="Type d'offre" prefWidth="120"/>
+                            <TableColumn fx:id="colOffreTaux" text="Taux (%)" prefWidth="80"/>
+                            <TableColumn fx:id="colOffreDuree" text="Durée (mois)" prefWidth="100"/>
+                            <TableColumn fx:id="colOffreFinId" text="Financement ID" prefWidth="110"/>
+                        </columns>
+                    </TableView>
+
+                    <HBox spacing="10">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Sélectionner un projet"
+                                   styleClass="form-label"/>
+                            <ComboBox fx:id="cmbProjectSelection"
+                                      styleClass="field"
+                                      promptText="Choisir un projet..."
+                                      prefWidth="200"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Montant à investir (EUR)"
+                                   styleClass="form-label"/>
+                            <TextField fx:id="txtInvestmentAmount"
+                                       styleClass="field"
+                                       promptText="Ex: 5000"
+                                       prefWidth="200"/>
+                        </VBox>
+                        <VBox spacing="8">
+                            <Label text="" styleClass="form-label"/>
+                            <Button text="💳 Investir"
+                                    onAction="#handleNewInvestment"
+                                    styleClass="btn btn-primary"
+                                    prefWidth="120"
+                                    prefHeight="35"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <Separator/>
+
+                <!-- Actions Rapides -->
+                <VBox spacing="15">
+                    <Label text="Actions Rapides"
+                       styleClass="section-title"/>
+                    <HBox spacing="15">
+                        <Button text="📊 Voir tous les projets"
+                                onAction="#handleViewAllProjects"
+                                prefWidth="200"
+                                prefHeight="45"
+                        styleClass="btn btn-secondary"/>
+                        <Button text="📈 Voir les performances"
+                                onAction="#handleViewPerformance"
+                                prefWidth="200"
+                                prefHeight="45"
+                        styleClass="btn btn-secondary"/>
+                        <Button text="⚠️ Signaler un problème"
+                                onAction="#handleReportIssue"
+                                prefWidth="200"
+                                prefHeight="45"
+                        styleClass="btn btn-secondary"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <bottom>
+        <HBox alignment="CENTER" styleClass="topbar">
+            <padding>
+                <Insets top="12" right="12" bottom="12" left="12"/>
+            </padding>
+            <Text text="© 2025 Plateforme Énergie Renouvelable - Module Gestion Investissements"
+                  styleClass="muted-note"/>
+        </HBox>
+    </bottom>
+</BorderPane>

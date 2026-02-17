@@ -168,14 +168,20 @@ public class LoginController {
                 switchScene(stage, root, "Gestion des Utilisateurs - " + user.getNomComplet());
 
             } else if (user.getTypeUtilisateur() == Models.TypeUtilisateur.EXPERT_CARBONE) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/expertProjet.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard.fxml"));
                 Parent root = loader.load();
+
+                DashboardController controller = loader.getController();
+                controller.setCurrentUser(user);
 
                 switchScene(stage, root, "Expert Carbone - " + user.getNomComplet());
 
             } else if (user.getTypeUtilisateur() == Models.TypeUtilisateur.PORTEUR_PROJET) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/GestionProjet.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard.fxml"));
                 Parent root = loader.load();
+
+                DashboardController controller = loader.getController();
+                controller.setCurrentUser(user);
 
                 switchScene(stage, root, "Porteur de Projet - " + user.getNomComplet());
 
@@ -186,7 +192,7 @@ public class LoginController {
                 DashboardController controller = loader.getController();
                 controller.setCurrentUser(user);
 
-                switchScene(stage, root, "Tableau de bord - " + user.getNomComplet());
+                switchScene(stage, root, user.getTypeUtilisateur().getLibelle() + " - " + user.getNomComplet());
             }
 
         } catch (IOException e) {
@@ -204,6 +210,18 @@ public class LoginController {
             scene = new Scene(root);
         } else {
             scene.setRoot(root);
+        }
+        if (scene.getStylesheets().stream().noneMatch(s -> s.endsWith("/app.css"))) {
+            java.net.URL appCssUrl = getClass().getResource("/app.css");
+            if (appCssUrl != null) {
+                scene.getStylesheets().add(appCssUrl.toExternalForm());
+            }
+        }
+        if (scene.getStylesheets().stream().noneMatch(s -> s.endsWith("/css/style.css"))) {
+            java.net.URL cssUrl = getClass().getResource("/css/style.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
         }
         ThemeManager.getInstance().initialize(scene);
         stage.setScene(scene);

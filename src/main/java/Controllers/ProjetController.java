@@ -1,7 +1,10 @@
 package Controllers;
 
 import Models.Projet;
+import Models.Wallet;
+import Models.User;
 import Services.ProjetService;
+import Services.WalletService;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,10 +17,14 @@ import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.GreenLedger.MainFX;
+import Utils.SessionManager;
+
+import java.util.List;
 
 public class ProjetController {
 
     private final ProjetService service = new ProjetService();
+    private final WalletService walletService = new WalletService();
     private final Services.EvaluationService evaluationService = new Services.EvaluationService();
     private final ObservableList<Projet> data = FXCollections.observableArrayList();
     private java.util.Set<Integer> evaluatedProjectIds = java.util.Collections.emptySet();
@@ -32,10 +39,12 @@ public class ProjetController {
     @FXML private Label lblTotal;
     @FXML private Label lblDraft;
     @FXML private Label lblLocked;
+    @FXML private Label lblWalletAvailable;
 
     @FXML private Button btnSettings;
     @FXML private Button btnAuditCarbone;
     @FXML private Button btnGestionProjets;
+    @FXML private Button btnGreenWallet;
 
     @FXML private Label lblProfileName;
     @FXML private Label lblProfileType;
@@ -94,6 +103,9 @@ public class ProjetController {
         if (btnSettings != null) {
             btnSettings.setOnAction(e -> showSettings());
         }
+        if (btnGreenWallet != null) {
+            btnGreenWallet.setOnAction(e -> onGreenWallet());
+        }
 
         applyProfile();
 
@@ -146,20 +158,91 @@ public class ProjetController {
         showSettings();
     }
 
+    @FXML
+    private void onGreenWallet() {
+        try {
+            MainFX.setRoot("greenwallet");
+        } catch (Exception ex) {
+            showError("Navigation impossible: " + ex.getMessage());
+        }
+    }
+
+    @FXML
+    private void onBack() {
+        try {
+            MainFX.setRoot("fxml/dashboard");
+        } catch (Exception ex) {
+            showError("Navigation impossible: " + ex.getMessage());
+        }
+    }
+
     private void refresh() {
-        data.setAll(service.afficher());
-        evaluatedProjectIds = evaluationService.getProjetIdsWithEvaluations();
+        User user = SessionManager.getInstance().getCurrentUser();
+        Integer entrepriseId = (user != null && user.getId() != null) ? Math.toIntExact(user.getId()) : null;
+        List<Projet> projets = (entrepriseId != null)
+                ? service.getByEntreprise(entrepriseId)
+                : service.afficher();
+        if ((projets == null || projets.isEmpty()) && entrepriseId != null) {
+            projets = service.afficher();
+        }
+        if (projets == null) {
+            projets = java.util.Collections.emptyList();
+        }
+        data.setAll(projets);
+        evaluatedProjectIds = getEvaluatedProjectIds(projets);
         updateStats();
+        refreshWalletBalance();
+    }
+
+    private java.util.Set<Integer> getEvaluatedProjectIds(List<Projet> projets) {
+        java.util.Set<Integer> evaluatedIds = evaluationService.getProjetIdsWithEvaluations();
+        if (evaluatedIds == null || evaluatedIds.isEmpty()) {
+            return java.util.Collections.emptySet();
+        }
+        if (projets == null || projets.isEmpty()) {
+            return evaluatedIds;
+        }
+        java.util.Set<Integer> visibleIds = new java.util.HashSet<>();
+        for (Projet projet : projets) {
+            visibleIds.add(projet.getId());
+        }
+        evaluatedIds.retainAll(visibleIds);
+        return evaluatedIds;
     }
 
     private void updateStats() {
         int total = data.size();
         long drafts = data.stream().filter(p -> "DRAFT".equalsIgnoreCase(p.getStatut())).count();
-        long locked = total - drafts;
+        long submitted = data.stream().filter(p -> "SUBMITTED".equalsIgnoreCase(p.getStatut())).count();
+        long evaluated = data.stream().filter(p -> evaluatedProjectIds.contains(p.getId())).count();
 
         lblTotal.setText(String.valueOf(total));
         lblDraft.setText(String.valueOf(drafts));
-        lblLocked.setText(String.valueOf(locked));
+        lblLocked.setText(String.valueOf(submitted));
+    }
+
+    private void refreshWalletBalance() {
+        if (lblWalletAvailable == null) {
+            return;
+        }
+
+        User user = Utils.SessionManager.getInstance().getCurrentUser();
+        if (user == null || user.getId() == null) {
+            lblWalletAvailable.setText("0.00 tCO₂");
+            return;
+        }
+
+        try {
+            int ownerId = user.getId().intValue();
+            List<Wallet> wallets = walletService.getAllWallets();
+            double totalAvailableCredits = wallets.stream()
+                    .filter(wallet -> wallet.getOwnerId() == ownerId)
+                    .mapToDouble(Wallet::getAvailableCredits)
+                    .sum();
+            lblWalletAvailable.setText(String.format("%.2f tCO₂", totalAvailableCredits));
+        } catch (Exception ex) {
+            lblWalletAvailable.setText("0.00 tCO₂");
+        }
     }
 
     private void openDetailWindow(Projet projet) {

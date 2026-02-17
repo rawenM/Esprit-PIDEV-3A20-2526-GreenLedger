@@ -302,7 +302,25 @@ public class RegisterController {
         try {
             Parent root = FXMLLoader.load(getClass().getResource("/fxml/login.fxml"));
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
+            Scene scene = stage.getScene();
+            if (scene == null) {
+                scene = new Scene(root);
+            } else {
+                scene.setRoot(root);
+            }
+            if (scene.getStylesheets().stream().noneMatch(s -> s.endsWith("/app.css"))) {
+                java.net.URL appCssUrl = getClass().getResource("/app.css");
+                if (appCssUrl != null) {
+                    scene.getStylesheets().add(appCssUrl.toExternalForm());
+                }
+            }
+            if (scene.getStylesheets().stream().noneMatch(s -> s.endsWith("/css/style.css"))) {
+                java.net.URL cssUrl = getClass().getResource("/css/style.css");
+                if (cssUrl != null) {
+                    scene.getStylesheets().add(cssUrl.toExternalForm());
+                }
+            }
+            stage.setScene(scene);
             stage.setTitle("Connexion");
             stage.show();
         } catch (IOException e) {

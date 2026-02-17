@@ -33,17 +33,10 @@ public class SettingsController extends BaseController {
     private String resolveHomeForSession() {
         User user = SessionManager.getInstance().getCurrentUser();
         if (user == null) {
-            return "main";
+            return "fxml/dashboard";
         }
         if (user.isAdmin()) {
             return "fxml/admin_users";
-        }
-        TypeUtilisateur type = user.getTypeUtilisateur();
-        if (type == TypeUtilisateur.EXPERT_CARBONE) {
-            return "expertProjet";
-        }
-        if (type == TypeUtilisateur.PORTEUR_PROJET) {
-            return "GestionProjet";
         }
         return "fxml/dashboard";
     }

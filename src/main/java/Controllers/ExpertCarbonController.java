@@ -17,6 +17,7 @@ import Models.CarbonReport;
 import Models.User;
 import Services.CarbonReportService;
 import Utils.SessionManager;
+import org.GreenLedger.MainFX;
 
 import java.io.IOException;
 import java.util.List;
@@ -255,15 +256,8 @@ public class ExpertCarbonController {
     private void handleLogout(ActionEvent event) {
         try {
             SessionManager.getInstance().invalidate();
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/login.fxml"));
-            if (loader.getLocation() != null) {
-                Parent root = loader.load();
-                Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-                stage.setScene(new Scene(root));
-                stage.setTitle("Plateforme Énergie Renouvelable - Connexion");
-                stage.show();
-                System.out.println("[CLEAN] Déconnexion réussie");
-            }
+            MainFX.setRoot("fxml/login");
+            System.out.println("[CLEAN] Déconnexion réussie");
         } catch (IOException e) {
             System.err.println("Erreur déconnexion: " + e.getMessage());
         }
@@ -277,4 +271,3 @@ public class ExpertCarbonController {
         a.showAndWait();
     }
 }
-

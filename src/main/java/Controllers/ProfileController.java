@@ -14,6 +14,7 @@ import Models.User;
 import Services.IUserService;
 import Services.UserServiceImpl;
 import Utils.PasswordUtil;
+import org.GreenLedger.MainFX;
 
 import java.io.File;
 import java.io.IOException;
@@ -185,17 +186,7 @@ public class ProfileController {
     @FXML
     private void handleBack(ActionEvent event) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard.fxml"));
-            Parent root = loader.load();
-
-            DashboardController controller = loader.getController();
-            controller.setCurrentUser(currentUser);
-
-            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            stage.setScene(new Scene(root));
-            stage.setTitle("Tableau de Bord");
-            stage.show();
-
+            MainFX.setRoot("fxml/dashboard");
         } catch (IOException e) {
             e.printStackTrace();
         }

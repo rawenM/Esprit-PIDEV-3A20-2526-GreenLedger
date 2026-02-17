@@ -46,6 +46,12 @@ public class MainFX extends Application {
         } else {
             System.err.println("[CLEAN] Fichier CSS '/css/style.css' introuvable sur le classpath");
         }
+        URL appCssUrl = getClass().getResource("/app.css");
+        if (appCssUrl != null) {
+            scene.getStylesheets().add(appCssUrl.toExternalForm());
+        } else {
+            System.err.println("[CLEAN] Fichier CSS '/app.css' introuvable sur le classpath");
+        }
 
         // Initialize ThemeManager with the scene (applies saved theme)
         ThemeManager.getInstance().initialize(scene);
@@ -82,6 +88,26 @@ public class MainFX extends Application {
     public static void setRoot(String fxml) throws IOException {
         NavigationContext.getInstance().navigateTo(fxml);
         scene.setRoot(loadFXML(fxml));
+        ensureBaseStyles(scene);
+    }
+
+    private static void ensureBaseStyles(Scene scene) {
+        if (scene == null) {
+            return;
+        }
+        if (scene.getStylesheets().stream().noneMatch(s -> s.endsWith("/css/style.css"))) {
+            URL cssUrl = MainFX.class.getResource("/css/style.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
+        }
+        if (scene.getStylesheets().stream().noneMatch(s -> s.endsWith("/app.css"))) {
+            URL appCssUrl = MainFX.class.getResource("/app.css");
+            if (appCssUrl != null) {
+                scene.getStylesheets().add(appCssUrl.toExternalForm());
+            }
+        }
+        ThemeManager.getInstance().initialize(scene);
     }
 
     public void stop() {
@@ -111,4 +137,3 @@ public class MainFX extends Application {
         launch();
     }
 }
-

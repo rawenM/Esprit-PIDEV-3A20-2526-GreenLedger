@@ -33,7 +33,7 @@
 
         <!-- Back Section -->
         <Label text="NAVIGATION" styleClass="section-title-sidebar"/>
-        <Button fx:id="btnBack" text="⬅ Go back" onAction="#showWallet" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
+        <Button fx:id="btnBack" text="← Retour" onAction="#showWallet" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
 
         <Region VBox.vgrow="ALWAYS"/>
     </VBox>
