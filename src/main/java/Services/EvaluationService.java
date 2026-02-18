@@ -195,6 +195,34 @@ public class EvaluationService {
         return ids;
     }
 
+    /**
+     * Advanced AI analysis for evaluation results.
+     * This stub can be extended with real AI logic (e.g., Weka, Smile).
+     * Returns a suggestion or prediction based on criteria notes.
+     */
+    public String analyseEvaluationAI(List<Models.EvaluationResult> criteres) {
+        // Example: flag if any note is unusually low
+        for (Models.EvaluationResult critere : criteres) {
+            if (critere.getNote() <= 2) {
+                return "Attention: Un critère a une note très basse. Vérifiez les détails.";
+            }
+        }
+        // Example: suggest improvement if average is below threshold
+        double avg = criteres.stream().mapToInt(Models.EvaluationResult::getNote).average().orElse(0);
+        if (avg < 5) {
+            return "Suggestion: La moyenne des notes est faible. Revoir les critères ou le projet.";
+        }
+        // Advanced: detect outliers and trends
+        double stddev = Math.sqrt(criteres.stream().mapToDouble(c -> Math.pow(c.getNote() - avg, 2)).average().orElse(0));
+        if (stddev > 3) {
+            return "Attention: Les notes sont très dispersées. Analysez les critères individuellement.";
+        }
+        // Advanced: recommend based on historical data (stub)
+        // In a real implementation, fetch past evaluations and compare
+        // For now, just return a generic message
+        return "Evaluation conforme. Aucun problème détecté.";
+    }
+
     private boolean decisionToFlag(String decision) {
         if (decision == null) {
             return false;

@@ -99,6 +99,9 @@
                     <TableColumn fx:id="colStatut" text="Statut" prefWidth="100"/>
                     <TableColumn fx:id="colScore" text="Score ESG" prefWidth="90"/>
                     <TableColumn fx:id="colAction" text="Action" prefWidth="140"/>
+                    <TableColumn fx:id="colAi" text="IA" prefWidth="90"/>
+                    <TableColumn fx:id="colPdf" text="PDF" prefWidth="90"/>
+                    <TableColumn fx:id="colCalcEsg" text="Calc ESG" prefWidth="100"/>
                 </columns>
             </TableView>
         </VBox>
