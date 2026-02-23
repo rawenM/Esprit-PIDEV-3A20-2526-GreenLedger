@@ -5,6 +5,10 @@ import Models.OperationWallet;
 import Models.TypeUtilisateur;
 import Models.User;
 import Services.WalletService;
+import Services.ExternalCarbonApiService;
+import Services.AirQualityService;
+import Models.dto.external.CarbonEstimateResponse;
+import Models.dto.external.AirPollutionResponse;
 import Utils.SessionManager;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
@@ -15,6 +19,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import org.GreenLedger.MainFX;
@@ -32,6 +37,8 @@ public class GreenWalletController extends BaseController {
 
     // Services
     private WalletService walletService;
+    private ExternalCarbonApiService carbonApiService;
+    private AirQualityService airQualityService;
     private Wallet currentWallet;
 
     // Sidebar Buttons
@@ -80,6 +87,13 @@ public class GreenWalletController extends BaseController {
     @FXML private Button btnTestAdd100;
     @FXML private Button btnTestAdd500;
     @FXML private Button btnTestAdd1000;
+    
+    // API Integration Components
+    @FXML private Button btnCalculateElectricity;
+    @FXML private Button btnCalculateFuel;
+    @FXML private Button btnCalculateShipping;
+    @FXML private Button btnCheckAirQuality;
+    @FXML private TextArea txtApiResults;
 
     // Content Pane
     @FXML private VBox contentPane;
@@ -88,12 +102,15 @@ public class GreenWalletController extends BaseController {
     public void initialize() {
         super.initialize();
         walletService = new WalletService();
+        carbonApiService = new ExternalCarbonApiService();
+        airQualityService = new AirQualityService();
 
         applyProfile(lblProfileName, lblProfileType);
         
         setupTableColumns();
         setupWalletSelector();
         setupListeners();
+        setupApiListeners();
         loadWallets();
 
         if (btnWalletOverview != null) {
@@ -223,6 +240,21 @@ public class GreenWalletController extends BaseController {
         
         if (btnSettings != null) {
             btnSettings.setOnAction(e -> showSettings());
+        }
+    }
+    
+    private void setupApiListeners() {
+        if (btnCalculateElectricity != null) {
+            btnCalculateElectricity.setOnAction(e -> calculateElectricityEmissions());
+        }
+        if (btnCalculateFuel != null) {
+            btnCalculateFuel.setOnAction(e -> calculateFuelEmissions());
+        }
+        if (btnCalculateShipping != null) {
+            btnCalculateShipping.setOnAction(e -> calculateShippingEmissions());
+        }
+        if (btnCheckAirQuality != null) {
+            btnCheckAirQuality.setOnAction(e -> checkAirQuality());
         }
     }
 
@@ -1083,5 +1115,449 @@ public class GreenWalletController extends BaseController {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+    
+    // ==================== CARBON API INTEGRATION ====================
+    
+    private void calculateElectricityEmissions() {
+        if (!ensureCarbonApiAvailable()) {
+            return;
+        }
+        Dialog<Double> dialog = new Dialog<>();
+        dialog.setTitle("⚡ Calcul Émissions Électricité");
+        dialog.setHeaderText("Estimer les émissions CO₂ de la consommation électrique");
+        
+        ButtonType calculateButtonType = new ButtonType("Calculer", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(calculateButtonType, ButtonType.CANCEL);
+        
+        GridPane grid = new GridPane();
+        grid.setHgap(12);
+        grid.setVgap(12);
+        grid.setPadding(new Insets(20));
+        
+        TextField electricityValue = new TextField("1000");
+        electricityValue.setPromptText("Valeur");
+        
+        ComboBox<String> electricityUnit = new ComboBox<>();
+        electricityUnit.getItems().addAll("kwh", "mwh");
+        electricityUnit.setValue("kwh");
+        
+        TextField country = new TextField("us");
+        country.setPromptText("Code pays (ex: us, fr)");
+        
+        TextField state = new TextField();
+        state.setPromptText("État (optionnel, ex: fl)");
+        
+        grid.add(new Label("⚡ Consommation:"), 0, 0);
+        grid.add(electricityValue, 1, 0);
+        grid.add(new Label("📊 Unité:"), 0, 1);
+        grid.add(electricityUnit, 1, 1);
+        grid.add(new Label("🌍 Pays:"), 0, 2);
+        grid.add(country, 1, 2);
+        grid.add(new Label("📍 État:"), 0, 3);
+        grid.add(state, 1, 3);
+        
+        dialog.getDialogPane().setContent(grid);
+        
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == calculateButtonType) {
+                try {
+                    return Double.parseDouble(electricityValue.getText());
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            }
+            return null;
+        });
+        
+        Optional<Double> result = dialog.showAndWait();
+        result.ifPresent(value -> {
+            appendToApiResults("⚡ Calcul d'émissions d'électricité en cours...\n");
+            
+            new Thread(() -> {
+                try {
+                    String countryCode = country.getText().trim();
+                    
+                    CarbonEstimateResponse response = carbonApiService.estimateElectricity(
+                        value,
+                        electricityUnit.getValue(),
+                        countryCode
+                    );
+                    
+                    Platform.runLater(() -> {
+                        if (response != null && response.getAttributes() != null) {
+                            appendToApiResults(formatCarbonEstimateResponse(response));
+                        } else {
+                            appendToApiResults(buildCarbonApiErrorMessage());
+                        }
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(() -> appendToApiResults("❌ Erreur: " + e.getMessage() + "\n"));
+                }
+            }).start();
+        });
+    }
+    
+    private void calculateFuelEmissions() {
+        if (!ensureCarbonApiAvailable()) {
+            return;
+        }
+        Dialog<Double> dialog = new Dialog<>();
+        dialog.setTitle("⛽ Calcul Émissions Carburant");
+        dialog.setHeaderText("Estimer les émissions CO₂ de la combustion de carburant");
+        
+        ButtonType calculateButtonType = new ButtonType("Calculer", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(calculateButtonType, ButtonType.CANCEL);
+        
+        GridPane grid = new GridPane();
+        grid.setHgap(12);
+        grid.setVgap(12);
+        grid.setPadding(new Insets(20));
+        
+        ComboBox<String> fuelSourceType = new ComboBox<>();
+        fuelSourceType.getItems().addAll("dfo", "rfo", "lng", "lpg", "cng", "coal", "petcoke");
+        fuelSourceType.setValue("dfo");
+        
+        TextField fuelSourceValue = new TextField("100");
+        fuelSourceValue.setPromptText("Valeur");
+        
+        ComboBox<String> fuelSourceUnit = new ComboBox<>();
+        fuelSourceUnit.getItems().addAll("litre", "gallon", "tonne");
+        fuelSourceUnit.setValue("litre");
+        
+        grid.add(new Label("⛽ Type Carburant:"), 0, 0);
+        grid.add(fuelSourceType, 1, 0);
+        grid.add(new Label("📊 Quantité:"), 0, 1);
+        grid.add(fuelSourceValue, 1, 1);
+        grid.add(new Label("📏 Unité:"), 0, 2);
+        grid.add(fuelSourceUnit, 1, 2);
+        
+        Label infoLabel = new Label("dfo=Diesel, rfo=Fuel Heavy, lng=Gaz Naturel Liquéfié");
+        infoLabel.setStyle("-fx-font-size: 10; -fx-opacity: 0.7;");
+        grid.add(infoLabel, 0, 3, 2, 1);
+        
+        dialog.getDialogPane().setContent(grid);
+        
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == calculateButtonType) {
+                try {
+                    return Double.parseDouble(fuelSourceValue.getText());
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            }
+            return null;
+        });
+        
+        Optional<Double> result = dialog.showAndWait();
+        result.ifPresent(value -> {
+            appendToApiResults("⛽ Calcul d'émissions de carburant en cours...\n");
+            
+            new Thread(() -> {
+                try {
+                    CarbonEstimateResponse response = carbonApiService.estimateFuel(
+                        fuelSourceType.getValue(),
+                        value,
+                        fuelSourceUnit.getValue()
+                    );
+                    
+                    Platform.runLater(() -> {
+                        if (response != null && response.getAttributes() != null) {
+                            appendToApiResults(formatCarbonEstimateResponse(response));
+                        } else {
+                            appendToApiResults(buildCarbonApiErrorMessage());
+                        }
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(() -> appendToApiResults("❌ Erreur: " + e.getMessage() + "\n"));
+                }
+            }).start();
+        });
+    }
+    
+    private void calculateShippingEmissions() {
+        if (!ensureCarbonApiAvailable()) {
+            return;
+        }
+        Dialog<Double> dialog = new Dialog<>();
+        dialog.setTitle("🚢 Calcul Émissions Transport");
+        dialog.setHeaderText("Estimer les émissions CO₂ du transport maritime");
+        
+        ButtonType calculateButtonType = new ButtonType("Calculer", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(calculateButtonType, ButtonType.CANCEL);
+        
+        GridPane grid = new GridPane();
+        grid.setHgap(12);
+        grid.setVgap(12);
+        grid.setPadding(new Insets(20));
+        
+        TextField weightValue = new TextField("1000");
+        weightValue.setPromptText("Poids");
+        
+        ComboBox<String> weightUnit = new ComboBox<>();
+        weightUnit.getItems().addAll("kg", "lb", "mt", "g");
+        weightUnit.setValue("kg");
+        
+        TextField distanceValue = new TextField("1000");
+        distanceValue.setPromptText("Distance");
+        
+        ComboBox<String> distanceUnit = new ComboBox<>();
+        distanceUnit.getItems().addAll("km", "mi");
+        distanceUnit.setValue("km");
+        
+        ComboBox<String> transportMethod = new ComboBox<>();
+        transportMethod.getItems().addAll("ship", "train", "truck", "plane");
+        transportMethod.setValue("ship");
+        
+        grid.add(new Label("📦 Poids:"), 0, 0);
+        grid.add(weightValue, 1, 0);
+        grid.add(new Label("⚖️ Unité Poids:"), 0, 1);
+        grid.add(weightUnit, 1, 1);
+        grid.add(new Label("📏 Distance:"), 0, 2);
+        grid.add(distanceValue, 1, 2);
+        grid.add(new Label("📐 Unité Distance:"), 0, 3);
+        grid.add(distanceUnit, 1, 3);
+        grid.add(new Label("🚚 Mode Transport:"), 0, 4);
+        grid.add(transportMethod, 1, 4);
+        
+        dialog.getDialogPane().setContent(grid);
+        
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == calculateButtonType) {
+                try {
+                    return Double.parseDouble(weightValue.getText());
+                } catch (NumberFormatException e) {
+                    return null;
+                }
+            }
+            return null;
+        });
+        
+        Optional<Double> result = dialog.showAndWait();
+        result.ifPresent(weight -> {
+            appendToApiResults("🚢 Calcul d'émissions de transport en cours...\n");
+            
+            new Thread(() -> {
+                try {
+                    double distance = Double.parseDouble(distanceValue.getText());
+                    double weightKg = convertWeightToKg(weight, weightUnit.getValue());
+                    double distanceKm = convertDistanceToKm(distance, distanceUnit.getValue());
+                    
+                    CarbonEstimateResponse response = carbonApiService.estimateShipping(
+                        weightKg,
+                        distanceKm,
+                        transportMethod.getValue()
+                    );
+                    
+                    Platform.runLater(() -> {
+                        if (response != null && response.getAttributes() != null) {
+                            appendToApiResults(formatCarbonEstimateResponse(response));
+                        } else {
+                            appendToApiResults(buildCarbonApiErrorMessage());
+                        }
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(() -> appendToApiResults("❌ Erreur: " + e.getMessage() + "\n"));
+                }
+            }).start();
+        });
+    }
+    
+    private void checkAirQuality() {
+        Dialog<String[]> dialog = new Dialog<>();
+        dialog.setTitle("🌫️ Vérification Qualité de l'Air");
+        dialog.setHeaderText("Obtenir les données de qualité de l'air pour une localisation");
+        
+        ButtonType checkButtonType = new ButtonType("Vérifier", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(checkButtonType, ButtonType.CANCEL);
+        
+        GridPane grid = new GridPane();
+        grid.setHgap(12);
+        grid.setVgap(12);
+        grid.setPadding(new Insets(20));
+        
+        TextField latitude = new TextField("40.7128");
+        latitude.setPromptText("Latitude");
+        
+        TextField longitude = new TextField("-74.0060");
+        longitude.setPromptText("Longitude");
+        
+        Label exampleLabel = new Label("Exemple: New York = 40.7128, -74.0060");
+        exampleLabel.setStyle("-fx-font-size: 10; -fx-opacity: 0.7;");
+        
+        HBox presetBox = new HBox(8);
+        Button btnParis = new Button("🇫🇷 Paris");
+        Button btnNewYork = new Button("🇺🇸 New York");
+        Button btnTokyo = new Button("🇯🇵 Tokyo");
+        
+        btnParis.setOnAction(e -> {
+            latitude.setText("48.8566");
+            longitude.setText("2.3522");
+        });
+        btnNewYork.setOnAction(e -> {
+            latitude.setText("40.7128");
+            longitude.setText("-74.0060");
+        });
+        btnTokyo.setOnAction(e -> {
+            latitude.setText("35.6762");
+            longitude.setText("139.6503");
+        });
+        
+        presetBox.getChildren().addAll(btnParis, btnNewYork, btnTokyo);
+        
+        grid.add(new Label("📍 Latitude:"), 0, 0);
+        grid.add(latitude, 1, 0);
+        grid.add(new Label("📍 Longitude:"), 0, 1);
+        grid.add(longitude, 1, 1);
+        grid.add(exampleLabel, 0, 2, 2, 1);
+        grid.add(new Label("🗺️ Préréglages:"), 0, 3);
+        grid.add(presetBox, 1, 3);
+        
+        dialog.getDialogPane().setContent(grid);
+        
+        dialog.setResultConverter(dialogButton -> {
+            if (dialogButton == checkButtonType) {
+                return new String[]{latitude.getText(), longitude.getText()};
+            }
+            return null;
+        });
+        
+        Optional<String[]> result = dialog.showAndWait();
+        result.ifPresent(coords -> {
+            appendToApiResults("🌫️ Vérification de la qualité de l'air en cours...\n");
+            
+            new Thread(() -> {
+                try {
+                    double lat = Double.parseDouble(coords[0]);
+                    double lon = Double.parseDouble(coords[1]);
+                    
+                    AirPollutionResponse response = airQualityService.getCurrentAirQuality(lat, lon);
+                    
+                    Platform.runLater(() -> {
+                        if (response != null && response.getList() != null && !response.getList().isEmpty()) {
+                            appendToApiResults(formatAirQualityResponse(response, lat, lon));
+                        } else {
+                            appendToApiResults("❌ Aucune donnée de qualité de l'air retournée.\n");
+                        }
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(() -> appendToApiResults("❌ Erreur: " + e.getMessage() + "\n"));
+                }
+            }).start();
+        });
+    }
+    
+    private String formatCarbonEstimateResponse(CarbonEstimateResponse response) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("═══════════════════════════════════════════════════\n");
+        sb.append("✅ RÉSULTAT DU CALCUL D'ÉMISSIONS CO₂\n");
+        sb.append("═══════════════════════════════════════════════════\n\n");
+        
+        if (response.getAttributes() != null) {
+            var attrs = response.getAttributes();
+            
+            sb.append(String.format("🌍 Émissions CO₂: %.3f kg\n", attrs.getCarbonKg()));
+            sb.append(String.format("📊 Équivalent: %.6f tonnes\n", attrs.getCarbonMt()));
+            
+            if (attrs.getEstimatedAt() != null) {
+                sb.append(String.format("⏰ Calculé le: %s\n", attrs.getEstimatedAt()));
+            }
+        }
+        
+        sb.append("\n═══════════════════════════════════════════════════\n\n");
+        return sb.toString();
+    }
+    
+    private String formatAirQualityResponse(AirPollutionResponse response, double lat, double lon) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("═══════════════════════════════════════════════════\n");
+        sb.append("✅ QUALITÉ DE L'AIR\n");
+        sb.append("═══════════════════════════════════════════════════\n\n");
+        
+        sb.append(String.format("📍 Localisation: %.4f, %.4f\n\n", lat, lon));
+        
+        if (!response.getList().isEmpty()) {
+            var data = response.getList().get(0);
+            
+            if (data.getMain() != null) {
+                int aqi = data.getMain().getAqi();
+                sb.append(String.format("🌫️ Indice Qualité Air (AQI): %d - %s\n\n", 
+                    aqi, getAqiDescription(aqi)));
+            }
+            
+            if (data.getComponents() != null) {
+                var comp = data.getComponents();
+                sb.append("📊 COMPOSANTS (μg/m³):\n");
+                sb.append(String.format("  • CO (Monoxyde de carbone): %.2f\n", comp.getCo()));
+                sb.append(String.format("  • NO₂ (Dioxyde d'azote): %.2f\n", comp.getNo2()));
+                sb.append(String.format("  • O₃ (Ozone): %.2f\n", comp.getO3()));
+                sb.append(String.format("  • PM2.5 (Particules fines): %.2f\n", comp.getPm2_5()));
+                sb.append(String.format("  • PM10 (Particules): %.2f\n", comp.getPm10()));
+                sb.append(String.format("  • SO₂ (Dioxyde de soufre): %.2f\n", comp.getSo2()));
+            }
+        }
+        
+        sb.append("\n═══════════════════════════════════════════════════\n\n");
+        return sb.toString();
+    }
+    
+    private String getAqiDescription(int aqi) {
+        switch (aqi) {
+            case 1: return "Bon ✅";
+            case 2: return "Moyen 🟡";
+            case 3: return "Modéré 🟠";
+            case 4: return "Mauvais 🔴";
+            case 5: return "Très mauvais ⛔";
+            default: return "Inconnu";
+        }
+    }
+    
+    private void appendToApiResults(String text) {
+        if (txtApiResults != null) {
+            txtApiResults.appendText(text);
+        }
+    }
+
+    private String buildCarbonApiErrorMessage() {
+        String lastError = carbonApiService != null ? carbonApiService.getLastError() : null;
+        if (lastError == null || lastError.trim().isEmpty()) {
+            return "❌ Aucune donnée retournée par l'API.\n";
+        }
+        return "❌ API Carbon Error: " + lastError + "\n";
+    }
+
+    private boolean ensureCarbonApiAvailable() {
+        if (carbonApiService == null || !carbonApiService.isEnabled()) {
+            appendToApiResults("❌ Carbon API non configurée. Ajoutez CARBON_API_KEY ou carbon.api.key.\n");
+            showWarning("API non configurée", "La clé Carbon API est manquante. Ajoutez CARBON_API_KEY ou carbon.api.key.");
+            return false;
+        }
+        return true;
+    }
+
+    private double convertWeightToKg(double value, String unit) {
+        if (unit == null) return value;
+        switch (unit) {
+            case "lb":
+                return value * 0.453592;
+            case "g":
+                return value / 1000.0;
+            case "mt":
+                return value * 1000.0;
+            case "kg":
+            default:
+                return value;
+        }
+    }
+
+    private double convertDistanceToKm(double value, String unit) {
+        if (unit == null) return value;
+        switch (unit) {
+            case "mi":
+                return value * 1.60934;
+            case "km":
+            default:
+                return value;
+        }
     }
 }

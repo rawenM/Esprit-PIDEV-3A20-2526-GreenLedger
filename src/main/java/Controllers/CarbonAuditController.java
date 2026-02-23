@@ -24,6 +24,7 @@ import Models.User;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public class CarbonAuditController extends BaseController {
@@ -110,6 +111,7 @@ public class CarbonAuditController extends BaseController {
     private final CritereImpactService critereImpactService = new CritereImpactService();
     private final ProjectEsgService projectEsgService = new ProjectEsgService();
     private final Services.AdvancedEvaluationFacade advancedFacade = new Services.AdvancedEvaluationFacade();
+    private final Services.CarbonReportService carbonReportService = new Services.CarbonReportService();
 
     private final ObservableList<CritereReference> referenceCriteres = FXCollections.observableArrayList();
 
@@ -130,6 +132,7 @@ public class CarbonAuditController extends BaseController {
 
         critereImpactService.ensureDefaultReferences();
         enforceSingleDecision();
+        setupStaticInputConstraints();
 
         // Initialiser les gestionnaires des boutons de navigation
         if (btnGestionProjets != null) {
@@ -605,6 +608,48 @@ public class CarbonAuditController extends BaseController {
             // On ne bloque pas l'UX si l'ESG ne peut pas être calculé
             System.err.println("ESG update failed: " + ex.getMessage());
         }
+
+        // ============ EXTERNAL API INTEGRATION ============
+        // Enrich evaluation with external carbon and air quality data
+        try {
+            // Get the project details
+            java.util.List<Projet> allProjects = projetService.afficher();
+            if (allProjects != null) {
+                for (Projet proj : allProjects) {
+                    if (proj != null && proj.getId() == evaluation.getIdProjet()) {
+                        // Create a carbon report for this evaluation
+                        Models.CarbonReport carbonReport = carbonReportService.createReport(
+                            (long) proj.getId(),
+                            proj.getTitre(),
+                            (long) proj.getEntrepriseId(),
+                            proj.getCompanyEmail() != null ? proj.getCompanyEmail() : "Unknown"
+                        );
+                        
+                        // Enrich with external API data (graceful degradation)
+                        if (carbonReport != null) {
+                            carbonReportService.enrichWithExternalData(carbonReport, proj);
+                            
+                            // Display enrichment info in AI insights area
+                            if (txtAIInsights != null && carbonReport.getEvaluationDetails() != null) {
+                                String currentText = txtAIInsights.getText();
+                                txtAIInsights.setText(currentText + "\n\n" + carbonReport.getEvaluationDetails());
+                            }
+                            
+                            System.out.println("[AUDIT CONTROLLER] ✓ External API data integrated");
+                        }
+                        break;
+                    }
+                }
+            }
+        } catch (Exception apiEx) {
+            // Graceful degradation - continue without external data
+            System.err.println("[AUDIT CONTROLLER] External API enrichment failed: " + apiEx.getMessage());
+            if (txtAIInsights != null) {
+                String currentText = txtAIInsights.getText();
+                txtAIInsights.setText(currentText + "\n\n⚠️ External API data unavailable");
+            }
+        }
+        // ==================================================
 
         refreshEvaluations();
         refreshProjets();
@@ -1256,6 +1301,54 @@ public class CarbonAuditController extends BaseController {
             criteriaFieldsBox.getChildren().add(row);
         }
         updateScorePreview();
+    }
+
+    /**
+     * Setup input constraints for static form fields
+     */
+    private void setupStaticInputConstraints() {
+        // This method can be expanded to add constraints to static fields
+        // Currently, dynamic fields have their own constraints in rebuildCriteriaFields
+    }
+
+    /**
+     * Mark a TextField as invalid by applying CSS style
+     */
+    private void markInvalid(javafx.scene.control.TextField field, boolean invalid) {
+        if (field == null) return;
+        if (invalid) {
+            if (!field.getStyleClass().contains("field-error")) {
+                field.getStyleClass().add("field-error");
+            }
+        } else {
+            field.getStyleClass().remove("field-error");
+        }
+    }
+
+    /**
+     * Mark a TextArea as invalid by applying CSS style
+     */
+    private void markInvalid(javafx.scene.control.TextArea field, boolean invalid) {
+        if (field == null) return;
+        if (invalid) {
+            if (!field.getStyleClass().contains("field-error")) {
+                field.getStyleClass().add("field-error");
+            }
+        } else {
+            field.getStyleClass().remove("field-error");
+        }
+    }
+
+    /**
+     * Limit text length in TextArea
+     */
+    private void limitTextLength(javafx.scene.control.TextArea field, int maxLength) {
+        if (field == null) return;
+        field.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && newVal.length() > maxLength) {
+                field.setText(oldVal);
+            }
+        });
     }
 
     private void updateScorePreview() {

@@ -62,6 +62,38 @@
             </HBox>
         </VBox>
 
+        <!-- CARBON API INSIGHTS -->
+        <VBox spacing="12" styleClass="card" style="-fx-padding: 18; -fx-background-color: linear-gradient(to bottom right, #f0fdf4, #dcfce7);">
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="🌍" style="-fx-font-size: 16;"/>
+                <Label text="Carbon API Insights" styleClass="section-title" style="-fx-font-size: 15;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Powered by Carbon Interface &amp; OpenWeatherMap" style="-fx-font-size: 9; -fx-opacity: 0.6;"/>
+            </HBox>
+            
+            <HBox spacing="12">
+                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                    <Label text="Calcul d'Émissions en Temps Réel" style="-fx-font-weight: 600; -fx-font-size: 12;"/>
+                    <HBox spacing="8">
+                        <Button fx:id="btnCalculateElectricity" text="⚡ Électricité" styleClass="btn btn-primary" prefHeight="32" prefWidth="120"/>
+                        <Button fx:id="btnCalculateFuel" text="⛽ Carburant" styleClass="btn btn-primary" prefHeight="32" prefWidth="120"/>
+                        <Button fx:id="btnCalculateShipping" text="🚢 Transport" styleClass="btn btn-primary" prefHeight="32" prefWidth="120"/>
+                    </HBox>
+                </VBox>
+                <VBox spacing="8">
+                    <Label text="Qualité de l'Air" style="-fx-font-weight: 600; -fx-font-size: 12;"/>
+                    <Button fx:id="btnCheckAirQuality" text="🌫️ Vérifier Air Quality" styleClass="btn btn-secondary" prefHeight="32" prefWidth="180"/>
+                </VBox>
+            </HBox>
+            
+            <TextArea fx:id="txtApiResults" 
+                      promptText="Les résultats des APIs s'afficheront ici..."
+                      editable="false"
+                      wrapText="true"
+                      prefHeight="180"
+                      style="-fx-font-family: 'Consolas', 'Monaco', monospace; -fx-font-size: 11; -fx-background-color: white; -fx-border-color: #d1d5db; -fx-border-radius: 4;"/>
+        </VBox>
+
         <!-- WALLET INFO CARD -->
         <VBox spacing="12" styleClass="card" style="-fx-padding: 20;">
             <HBox spacing="8" alignment="CENTER_LEFT">
