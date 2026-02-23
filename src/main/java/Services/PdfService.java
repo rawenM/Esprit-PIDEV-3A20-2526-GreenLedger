@@ -342,13 +342,13 @@ public class PdfService {
     private String buildSignaturePayload(Evaluation e, List<EvaluationResult> criteres) {
         StringBuilder sb = new StringBuilder();
         sb.append(e.getIdEvaluation()).append('|')
-          .append(e.getIdProjet()).append('|')
-          .append(safe(e.getDecision())).append('|')
-          .append(e.getScoreGlobal()).append('|')
-          .append(e.getDateEvaluation() != null ? e.getDateEvaluation().getTime() : 0);
+                .append(e.getIdProjet()).append('|')
+                .append(safe(e.getDecision())).append('|')
+                .append(e.getScoreGlobal()).append('|')
+                .append(e.getDateEvaluation() != null ? e.getDateEvaluation().getTime() : 0);
         for (EvaluationResult r : criteres) {
             sb.append('|').append(r.getIdCritere()).append(':').append(r.getNote()).append(':')
-              .append(r.isEstRespecte() ? '1' : '0');
+                    .append(r.isEstRespecte() ? '1' : '0');
         }
         return sb.toString();
     }
@@ -445,8 +445,8 @@ public class PdfService {
 
         // Subscript digits U+2080..U+2089 -> normal digits
         t = t.replace('\u2080','0').replace('\u2081','1').replace('\u2082','2').replace('\u2083','3')
-             .replace('\u2084','4').replace('\u2085','5').replace('\u2086','6').replace('\u2087','7')
-             .replace('\u2088','8').replace('\u2089','9');
+                .replace('\u2084','4').replace('\u2085','5').replace('\u2086','6').replace('\u2087','7')
+                .replace('\u2088','8').replace('\u2089','9');
 
         // Superscript digits (common) U+00B2, U+00B3, U+2070.. -> map common ones
         t = t.replace('\u00B2','2').replace('\u00B3','3').replace('\u2070','0').replace('\u00B9','1');
@@ -456,7 +456,7 @@ public class PdfService {
 
         // Quotes
         t = t.replace('\u2018','\'').replace('\u2019','\'').replace('\u201A','\'')
-             .replace('\u201C','\"').replace('\u201D','\"').replace('\u201E','\"');
+                .replace('\u201C','\"').replace('\u201D','\"').replace('\u201E','\"');
 
         // Guillemets
         t = t.replace('\u00AB','\"').replace('\u00BB','\"');

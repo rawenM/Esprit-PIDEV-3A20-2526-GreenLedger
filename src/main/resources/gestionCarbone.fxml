@@ -9,8 +9,8 @@
 
 <HBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="Controllers.CarbonAuditController"
-    spacing="0" styleClass="page">
+      fx:controller="Controllers.CarbonAuditController"
+      spacing="0" styleClass="page">
 
     <!-- Navigation Sidebar -->
     <VBox prefWidth="220" styleClass="sidebar">
@@ -27,7 +27,7 @@
         <Button fx:id="btnGestionProjets" text="📁 Voir Projets" styleClass="nav-btn"/>
         <Button fx:id="btnGestionEvaluations" text="📊 Gestion Évaluations" styleClass="nav-btn"/>
         <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn"/>
-        
+
         <!-- Spacer to push content to bottom -->
         <Region VBox.vgrow="ALWAYS"/>
 

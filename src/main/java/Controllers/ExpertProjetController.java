@@ -287,8 +287,8 @@ public class ExpertProjetController extends BaseController {
                     Models.AiSuggestion s = new Services.AdvancedEvaluationFacade().suggest(p, res);
                     StringBuilder msg = new StringBuilder();
                     msg.append("Suggestion: ").append(s.getSuggestionDecision())
-                       .append(" • Confiance: ").append(String.format(java.util.Locale.ROOT, "%.2f", s.getConfiance()))
-                       .append(" • Score: ").append(String.format(java.util.Locale.ROOT, "%.2f", s.getScore()));
+                            .append(" • Confiance: ").append(String.format(java.util.Locale.ROOT, "%.2f", s.getConfiance()))
+                            .append(" • Score: ").append(String.format(java.util.Locale.ROOT, "%.2f", s.getScore()));
                     if (!s.getTopFactors().isEmpty()) {
                         msg.append("\n\nFacteurs clés:\n");
                         for (String f : s.getTopFactors()) {

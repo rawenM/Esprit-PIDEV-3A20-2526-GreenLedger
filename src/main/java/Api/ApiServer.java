@@ -263,8 +263,8 @@ public class ApiServer {
 
     private String toJsonReferences(List<CritereReference> refs) {
         String data = refs.stream().map(r -> String.format(Locale.ROOT,
-                "{\"idCritere\":%d,\"nomCritere\":\"%s\",\"description\":\"%s\",\"poids\":%d}",
-                r.getIdCritere(), escape(r.getNomCritere()), escape(r.getDescription()), r.getPoids()))
+                        "{\"idCritere\":%d,\"nomCritere\":\"%s\",\"description\":\"%s\",\"poids\":%d}",
+                        r.getIdCritere(), escape(r.getNomCritere()), escape(r.getDescription()), r.getPoids()))
                 .collect(Collectors.joining(","));
         return "{\"data\":[" + data + "]}";
     }

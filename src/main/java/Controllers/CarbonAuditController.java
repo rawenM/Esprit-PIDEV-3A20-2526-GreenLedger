@@ -1237,93 +1237,93 @@ public class CarbonAuditController extends BaseController {
         rebuildCriteriaFields(selectedEvaluationId);
     }
 
-        @FXML
-        void handleCalculateESG() {
-            java.util.List<Models.EvaluationResult> results = buildResultsLenientForEsg();
-            if (results.isEmpty()) {
-                showError("Saisissez des notes pour au moins un critère afin de calculer le score ESG.");
-                return;
-            }
-            Services.ProjectEsgService.EsgBreakdown b = new Services.ProjectEsgService().breakdown(results);
-            int esg100 = (int) Math.round(b.esg10 * 10.0);
-            if (lblEsgScore != null) {
-                lblEsgScore.setText(String.valueOf(esg100));
-            }
-            if (txtEsgDetails != null) {
-                String details = String.format(java.util.Locale.ROOT,
-                        "Formule: ESG = 50%%*E + 30%%*S + 20%%*G (sur 0–10), puis ×10 -> 0–100\n" +
-                        "Pénalisation: note_effective = note × 0.6 si Non Respecté\n" +
-                        "E = %.2f, S = %.2f, G = %.2f, ESG(0–10) = %.2f, ESG(0–100) = %d",
-                        b.e, b.s, b.g, b.esg10, esg100);
-                txtEsgDetails.setText(details);
-            }
+    @FXML
+    void handleCalculateESG() {
+        java.util.List<Models.EvaluationResult> results = buildResultsLenientForEsg();
+        if (results.isEmpty()) {
+            showError("Saisissez des notes pour au moins un critère afin de calculer le score ESG.");
+            return;
         }
+        Services.ProjectEsgService.EsgBreakdown b = new Services.ProjectEsgService().breakdown(results);
+        int esg100 = (int) Math.round(b.esg10 * 10.0);
+        if (lblEsgScore != null) {
+            lblEsgScore.setText(String.valueOf(esg100));
+        }
+        if (txtEsgDetails != null) {
+            String details = String.format(java.util.Locale.ROOT,
+                    "Formule: ESG = 50%%*E + 30%%*S + 20%%*G (sur 0–10), puis ×10 -> 0–100\n" +
+                            "Pénalisation: note_effective = note × 0.6 si Non Respecté\n" +
+                            "E = %.2f, S = %.2f, G = %.2f, ESG(0–10) = %.2f, ESG(0–100) = %d",
+                    b.e, b.s, b.g, b.esg10, esg100);
+            txtEsgDetails.setText(details);
+        }
+    }
 
-        @FXML
-        void handleSaveESG() {
-            Integer projetId = parseInt(txtIdProjet != null ? txtIdProjet.getText() : null, "ID Projet");
-            if (projetId == null) return;
+    @FXML
+    void handleSaveESG() {
+        Integer projetId = parseInt(txtIdProjet != null ? txtIdProjet.getText() : null, "ID Projet");
+        if (projetId == null) return;
 
-            java.util.List<Models.EvaluationResult> results = buildResultsLenientForEsg();
-            if (results.isEmpty()) {
-                showError("Saisissez des notes pour au moins un critère afin d'enregistrer le score ESG.");
-                return;
-            }
-            Services.ProjectEsgService.EsgBreakdown b = new Services.ProjectEsgService().breakdown(results);
-            int esg100 = (int) Math.round(b.esg10 * 10.0);
+        java.util.List<Models.EvaluationResult> results = buildResultsLenientForEsg();
+        if (results.isEmpty()) {
+            showError("Saisissez des notes pour au moins un critère afin d'enregistrer le score ESG.");
+            return;
+        }
+        Services.ProjectEsgService.EsgBreakdown b = new Services.ProjectEsgService().breakdown(results);
+        int esg100 = (int) Math.round(b.esg10 * 10.0);
 
-            try {
-                java.util.List<Models.Projet> all = projetService.afficher();
-                if (all != null) {
-                    for (Models.Projet p : all) {
-                        if (p != null && p.getId() == projetId) {
-                            p.setScoreEsg(esg100);
-                            try { projetService.update(p); } catch (Exception ignore) {}
-                            break;
-                        }
+        try {
+            java.util.List<Models.Projet> all = projetService.afficher();
+            if (all != null) {
+                for (Models.Projet p : all) {
+                    if (p != null && p.getId() == projetId) {
+                        p.setScoreEsg(esg100);
+                        try { projetService.update(p); } catch (Exception ignore) {}
+                        break;
                     }
                 }
-                if (lblEsgScore != null) lblEsgScore.setText(String.valueOf(esg100));
-                if (txtEsgDetails != null && (txtEsgDetails.getText() == null || txtEsgDetails.getText().isEmpty())) {
-                    txtEsgDetails.setText("Score ESG enregistré pour le projet #" + projetId + ": " + esg100);
-                }
-                refreshProjets();
-            } catch (Exception ex) {
-                showError("Échec lors de l'enregistrement du score ESG: " + ex.getMessage());
             }
+            if (lblEsgScore != null) lblEsgScore.setText(String.valueOf(esg100));
+            if (txtEsgDetails != null && (txtEsgDetails.getText() == null || txtEsgDetails.getText().isEmpty())) {
+                txtEsgDetails.setText("Score ESG enregistré pour le projet #" + projetId + ": " + esg100);
+            }
+            refreshProjets();
+        } catch (Exception ex) {
+            showError("Échec lors de l'enregistrement du score ESG: " + ex.getMessage());
         }
+    }
 
-        // Construit des résultats tolérants (sans exiger les commentaires) et renseigne le nom du critère
-        private java.util.List<Models.EvaluationResult> buildResultsLenientForEsg() {
-            java.util.List<Models.EvaluationResult> list = new java.util.ArrayList<>();
-            if (criteriaFieldsBox == null) return list;
-            java.util.Map<Integer, String> nameIndex = new java.util.HashMap<>();
-            for (Models.CritereReference ref : referenceCriteres) {
-                nameIndex.put(ref.getIdCritere(), ref.getNomCritere());
-            }
-            for (javafx.scene.Node node : criteriaFieldsBox.getChildren()) {
-                if (!(node instanceof javafx.scene.layout.HBox)) continue;
-                javafx.scene.layout.HBox row = (javafx.scene.layout.HBox) node;
-                Integer idCritere = (Integer) row.getProperties().get("critereId");
-                javafx.scene.control.TextField noteField = (javafx.scene.control.TextField) row.getProperties().get("noteField");
-                javafx.scene.control.CheckBox respectBox = (javafx.scene.control.CheckBox) row.getProperties().get("respectBox");
-                if (idCritere == null || noteField == null) continue;
-                String text = noteField.getText() == null ? "" : noteField.getText().trim();
-                if (text.isEmpty()) continue;
-                try {
-                    int note = Integer.parseInt(text);
-                    if (note < 1 || note > 10) continue;
-                    String nom = nameIndex.getOrDefault(idCritere, "Critère #" + idCritere);
-                    Models.EvaluationResult r = new Models.EvaluationResult();
-                    r.setIdCritere(idCritere);
-                    r.setNomCritere(nom);
-                    r.setNote(note);
-                    r.setEstRespecte(respectBox != null && respectBox.isSelected());
-                    list.add(r);
-                } catch (NumberFormatException ignore) { }
-            }
-            return list;
+    // Construit des résultats tolérants (sans exiger les commentaires) et renseigne le nom du critère
+    private java.util.List<Models.EvaluationResult> buildResultsLenientForEsg() {
+        java.util.List<Models.EvaluationResult> list = new java.util.ArrayList<>();
+        if (criteriaFieldsBox == null) return list;
+        java.util.Map<Integer, String> nameIndex = new java.util.HashMap<>();
+        for (Models.CritereReference ref : referenceCriteres) {
+            nameIndex.put(ref.getIdCritere(), ref.getNomCritere());
         }
+        for (javafx.scene.Node node : criteriaFieldsBox.getChildren()) {
+            if (!(node instanceof javafx.scene.layout.HBox)) continue;
+            javafx.scene.layout.HBox row = (javafx.scene.layout.HBox) node;
+            Integer idCritere = (Integer) row.getProperties().get("critereId");
+            javafx.scene.control.TextField noteField = (javafx.scene.control.TextField) row.getProperties().get("noteField");
+            javafx.scene.control.CheckBox respectBox = (javafx.scene.control.CheckBox) row.getProperties().get("respectBox");
+            if (idCritere == null || noteField == null) continue;
+            String text = noteField.getText() == null ? "" : noteField.getText().trim();
+            if (text.isEmpty()) continue;
+            try {
+                int note = Integer.parseInt(text);
+                if (note < 1 || note > 10) continue;
+                String nom = nameIndex.getOrDefault(idCritere, "Critère #" + idCritere);
+                Models.EvaluationResult r = new Models.EvaluationResult();
+                r.setIdCritere(idCritere);
+                r.setNomCritere(nom);
+                r.setNote(note);
+                r.setEstRespecte(respectBox != null && respectBox.isSelected());
+                list.add(r);
+            } catch (NumberFormatException ignore) { }
+        }
+        return list;
+    }
 
     @FXML
     void handleClearSignature() {
