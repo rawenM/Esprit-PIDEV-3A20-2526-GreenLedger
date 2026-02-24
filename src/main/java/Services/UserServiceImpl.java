@@ -5,6 +5,7 @@ import dao.UserDAOImpl;
 import Models.StatutUtilisateur;
 import Models.TypeUtilisateur;
 import Models.User;
+import Utils.EmailService;
 import Utils.PasswordUtil;
 import Utils.SessionManager;
 
@@ -18,10 +19,12 @@ public class UserServiceImpl implements IUserService {
 
     private final IUserDAO userDAO;
     private final ValidationService validationService;
+    private final EmailService emailService;
 
     public UserServiceImpl() {
         this.userDAO = new UserDAOImpl();
         this.validationService = new ValidationService();
+        this.emailService = new EmailService();
     }
 
     @Override
@@ -73,6 +76,7 @@ public class UserServiceImpl implements IUserService {
 
         if (savedUser != null) {
             System.out.println("[OK] Utilisateur inscrit: " + savedUser.getEmail());
+            trySendWelcomeEmail(savedUser);
             return savedUser;
         }
 
@@ -370,6 +374,7 @@ public class UserServiceImpl implements IUserService {
 
         User updatedUser = userDAO.update(user);
         System.out.println("[OK] Compte valide: " + user.getEmail());
+        trySendStatusEmail(user, "valide");
         return updatedUser;
     }
 
@@ -386,6 +391,7 @@ public class UserServiceImpl implements IUserService {
 
         User updatedUser = userDAO.update(user);
         System.out.println("[INFO] Utilisateur bloque: " + user.getEmail());
+        trySendStatusEmail(user, "bloque");
         return updatedUser;
     }
 
@@ -402,6 +408,7 @@ public class UserServiceImpl implements IUserService {
 
         User updatedUser = userDAO.update(user);
         System.out.println("[OK] Utilisateur debloque: " + user.getEmail());
+        trySendStatusEmail(user, "debloque");
         return updatedUser;
     }
 
@@ -424,9 +431,31 @@ public class UserServiceImpl implements IUserService {
     @Override
     public boolean deleteUser(Long userId) {
         if (userId == null) return false;
+        Optional<User> userOpt = userDAO.findById(userId);
         boolean ok = userDAO.delete(userId);
         if (ok) System.out.println("[DEL] Utilisateur supprime (ID=" + userId + ")");
+        if (ok && userOpt.isPresent()) {
+            trySendStatusEmail(userOpt.get(), "supprime");
+        }
         return ok;
+    }
+
+    private void trySendWelcomeEmail(User user) {
+        if (user == null || user.getEmail() == null) return;
+        try {
+            emailService.sendWelcomeEmail(user.getEmail(), user.getNomComplet());
+        } catch (Exception e) {
+            System.err.println("[CLEAN] Email bienvenue non envoye: " + e.getMessage());
+        }
+    }
+
+    private void trySendStatusEmail(User user, String status) {
+        if (user == null || user.getEmail() == null) return;
+        try {
+            emailService.sendAccountStatusEmail(user.getEmail(), user.getNomComplet(), status);
+        } catch (Exception e) {
+            System.err.println("[CLEAN] Email statut non envoye: " + e.getMessage());
+        }
     }
 
     @Override

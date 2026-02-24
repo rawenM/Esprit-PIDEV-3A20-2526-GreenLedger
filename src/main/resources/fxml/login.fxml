@@ -4,6 +4,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
+<?import javafx.scene.web.WebView?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -53,6 +54,12 @@
 
                 <!-- Se souvenir de moi -->
                 <CheckBox fx:id="rememberMeCheckbox" text="Se souvenir de moi"/>
+
+                <!-- Captcha -->
+                <VBox spacing="5">
+                    <Label text="Verification" styleClass="form-label"/>
+                    <WebView fx:id="captchaWebView" prefHeight="120" maxWidth="360"/>
+                </VBox>
 
                 <!-- Bouton de connexion -->
                 <Button fx:id="loginButton"

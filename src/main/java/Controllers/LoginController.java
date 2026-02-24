@@ -1,6 +1,5 @@
 package Controllers;
 
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -8,10 +7,13 @@ import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.web.WebEngine;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import Models.User;
 import Services.IUserService;
 import Services.UserServiceImpl;
+import Utils.CaptchaService;
 import Utils.SessionManager;
 import Utils.ThemeManager;
 import org.GreenLedger.MainFX;
@@ -28,8 +30,11 @@ public class LoginController {
     @FXML private Button loginButton;
     @FXML private Hyperlink forgotPasswordLink;
     @FXML private Hyperlink registerLink;
+    @FXML private WebView captchaWebView;
 
     private final IUserService userService = new UserServiceImpl();
+    private final CaptchaService captchaService = new CaptchaService();
+    private String captchaToken;
 
     @FXML
     public void initialize() {
@@ -42,16 +47,55 @@ public class LoginController {
         try {
             if (SessionManager.getInstance().isLogged()) {
                 User u = SessionManager.getInstance().getCurrentUser();
-                // Pas d'Event Action disponible ici, mais on peut charger directement
-                // Redirection automatique vers le dashboard
-                // Note: cette redirection n'affichera pas d'animation d'Event
                 if (u != null) {
-                    // Utiliser une action fictive: charger dashboard
-                    // Ici on ne peut pas accéder au Stage facilement sans Event, garder pour connexion explicite
                     System.out.println("[CLEAN] Session active trouvée pour: " + u.getEmail());
                 }
             }
         } catch (Exception ignored) {}
+
+        setupCaptcha();
+    }
+
+    private void setupCaptcha() {
+        if (captchaWebView == null) return;
+        if (!captchaService.isConfigured()) {
+            showError("Captcha non configure. Contactez l'administrateur.");
+            loginButton.setDisable(true);
+            return;
+        }
+
+        WebEngine engine = captchaWebView.getEngine();
+        engine.setJavaScriptEnabled(true);
+        engine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
+            if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
+                netscape.javascript.JSObject window =
+                        (netscape.javascript.JSObject) engine.executeScript("window");
+                window.setMember("javafxConnector", new CaptchaBridge());
+            }
+        });
+        engine.loadContent(buildCaptchaHtml(captchaService.getSiteKey()));
+    }
+
+    private String buildCaptchaHtml(String siteKey) {
+        String safeKey = siteKey == null ? "" : siteKey;
+        return "<!DOCTYPE html>" +
+                "<html><head>" +
+                "<meta charset='UTF-8'/>" +
+                "<script src='https://www.google.com/recaptcha/api.js' async defer></script>" +
+                "</head><body style='margin:0; padding:0; background:transparent;'>" +
+                "<div class='g-recaptcha' data-sitekey='" + safeKey + "' data-callback='onCaptcha'></div>" +
+                "<script>" +
+                "function onCaptcha(token){" +
+                " if (window.javafxConnector && window.javafxConnector.setToken) { window.javafxConnector.setToken(token); }" +
+                "}" +
+                "</script>" +
+                "</body></html>";
+    }
+
+    private class CaptchaBridge {
+        public void setToken(String token) {
+            captchaToken = token;
+        }
     }
 
     @FXML
@@ -62,6 +106,17 @@ public class LoginController {
         // Validation basique
         if (email.isEmpty() || password.isEmpty()) {
             showError("Veuillez remplir tous les champs");
+            return;
+        }
+
+        if (captchaToken == null || captchaToken.trim().isEmpty()) {
+            showError("Veuillez completer le captcha");
+            return;
+        }
+
+        if (!captchaService.verifyToken(captchaToken)) {
+            showError("Captcha invalide. Reessayez.");
+            resetCaptcha();
             return;
         }
 
@@ -88,6 +143,13 @@ public class LoginController {
         } catch (Exception e) {
             showError("Une erreur est survenue lors de la connexion");
             e.printStackTrace();
+        }
+    }
+
+    private void resetCaptcha() {
+        captchaToken = null;
+        if (captchaWebView != null) {
+            captchaWebView.getEngine().executeScript("if (window.grecaptcha) { grecaptcha.reset(); }");
         }
     }
 
