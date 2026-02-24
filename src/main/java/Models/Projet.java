@@ -13,6 +13,11 @@ public class Projet {
     private String companyAddress;
     private String companyEmail;
     private String companyPhone;
+    
+    // Location fields for API integration (air quality, carbon estimates)
+    private Double latitude;
+    private Double longitude;
+    private String activityType; // e.g., "electricity", "fuel", "shipping", "manufacturing"
 
     public Projet() {}
 
@@ -106,6 +111,41 @@ public class Projet {
 
     public void setStatutEvaluation(String statutEvaluation) {
         this.statut = statutEvaluation;
+    }
+
+    // Location getters and setters for API integration
+    
+    public Double getLatitude() {
+        return latitude;
+    }
+    
+    public void setLatitude(Double latitude) {
+        this.latitude = latitude;
+    }
+    
+    public Double getLongitude() {
+        return longitude;
+    }
+    
+    public void setLongitude(Double longitude) {
+        this.longitude = longitude;
+    }
+    
+    public String getActivityType() {
+        return activityType;
+    }
+    
+    public void setActivityType(String activityType) {
+        this.activityType = activityType;
+    }
+    
+    /**
+     * Check if project has valid location coordinates for API calls
+     */
+    public boolean hasValidLocation() {
+        return latitude != null && longitude != null 
+            && latitude >= -90 && latitude <= 90 
+            && longitude >= -180 && longitude <= 180;
     }
 
 }
