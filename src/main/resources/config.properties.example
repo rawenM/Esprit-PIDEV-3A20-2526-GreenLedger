@@ -1,0 +1,19 @@
+# SMTP configuration
+# Do NOT commit real credentials. Use environment variables when possible.
+# SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SMTP_FROM,
+# SMTP_AUTH, SMTP_STARTTLS, APP_RESET_URL_PREFIX
+smtp.host=smtp.gmail.com
+smtp.port=587
+smtp.username=YOUR_EMAIL@example.com
+smtp.password=YOUR_APP_PASSWORD
+smtp.from=GreenLedger Team <YOUR_EMAIL@example.com>
+smtp.auth=true
+smtp.starttls.enable=true
+app.reset.url.prefix=http://127.0.0.1:8088/reset?token=
+
+# reCAPTCHA v2 configuration
+# Get your keys from: https://www.google.com/recaptcha/admin/create
+# Use reCAPTCHA v2 ("I'm not a robot") keys for the checkbox widget
+captcha.site.key=YOUR_SITE_KEY
+captcha.secret=YOUR_SECRET_KEY
+captcha.verify.url=https://www.google.com/recaptcha/api/siteverify

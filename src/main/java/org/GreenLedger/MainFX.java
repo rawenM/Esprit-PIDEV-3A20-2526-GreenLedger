@@ -63,8 +63,10 @@ public class MainFX extends Application {
 
         primaryStage.setTitle("Green Ledger - Connexion");
         primaryStage.setScene(scene);
-        primaryStage.setMinWidth(1000);
-        primaryStage.setMinHeight(600);
+        primaryStage.setMinWidth(850);
+        primaryStage.setMinHeight(750);
+        primaryStage.setWidth(850);
+        primaryStage.setHeight(750);
         primaryStage.show();
 
         try {
