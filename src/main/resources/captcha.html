@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 10px;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            font-family: Arial, sans-serif;
+            min-height: 120px;
+        }
+        .status {
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        #recaptcha-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="status" class="status">Chargement du captcha Google...</div>
+    <div id="recaptcha-container"></div>
+    
+    <script>
+        console.log('[CAPTCHA] HTML chargé, site key: SITE_KEY_PLACEHOLDER');
+
+        var scriptTimeout = setTimeout(function() {
+            if (typeof grecaptcha === 'undefined') {
+                console.error('[CAPTCHA] ❌ Script Google non chargé après 5s');
+                document.getElementById('status').innerHTML = '⚠ Impossible de charger Google reCAPTCHA<br>Utilisez le captcha alternatif ci-dessous';
+                document.getElementById('status').className = 'status error';
+                if (window.captchaBridge) {
+                    window.captchaBridge.onCaptchaFailed('Google script timeout');
+                }
+            }
+        }, 5000);
+
+        function onCaptchaSuccess(token) {
+            clearTimeout(scriptTimeout);
+            console.log('[CAPTCHA] ✓ Token reçu:', token.substring(0, 50) + '...');
+            document.getElementById('status').innerHTML = '✓ Captcha vérifié avec succès!';
+            document.getElementById('status').className = 'status success';
+
+            if (window.captchaBridge) {
+                console.log('[CAPTCHA] Envoi du token à JavaFX');
+                window.captchaBridge.onCaptchaSuccess(token);
+            } else if (window.javafxConnector) {
+                window.javafxConnector.setToken(token);
+            } else {
+                console.error('[CAPTCHA] ❌ captchaBridge non disponible!');
+            }
+        }
+
+        function onCaptchaError() {
+            clearTimeout(scriptTimeout);
+            console.error('[CAPTCHA] Erreur de vérification');
+            document.getElementById('status').innerHTML = '❌ Erreur de vérification';
+            document.getElementById('status').className = 'status error';
+            if (window.captchaBridge) {
+                window.captchaBridge.onCaptchaFailed('Verification error');
+            }
+        }
+
+        function onCaptchaExpired() {
+            console.warn('[CAPTCHA] Token expiré');
+            document.getElementById('status').innerHTML = '⚠ Captcha expiré, veuillez revalider';
+            document.getElementById('status').className = 'status error';
+        }
+
+        var checkCounter = 0;
+        var checkInterval = setInterval(function() {
+            checkCounter++;
+            if (typeof grecaptcha !== 'undefined' && grecaptcha.render) {
+                clearInterval(checkInterval);
+                clearTimeout(scriptTimeout);
+                console.log('[CAPTCHA] ✓ grecaptcha disponible, rendu du widget v2');
+
+                try {
+                    grecaptcha.render('recaptcha-container', {
+                        'sitekey': 'SITE_KEY_PLACEHOLDER',
+                        'callback': onCaptchaSuccess,
+                        'error-callback': onCaptchaError,
+                        'expired-callback': onCaptchaExpired,
+                        'theme': 'light',
+                        'size': 'normal'
+                    });
+                    document.getElementById('status').innerHTML = 'Cochez la case "Je ne suis pas un robot":';
+                } catch (e) {
+                    console.error('[CAPTCHA] ❌ Erreur render():', e);
+                    document.getElementById('status').innerHTML = '❌ Erreur: ' + e.message;
+                    document.getElementById('status').className = 'status error';
+                }
+            }
+
+            if (checkCounter > 60) {
+                clearInterval(checkInterval);
+                console.error('[CAPTCHA] Abandon après 6 secondes');
+            }
+        }, 100);
+    </script>
+</body>
+</html>

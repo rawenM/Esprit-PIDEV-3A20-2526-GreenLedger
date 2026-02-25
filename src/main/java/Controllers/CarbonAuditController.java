@@ -24,6 +24,7 @@ import Models.User;
 import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
+import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
 
 public class CarbonAuditController extends BaseController {
@@ -110,6 +111,7 @@ public class CarbonAuditController extends BaseController {
     private final CritereImpactService critereImpactService = new CritereImpactService();
     private final ProjectEsgService projectEsgService = new ProjectEsgService();
     private final Services.AdvancedEvaluationFacade advancedFacade = new Services.AdvancedEvaluationFacade();
+    private final Services.CarbonReportService carbonReportService = new Services.CarbonReportService();
 
     private final ObservableList<CritereReference> referenceCriteres = FXCollections.observableArrayList();
 
@@ -130,6 +132,7 @@ public class CarbonAuditController extends BaseController {
 
         critereImpactService.ensureDefaultReferences();
         enforceSingleDecision();
+        setupStaticInputConstraints();
 
         // Initialiser les gestionnaires des boutons de navigation
         if (btnGestionProjets != null) {
@@ -141,6 +144,9 @@ public class CarbonAuditController extends BaseController {
         if (btnSettings != null) {
             btnSettings.setOnAction(event -> showSettings());
         }
+
+        // Appliquer formatters / contrôles de saisie pour les champs statiques du formulaire de critères
+        setupStaticInputConstraints();
 
         if (tableAudits != null) {
             tableAudits.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_SUBSEQUENT_COLUMNS);
@@ -603,6 +609,48 @@ public class CarbonAuditController extends BaseController {
             System.err.println("ESG update failed: " + ex.getMessage());
         }
 
+        // ============ EXTERNAL API INTEGRATION ============
+        // Enrich evaluation with external carbon and air quality data
+        try {
+            // Get the project details
+            java.util.List<Projet> allProjects = projetService.afficher();
+            if (allProjects != null) {
+                for (Projet proj : allProjects) {
+                    if (proj != null && proj.getId() == evaluation.getIdProjet()) {
+                        // Create a carbon report for this evaluation
+                        Models.CarbonReport carbonReport = carbonReportService.createReport(
+                            (long) proj.getId(),
+                            proj.getTitre(),
+                            (long) proj.getEntrepriseId(),
+                            proj.getCompanyEmail() != null ? proj.getCompanyEmail() : "Unknown"
+                        );
+                        
+                        // Enrich with external API data (graceful degradation)
+                        if (carbonReport != null) {
+                            carbonReportService.enrichWithExternalData(carbonReport, proj);
+                            
+                            // Display enrichment info in AI insights area
+                            if (txtAIInsights != null && carbonReport.getEvaluationDetails() != null) {
+                                String currentText = txtAIInsights.getText();
+                                txtAIInsights.setText(currentText + "\n\n" + carbonReport.getEvaluationDetails());
+                            }
+                            
+                            System.out.println("[AUDIT CONTROLLER] ✓ External API data integrated");
+                        }
+                        break;
+                    }
+                }
+            }
+        } catch (Exception apiEx) {
+            // Graceful degradation - continue without external data
+            System.err.println("[AUDIT CONTROLLER] External API enrichment failed: " + apiEx.getMessage());
+            if (txtAIInsights != null) {
+                String currentText = txtAIInsights.getText();
+                txtAIInsights.setText(currentText + "\n\n⚠️ External API data unavailable");
+            }
+        }
+        // ==================================================
+
         refreshEvaluations();
         refreshProjets();
         refreshCriteres();
@@ -701,8 +749,11 @@ public class CarbonAuditController extends BaseController {
 
     @FXML
     void ajouterCritere() {
-        String nom = requireLength(txtNomCritere, "Nom du critere", 3, 100);
-        String description = requireText(txtCommentaireCritere, "Description");
+        // Nom du critere : min 8 max 30
+        String nom = requireLength(txtNomCritere, "Nom du critere", 8, 30);
+        // Description : min 8 max 250
+        String description = requireLength(txtCommentaireCritere, "Description", 8, 250);
+        // Poids : entier entre 1 et 10
         Integer poids = requireNote(txtNote.getText());
         if (nom == null || description == null || poids == null) {
             return;
@@ -721,8 +772,8 @@ public class CarbonAuditController extends BaseController {
             showError("Selectionnez un critere.");
             return;
         }
-        String nom = requireLength(txtNomCritere, "Nom du critere", 3, 100);
-        String description = requireText(txtCommentaireCritere, "Description");
+        String nom = requireLength(txtNomCritere, "Nom du critere", 8, 30);
+        String description = requireLength(txtCommentaireCritere, "Description", 8, 250);
         Integer poids = requireNote(txtNote.getText());
         if (nom == null || description == null || poids == null) {
             return;
@@ -753,9 +804,15 @@ public class CarbonAuditController extends BaseController {
     }
 
     private void clearCritereForm() {
-        txtNomCritere.clear();
-        txtNote.clear();
-        txtCommentaireCritere.clear();
+        if (txtNomCritere != null) {
+            txtNomCritere.clear();
+        }
+        if (txtNote != null) {
+            txtNote.clear();
+        }
+        if (txtCommentaireCritere != null) {
+            txtCommentaireCritere.clear();
+        }
     }
 
     private Evaluation readEvaluationFromForm(boolean requireId) {
@@ -857,6 +914,9 @@ public class CarbonAuditController extends BaseController {
         }
     }
 
+    /**
+     * Poids: entier entre 1 et 10.
+     */
     private Integer requireNote(String text) {
         Integer note = parseInt(text, "Note");
         if (note == null) {
@@ -1119,6 +1179,12 @@ public class CarbonAuditController extends BaseController {
         return String.format(java.util.Locale.US, "%.2f", score);
     }
 
+    /**
+     * Collecte des résultats depuis les champs dynamiques.
+     * On applique ici la validation requise :
+     * - note obligatoire et entre 1 et 10
+     * - commentaire technique entre 8 et 250
+     */
     private List<EvaluationResult> collectResultatsFromFields() {
         if (criteriaFieldsBox == null) {
             return java.util.Collections.emptyList();
@@ -1139,7 +1205,8 @@ public class CarbonAuditController extends BaseController {
             }
 
             Integer note = requireNote(noteField.getText());
-            String commentaire = requireText(commentField, "Commentaire technique");
+            // Commentaire technique : min 8 max 250
+            String commentaire = requireLength(commentField, "Commentaire technique", 8, 250);
             if (idCritere == null || note == null || commentaire == null) {
                 return null;
             }
@@ -1179,10 +1246,43 @@ public class CarbonAuditController extends BaseController {
             noteField.getStyleClass().add("field");
             noteField.setPrefWidth(120);
 
+            // TextFormatter pour n'accepter que des chiffres (0-99)
+            UnaryOperator<TextFormatter.Change> integerFilter = change -> {
+                String newText = change.getControlNewText();
+                if (newText.matches("\\d{0,2}")) {
+                    return change;
+                }
+                return null;
+            };
+            noteField.setTextFormatter(new TextFormatter<>(integerFilter));
+
+            // Validation visuelle à la saisie (on marque si hors bornes)
+            noteField.textProperty().addListener((obs, oldVal, newVal) -> {
+                if (newVal == null || newVal.trim().isEmpty()) {
+                    markInvalid(noteField, false); // allow empty until submission
+                    updateScorePreview();
+                    return;
+                }
+                try {
+                    int v = Integer.parseInt(newVal.trim());
+                    markInvalid(noteField, v < 1 || v > 10);
+                } catch (NumberFormatException e) {
+                    markInvalid(noteField, true);
+                }
+                updateScorePreview();
+            });
+
             javafx.scene.control.TextArea commentField = new javafx.scene.control.TextArea();
             commentField.setPromptText("Commentaire technique");
             commentField.getStyleClass().addAll("field", "textarea");
             commentField.setPrefRowCount(2);
+
+            // Limiter longueur et validation visuelle
+            limitTextLength(commentField, 250);
+            commentField.textProperty().addListener((obs, oldV, newV) -> {
+                boolean invalid = !newV.trim().isEmpty() && (newV.trim().length() < 8 || newV.trim().length() > 250);
+                markInvalid(commentField, invalid);
+            });
 
             EvaluationResult existingResult = existing.get(reference.getIdCritere());
             if (existingResult != null) {
@@ -1201,6 +1301,54 @@ public class CarbonAuditController extends BaseController {
             criteriaFieldsBox.getChildren().add(row);
         }
         updateScorePreview();
+    }
+
+    /**
+     * Setup input constraints for static form fields
+     */
+    private void setupStaticInputConstraints() {
+        // This method can be expanded to add constraints to static fields
+        // Currently, dynamic fields have their own constraints in rebuildCriteriaFields
+    }
+
+    /**
+     * Mark a TextField as invalid by applying CSS style
+     */
+    private void markInvalid(javafx.scene.control.TextField field, boolean invalid) {
+        if (field == null) return;
+        if (invalid) {
+            if (!field.getStyleClass().contains("field-error")) {
+                field.getStyleClass().add("field-error");
+            }
+        } else {
+            field.getStyleClass().remove("field-error");
+        }
+    }
+
+    /**
+     * Mark a TextArea as invalid by applying CSS style
+     */
+    private void markInvalid(javafx.scene.control.TextArea field, boolean invalid) {
+        if (field == null) return;
+        if (invalid) {
+            if (!field.getStyleClass().contains("field-error")) {
+                field.getStyleClass().add("field-error");
+            }
+        } else {
+            field.getStyleClass().remove("field-error");
+        }
+    }
+
+    /**
+     * Limit text length in TextArea
+     */
+    private void limitTextLength(javafx.scene.control.TextArea field, int maxLength) {
+        if (field == null) return;
+        field.textProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal != null && newVal.length() > maxLength) {
+                field.setText(oldVal);
+            }
+        });
     }
 
     private void updateScorePreview() {

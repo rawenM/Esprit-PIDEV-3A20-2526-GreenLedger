@@ -1,0 +1,25 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="GreenLedger" type="Application" factoryName="Application">
+    <envs>
+      <env name="APP_RESET_URL_PREFIX" value="http://127.0.0.1:8088/reset?token=" />
+      <env name="CARBON_API_KEY" value="KvqC3GpVpdYkn3yHgtFCvw" />
+      <env name="OPENWEATHERMAP_API_KEY" value="25965674e6fcf0194e2bc6cc2e426fca" />
+      <env name="RECAPTCHA_SECRET_KEY" value="6LcRkXcsAAAAAGdrsxult80-4YJIDq3uW77HxgCX" />
+      <env name="RECAPTCHA_SITE_KEY" value="6LcRkXcsAAAAAMccKpZStxJSSAUjG1NPsMS6LAw2" />
+      <env name="RECAPTCHA_VERIFY_URL" value="https://www.google.com/recaptcha/api/siteverify" />
+      <env name="SMTP_AUTH" value="true" />
+      <env name="SMTP_FROM" value="GreenLedger Team &lt;ibrahimimajid058@gmail.com&gt;" />
+      <env name="SMTP_HOST" value="smtp.gmail.com" />
+      <env name="SMTP_PASSWORD" value="szqx paqn stlr ezvo" />
+      <env name="SMTP_PORT" value="587" />
+      <env name="SMTP_STARTTLS" value="true" />
+      <env name="SMTP_USERNAME" value="ibrahimimajid058@gmail.com" />
+    </envs>
+    <option name="MAIN_CLASS_NAME" value="org.GreenLedger.MainFX" />
+    <module name="workshopjdbc3a" />
+    <option name="VM_PARAMETERS" value="--module-path $MAVEN_REPOSITORY$/org/openjfx/javafx-controls/20.0.2/javafx-controls-20.0.2-win.jar;$MAVEN_REPOSITORY$/org/openjfx/javafx-graphics/20.0.2/javafx-graphics-20.0.2-win.jar;$MAVEN_REPOSITORY$/org/openjfx/javafx-base/20.0.2/javafx-base-20.0.2-win.jar;$MAVEN_REPOSITORY$/org/openjfx/javafx-fxml/20.0.2/javafx-fxml-20.0.2-win.jar;$MAVEN_REPOSITORY$/org/openjfx/javafx-web/20.0.2/javafx-web-20.0.2-win.jar;$MAVEN_REPOSITORY$/org/openjfx/javafx-media/20.0.2/javafx-media-20.0.2-win.jar --add-modules javafx.controls,javafx.fxml,javafx.web,javafx.media --add-opens javafx.web/com.sun.webkit=ALL-UNNAMED --add-opens javafx.web/com.sun.webkit.dom=ALL-UNNAMED" />
+    <method v="2">
+      <option name="Make" enabled="true" />
+    </method>
+  </configuration>
+</component>
