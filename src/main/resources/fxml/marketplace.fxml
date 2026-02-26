@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
@@ -49,37 +50,59 @@
                 <tabs>
                     <Tab fx:id="browseListingsTab" text="Browse Listings">
                         <content>
-                            <VBox spacing="12">
-                                <HBox spacing="12" alignment="CENTER_LEFT">
-                                    <Label text="Asset Type"/>
-                                    <ComboBox fx:id="assetTypeFilter" prefWidth="220"/>
+                            <HBox spacing="16">
+                                <VBox spacing="12" HBox.hgrow="ALWAYS">
+                                    <HBox spacing="12" alignment="CENTER_LEFT">
+                                        <Label text="Asset Type"/>
+                                        <ComboBox fx:id="assetTypeFilter" prefWidth="220"/>
 
-                                    <Label text="Min Price"/>
-                                    <Slider fx:id="priceMinSlider" minWidth="160"/>
+                                        <Label text="Min Price"/>
+                                        <Slider fx:id="priceMinSlider" minWidth="160"/>
 
-                                    <Label text="Max Price"/>
-                                    <Slider fx:id="priceMaxSlider" minWidth="160"/>
+                                        <Label text="Max Price"/>
+                                        <Slider fx:id="priceMaxSlider" minWidth="160"/>
 
-                                    <Label fx:id="priceRangeLabel" text="USD 0.00 - 0.00"/>
+                                        <Label fx:id="priceRangeLabel" text="USD 0.00 - 0.00"/>
 
-                                    <Region HBox.hgrow="ALWAYS"/>
+                                        <Region HBox.hgrow="ALWAYS"/>
 
-                                    <Button fx:id="buyButton"
-                                            text="Buy"
-                                            onAction="#handleBuyClick"
-                                            styleClass="btn"/>
-                                </HBox>
+                                        <Button fx:id="makeOfferButton"
+                                                text="Make Offer"
+                                                onAction="#handleMakeOffer"
+                                                styleClass="btn"/>
 
-                                <TableView fx:id="listingsTable" prefHeight="520">
-                                    <columns>
-                                        <TableColumn fx:id="listingIdColumn" text="ID" prefWidth="80"/>
-                                        <TableColumn fx:id="assetTypeColumn" text="Asset Type" prefWidth="160"/>
-                                        <TableColumn fx:id="quantityColumn" text="Quantity" prefWidth="140"/>
-                                        <TableColumn fx:id="pricePerUnitColumn" text="Price/Unit" prefWidth="160"/>
-                                        <TableColumn fx:id="totalPriceColumn" text="Total" prefWidth="160"/>
-                                    </columns>
-                                </TableView>
-                            </VBox>
+                                        <Button fx:id="buyButton"
+                                                text="Buy"
+                                                onAction="#handleBuyClick"
+                                                styleClass="btn"/>
+                                    </HBox>
+
+                                    <TableView fx:id="listingsTable" prefHeight="520">
+                                        <columns>
+                                            <TableColumn fx:id="listingIdColumn" text="ID" prefWidth="80"/>
+                                            <TableColumn fx:id="assetTypeColumn" text="Asset Type" prefWidth="160"/>
+                                            <TableColumn fx:id="quantityColumn" text="Quantity" prefWidth="140"/>
+                                            <TableColumn fx:id="pricePerUnitColumn" text="Price/Unit" prefWidth="160"/>
+                                            <TableColumn fx:id="totalPriceColumn" text="Total" prefWidth="160"/>
+                                        </columns>
+                                    </TableView>
+                                </VBox>
+
+                                <VBox spacing="12" prefWidth="320" styleClass="card">
+                                    <Label text="Market View" styleClass="section-title"/>
+                                    <Label fx:id="marketPanelPriceLabel" text="--" styleClass="topbar-title"/>
+                                    <LineChart fx:id="marketMiniChart" animated="false" prefHeight="220">
+                                        <xAxis>
+                                            <NumberAxis label="Time"/>
+                                        </xAxis>
+                                        <yAxis>
+                                            <NumberAxis label="USD/tCO2"/>
+                                        </yAxis>
+                                    </LineChart>
+                                    <Label fx:id="marketPanelNoteLabel" text="Simulated feed until API key is provided." styleClass="muted-note"/>
+                                    <Button text="Open Market Tab" onAction="#handleOpenMarketTab" styleClass="btn btn-secondary"/>
+                                </VBox>
+                            </HBox>
                         </content>
                     </Tab>
 
@@ -109,6 +132,60 @@
                                         <TableColumn fx:id="myListingStatusColumn" text="Status" prefWidth="160"/>
                                     </columns>
                                 </TableView>
+                            </VBox>
+                        </content>
+                    </Tab>
+
+                    <Tab fx:id="offersTab" text="Offers">
+                        <content>
+                            <VBox spacing="16">
+                                <Label text="Offers Received" styleClass="section-title"/>
+                                <TableView fx:id="offersReceivedTable" prefHeight="220">
+                                    <columns>
+                                        <TableColumn fx:id="offerListingColumn" text="Listing" prefWidth="120"/>
+                                        <TableColumn fx:id="offerBuyerColumn" text="Buyer" prefWidth="120"/>
+                                        <TableColumn fx:id="offerQuantityColumn" text="Quantity" prefWidth="120"/>
+                                        <TableColumn fx:id="offerPriceColumn" text="Offer Price" prefWidth="140"/>
+                                        <TableColumn fx:id="offerStatusColumn" text="Status" prefWidth="120"/>
+                                    </columns>
+                                </TableView>
+                                <HBox spacing="12" alignment="CENTER_LEFT">
+                                    <Button fx:id="acceptOfferButton" text="Accept" onAction="#handleAcceptOffer" styleClass="btn"/>
+                                    <Button fx:id="counterOfferButton" text="Counter" onAction="#handleCounterOffer" styleClass="btn"/>
+                                    <Button fx:id="rejectOfferButton" text="Reject" onAction="#handleRejectOffer" styleClass="btn btn-danger"/>
+                                </HBox>
+
+                                <Separator/>
+
+                                <Label text="Offers Sent" styleClass="section-title"/>
+                                <TableView fx:id="offersSentTable" prefHeight="220">
+                                    <columns>
+                                        <TableColumn fx:id="sentListingColumn" text="Listing" prefWidth="120"/>
+                                        <TableColumn fx:id="sentSellerColumn" text="Seller" prefWidth="120"/>
+                                        <TableColumn fx:id="sentQuantityColumn" text="Quantity" prefWidth="120"/>
+                                        <TableColumn fx:id="sentPriceColumn" text="Offer Price" prefWidth="140"/>
+                                        <TableColumn fx:id="sentStatusColumn" text="Status" prefWidth="120"/>
+                                    </columns>
+                                </TableView>
+                                <HBox spacing="12" alignment="CENTER_LEFT">
+                                    <Button fx:id="cancelOfferButton" text="Cancel Offer" onAction="#handleCancelOffer" styleClass="btn btn-secondary"/>
+                                </HBox>
+                            </VBox>
+                        </content>
+                    </Tab>
+
+                    <Tab fx:id="marketTab" text="Market">
+                        <content>
+                            <VBox spacing="12">
+                                <Label text="Carbon Credit Market" styleClass="page-title"/>
+                                <LineChart fx:id="marketChart" animated="false" prefHeight="520">
+                                    <xAxis>
+                                        <NumberAxis label="Time"/>
+                                    </xAxis>
+                                    <yAxis>
+                                        <NumberAxis label="USD/tCO2"/>
+                                    </yAxis>
+                                </LineChart>
                             </VBox>
                         </content>
                     </Tab>
