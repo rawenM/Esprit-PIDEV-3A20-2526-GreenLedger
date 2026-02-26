@@ -44,6 +44,7 @@ public class GreenWalletController extends BaseController {
     // Sidebar Buttons
     @FXML private Button btnWalletOverview;
     @FXML private Button btnGestionProjets;
+    @FXML private Button btnMarketplace;
     @FXML private Button btnTransactions;
     @FXML private Button btnBatches;
     @FXML private Button btnIssueCredits;
@@ -183,6 +184,9 @@ public class GreenWalletController extends BaseController {
     private void setupListeners() {
         if (btnWalletOverview != null) {
             btnWalletOverview.setOnAction(e -> showWalletOverview());
+        }
+        if (btnMarketplace != null) {
+            btnMarketplace.setOnAction(e -> showMarketplace());
         }
         if (btnTransactions != null) {
             btnTransactions.setOnAction(e -> showTransactions());
@@ -1003,6 +1007,26 @@ public class GreenWalletController extends BaseController {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private void showMarketplace() {
+        try {
+            MainFX.setRoot("fxml/marketplace");
+        } catch (IOException e) {
+            try {
+                MainFX.setRoot("marketplace");
+                return;
+            } catch (IOException ignored) {
+                // fall through to error handling
+            }
+            showError("Erreur", "Impossible d'ouvrir le marketplace: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void onMarketplace() {
+        showMarketplace();
     }
 
     @FXML

@@ -103,6 +103,27 @@ public class WalletService {
 
     /**
      * Read a single wallet by ID.
+        /**
+         * Get all wallets owned by a specific user.
+         */
+        public List<Wallet> getWalletsByOwnerId(int ownerId) {
+            List<Wallet> wallets = new ArrayList<>();
+            String sql = "SELECT * FROM wallet WHERE owner_id = ? ORDER BY created_at DESC";
+        
+            try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setInt(1, ownerId);
+                ResultSet rs = ps.executeQuery();
+                while (rs.next()) {
+                    wallets.add(mapResultSetToWallet(rs));
+                }
+            } catch (SQLException ex) {
+                System.out.println("Error fetching wallets by owner: " + ex.getMessage());
+            }
+            return wallets;
+        }
+
+        /**
+         * Read a single wallet by ID.
      */
     public Wallet getWalletById(int id) {
         String sql = "SELECT * FROM wallet WHERE id = ?";
@@ -542,6 +563,16 @@ public class WalletService {
         }
     }
 
+    /**
+     * Get all available credit batches for a wallet (public method for marketplace).
+     */
+    public List<CarbonCreditBatch> getAvailableBatchesByWalletId(int walletId) {
+        return getAvailableBatches(walletId);
+    }
+
+    /**
+     * Get available credit batches for a wallet (internal method).
+     */
     private List<CarbonCreditBatch> getAvailableBatches(int walletId) {
         List<CarbonCreditBatch> batches = new ArrayList<>();
         String sql = "SELECT * FROM carbon_credit_batches WHERE wallet_id = ? AND remaining_amount > 0 " +

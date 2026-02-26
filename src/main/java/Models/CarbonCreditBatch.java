@@ -17,6 +17,10 @@ public class CarbonCreditBatch {
     private String status;                // AVAILABLE, PARTIALLY_RETIRED, FULLY_RETIRED
     private LocalDateTime issuedAt;
 
+    // Optional fields for marketplace display
+    private String projectName;           // Name of the project (for display)
+    private String verificationStatus;    // Verification standard (e.g., VCS, Gold Standard)
+
     // Constructors
     public CarbonCreditBatch() {
         this.status = "AVAILABLE";
@@ -85,6 +89,22 @@ public class CarbonCreditBatch {
 
     public void setIssuedAt(LocalDateTime issuedAt) {
         this.issuedAt = issuedAt;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public String getVerificationStatus() {
+        return verificationStatus != null ? verificationStatus : "VERIFIED";
+    }
+
+    public void setVerificationStatus(String verificationStatus) {
+        this.verificationStatus = verificationStatus;
     }
 
     // Utility methods

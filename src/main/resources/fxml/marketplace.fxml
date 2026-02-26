@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.MarketplaceController"
+            prefHeight="720" prefWidth="1200"
+            styleClass="page">
+
+    <top>
+        <VBox styleClass="topbar">
+            <HBox alignment="CENTER_LEFT" spacing="16">
+                <padding>
+                    <Insets top="16" right="24" bottom="16" left="24"/>
+                </padding>
+
+                <Button fx:id="backButton"
+                        text="← Back"
+                        onAction="#handleBack"
+                        styleClass="btn btn-secondary"/>
+
+                <Label text="Marketplace"
+                       styleClass="topbar-title"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <Label fx:id="currentCarbonPriceLabel"
+                       text="Current Carbon Price: --"
+                       styleClass="muted-note"/>
+
+                <Button fx:id="refreshButton"
+                        text="Refresh"
+                        onAction="#handleRefresh"
+                        styleClass="btn"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <VBox spacing="16" styleClass="content-area">
+            <padding>
+                <Insets top="20" right="24" bottom="24" left="24"/>
+            </padding>
+
+            <TabPane fx:id="marketplaceTabPane" tabClosingPolicy="UNAVAILABLE">
+                <tabs>
+                    <Tab fx:id="browseListingsTab" text="Browse Listings">
+                        <content>
+                            <VBox spacing="12">
+                                <HBox spacing="12" alignment="CENTER_LEFT">
+                                    <Label text="Asset Type"/>
+                                    <ComboBox fx:id="assetTypeFilter" prefWidth="220"/>
+
+                                    <Label text="Min Price"/>
+                                    <Slider fx:id="priceMinSlider" minWidth="160"/>
+
+                                    <Label text="Max Price"/>
+                                    <Slider fx:id="priceMaxSlider" minWidth="160"/>
+
+                                    <Label fx:id="priceRangeLabel" text="USD 0.00 - 0.00"/>
+
+                                    <Region HBox.hgrow="ALWAYS"/>
+
+                                    <Button fx:id="buyButton"
+                                            text="Buy"
+                                            onAction="#handleBuyClick"
+                                            styleClass="btn"/>
+                                </HBox>
+
+                                <TableView fx:id="listingsTable" prefHeight="520">
+                                    <columns>
+                                        <TableColumn fx:id="listingIdColumn" text="ID" prefWidth="80"/>
+                                        <TableColumn fx:id="assetTypeColumn" text="Asset Type" prefWidth="160"/>
+                                        <TableColumn fx:id="quantityColumn" text="Quantity" prefWidth="140"/>
+                                        <TableColumn fx:id="pricePerUnitColumn" text="Price/Unit" prefWidth="160"/>
+                                        <TableColumn fx:id="totalPriceColumn" text="Total" prefWidth="160"/>
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </content>
+                    </Tab>
+
+                    <Tab fx:id="myListingsTab" text="My Listings">
+                        <content>
+                            <VBox spacing="12">
+                                <HBox spacing="12" alignment="CENTER_LEFT">
+                                    <Button fx:id="createListingButton"
+                                            text="Create Listing"
+                                            onAction="#handleCreateListing"
+                                            styleClass="btn"/>
+                                    <Button fx:id="editListingButton"
+                                            text="Edit"
+                                            onAction="#handleEditListing"
+                                            styleClass="btn"/>
+                                    <Button fx:id="deleteListingButton"
+                                            text="Delete"
+                                            onAction="#handleDeleteListing"
+                                            styleClass="btn btn-danger"/>
+                                </HBox>
+
+                                <TableView fx:id="myListingsTable" prefHeight="520">
+                                    <columns>
+                                        <TableColumn fx:id="myListingAssetColumn" text="Asset Type" prefWidth="200"/>
+                                        <TableColumn fx:id="myListingQuantityColumn" text="Quantity" prefWidth="160"/>
+                                        <TableColumn fx:id="myListingPriceColumn" text="Price/Unit" prefWidth="160"/>
+                                        <TableColumn fx:id="myListingStatusColumn" text="Status" prefWidth="160"/>
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </content>
+                    </Tab>
+
+                    <Tab fx:id="orderHistoryTab" text="Order History">
+                        <content>
+                            <VBox spacing="12">
+                                <HBox spacing="20" alignment="CENTER_LEFT">
+                                    <Label fx:id="totalSpendingLabel" text="Total Spending: $0.00"/>
+                                    <Label fx:id="completedOrdersLabel" text="Completed Orders: 0"/>
+                                </HBox>
+
+                                <TableView fx:id="ordersTable" prefHeight="520">
+                                    <columns>
+                                        <TableColumn fx:id="orderIdColumn" text="Order ID" prefWidth="120"/>
+                                        <TableColumn fx:id="orderAmountColumn" text="Amount" prefWidth="160"/>
+                                        <TableColumn fx:id="orderStatusColumn" text="Status" prefWidth="160"/>
+                                        <TableColumn fx:id="orderDateColumn" text="Date" prefWidth="200"/>
+                                    </columns>
+                                </TableView>
+                            </VBox>
+                        </content>
+                    </Tab>
+                </tabs>
+            </TabPane>
+        </VBox>
+    </center>
+</BorderPane>

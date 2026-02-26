@@ -23,6 +23,7 @@
 
         <Button fx:id="btnGestionProjets" text="📁 Gestion Projets" styleClass="nav-btn" onAction="#onGestionProjets"/>
         <Button fx:id="btnWalletOverview" text="💳 GreenWallet" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
+        <Button fx:id="btnMarketplace" text="🛒 Marketplace" styleClass="nav-btn" style="-fx-padding: 10 12;" onAction="#onMarketplace"/>
         <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
 
         <Region VBox.vgrow="ALWAYS"/>
