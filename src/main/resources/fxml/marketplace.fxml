@@ -36,6 +36,16 @@
                         text="Refresh"
                         onAction="#handleRefresh"
                         styleClass="btn"/>
+
+                <Button fx:id="refreshPriceButton"
+                        text="Refresh API Price"
+                        onAction="#handleRefreshPrice"
+                        styleClass="btn btn-secondary"/>
+
+                <Button fx:id="testPaymentButton"
+                        text="Test Payment"
+                        onAction="#handleTestPayment"
+                        styleClass="btn btn-secondary"/>
             </HBox>
         </VBox>
     </top>

@@ -13,8 +13,8 @@ public class MarketplaceListing {
     private Integer walletId;  // Wallet ID being sold or source wallet
     private double quantityOrTokens;  // Amount for credits, 1 for wallet
     private double pricePerUnit;  // USD per tCO2 or per wallet
-    private double minPriceUsd;  // Minimum acceptable offer price per unit
-    private Double autoAcceptPriceUsd;  // Auto-accept offers at or above this
+    private Double minPriceUsd;  // Minimum acceptable offer price per unit (nullable)
+    private Double autoAcceptPriceUsd;  // Auto-accept offers at or above this (nullable)
     private double totalPriceUsd;  // Calculated: quantity * pricePerUnit
     private String status;  // ACTIVE, PENDING, SOLD, CANCELLED, EXPIRED
     private String description;
@@ -28,7 +28,7 @@ public class MarketplaceListing {
 
     public MarketplaceListing(int sellerId, String assetType, Integer walletId,
                             double quantityOrTokens, double pricePerUnit,
-                            double minPriceUsd, Double autoAcceptPriceUsd, String description) {
+                            Double minPriceUsd, Double autoAcceptPriceUsd, String description) {
         this.sellerId = sellerId;
         this.assetType = assetType;
         this.walletId = walletId;
@@ -94,11 +94,11 @@ public class MarketplaceListing {
         recalculateTotal();
     }
 
-    public double getMinPriceUsd() {
+    public Double getMinPriceUsd() {
         return minPriceUsd;
     }
 
-    public void setMinPriceUsd(double minPriceUsd) {
+    public void setMinPriceUsd(Double minPriceUsd) {
         this.minPriceUsd = minPriceUsd;
     }
 

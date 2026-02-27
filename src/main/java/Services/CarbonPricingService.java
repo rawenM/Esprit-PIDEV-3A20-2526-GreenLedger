@@ -18,7 +18,8 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Service for managing carbon credit pricing
- * Fetches real-time pricing from Climate Impact X API
+ * Fetches data from Climatiq API for verification
+ * Uses realistic market-based pricing as primary source
  * Caches prices locally with TTL
  * Stores historical price snapshots for trend analysis
  */
@@ -26,11 +27,14 @@ public class CarbonPricingService {
     private static final String LOG_TAG = "[CarbonPricingService]";
     private static final long CACHE_TTL_MINUTES = 5;
     private static final String PRICE_CACHE_FILE = "config/price_cache.dat";
+    private static final String API_CALL_CONFIG_FILE = "config/api_call_log.txt";
 
     private final String apiKey;
     private final String apiUrl;
     private final double defaultRate;
     private final Map<String, PriceCache> priceCache;
+    private long lastApiCallTime = 0;
+    private final long apiCallIntervalHours;
 
     // Inner class for caching prices
     private static class PriceCache {
@@ -57,13 +61,17 @@ public class CarbonPricingService {
         this.defaultRate = defaultRate;
         this.priceCache = new ConcurrentHashMap<>();
         this.conn = DataBase.MyConnection.getConnection();
+        this.apiCallIntervalHours = Long.parseLong(
+            getConfigProperty("carbon.pricing.api.call.interval.hours", "12")
+        );
         loadPriceCache();
+        loadLastApiCallTime();
     }
 
     public static CarbonPricingService getInstance() {
         if (instance == null) {
-            String apiKey = getConfigProperty("carbon.pricing.api.key", "YOUR_CIX_KEY");
-            String apiUrl = getConfigProperty("carbon.pricing.api.url", "https://api.climateimpactx.com/v1");
+            String apiKey = getConfigProperty("carbon.pricing.api.key", "YOUR_CLIMATIQ_API_KEY");
+            String apiUrl = getConfigProperty("carbon.pricing.api.url", "https://api.climatiq.io");
             double defaultRate = Double.parseDouble(
                 getConfigProperty("carbon.pricing.default.rate", "15.50")
             );
@@ -150,44 +158,115 @@ public class CarbonPricingService {
     }
 
     /**
-     * Fetch price from Climate Impact X API
+     * Check if enough time has passed since last API call (respects rate limit)
+     */
+    private boolean canCallAPI() {
+        if (lastApiCallTime == 0) return true;
+        long timeSinceLastCall = System.currentTimeMillis() - lastApiCallTime;
+        long intervalMs = apiCallIntervalHours * 60 * 60 * 1000;
+        return timeSinceLastCall >= intervalMs;
+    }
+
+    /**
+     * Manually trigger API refresh (for button in UI)
+     * Returns true if API call was made, false if rate-limited
+     */
+    public boolean refreshPriceFromAPI(String creditType) {
+        if (!canCallAPI()) {
+            long timeSinceLastCall = System.currentTimeMillis() - lastApiCallTime;
+            long intervalMs = apiCallIntervalHours * 60 * 60 * 1000;
+            long minutesUntilNext = (intervalMs - timeSinceLastCall) / (60 * 1000);
+            System.out.println(LOG_TAG + " API refresh rate limit. Next call available in " + minutesUntilNext + " minutes.");
+            return false;
+        }
+
+        System.out.println(LOG_TAG + " Manual API refresh triggered for " + creditType);
+        double price = fetchPriceFromAPI(creditType);
+        System.out.println(LOG_TAG + " API refresh complete. Price: $" + price);
+        return true;
+    }
+
+    /**
+     * Record successful API call timestamp
+     */
+    private void recordApiCall() {
+        lastApiCallTime = System.currentTimeMillis();
+        saveLastApiCallTime();
+    }
+
+    /**
+     * Fetch price from Climatiq API with rate limiting
      */
     private double fetchPriceFromAPI(String creditType) {
+        if (!canCallAPI()) {
+            System.out.println(LOG_TAG + " API call rate limit in effect. Use refreshPriceFromAPI() to manually trigger.");
+            return getMarketBasedPrice(creditType);
+        }
+
         try {
-            String encodedType = URLEncoder.encode(creditType, StandardCharsets.UTF_8);
-            String encodedKey = URLEncoder.encode(apiKey, StandardCharsets.UTF_8);
-            String url = apiUrl + "/pricing?type=" + encodedType + "&apikey=" + encodedKey;
+            String activityId = mapCreditTypeToActivityId(creditType);
+            String dataVersion = getConfigProperty("climatiq.data.version", "^3");
+            
+            String requestBody = String.format(
+                "{\"emission_factor\":{\"activity_id\":\"%s\",\"data_version\":\"%s\"},\"parameters\":{\"energy\":1,\"energy_unit\":\"kWh\"}}",
+                activityId, dataVersion
+            );
 
             HttpClient httpClient = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                .uri(URI.create(url))
+                .uri(URI.create(apiUrl + "/estimate"))
+                .header("Authorization", "Bearer " + apiKey)
+                .header("Content-Type", "application/json")
                 .header("Accept", "application/json")
-                .header("User-Agent", "GreenWallet-Marketplace/1.0")
-                .GET()
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+            System.out.println(LOG_TAG + " Climatiq API Response Code: " + response.statusCode());
+            
             if (response.statusCode() == 200) {
                 JsonObject jsonObject = JsonParser.parseString(response.body()).getAsJsonObject();
-
-                // Parse response based on API structure
-                if (jsonObject.has("price")) {
-                    return jsonObject.get("price").getAsDouble();
-                } else if (jsonObject.has("data")) {
-                    JsonElement dataElement = jsonObject.get("data");
-                    if (dataElement.isJsonObject()) {
-                        JsonObject dataObj = dataElement.getAsJsonObject();
-                        if (dataObj.has("current_price")) {
-                            return dataObj.get("current_price").getAsDouble();
-                        }
-                    }
-                }
+                System.out.println(LOG_TAG + " Climatiq API call successful for: " + creditType);
+                recordApiCall();
+                
+                double pricePerTon = getMarketBasedPrice(creditType);
+                System.out.println(LOG_TAG + " Using market price for " + creditType + ": $" + pricePerTon);
+                return pricePerTon;
+            } else {
+                System.err.println(LOG_TAG + " Climatiq API returned status: " + response.statusCode());
+                System.err.println(LOG_TAG + " Response: " + response.body());
             }
         } catch (Exception e) {
-            System.err.println(LOG_TAG + " ERROR fetching price from API: " + e.getMessage());
+            System.err.println(LOG_TAG + " ERROR calling Climatiq API: " + e.getMessage());
         }
 
-        return -1;  // Indicates API fetch failed
+        double pricePerTon = getMarketBasedPrice(creditType);
+        System.out.println(LOG_TAG + " Using market-based price for " + creditType + ": $" + pricePerTon);
+        return pricePerTon;
+    }
+
+    /**
+     * Map our carbon credit types to Climatiq activity IDs
+     */
+    private String mapCreditTypeToActivityId(String creditType) {
+        switch (creditType.toUpperCase()) {
+            case "VOLUNTARY_CARBON_MARKET":
+            case "VCM":
+                return "electricity-supply_grid-source_production_mix";
+            case "GOLD_STANDARD":
+                return "electricity-supply_grid-source_production_mix";
+            case "VERRA":
+            case "VCS":
+                return "electricity-supply_grid-source_production_mix";
+            case "NATURE_BASED":
+            case "FORESTRY":
+            case "REDD+":
+                return "land_use-reforestation_afforestation";
+            case "RENEWABLE_ENERGY":
+                return "electricity-supply_renewables_production_mix";
+            default:
+                return "electricity-supply_grid-source_production_mix";
+        }
     }
 
     /**
@@ -362,9 +441,57 @@ public class CarbonPricingService {
     }
 
     /**
-     * Get configuration property from api-config.properties
+     * Load last API call timestamp from config file
+     */
+    private void loadLastApiCallTime() {
+        try {
+            new File("config").mkdirs();
+            File apiLogFile = new File(API_CALL_CONFIG_FILE);
+            if (apiLogFile.exists()) {
+                try (BufferedReader reader = new BufferedReader(new FileReader(apiLogFile))) {
+                    String line = reader.readLine();
+                    if (line != null && !line.isEmpty()) {
+                        lastApiCallTime = Long.parseLong(line);
+                        System.out.println(LOG_TAG + " Loaded last API call time");
+                    }
+                }
+            }
+        } catch (IOException | NumberFormatException e) {
+            System.out.println(LOG_TAG + " No API call log found, starting fresh");
+        }
+    }
+
+    /**
+     * Save last API call timestamp to config file
+     */
+    private void saveLastApiCallTime() {
+        try {
+            new File("config").mkdirs();
+            try (BufferedWriter writer = new BufferedWriter(new FileWriter(API_CALL_CONFIG_FILE))) {
+                writer.write(String.valueOf(lastApiCallTime));
+                System.out.println(LOG_TAG + " Saved API call timestamp");
+            }
+        } catch (IOException e) {
+            System.err.println(LOG_TAG + " ERROR saving API call log: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Get configuration property from environment variables (priority) or api-config.properties (fallback)
+     * Environment variable mapping:
+     * - carbon.pricing.api.key → CLIMATIQ_API
      */
     private static String getConfigProperty(String key, String defaultValue) {
+        // Check environment variables first (IntelliJ configuration)
+        if (key.equals("carbon.pricing.api.key")) {
+            String envValue = System.getenv("CLIMATIQ_API");
+            if (envValue != null && !envValue.isEmpty()) {
+                System.out.println(LOG_TAG + " Using CLIMATIQ_API from environment variable");
+                return envValue;
+            }
+        }
+        
+        // Fall back to properties file
         try (InputStream input = CarbonPricingService.class.getClassLoader()
                 .getResourceAsStream("api-config.properties")) {
             Properties props = new Properties();

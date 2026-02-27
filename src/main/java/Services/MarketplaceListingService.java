@@ -265,7 +265,8 @@ public class MarketplaceListingService {
         listing.setWalletId(rs.getObject("wallet_id") != null ? rs.getInt("wallet_id") : null);
         listing.setQuantityOrTokens(rs.getDouble("quantity_or_id"));
         listing.setPricePerUnit(rs.getDouble("price_per_unit"));
-        listing.setMinPriceUsd(rs.getDouble("min_price_usd"));
+        Object minPrice = rs.getObject("min_price_usd");
+        listing.setMinPriceUsd(minPrice != null ? rs.getDouble("min_price_usd") : null);
         Object autoAccept = rs.getObject("auto_accept_price_usd");
         listing.setAutoAcceptPriceUsd(autoAccept != null ? rs.getDouble("auto_accept_price_usd") : null);
         listing.setTotalPriceUsd(rs.getDouble("total_price_usd"));

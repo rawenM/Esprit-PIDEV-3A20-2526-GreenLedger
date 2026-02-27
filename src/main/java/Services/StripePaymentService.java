@@ -61,7 +61,13 @@ public class StripePaymentService {
                 .setAmount(amountCents)
                 .setCurrency("usd")
                 .setDescription(description)
-                .setStatementDescriptor("GreenWallet Carbon Credit Marketplace");
+                .setAutomaticPaymentMethods(
+                    PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
+                        .setEnabled(true)
+                        .setAllowRedirects(PaymentIntentCreateParams.AutomaticPaymentMethods.AllowRedirects.NEVER)
+                        .build()
+                );
+            // Note: statement_descriptor not supported with card payment method
 
             paramsBuilder.putMetadata("order_id", String.valueOf(orderId));
             paramsBuilder.putMetadata("buyer_id", String.valueOf(buyerId));
@@ -95,13 +101,79 @@ public class StripePaymentService {
                 return paymentIntent;
             }
 
-            System.out.println(LOG_TAG + " Payment confirmed: " + paymentIntentId + 
+            System.out.println(LOG_TAG + " Payment status: " + paymentIntent.getId() + 
                 " Status: " + paymentIntent.getStatus());
             return paymentIntent;
 
         } catch (StripeException e) {
             System.err.println(LOG_TAG + " ERROR confirming payment: " + e.getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Confirm payment with test card details (for testing/demo purposes)
+     * Uses Stripe test payment method tokens to avoid raw card API
+     * In production, use Stripe.js/Elements on client side
+     */
+    public PaymentIntent confirmPaymentWithCard(String paymentIntentId, String cardNumber, 
+                                                 String expMonth, String expYear, String cvc) {
+        try {
+            PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
+            
+            // Check if already succeeded
+            if ("succeeded".equals(paymentIntent.getStatus())) {
+                System.out.println(LOG_TAG + " Payment already succeeded: " + paymentIntentId);
+                return paymentIntent;
+            }
+
+            // Map card numbers to Stripe test payment method tokens
+            // See: https://stripe.com/docs/testing
+            String paymentMethodId = getTestPaymentMethodToken(cardNumber);
+
+            // Confirm payment intent with the test payment method
+            Map<String, Object> confirmParams = new HashMap<>();
+            confirmParams.put("payment_method", paymentMethodId);
+
+            paymentIntent = paymentIntent.confirm(confirmParams);
+
+            System.out.println(LOG_TAG + " Payment confirmed with test token: " + paymentIntentId + 
+                " Status: " + paymentIntent.getStatus());
+
+            return paymentIntent;
+
+        } catch (StripeException e) {
+            System.err.println(LOG_TAG + " ERROR confirming payment with card: " + e.getMessage());
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    /**
+     * Map test card numbers to Stripe test payment method tokens
+     * This avoids sending raw card data to Stripe API
+     */
+    private String getTestPaymentMethodToken(String cardNumber) {
+        String cleaned = cardNumber.replaceAll("\\s", "");
+        
+        // Map common test cards to their tokens
+        switch (cleaned) {
+            case "4242424242424242":
+                return "pm_card_visa"; // Visa - succeeds
+            case "4000000000000002":
+                return "pm_card_chargeDeclined"; // Card declined
+            case "4000000000009995":
+                return "pm_card_chargeDeclinedInsufficientFunds"; // Insufficient funds
+            case "4000002500003155":
+                return "pm_card_authenticationRequired"; // 3D Secure required
+            case "5555555555554444":
+                return "pm_card_mastercard"; // Mastercard - succeeds
+            case "378282246310005":
+                return "pm_card_amex"; // Amex - succeeds
+            default:
+                // Default to successful Visa for any other test card
+                System.out.println(LOG_TAG + " Unknown test card, using pm_card_visa");
+                return "pm_card_visa";
         }
     }
 
@@ -331,9 +403,28 @@ public class StripePaymentService {
     }
 
     /**
-     * Get configuration property
+     * Get configuration property from environment variables (priority) or api-config.properties (fallback)
+     * Environment variable mapping:
+     * - stripe.api.key → SK_TEST
+     * - stripe.publishable.key → PK_TEST
      */
     private static String getConfigProperty(String key, String defaultValue) {
+        // Check environment variables first (IntelliJ configuration)
+        if (key.equals("stripe.api.key")) {
+            String envValue = System.getenv("SK_TEST");
+            if (envValue != null && !envValue.isEmpty()) {
+                System.out.println(LOG_TAG + " Using SK_TEST from environment variable");
+                return envValue;
+            }
+        } else if (key.equals("stripe.publishable.key")) {
+            String envValue = System.getenv("PK_TEST");
+            if (envValue != null && !envValue.isEmpty()) {
+                System.out.println(LOG_TAG + " Using PK_TEST from environment variable");
+                return envValue;
+            }
+        }
+        
+        // Fall back to properties file
         try (InputStream input = StripePaymentService.class.getClassLoader()
                 .getResourceAsStream("api-config.properties")) {
             Properties props = new Properties();
