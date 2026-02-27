@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
+<?import java.lang.String?>
 
 <HBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
@@ -83,37 +85,42 @@
                     <HBox spacing="12">
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
                             <Label text="Budget" styleClass="form-label"/>
-                            <TextField fx:id="txtBudget" promptText="Ex: 15000" styleClass="field"/>
+                            <TextField fx:id="txtMontant" promptText="Ex: 15000" styleClass="field"/>
                         </VBox>
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
                             <Label text="Duree" styleClass="form-label"/>
-                            <TextField fx:id="txtDuration" promptText="Ex: 24" styleClass="field"/>
+                            <TextField fx:id="txtDuree" promptText="Ex: 24" styleClass="field"/>
                         </VBox>
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
                             <Label text="Type" styleClass="form-label"/>
-                            <ComboBox fx:id="cmbType" promptText="Selectionner" styleClass="field"/>
+                            <ComboBox fx:id="cmbSecteur" promptText="Selectionner" styleClass="field">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="solar"/>
+                                        <String fx:value="wind"/>
+                                        <String fx:value="agriculture"/>
+                                        <String fx:value="recycling"/>
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+
                         </VBox>
                     </HBox>
 
                     <HBox spacing="12">
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
                             <Label text="Impact CO2" styleClass="form-label"/>
-                            <TextField fx:id="txtCo2Impact" promptText="Ex: 12.5" styleClass="field"/>
+                            <TextField fx:id="txtTaux" promptText="Ex: 12.5" styleClass="field"/>
                         </VBox>
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
                             <Label text="Maturite" styleClass="form-label"/>
-                            <TextField fx:id="txtMaturity" promptText="Ex: 36" styleClass="field"/>
+                            <TextField fx:id="txtScoreCredit" promptText="Ex: 36" styleClass="field"/>
                         </VBox>
                         <VBox spacing="8" HBox.hgrow="ALWAYS">
                             <Label text="Ratio de financement" styleClass="form-label"/>
-                            <TextField fx:id="txtFundingRatio" promptText="Ex: 0.35" styleClass="field"/>
+                            <TextField fx:id="txtApport" promptText="Ex: 0.35" styleClass="field"/>
                         </VBox>
                     </HBox>
-
-                    <VBox spacing="8">
-                        <Label text="Notes de contexte" styleClass="form-label"/>
-                        <TextArea fx:id="txtNotes" promptText="Informations complementaires..." wrapText="true" styleClass="field textarea" style="-fx-pref-height: 90px;"/>
-                    </VBox>
 
                     <HBox spacing="12" alignment="CENTER_LEFT">
                         <Button text="⚡ Analyser le risque" onAction="#handleRunRiskAnalysis" styleClass="btn btn-primary" prefHeight="36" prefWidth="180"/>
@@ -133,7 +140,7 @@
                         <Label text="Sortie et recommandations" styleClass="page-title"/>
                     </HBox>
 
-                    <Label fx:id="lblDecision" text="Aucune analyse pour le moment." styleClass="placeholder-label"/>
+                    <TextArea fx:id="txtNotes" text="Aucune analyse pour le moment." wrapText="true" styleClass="field textarea" style="-fx-pref-height: 140px;"/>
                 </VBox>
             </VBox>
         </ScrollPane>
