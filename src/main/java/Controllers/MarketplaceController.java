@@ -11,6 +11,8 @@ import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.chart.LineChart;
+import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
@@ -93,6 +95,9 @@ public class MarketplaceController extends BaseController {
 
     // Price Display
     @FXML private Label currentCarbonPriceLabel;
+    @FXML private Label marketPanelPriceLabel;
+    @FXML private Label marketPanelNoteLabel;
+    @FXML private LineChart<Number, Number> marketMiniChart;
 
     // Services
     private final MarketplaceListingService listingService = MarketplaceListingService.getInstance();
@@ -122,6 +127,7 @@ public class MarketplaceController extends BaseController {
         loadOrderHistory();
         loadOffers();
         updateCarbonPrice();
+        setupPriceChart();
     }
 
     /**
@@ -351,11 +357,51 @@ public class MarketplaceController extends BaseController {
         new Thread(() -> {
             try {
                 double price = pricingService.getCurrentPrice("VOLUNTARY_CARBON_MARKET");
-                javafx.application.Platform.runLater(() ->
-                    currentCarbonPriceLabel.setText(String.format("Current Carbon Price: $%.2f/tCO2e", price))
-                );
+                javafx.application.Platform.runLater(() -> {
+                    currentCarbonPriceLabel.setText(String.format("Current Carbon Price: $%.2f/tCO2e", price));
+                    setupPriceChart();  // Refresh chart when price updates
+                });
             } catch (Exception e) {
                 System.err.println(LOG_TAG + " ERROR updating price: " + e.getMessage());
+            }
+        }).start();
+    }
+
+    /**
+     * Setup price history chart with 30-day data
+     */
+    private void setupPriceChart() {
+        new Thread(() -> {
+            try {
+                // Get 30 days of price history
+                List<CarbonPriceSnapshot> priceHistory = pricingService.getPriceHistory("VOLUNTARY_CARBON_MARKET", 30);
+                
+                javafx.application.Platform.runLater(() -> {
+                    // Clear existing data
+                    marketMiniChart.getData().clear();
+                    
+                    // Create series for the chart
+                    XYChart.Series<Number, Number> series = new XYChart.Series<>();
+                    series.setName("Carbon Price (USD/tCO2e)");
+                    
+                    // Add data points to series
+                    for (int i = 0; i < priceHistory.size(); i++) {
+                        CarbonPriceSnapshot snapshot = priceHistory.get(i);
+                        series.getData().add(new XYChart.Data<>(i, snapshot.getUsdPerTon()));
+                    }
+                    
+                    // Add series to chart
+                    marketMiniChart.getData().add(series);
+                    
+                    // Set chart title and display current price
+                    if (!priceHistory.isEmpty()) {
+                        CarbonPriceSnapshot latest = priceHistory.get(priceHistory.size() - 1);
+                        marketPanelPriceLabel.setText(String.format("$%.2f/tCO2e", latest.getUsdPerTon()));
+                        marketPanelNoteLabel.setText("30-day price history with daily updates");
+                    }
+                });
+            } catch (Exception e) {
+                System.err.println(LOG_TAG + " ERROR setting up price chart: " + e.getMessage());
             }
         }).start();
     }
