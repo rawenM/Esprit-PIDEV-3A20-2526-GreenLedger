@@ -38,10 +38,10 @@
                 <Insets top="28" right="32" bottom="20" left="32"/>
             </padding>
 
-            <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                <Label text="MODELE" styleClass="stat-title"/>
+             <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <Label text="Investissement Recommendation" styleClass="stat-title"/>
                 <Label fx:id="lblModelStatus" text="Chargement..." styleClass="stat-value accent-blue"/>
-                <Label text="ClaudeRisk.model" style="-fx-font-size:11px; -fx-opacity:0.7;"/>
+                <!-- <Label text="ClaudeRisk.model" style="-fx-font-size:11px; -fx-opacity:0.7;"/> -->
             </VBox>
 
             <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
@@ -53,7 +53,7 @@
             <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
                 <Label text="CONFIANCE" styleClass="stat-title"/>
                 <Label fx:id="lblConfidence" text="N/A" styleClass="stat-value accent-green"/>
-                <Label text="Score model" style="-fx-font-size:11px; -fx-opacity:0.7;"/>
+               <!--  <Label text="Score model" style="-fx-font-size:11px; -fx-opacity:0.7;"/> -->
             </VBox>
         </HBox>
 
@@ -137,7 +137,7 @@
 
                     <HBox alignment="CENTER_LEFT" spacing="8">
                         <Label text="📊" style="-fx-font-size:18px;"/>
-                        <Label text="Sortie et recommandations" styleClass="page-title"/>
+                        <Label text="Explication" styleClass="page-title"/>
                     </HBox>
 
                     <TextArea fx:id="txtNotes" text="Aucune analyse pour le moment." wrapText="true" styleClass="field textarea" style="-fx-pref-height: 140px;"/>
