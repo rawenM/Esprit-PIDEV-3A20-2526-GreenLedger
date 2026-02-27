@@ -369,4 +369,18 @@ public class FinancementController extends BaseController {
         clearOffreFields();
         txtTypeOffre.requestFocus();
     }
+
+    /**
+     * Navigate to risk agent
+     */
+    @FXML
+    private void handleGoRiskAgent() {
+        try {
+            org.GreenLedger.MainFX.setRoot("fxml/finance_risk_agent");
+        } catch (IOException ex) {
+            System.err.println("[ERROR] Navigation error: " + ex.getMessage());
+            ex.printStackTrace();
+            showError("Erreur", "Impossible d'ouvrir l'agent de risque");
+        }
+    }
 }
