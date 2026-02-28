@@ -76,7 +76,14 @@ public class MainFX extends Application {
                 resetServer = new ResetHttpServer(port);
                 resetServer.start();
             } catch (Exception e) {
-                System.err.println("[CLEAN] Impossible de demarrer ResetHttpServer: " + e.getMessage());
+                System.err.println("[CLEAN] Impossible de demarrer ResetHttpServer sur le port configure: " + e.getMessage());
+                try {
+                    resetServer = new ResetHttpServer(0);
+                    resetServer.start();
+                    System.out.println("[CLEAN] ResetHttpServer relance sur un port dynamique");
+                } catch (Exception fallbackException) {
+                    System.err.println("[CLEAN] Impossible de demarrer ResetHttpServer: " + fallbackException.getMessage());
+                }
             }
 
             System.out.println("[CLEAN] Application demarree avec succes");

@@ -23,6 +23,7 @@ public class EmissionResult {
     private Double activityAmount;         // Quantity of activity (1000 kWh, 500 km, etc.)
     private String activityUnit;           // Unit of activity
     private String activityDescription;    // Human-readable description
+    private String scope;                  // Scope classification (Scope 1/2/3)
     
     // Constructors
     public EmissionResult() {
@@ -40,7 +41,7 @@ public class EmissionResult {
     /**
      * Calculate confidence bounds based on uncertainty percentage
      */
-    private void calculateBounds() {
+    public void calculateBounds() {
         if (co2eAmount != null && uncertaintyPercent != null) {
             BigDecimal uncertainty = co2eAmount.multiply(
                 BigDecimal.valueOf(uncertaintyPercent / 100.0)
@@ -75,6 +76,13 @@ public class EmissionResult {
             case 4 -> 50.0;
             default -> 100.0;
         };
+    }
+    
+    /**
+     * Create a zero emission result for use as reduce initial value
+     */
+    public static EmissionResult zero() {
+        return new EmissionResult(BigDecimal.ZERO, 4, 100.0);
     }
     
     // Getters and Setters
@@ -171,6 +179,40 @@ public class EmissionResult {
     
     public void setActivityDescription(String activityDescription) {
         this.activityDescription = activityDescription;
+    }
+    
+    /**
+     * Get methodology - returns tier description or emission factor methodology
+     */
+    public String getMethodology() {
+        if (emissionFactor != null && emissionFactor.getMethodology() != null) {
+            return emissionFactor.getMethodology();
+        }
+        return getTierDescription();
+    }
+    
+    /**
+     * Set methodology on the emission factor
+     */
+    public void setMethodology(String methodology) {
+        if (emissionFactor == null) {
+            emissionFactor = new EmissionFactor();
+        }
+        emissionFactor.setMethodology(methodology);
+    }
+    
+    /**
+     * Get scope description
+     */
+    public String getScope() {
+        return scope;
+    }
+    
+    /**
+     * Set scope classification (Scope 1/2/3)
+     */
+    public void setScope(String scope) {
+        this.scope = scope;
     }
     
     @Override
