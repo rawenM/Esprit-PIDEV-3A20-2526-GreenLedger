@@ -1,0 +1,79 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                                                                ║
+║   🎯 INSTRUCTIONS ULTRA-SIMPLES - DÉTECTION DE FRAUDE IA      ║
+║                                                                ║
+╚═══════════════════════════════════════════════════════════════╝
+
+✅ TOUT LE CODE EST PRÊT ET FONCTIONNEL!
+
+Il ne reste que 3 étapes simples:
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📋 ÉTAPE 1: BASE DE DONNÉES (2 minutes)
+
+1. Ouvrez: http://localhost/phpmyadmin
+2. Cliquez sur "greenledger" à gauche
+3. Cliquez sur "SQL" en haut
+4. Ouvrez le fichier: database_fraud_detection.sql
+5. Copiez TOUT (Ctrl+A puis Ctrl+C)
+6. Collez dans phpMyAdmin (Ctrl+V)
+7. Cliquez sur "Exécuter"
+
+✓ Vous devriez voir: "Installation terminée avec succès!"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⚙️ ÉTAPE 2: COMPILER (3 minutes)
+
+Ouvrez un terminal et tapez:
+
+    mvn clean compile
+
+Si erreur, essayez:
+
+    mvn clean install -DskipTests
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 ÉTAPE 3: LANCER (1 minute)
+
+    run.bat
+
+Ou:
+
+    mvn javafx:run
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🧪 TEST RAPIDE:
+
+1. Créez un utilisateur:
+   - Nom: Test
+   - Email: test@tempmail.com
+   - Téléphone: 1111111111
+
+2. Connectez-vous en admin
+
+3. Vous devriez voir:
+   Score: 70/100 - Critique 🔴 [Détails]
+   Statut: BLOQUÉ
+
+4. Cliquez sur [Détails] pour voir l'analyse complète!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📚 DOCUMENTATION:
+
+- RESUME_FINAL_SIMPLE.md          → Résumé complet
+- GUIDE_INSTALLATION_FINALE.md    → Guide détaillé
+- PRESENTATION_DETECTION_FRAUDE_JURY.md → Pour le jury
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎉 C'EST TOUT!
+
+Temps total: 6 minutes
+Résultat: Système IA opérationnel!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

@@ -17,11 +17,17 @@ public class UserDAOImpl implements IUserDAO {
     private final boolean hasTokenExpiryColumn;
     // Indique si la colonne token_hash est disponible dans la table
     private final boolean hasTokenHashColumn;
+    // Indique si les colonnes de fraude sont disponibles
+    private final boolean hasFraudScoreColumn;
+    private final boolean hasFraudCheckedColumn;
 
     public UserDAOImpl() {
         this.connection = MyConnection.getInstance().getConnection();
         boolean hasTokenExpiry = false;
         boolean hasTokenHash = false;
+        boolean hasFraudScore = false;
+        boolean hasFraudChecked = false;
+        
         // Tentative d'ajout de la colonne token_expiry si elle n'existe pas (migration légère)
         try {
             DatabaseMetaData md = connection.getMetaData();
@@ -58,9 +64,26 @@ public class UserDAOImpl implements IUserDAO {
                     hasTokenHash = true;
                 }
             }
+            
+            // Vérifier les colonnes de fraude
+            try (ResultSet rs = md.getColumns(null, null, "user", "fraud_score")) {
+                if (rs.next()) {
+                    hasFraudScore = true;
+                    System.out.println("[FraudDetection] Colonne fraud_score détectée");
+                }
+            }
+            try (ResultSet rs = md.getColumns(null, null, "user", "fraud_checked")) {
+                if (rs.next()) {
+                    hasFraudChecked = true;
+                    System.out.println("[FraudDetection] Colonne fraud_checked détectée");
+                }
+            }
         } catch (Exception ignored) {}
+        
         this.hasTokenExpiryColumn = hasTokenExpiry;
         this.hasTokenHashColumn = hasTokenHash;
+        this.hasFraudScoreColumn = hasFraudScore;
+        this.hasFraudCheckedColumn = hasFraudChecked;
     }
 
     @Override
@@ -199,6 +222,12 @@ public class UserDAOImpl implements IUserDAO {
         if (hasTokenHashColumn) {
             sql += ", token_hash = ?";
         }
+        if (hasFraudScoreColumn) {
+            sql += ", fraud_score = ?";
+        }
+        if (hasFraudCheckedColumn) {
+            sql += ", fraud_checked = ?";
+        }
         sql += " WHERE id = ?";
 
         try (PreparedStatement ps = connection.prepareStatement(sql)) {
@@ -241,6 +270,18 @@ public class UserDAOImpl implements IUserDAO {
             // token_hash si présent
             if (hasTokenHashColumn) {
                 ps.setString(paramIndex, user.getTokenHash() != null ? user.getTokenHash() : "");
+                paramIndex++;
+            }
+
+            // fraud_score si présent
+            if (hasFraudScoreColumn) {
+                ps.setDouble(paramIndex, user.getFraudScore());
+                paramIndex++;
+            }
+
+            // fraud_checked si présent
+            if (hasFraudCheckedColumn) {
+                ps.setBoolean(paramIndex, user.isFraudChecked());
                 paramIndex++;
             }
 
@@ -530,6 +571,19 @@ public class UserDAOImpl implements IUserDAO {
             String tokenHash = rs.getString("token_hash");
             if (tokenHash != null) user.setTokenHash(tokenHash);
         } catch (SQLException ignored) {}
+
+        // Champs de détection de fraude
+        try {
+            user.setFraudScore(rs.getDouble("fraud_score"));
+        } catch (SQLException ignored) {
+            user.setFraudScore(0.0);
+        }
+
+        try {
+            user.setFraudChecked(rs.getBoolean("fraud_checked"));
+        } catch (SQLException ignored) {
+            user.setFraudChecked(false);
+        }
 
         return user;
     }

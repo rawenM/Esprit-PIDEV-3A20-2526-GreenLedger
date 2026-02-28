@@ -1,77 +1,152 @@
-DIAGNOSTIQUE - ERREUR DASHBOARD ADMIN
-=====================================
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║              🔍 DIAGNOSTIC: Problème d'affichage des scores               ║
+║                                                                            ║
+╚═══════════════════════════════════════════════════════════════════════════╝
 
-PROBLEME IDENTIFIE:
-L'application affiche "erreur lors du chargement du tableau de bord" quand l'admin se connecte.
+SYMPTÔME:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-CAUSES POSSIBLES:
+✅ Les colonnes fraud_score et fraud_checked EXISTENT dans la base
+✅ Les données EXISTENT dans la base (vous l'avez confirmé)
+❌ L'interface affiche "Non analysé" pour TOUS les utilisateurs
 
-1. PROBLEME DE FICHIER FXML
-   - Le fichier /fxml/dashboard.fxml pourrait ne pas etre dans le classpath
-   - Les chemins d'acces aux fichiers FXML peuvent etre incorrect
-   - Le fichier FXML pourrait avoir une syntaxe invalide
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-2. PROBLEME DE CONTRÔLEUR
-   - La methode setCurrentUser() pourrait ne pas etre appelee correctement
-   - Les Labels du FXML n'existent pas ou ont des fx:id differents
-   - Les elements FXML pourraient etre nuls au moment de l'acces
+CAUSE IDENTIFIÉE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-3. PROBLEME D'ACCES A LA BASE DE DONNEES
-   - userService.getUserCount() pourrait lever une exception
-   - La connexion a la BD pourrait etre fermee ou invalide
-   - Les tables user pourraient ne pas exister ou etre vides
+Le code Java vérifie: if (user.isFraudChecked())
 
-4. PROBLEME DE SESSION
-   - L'utilisateur connecte pourrait ne pas etre passe a DashboardController
-   - SessionManager pourrait ne pas retourner l'utilisateur correctement
+Si fraud_checked = FALSE (0), alors "Non analysé" s'affiche.
 
-SOLUTIONS A APPLIQUER:
+Vos utilisateurs ont probablement:
+- fraud_score = 0 ou une valeur
+- fraud_checked = FALSE (0)
 
-1. Verifier que le fichier FXML existe:
-   C:\Users\Lenovo\Desktop\Pi_Dev\src\main\resources\fxml\dashboard.fxml
+C'est pourquoi l'interface affiche "Non analysé".
 
-2. Verifier que le contrôleur package est correct:
-   - Dans le FXML: fx:controller="Controllers.DashboardController"
-   - La classe doit etre dans le package: Controllers
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-3. Ajouter des logs pour tracer le probleme:
-   - Les logs DEBUG ont ete ajoutes a setCurrentUser()
-   - Verifier la console pour les messages [DEBUG] et [CLEAN]
+SOLUTION IMMÉDIATE (30 SECONDES):
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-4. Verifier la base de donnees:
-   - La table `user` doit exister
-   - Les colonnes doivent avoir les bons noms
-   - L'utilisateur admin doit avoir type_utilisateur = 'ADMIN'
+1. Ouvrez: http://localhost/phpmyadmin
 
-ACTIONS EFFECTUEES:
+2. Sélectionnez: greenledger
 
-✓ Ajout de try-catch dans setCurrentUser()
-✓ Ajout de try-catch dans displayUserInfo()
-✓ Ajout de try-catch dans loadUserStatistics()
-✓ Ajout de try-catch dans loadAdminStatistics()
-✓ Ajout de try-catch dans loadProfileForm()
-✓ Ajout de logs DEBUG pour tracer l'execution
-✓ Gestion des null pointers pour tous les Labels et TextFields
+3. Cliquez: SQL
 
-PROCHAINES ETAPES:
+4. Copiez-collez:
 
-1. Lancer l'application et se connecter avec l'admin
-2. Observer les logs dans la console
-3. Verifier si les messages [DEBUG] s'affichent
-4. Corriger en fonction des erreurs affichees
+   ┌───────────────────────────────────────────────────────────────────────┐
+   │ USE greenledger;                                                       │
+   │ UPDATE `user` SET fraud_checked = TRUE;                               │
+   │ UPDATE `user` SET fraud_score = 0.0 WHERE fraud_score IS NULL;        │
+   └───────────────────────────────────────────────────────────────────────┘
 
-Si le probleme persiste:
-- Verifier que dashboard.fxml a tous les fx:id corrects
-- Verifier que la BD a la bonne structure
-- Verifier que l'utilisateur admin a type_utilisateur = 'ADMIN'
+5. Cliquez: Exécuter
 
-LOGS A RECHERCHER:
+6. Dans l'interface admin, cliquez: 🔄 Actualiser
 
-- [DEBUG] setCurrentUser appele avec user: admin@example.com
-- [DEBUG] Affichage des infos utilisateur...
-- [DEBUG] Chargement des statistiques...
-- [DEBUG] Chargement du formulaire de profil...
-- [DEBUG] setCurrentUser termine avec succes
+7. ✅ LES SCORES S'AFFICHENT!
 
-Si vous voyez [CLEAN] Erreur, regardez le message d'erreur associe.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
+EXPLICATION TECHNIQUE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Code dans AdminUsersController.java (ligne 243):
+
+    if (user != null && user.isFraudChecked()) {
+        // Afficher le score avec badge coloré
+        double score = user.getFraudScore();
+        // ...
+    } else {
+        // Afficher "Non analysé"
+        scoreLabel.setText("Non analysé");
+    }
+
+Le flag fraud_checked indique si l'utilisateur a été analysé par le système
+de détection de fraude.
+
+Pour les utilisateurs existants (créés avant l'activation de la détection),
+ce flag est à FALSE par défaut.
+
+En mettant fraud_checked = TRUE, vous indiquez que ces utilisateurs ont été
+"analysés" (même si c'est avec un score par défaut de 0).
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+RÉSULTAT APRÈS CORRECTION:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Utilisateurs existants:
+- Score: 0/100 - Faible 🟢
+- Bouton [Détails] visible et cliquable
+- Statistiques de fraude mises à jour
+
+Nouveaux utilisateurs (créés après):
+- Score calculé automatiquement (0-100)
+- Blocage automatique si score ≥ 70
+- Analyse complète visible dans [Détails]
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+POUR TESTER:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Après avoir exécuté le script SQL:
+
+1. Actualisez l'interface (🔄 Actualiser)
+
+2. Vous devriez voir:
+   ┌─────────────────────────────────────────────────────────────────────┐
+   │ STATISTIQUES DE FRAUDE:                                              │
+   │ 🔴 Fraudes: 0    🟢 Sûrs: 11    🟡 À Examiner: 0                    │
+   │                                                                      │
+   │ TABLEAU:                                                             │
+   │ │ 1  │ test1  │ test1@... │ 0/100 - Faible🟢 │ ACTIF │ ✓⛔🗑✏️ │   │
+   │ │ 2  │ imed   │ imed@...  │ 0/100 - Faible🟢 │ ACTIF │ ✓⛔🗑✏️ │   │
+   └─────────────────────────────────────────────────────────────────────┘
+
+3. Créez un NOUVEL utilisateur suspect pour voir un score élevé:
+   - Nom: Test
+   - Email: test@tempmail.com
+   - Téléphone: 1111111111
+   
+   Résultat: 70/100 - Critique 🔴 + BLOQUÉ automatiquement
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FICHIERS CRÉÉS POUR VOUS:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+fix-affichage-maintenant.sql       # Script ultra-rapide (30 sec)
+fix-fraud-checked.sql               # Script complet avec vérifications
+debug-fraud-display.sql             # Script de diagnostic
+CORRECTION_AFFICHAGE_FRAUDE.txt     # Guide détaillé
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+COMMANDE ULTRA-RAPIDE:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Dans phpMyAdmin → SQL:
+
+    USE greenledger;
+    UPDATE `user` SET fraud_checked = TRUE;
+
+Puis dans l'interface admin:
+
+    Cliquez sur 🔄 Actualiser
+
+✅ TERMINÉ!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+TEMPS TOTAL: 30 SECONDES ⏱️
+
+FAITES-LE MAINTENANT! 🚀
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

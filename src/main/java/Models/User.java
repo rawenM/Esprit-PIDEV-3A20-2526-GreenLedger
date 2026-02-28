@@ -27,6 +27,10 @@ public class User {
     private String tokenVerification;
     private LocalDateTime tokenExpiry;
     private String tokenHash; // Hash sécurisé du token (BCrypt) — ne jamais stocker le token en clair
+    
+    // Détection de fraude
+    private double fraudScore;
+    private boolean fraudChecked;
 
     // Constructeur par défaut
     public User() {
@@ -179,6 +183,22 @@ public class User {
 
     public void setTokenHash(String tokenHash) {
         this.tokenHash = tokenHash;
+    }
+
+    public double getFraudScore() {
+        return fraudScore;
+    }
+
+    public void setFraudScore(double fraudScore) {
+        this.fraudScore = fraudScore;
+    }
+
+    public boolean isFraudChecked() {
+        return fraudChecked;
+    }
+
+    public void setFraudChecked(boolean fraudChecked) {
+        this.fraudChecked = fraudChecked;
     }
 
     // Méthodes utilitaires

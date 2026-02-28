@@ -7,6 +7,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -16,12 +17,15 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import Models.FraudDetectionResult;
 import Models.StatutUtilisateur;
 import Models.TypeUtilisateur;
 import Models.User;
 import Services.IUserService;
 import Services.UserServiceImpl;
 import Utils.SessionManager;
+import dao.FraudDetectionDAOImpl;
+import dao.IFraudDetectionDAO;
 import org.GreenLedger.MainFX;
 
 import java.io.IOException;
@@ -42,6 +46,7 @@ public class AdminUsersController {
     @FXML private TableColumn<User, StatutUtilisateur> statutColumn;
     @FXML private TableColumn<User, LocalDateTime> dateInscriptionColumn;
     @FXML private TableColumn<User, Void> actionsColumn;
+    @FXML private TableColumn<User, Void> fraudScoreColumn; // NOUVELLE COLONNE
 
     @FXML private TextField searchField;
     @FXML private ComboBox<String> filterStatutCombo;
@@ -53,11 +58,17 @@ public class AdminUsersController {
     @FXML private Label blockedUsersLabel;
     @FXML private Label lblProfileName;
     @FXML private Label lblProfileType;
+    
+    // NOUVEAUX LABELS POUR STATISTIQUES DE FRAUDE
+    @FXML private Label fraudDetectedLabel;
+    @FXML private Label fraudSafeLabel;
+    @FXML private Label fraudWarningLabel;
 
     @FXML private StackPane contentPane;
     @FXML private VBox usersContent;
 
     private final IUserService userService = new UserServiceImpl();
+    private final IFraudDetectionDAO fraudDetectionDAO = new FraudDetectionDAOImpl(); // NOUVEAU
     private ObservableList<User> usersList = FXCollections.observableArrayList();
     private User currentUser;
 
@@ -206,19 +217,84 @@ public class AdminUsersController {
             }
         });
 
+        // NOUVELLE COLONNE: Score de Fraude avec badge coloré et bouton détails
+        fraudScoreColumn.setCellFactory(column -> new TableCell<User, Void>() {
+            private final Label scoreLabel = new Label();
+            private final Button detailsBtn = new Button("Détails");
+            private final HBox container = new HBox(10, scoreLabel, detailsBtn);
+
+            {
+                container.setAlignment(Pos.CENTER_LEFT);
+                detailsBtn.setStyle("-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-font-size: 10px;");
+                detailsBtn.setTooltip(new Tooltip("Voir l'analyse complète"));
+                
+                detailsBtn.setOnAction(e -> {
+                    User user = getTableView().getItems().get(getIndex());
+                    showFraudDetails(user);
+                });
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    User user = getTableView().getItems().get(getIndex());
+                    if (user != null && user.isFraudChecked()) {
+                        double score = user.getFraudScore();
+                        String level;
+                        String color;
+                        String emoji;
+                        
+                        if (score < 25) {
+                            level = "Faible";
+                            color = "#10B981";
+                            emoji = "🟢";
+                        } else if (score < 50) {
+                            level = "Moyen";
+                            color = "#F59E0B";
+                            emoji = "🟡";
+                        } else if (score < 75) {
+                            level = "Élevé";
+                            color = "#FB923C";
+                            emoji = "🟠";
+                        } else {
+                            level = "Critique";
+                            color = "#EF4444";
+                            emoji = "🔴";
+                        }
+                        
+                        scoreLabel.setText(String.format("%.0f/100 - %s %s", score, level, emoji));
+                        scoreLabel.setStyle("-fx-background-color: " + color + "; " +
+                                "-fx-background-radius: 12px; " +
+                                "-fx-padding: 5px 10px; " +
+                                "-fx-text-fill: white; " +
+                                "-fx-font-weight: bold; " +
+                                "-fx-font-size: 11px;");
+                        setGraphic(container);
+                    } else {
+                        scoreLabel.setText("Non analysé");
+                        scoreLabel.setStyle("-fx-text-fill: #6B7280; -fx-font-style: italic;");
+                        setGraphic(scoreLabel);
+                    }
+                }
+            }
+        });
+
         // Colonne Actions avec boutons
         actionsColumn.setCellFactory(column -> new TableCell<User, Void>() {
             private final Button validateBtn = new Button("✓");
-            private final Button blockBtn = new Button("[CLEAN]");
+            private final Button blockBtn = new Button("⛔");
             private final Button deleteBtn = new Button("🗑");
             private final Button editBtn = new Button("✏️");
-            private final HBox container = new HBox(5, validateBtn, blockBtn, deleteBtn, /*edit*/ editBtn);
+            private final HBox container = new HBox(5, validateBtn, blockBtn, deleteBtn, editBtn);
 
             {
-                validateBtn.setStyle("-fx-background-color: #10B981; -fx-text-fill: white;");
-                blockBtn.setStyle("-fx-background-color: #EF4444; -fx-text-fill: white;");
-                deleteBtn.setStyle("-fx-background-color: #6B7280; -fx-text-fill: white;");
-                editBtn.setStyle("-fx-background-color: #F59E0B; -fx-text-fill: white;");
+                validateBtn.setStyle("-fx-background-color: #10B981; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
+                blockBtn.setStyle("-fx-background-color: #EF4444; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
+                deleteBtn.setStyle("-fx-background-color: #6B7280; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
+                editBtn.setStyle("-fx-background-color: #F59E0B; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
 
                 validateBtn.setTooltip(new Tooltip("Valider"));
                 blockBtn.setTooltip(new Tooltip("Bloquer"));
@@ -478,6 +554,24 @@ public class AdminUsersController {
         activeUsersLabel.setText(String.valueOf(active));
         pendingUsersLabel.setText(String.valueOf(pending));
         blockedUsersLabel.setText(String.valueOf(blocked));
+        
+        // NOUVELLES STATISTIQUES DE FRAUDE
+        if (fraudDetectedLabel != null && fraudSafeLabel != null && fraudWarningLabel != null) {
+            List<User> allUsers = userService.getAllUsers();
+            long fraudDetected = allUsers.stream()
+                    .filter(u -> u.isFraudChecked() && u.getFraudScore() >= 75)
+                    .count();
+            long fraudSafe = allUsers.stream()
+                    .filter(u -> u.isFraudChecked() && u.getFraudScore() < 25)
+                    .count();
+            long fraudWarning = allUsers.stream()
+                    .filter(u -> u.isFraudChecked() && u.getFraudScore() >= 25 && u.getFraudScore() < 75)
+                    .count();
+            
+            fraudDetectedLabel.setText(String.valueOf(fraudDetected));
+            fraudSafeLabel.setText(String.valueOf(fraudSafe));
+            fraudWarningLabel.setText(String.valueOf(fraudWarning));
+        }
     }
 
     private void showSuccess(String message) {
@@ -566,5 +660,61 @@ public class AdminUsersController {
         } catch (IOException e) {
             showWarning("Navigation impossible");
         }
+    }
+    
+    /**
+     * Affiche les détails de l'analyse de fraude pour un utilisateur
+     */
+    private void showFraudDetails(User user) {
+        Optional<FraudDetectionResult> fraudResultOpt = fraudDetectionDAO.findByUserId(user.getId());
+        
+        if (fraudResultOpt.isEmpty()) {
+            showWarning("Aucune analyse de fraude disponible pour cet utilisateur");
+            return;
+        }
+        
+        FraudDetectionResult result = fraudResultOpt.get();
+        
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Détection de Fraude - " + user.getNomComplet());
+        alert.setHeaderText(null);
+        
+        StringBuilder content = new StringBuilder();
+        content.append("=== ANALYSE DE FRAUDE ===\n\n");
+        content.append("Utilisateur: ").append(user.getNomComplet()).append("\n");
+        content.append("Email: ").append(user.getEmail()).append("\n\n");
+        
+        content.append("SCORE DE RISQUE: ").append(String.format("%.1f", result.getRiskScore())).append("/100\n");
+        content.append("Niveau: ").append(result.getRiskLevel().getLabel()).append("\n");
+        content.append("Frauduleux: ").append(result.isFraudulent() ? "OUI" : "NON").append("\n");
+        content.append("Recommandation: ").append(result.getRecommendation()).append("\n\n");
+        
+        content.append("=== INDICATEURS DETECTES ===\n\n");
+        
+        long detectedCount = result.getIndicators().stream()
+                .filter(FraudDetectionResult.FraudIndicator::isDetected)
+                .count();
+        
+        if (detectedCount == 0) {
+            content.append("✅ Aucun indicateur de fraude détecté\n");
+        } else {
+            for (FraudDetectionResult.FraudIndicator indicator : result.getIndicators()) {
+                if (indicator.isDetected()) {
+                    content.append("⚠️  ").append(indicator.getType()).append(": ")
+                           .append(indicator.getDescription()).append("\n");
+                }
+            }
+        }
+        
+        content.append("\n=== DETAILS DE L'ANALYSE ===\n\n");
+        content.append(result.getAnalysisDetails());
+        
+        alert.setContentText(content.toString());
+        
+        // Agrandir la fenêtre
+        alert.getDialogPane().setPrefWidth(600);
+        alert.getDialogPane().setPrefHeight(500);
+        
+        alert.showAndWait();
     }
 }

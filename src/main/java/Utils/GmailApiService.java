@@ -42,9 +42,12 @@ public class GmailApiService {
     private String fromName;
 
     public GmailApiService() {
-        this.enabled = Boolean.parseBoolean(System.getenv().getOrDefault("GMAIL_API_ENABLED", "false"));
-        this.fromEmail = System.getenv().getOrDefault("GMAIL_FROM_EMAIL", "");
-        this.fromName = System.getenv().getOrDefault("GMAIL_FROM_NAME", "GreenLedger Team");
+        // Load .env file first
+        EnvLoader.load();
+        
+        this.enabled = Boolean.parseBoolean(EnvLoader.get("GMAIL_API_ENABLED", "false"));
+        this.fromEmail = EnvLoader.get("GMAIL_FROM_EMAIL", "");
+        this.fromName = EnvLoader.get("GMAIL_FROM_NAME", "GreenLedger Team");
 
         if (enabled) {
             try {

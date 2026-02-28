@@ -2,9 +2,12 @@ package Services;
 
 import dao.IUserDAO;
 import dao.UserDAOImpl;
+import dao.IFraudDetectionDAO;
+import dao.FraudDetectionDAOImpl;
 import Models.StatutUtilisateur;
 import Models.TypeUtilisateur;
 import Models.User;
+import Models.FraudDetectionResult;
 import Utils.UnifiedEmailService;
 import Utils.PasswordUtil;
 import Utils.SessionManager;
@@ -20,11 +23,15 @@ public class UserServiceImpl implements IUserService {
     private final IUserDAO userDAO;
     private final ValidationService validationService;
     private final UnifiedEmailService emailService;
+    private final FraudDetectionService fraudDetectionService;
+    private final IFraudDetectionDAO fraudDetectionDAO;
 
     public UserServiceImpl() {
         this.userDAO = new UserDAOImpl();
         this.validationService = new ValidationService();
         this.emailService = new UnifiedEmailService();
+        this.fraudDetectionService = new FraudDetectionService();
+        this.fraudDetectionDAO = new FraudDetectionDAOImpl();
     }
 
     @Override
@@ -76,6 +83,41 @@ public class UserServiceImpl implements IUserService {
 
         if (savedUser != null) {
             System.out.println("[OK] Utilisateur inscrit: " + savedUser.getEmail());
+            
+            // 7. Détection de fraude avec IA
+            try {
+                System.out.println("[FraudDetection] Analyse de l'inscription...");
+                FraudDetectionResult fraudResult = fraudDetectionService.analyzeRegistration(savedUser);
+                
+                // Sauvegarder le résultat de l'analyse
+                fraudDetectionDAO.save(fraudResult);
+                
+                // IMPORTANT: Mettre à jour les champs fraud_score et fraud_checked dans la table user
+                savedUser.setFraudScore(fraudResult.getRiskScore());
+                savedUser.setFraudChecked(true);
+                
+                // Afficher le résumé
+                System.out.println("[FraudDetection] " + fraudResult.getSummary());
+                
+                // Si le score de risque est élevé, bloquer automatiquement
+                if (fraudResult.getRiskScore() >= 70.0) {
+                    System.err.println("[FraudDetection] ALERTE: Score de risque critique - Compte bloqué automatiquement");
+                    savedUser.setStatut(StatutUtilisateur.BLOQUE);
+                }
+                
+                // Mettre à jour l'utilisateur avec le score et le statut
+                userDAO.update(savedUser);
+                
+                if (fraudResult.getRiskScore() >= 40.0 && fraudResult.getRiskScore() < 70.0) {
+                    System.out.println("[FraudDetection] ATTENTION: Score de risque moyen - Examen manuel recommandé");
+                }
+                
+            } catch (Exception e) {
+                System.err.println("[FraudDetection] Erreur lors de l'analyse: " + e.getMessage());
+                e.printStackTrace();
+                // Ne pas bloquer l'inscription si l'analyse échoue
+            }
+            
             trySendWelcomeEmail(savedUser);
             return savedUser;
         }
@@ -261,16 +303,29 @@ public class UserServiceImpl implements IUserService {
             String tokenHash = PasswordUtil.hashPassword(resetToken);
             user.setTokenVerification(resetToken);
             user.setTokenHash(tokenHash);
-            user.setTokenExpiry(LocalDateTime.now().plusMinutes(30));
+            user.setTokenExpiry(LocalDateTime.now().plusHours(1)); // 1 heure d'expiration
             userDAO.update(user);
 
-            Utils.EmailService emailService = new Utils.EmailService();
+            // Utiliser UnifiedEmailService pour Gmail API
             boolean sent = false;
             try {
-                if (emailService.isConfigured()) sent = emailService.sendResetEmail(user.getEmail(), resetToken);
-            } catch (Exception ignored) {}
+                System.out.println("[INFO] Tentative d'envoi d'email de reinitialisation...");
+                System.out.println("[INFO] Email service configured: " + emailService.isConfigured());
+                if (emailService.isConfigured()) {
+                    sent = emailService.sendResetPasswordEmail(user.getEmail(), user.getNomComplet(), resetToken);
+                    System.out.println("[INFO] Resultat envoi email: " + sent);
+                } else {
+                    System.err.println("[WARN] Service email non configure - email non envoye");
+                }
+            } catch (Exception e) {
+                System.err.println("[ERR] Erreur envoi email reset: " + e.getMessage());
+                e.printStackTrace();
+            }
 
-            if (sent) return resetToken;
+            if (sent) {
+                System.out.println("[OK] Email de reinitialisation envoye a: " + user.getEmail());
+                return resetToken;
+            }
             System.out.println("[INFO] Email de reinitialisation (fallback) a: " + user.getEmail());
             System.out.println("[INFO] Token: " + resetToken);
             return resetToken;
