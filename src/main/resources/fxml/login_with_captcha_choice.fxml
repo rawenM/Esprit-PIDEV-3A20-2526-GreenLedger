@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.web.WebView?>
+<?import javafx.scene.image.ImageView?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.LoginController"
+            prefHeight="850" prefWidth="850"
+            styleClass="page">
+
+    <!-- CENTRE: Formulaire de connexion -->
+    <center>
+        <VBox alignment="CENTER" spacing="20" styleClass="content-area">
+            <padding>
+                <Insets top="50" right="50" bottom="50" left="50"/>
+            </padding>
+
+            <!-- Card de connexion -->
+            <VBox spacing="20" styleClass="card" maxWidth="500" minWidth="450">
+                <padding>
+                    <Insets top="30" right="30" bottom="30" left="30"/>
+                </padding>
+
+                <!-- Titre -->
+                <Label text="Connexion" styleClass="page-title"/>
+                <Text text="Plateforme de Financement Participatif" styleClass="page-subtitle"/>
+
+                <Separator/>
+
+                <!-- Message d'erreur -->
+                <Label fx:id="errorLabel" styleClass="label-error" visible="false" wrapText="true"/>
+
+                <!-- Champ Email -->
+                <VBox spacing="5">
+                    <Label text="Email" styleClass="form-label"/>
+                    <TextField fx:id="emailField"
+                               promptText="votre.email@example.com"
+                               prefHeight="40"
+                               styleClass="field"/>
+                </VBox>
+
+                <!-- Champ Mot de passe -->
+                <VBox spacing="5">
+                    <Label text="Mot de passe" styleClass="form-label"/>
+                    <PasswordField fx:id="passwordField"
+                                   promptText="Votre mot de passe"
+                                   prefHeight="40"
+                                   styleClass="field"/>
+                </VBox>
+
+                <!-- Se souvenir de moi -->
+                <CheckBox fx:id="rememberMeCheckbox" text="Se souvenir de moi"/>
+
+                <!-- Sélecteur de méthode CAPTCHA -->
+                <VBox spacing="10">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Vérification" styleClass="form-label"/>
+                        <Button fx:id="bypassCaptchaBtn" text="Bypass (temp)" 
+                                style="-fx-font-size: 10px; -fx-padding: 2 8 2 8;" 
+                                onAction="#bypassCaptcha"/>
+                    </HBox>
+                    
+                    <!-- Choix de la méthode CAPTCHA -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="Méthode:" style="-fx-font-size: 12px;"/>
+                        <ToggleGroup fx:id="captchaMethodGroup"/>
+                        <RadioButton fx:id="mathCaptchaRadio" text="Équation" 
+                                     toggleGroup="$captchaMethodGroup" selected="true"
+                                     onAction="#switchCaptchaMethod"/>
+                        <RadioButton fx:id="recaptchaRadio" text="reCAPTCHA" 
+                                     toggleGroup="$captchaMethodGroup"
+                                     onAction="#switchCaptchaMethod"/>
+                        <RadioButton fx:id="puzzleCaptchaRadio" text="Puzzle" 
+                                     toggleGroup="$captchaMethodGroup"
+                                     onAction="#switchCaptchaMethod"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Container pour les différents CAPTCHA -->
+                <VBox fx:id="captchaContainer" spacing="10">
+                    
+                    <!-- CAPTCHA Mathématique (Simple) -->
+                    <HBox spacing="10" alignment="CENTER_LEFT" 
+                          fx:id="mathCaptchaBox" visible="true" managed="true">
+                        <Label fx:id="captchaQuestion" styleClass="form-label" 
+                               text="Combien fait 4 + 8 ?"/>
+                        <TextField fx:id="captchaAnswer" promptText="Votre réponse" 
+                                   prefWidth="100" styleClass="field"/>
+                    </HBox>
+                    
+                    <!-- reCAPTCHA (Google) -->
+                    <VBox fx:id="recaptchaBox" visible="false" managed="false">
+                        <WebView fx:id="captchaWebView" prefHeight="120" 
+                                 minHeight="120" maxHeight="300" 
+                                 prefWidth="400" maxWidth="420"/>
+                    </VBox>
+                    
+                    <!-- Puzzle CAPTCHA -->
+                    <VBox fx:id="puzzleCaptchaBox" visible="false" managed="false" 
+                          spacing="10" alignment="CENTER">
+                        <Label text="Glissez la pièce pour compléter l'image" 
+                               style="-fx-font-size: 12px; -fx-text-fill: #666;"/>
+                        
+                        <!-- Image de fond avec le trou -->
+                        <StackPane fx:id="puzzleBackgroundPane" 
+                                   style="-fx-border-color: #ccc; -fx-border-width: 1;">
+                            <ImageView fx:id="puzzleBackgroundImage" 
+                                       fitWidth="300" fitHeight="150" 
+                                       preserveRatio="false"/>
+                        </StackPane>
+                        
+                        <!-- Slider pour déplacer la pièce -->
+                        <HBox spacing="10" alignment="CENTER">
+                            <Label text="Position:" style="-fx-font-size: 11px;"/>
+                            <Slider fx:id="puzzleSlider" min="0" max="250" 
+                                    value="0" prefWidth="250" 
+                                    showTickMarks="false" showTickLabels="false"/>
+                            <Button text="Vérifier" onAction="#verifyPuzzle" 
+                                    styleClass="btn-primary" 
+                                    style="-fx-font-size: 11px; -fx-padding: 5 15 5 15;"/>
+                        </HBox>
+                        
+                        <!-- Pièce du puzzle (se déplace avec le slider) -->
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Pièce:" style="-fx-font-size: 11px;"/>
+                            <StackPane fx:id="puzzlePiecePane">
+                                <ImageView fx:id="puzzlePieceImage" 
+                                           fitWidth="70" fitHeight="70" 
+                                           preserveRatio="true"/>
+                            </StackPane>
+                        </HBox>
+                        
+                        <!-- Bouton pour régénérer -->
+                        <Button fx:id="regeneratePuzzleBtn" text="🔄 Nouveau puzzle" 
+                                onAction="#regeneratePuzzle"
+                                style="-fx-font-size: 10px; -fx-padding: 3 10 3 10;"/>
+                        
+                        <!-- Message de résultat -->
+                        <Label fx:id="puzzleResultLabel" 
+                               style="-fx-font-size: 11px;" 
+                               visible="false"/>
+                    </VBox>
+                </VBox>
+
+                <!-- Bouton de connexion -->
+                <Button fx:id="loginButton"
+                        text="Se connecter"
+                        onAction="#handleLogin"
+                        maxWidth="Infinity"
+                        prefHeight="45"
+                        styleClass="btn-primary"/>
+
+                <!-- Liens -->
+                <HBox spacing="10" alignment="CENTER">
+                    <Hyperlink fx:id="forgotPasswordLink"
+                               text="Mot de passe oublié ?"
+                               onAction="#handleForgotPassword"/>
+                    <Label text="|"/>
+                    <Hyperlink fx:id="registerLink"
+                               text="Créer un compte"
+                               onAction="#handleRegister"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+
+    <!-- BOTTOM: Footer -->
+    <bottom>
+        <HBox alignment="CENTER" styleClass="card" style="-fx-padding: 12;">
+            <Text text="© 2025 Plateforme Énergie Renouvelable - PIDEV 3A"
+                  styleClass="page-subtitle"/>
+        </HBox>
+    </bottom>
+</BorderPane>

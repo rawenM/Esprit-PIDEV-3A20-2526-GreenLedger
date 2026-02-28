@@ -1,19 +1,63 @@
-# SMTP configuration
-# Do NOT commit real credentials. Use environment variables when possible.
-# SMTP_HOST, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD, SMTP_FROM,
-# SMTP_AUTH, SMTP_STARTTLS, APP_RESET_URL_PREFIX
-smtp.host=smtp.gmail.com
-smtp.port=587
-smtp.username=YOUR_EMAIL@example.com
-smtp.password=YOUR_APP_PASSWORD
-smtp.from=GreenLedger Team <YOUR_EMAIL@example.com>
-smtp.auth=true
-smtp.starttls.enable=true
-app.reset.url.prefix=http://127.0.0.1:8088/reset?token=
+# ═══════════════════════════════════════════════════════════════════════════
+# Configuration Google reCAPTCHA
+# ═══════════════════════════════════════════════════════════════════════════
 
-# reCAPTCHA v2 configuration
-# Get your keys from: https://www.google.com/recaptcha/admin/create
-# Use reCAPTCHA v2 ("I'm not a robot") keys for the checkbox widget
-captcha.site.key=YOUR_SITE_KEY
-captcha.secret=YOUR_SECRET_KEY
-captcha.verify.url=https://www.google.com/recaptcha/api/siteverify
+# INSTRUCTIONS:
+# 1. Copier ce fichier vers: config.properties
+# 2. Obtenir vos clés sur: https://www.google.com/recaptcha/admin/create
+# 3. Remplacer les valeurs ci-dessous par vos vraies clés
+# 4. Recompiler le projet: mvn clean compile
+
+# ───────────────────────────────────────────────────────────────────────────
+# Site Key (clé publique)
+# ───────────────────────────────────────────────────────────────────────────
+# Cette clé est utilisée côté client (dans le navigateur)
+# Exemple: 6LcXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+
+RECAPTCHA_SITE_KEY=VOTRE_SITE_KEY_ICI
+
+# ───────────────────────────────────────────────────────────────────────────
+# Secret Key (clé privée)
+# ───────────────────────────────────────────────────────────────────────────
+# Cette clé est utilisée côté serveur pour vérifier les tokens
+# ⚠️  NE JAMAIS partager cette clé publiquement
+# Exemple: 6LcYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+
+RECAPTCHA_SECRET_KEY=VOTRE_SECRET_KEY_ICI
+
+# ───────────────────────────────────────────────────────────────────────────
+# URL de vérification
+# ───────────────────────────────────────────────────────────────────────────
+# URL de l'API Google pour vérifier les tokens
+# ⚠️  Ne pas modifier sauf si vous savez ce que vous faites
+
+RECAPTCHA_VERIFY_URL=https://www.google.com/recaptcha/api/siteverify
+
+# ═══════════════════════════════════════════════════════════════════════════
+# NOTES
+# ═══════════════════════════════════════════════════════════════════════════
+#
+# Type de reCAPTCHA recommandé:
+# - reCAPTCHA v2 "Je ne suis pas un robot" (checkbox)
+#   → Meilleur équilibre sécurité/UX
+#   → Facile à implémenter
+#   → Compatible avec tous les navigateurs
+#
+# - reCAPTCHA v3 (invisible)
+#   → Pas d'interaction utilisateur
+#   → Score de confiance (0.0 à 1.0)
+#   → Nécessite plus de configuration
+#
+# Domaines autorisés (pour développement):
+# - localhost
+# - 127.0.0.1
+#
+# Domaines autorisés (pour production):
+# - votre-domaine.com
+# - www.votre-domaine.com
+#
+# Limites gratuites:
+# - 1 million de requêtes par mois
+# - Au-delà: tarification selon usage
+#
+# ═══════════════════════════════════════════════════════════════════════════

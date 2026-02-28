@@ -1,0 +1,254 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║              ✅ CHECKLIST PRÉSENTATION JURY - GREENLEDGER                 ║
+║                                                                            ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+📅 DATE: _______________    🕐 HEURE: _______________
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 PRÉPARATION TECHNIQUE (À FAIRE AVANT)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ MySQL démarré et accessible
+□ Base de données 'greenledger' créée
+□ Tables 'user' et 'fraud_detection_results' créées
+□ Colonnes 'fraud_score' et 'fraud_checked' ajoutées à 'user'
+□ Application compilée (compile-all.bat exécuté)
+□ Application testée (run.bat fonctionne)
+□ Dashboard admin accessible
+□ Connexion internet active (pour Gmail API et reCAPTCHA)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📧 CONFIGURATION EMAIL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ credentials.json présent dans src/main/resources/
+□ OAuth2 tokens générés dans tokens/StoredCredential
+□ .env configuré avec GMAIL_FROM_EMAIL
+□ Email de test reçu (vérifier boîte ibrahimimajid058@gmail.com)
+□ Email de bienvenue fonctionne
+□ Email de reset mot de passe fonctionne
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔐 CONFIGURATION reCAPTCHA
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ RECAPTCHA_SITE_KEY configuré
+□ RECAPTCHA_SECRET_KEY configuré
+□ Page de connexion affiche le CAPTCHA
+□ Vérification serveur fonctionne
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🤖 DÉTECTION DE FRAUDE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Dashboard admin affiche les statistiques de fraude
+□ Colonne "Score Fraude" visible dans le tableau
+□ Badges colorés affichés (🟢🟡🟠🔴)
+□ Bouton [Détails] fonctionne
+□ Modal d'analyse détaillée s'affiche correctement
+□ Utilisateur normal créé et testé (score faible)
+□ Utilisateur suspect créé et testé (score élevé, blocage auto)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+👥 EXEMPLES D'UTILISATEURS PRÊTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+UTILISATEUR NORMAL (Score faible 🟢):
+□ Nom: Jean Dupont
+□ Email: jean.dupont@gmail.com
+□ Téléphone: 0612345678
+□ Adresse: 123 Rue de la Paix, Paris
+□ Résultat attendu: Score 0-10, compte créé
+
+UTILISATEUR SUSPECT (Score élevé 🔴):
+□ Nom: Test Fake
+□ Email: test@tempmail.com
+□ Téléphone: 1111111111
+□ Adresse: test
+□ Résultat attendu: Score 70, compte bloqué automatiquement
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📄 DOCUMENTATION IMPRIMÉE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ ANTISÈCHE_JURY.txt (1 page, à avoir en main)
+□ PRESENTATION_JURY_RAPIDE.md (guide complet)
+□ APIS_FONCTIONNALITES_IA_RESUME.txt (référence rapide)
+□ Diagrammes ou captures d'écran (optionnel)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💻 MATÉRIEL
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Ordinateur portable chargé
+□ Chargeur disponible
+□ Souris (optionnel mais recommandé)
+□ Câble HDMI/VGA pour projecteur (si nécessaire)
+□ Adaptateur (si Mac ou port USB-C)
+□ Connexion internet (WiFi ou partage de connexion)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 PLAN DE DÉMONSTRATION (5 MIN)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ 1. INTRODUCTION (30 sec)
+   "2 APIs + 2 fonctionnalités avancées + 1 IA"
+
+□ 2. GMAIL API (1 min)
+   → Montrer email reçu
+   → Expliquer OAuth2
+
+□ 3. ⭐ DÉTECTION FRAUDE IA (2 min) ⭐ POINT FORT
+   → Ouvrir dashboard admin
+   → Montrer statistiques
+   → Créer user normal (Jean Dupont) → Score 0 🟢
+   → Créer user suspect (Test Fake) → Score 70 🔴
+   → Montrer analyse détaillée (7 indicateurs)
+   → "Blocage automatique à 70 points"
+
+□ 4. reCAPTCHA (30 sec)
+   → Montrer page connexion
+   → "99.9% des bots bloqués"
+
+□ 5. MOT DE PASSE OUBLIÉ (30 sec)
+   → Montrer flux
+   → "Token sécurisé, expiration 1h"
+
+□ 6. CONCLUSION (30 sec)
+   "Application hautement sécurisée, prête pour production"
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💡 POINTS CLÉS À MENTIONNER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ 2 APIs modernes (Gmail + reCAPTCHA)
+□ 2 fonctionnalités avancées (Email + Reset)
+□ 1 IA (7 indicateurs de fraude)
+□ Blocage automatique (score ≥ 70)
+□ OAuth2 (authentification moderne)
+□ BCrypt (sécurité mots de passe)
+□ Architecture modulaire
+□ Code propre et testé
+□ Documentation complète
+□ Prêt pour production
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❓ QUESTIONS POSSIBLES DU JURY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ "Pourquoi Gmail API?"
+   → Gratuit, OAuth2 sécurisé, fallback SMTP
+
+□ "Comment fonctionne l'IA?"
+   → 7 indicateurs avec poids, score total → action
+
+□ "L'IA peut apprendre?"
+   → Système règles actuellement, architecture permet ML
+
+□ "Pourquoi 3 CAPTCHA?"
+   → Flexibilité selon contexte (simple, sécurisé, ludique)
+
+□ "Sécurité des données?"
+   → BCrypt, OAuth2, tokens expiration, détection fraude
+
+□ "Scalabilité?"
+   → Architecture modulaire, DAO pattern, services séparés
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 MESSAGE CLÉ (À MÉMORISER)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+"J'ai développé GreenLedger, une plateforme de financement écologique
+hautement sécurisée avec 2 APIs modernes (Gmail + reCAPTCHA), 
+2 fonctionnalités avancées (Email + Reset mot de passe), et 1 système 
+d'IA qui détecte automatiquement les comptes frauduleux en analysant 
+7 indicateurs. L'application est prête pour la production."
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+⏰ TIMING (IMPORTANT!)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Arriver 15 minutes en avance
+□ Tester le matériel (projecteur, son)
+□ Ouvrir l'application et le dashboard
+□ Préparer les exemples d'utilisateurs
+□ Respirer et se détendre
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 STATISTIQUES À MENTIONNER
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ ~5500 lignes de code Java
+□ 16 fichiers Java
+□ 5 fichiers FXML
+□ 10 scripts SQL
+□ 50+ fichiers de documentation
+□ 5 fichiers de test
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ VÉRIFICATION FINALE (JUSTE AVANT)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Application lancée et fonctionnelle
+□ Dashboard admin ouvert
+□ Connexion internet active
+□ Documentation à portée de main
+□ Exemples d'utilisateurs prêts
+□ Confiant et prêt à présenter
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+💪 CONSEILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✓ Parler clairement et lentement
+✓ Regarder le jury (pas seulement l'écran)
+✓ Montrer votre enthousiasme
+✓ Expliquer les choix techniques
+✓ Mettre en avant l'IA (point fort)
+✓ Rester calme si problème technique
+✓ Gérer le temps (5 minutes max)
+✓ Sourire et être confiant
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🍀 BONNE CHANCE!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Vous avez travaillé dur et créé un excellent projet.
+Vous êtes prêt. Croyez en vous!
+
+Date: 28 Février 2026
+Projet: GreenLedger
+Auteur: Ibrahim Imajid
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NOTES PERSONNELLES:
+_________________________________________________________________________
+
+_________________________________________________________________________
+
+_________________________________________________________________________
+
+_________________________________________________________________________
+
+_________________________________________________________________________
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
