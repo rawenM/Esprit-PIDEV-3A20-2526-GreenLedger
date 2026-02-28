@@ -4,6 +4,8 @@ import Models.Financement;
 import Models.OffreFinancement;
 import Services.FinancementService;
 import Services.OffreFinancementService;
+import Services.PdfContractService;
+import Services.PdfOffresReportService;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -11,8 +13,12 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class FinancementController extends BaseController {
 
@@ -43,6 +49,8 @@ public class FinancementController extends BaseController {
     @FXML private TextField txtDeleteFinancementId;
     @FXML private TextField txtFinancementIdToModify;
 
+    private final PdfOffresReportService pdfOffresService = new PdfOffresReportService();
+    private final PdfContractService pdfService = new PdfContractService();
     private final FinancementService financementService = new FinancementService();
     private final OffreFinancementService offreService = new OffreFinancementService();
     private final javafx.collections.ObservableList<Financement> financementItems = FXCollections.observableArrayList();
@@ -361,8 +369,8 @@ public class FinancementController extends BaseController {
         txtProjetId.requestFocus();
     }
 
-    /**
-     * Handle sidebar button: New Offer
+    /*
+      Handle sidebar button: New Offer
      */
     @FXML
     private void btnNewOffre_click() {
@@ -370,8 +378,8 @@ public class FinancementController extends BaseController {
         txtTypeOffre.requestFocus();
     }
 
-    /**
-     * Navigate to risk agent
+    /*
+      Navigation agent
      */
     @FXML
     private void handleGoRiskAgent() {
@@ -383,4 +391,101 @@ public class FinancementController extends BaseController {
             showError("Erreur", "Impossible d'ouvrir l'agent de risque");
         }
     }
+    @FXML
+    private void exporterContrat() {
+
+        // Step 1: Make sure a financing row is selected
+        Financement selected = tableFinancement.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showError("Sélection requise",
+                    "Veuillez sélectionner un financement dans la table pour générer le contrat.");
+            return;
+        }
+
+        // Step 2: Try to find a linked offre for this financement
+        // We look for an offre whose idFinancement matches the selected financement id
+        OffreFinancement linkedOffre = offreItems.stream()
+                .filter(o -> o.getIdFinancement() == selected.getId())
+                .findFirst()
+                .orElse(null);
+
+        // Step 3: Open a FileChooser so the investor picks where to save the PDF
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Enregistrer le contrat PDF");
+        fileChooser.setInitialFileName("Contrat_Financement_" + selected.getId() + ".pdf");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Fichiers PDF", "*.pdf")
+        );
+
+        // Get the current window to attach the dialog to
+        Stage stage = (Stage) tableFinancement.getScene().getWindow();
+        File file = fileChooser.showSaveDialog(stage);
+
+        // Step 4: If user cancelled the dialog, do nothing
+        if (file == null) return;
+
+        // Step 5: Call the PDF service
+        try {
+            pdfService.generateContract(selected, linkedOffre, file.getAbsolutePath());
+
+            // Step 6: Show success confirmation
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Contrat généré");
+            alert.setHeaderText(null);
+            alert.setContentText("✅ Contrat exporté avec succès:\n" + file.getAbsolutePath());
+            alert.showAndWait();
+
+        } catch (Exception e) {
+            showError("Erreur PDF",
+                    "Impossible de générer le contrat.\n" +
+                            "Vérifiez votre connexion internet et votre clé API PDFShift.\n\n" +
+                            "Détail: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    @FXML
+    private void exporterRapportOffres() {
+
+        // Step 1: Check there is something to export
+        if (offreItems.isEmpty()) {
+            showError("Aucune donnée",
+                    "La table des offres est vide. Aucun rapport à générer.");
+            return;
+        }
+
+        // Step 2: FileChooser — investor picks save location
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Enregistrer le rapport des offres");
+        fileChooser.setInitialFileName("Rapport_Offres_Financement_"
+                + java.time.LocalDate.now() + ".pdf");
+        fileChooser.getExtensionFilters().add(
+                new FileChooser.ExtensionFilter("Fichiers PDF", "*.pdf")
+        );
+
+        Stage stage = (Stage) tableOffres.getScene().getWindow();
+        File file = fileChooser.showSaveDialog(stage);
+
+        if (file == null) return;
+
+        // Step 3: Generate the report
+        try {
+            java.util.List<OffreFinancement> offres = new ArrayList<>(offreItems);
+            String outputPath = file.getAbsolutePath();
+            pdfOffresService.generateOffresReport(offres, outputPath);
+
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Rapport généré");
+            alert.setHeaderText(null);
+            alert.setContentText("✅ Rapport exporté avec succès:\n" + file.getAbsolutePath());
+            alert.showAndWait();
+
+        } catch (Exception e) {
+            showError("Erreur PDF",
+                    "Impossible de générer le rapport.\n" +
+                            "Vérifiez votre connexion internet et votre clé API PDFShift.\n\n" +
+                            "Détail: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
 }

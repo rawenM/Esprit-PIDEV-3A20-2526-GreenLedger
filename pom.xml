@@ -61,6 +61,13 @@
             <artifactId>weka-stable</artifactId>
             <version>3.8.6</version>
         </dependency>
+
+        <!-- JSON -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20231013</version>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

@@ -145,6 +145,12 @@
                                 styleClass="btn btn-danger"
                                 prefHeight="36"
                                 prefWidth="140"/>
+                        <Button text="📊 Exporter Rapport PDF"
+                                onAction="#exporterRapportOffres"
+                                styleClass="btn btn-primary"
+                                prefHeight="36"
+                                prefWidth="200"/>
+
                         <Region HBox.hgrow="ALWAYS"/>
                         <Button text="🔄 Actualiser"
                                 onAction="#refreshAll"

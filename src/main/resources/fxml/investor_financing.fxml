@@ -116,11 +116,53 @@
                         </placeholder>
                         <columns>
                             <TableColumn fx:id="colInvProjetId" text="Projet ID" prefWidth="90"/>
-                            <TableColumn fx:id="colInvMontant" text="Montant (EUR)" prefWidth="120"/>
+                            <TableColumn fx:id="colInvMontant" text="Montant" prefWidth="120"/>
                             <TableColumn fx:id="colInvDate" text="Date d'investissement" prefWidth="150"/>
                             <TableColumn fx:id="colInvStatut" text="Statut" prefWidth="100"/>
                         </columns>
                     </TableView>
+
+                    <VBox fx:id="conversionPanel" spacing="8"
+                          style="-fx-background-color: #f0f4ff; -fx-background-radius: 8; -fx-padding: 12 16 12 16; -fx-border-color: #dce3f0; -fx-border-radius: 8;"
+                          visible="false"
+                          managed="false">
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="💱" style="-fx-font-size:14px;"/>
+                            <Label text="Conversion en temps réel" style="-fx-font-weight:bold; -fx-font-size:12px; -fx-text-fill:#1e3a5f;"/>
+                            <Label fx:id="lblConversionStatus" text="" style="-fx-font-size:10px; -fx-text-fill:#94a3b8;"/>
+                        </HBox>
+
+                        <HBox spacing="16" alignment="CENTER_LEFT">
+                            <!-- TND (base) -->
+                            <VBox spacing="2" style="-fx-background-color:white; -fx-background-radius:6; -fx-padding: 8 14 8 14; -fx-border-color:#dce3f0; -fx-border-radius:6;">
+                                <Label text="TND" style="-fx-font-size:10px; -fx-font-weight:bold; -fx-text-fill:#64748b;"/>
+                                <Label fx:id="lblTND" text="—" style="-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:#0f172a;"/>
+                            </VBox>
+
+                            <Label text="=" style="-fx-font-size:16px; -fx-text-fill:#94a3b8;"/>
+
+                            <!-- EUR -->
+                            <VBox spacing="2" style="-fx-background-color:white; -fx-background-radius:6; -fx-padding: 8 14 8 14; -fx-border-color:#10b981; -fx-border-radius:6;">
+                                <Label text="🇪🇺 EUR" style="-fx-font-size:10px; -fx-font-weight:bold; -fx-text-fill:#10b981;"/>
+                                <Label fx:id="lblEUR" text="—" style="-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:#065f46;"/>
+                                <Label fx:id="lblEURRate" text="" style="-fx-font-size:9px; -fx-text-fill:#94a3b8;"/>
+                            </VBox>
+
+                            <!-- USD -->
+                            <VBox spacing="2" style="-fx-background-color:white; -fx-background-radius:6; -fx-padding: 8 14 8 14; -fx-border-color:#3b82f6; -fx-border-radius:6;">
+                                <Label text="🇺🇸 USD" style="-fx-font-size:10px; -fx-font-weight:bold; -fx-text-fill:#3b82f6;"/>
+                                <Label fx:id="lblUSD" text="—" style="-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:#1e40af;"/>
+                                <Label fx:id="lblUSDRate" text="" style="-fx-font-size:9px; -fx-text-fill:#94a3b8;"/>
+                            </VBox>
+
+                            <!-- GBP -->
+                            <VBox spacing="2" style="-fx-background-color:white; -fx-background-radius:6; -fx-padding: 8 14 8 14; -fx-border-color:#8b5cf6; -fx-border-radius:6;">
+                                <Label text="🇬🇧 GBP" style="-fx-font-size:10px; -fx-font-weight:bold; -fx-text-fill:#8b5cf6;"/>
+                                <Label fx:id="lblGBP" text="—" style="-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:#5b21b6;"/>
+                                <Label fx:id="lblGBPRate" text="" style="-fx-font-size:9px; -fx-text-fill:#94a3b8;"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
                 </VBox>
 
                 <Separator/>
@@ -206,6 +248,7 @@
                                 prefWidth="200"
                                 prefHeight="45"
                         styleClass="btn btn-secondary"/>
+                        <!---->
                         <Region HBox.hgrow="ALWAYS"/>
                     </HBox>
                 </VBox>
