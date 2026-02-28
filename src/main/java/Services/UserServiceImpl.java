@@ -5,7 +5,7 @@ import dao.UserDAOImpl;
 import Models.StatutUtilisateur;
 import Models.TypeUtilisateur;
 import Models.User;
-import Utils.EmailService;
+import Utils.UnifiedEmailService;
 import Utils.PasswordUtil;
 import Utils.SessionManager;
 
@@ -19,12 +19,12 @@ public class UserServiceImpl implements IUserService {
 
     private final IUserDAO userDAO;
     private final ValidationService validationService;
-    private final EmailService emailService;
+    private final UnifiedEmailService emailService;
 
     public UserServiceImpl() {
         this.userDAO = new UserDAOImpl();
         this.validationService = new ValidationService();
-        this.emailService = new EmailService();
+        this.emailService = new UnifiedEmailService();
     }
 
     @Override

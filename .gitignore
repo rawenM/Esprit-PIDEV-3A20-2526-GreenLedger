@@ -38,5 +38,9 @@ build/
 src/main/resources/config.properties
 *.env
 
+# Gmail API credentials
+src/main/resources/credentials.json
+tokens/
+
 ### Mac OS ###
 .DS_Store

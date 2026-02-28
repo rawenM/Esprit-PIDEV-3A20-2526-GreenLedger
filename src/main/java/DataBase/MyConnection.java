@@ -9,7 +9,7 @@ public class MyConnection {
     private Connection conn;
     private static MyConnection instance;
 
-    private String url = "jdbc:mysql://localhost:3308/greenledger";
+    private String url = "jdbc:mysql://localhost:3306/greenledger";
     private String user = "root";
     private String pwd = "";
 
