@@ -472,3 +472,102 @@
 .accent-amber {
     -fx-text-fill: #E6C07B;
 }
+
+/* ===== MARKETPLACE STYLES - CLASSIC THEME ===== */
+.page-header {
+    -fx-background-color: linear-gradient(to right, #1A2A1E, #1D2E23);
+    -fx-border-color: #7BE0AA;
+}
+
+.price-accent {
+    -fx-text-fill: #7BE0AA;
+}
+
+.price-range-display {
+    -fx-text-fill: #7BE0AA;
+}
+
+.market-price-large {
+    -fx-text-fill: #7BE0AA;
+}
+
+.section-subtitle {
+    -fx-text-fill: #B4C5BA;
+}
+
+.sidebar-footer {
+    -fx-background-color: rgba(0, 0, 0, 0.3);
+}
+
+.market-stat-box {
+    -fx-background-color: rgba(123, 224, 170, 0.15);
+}
+
+.market-stat-box.blue {
+    -fx-background-color: rgba(93, 168, 214, 0.15);
+}
+
+.market-stat-box.orange {
+    -fx-background-color: rgba(230, 192, 123, 0.15);
+}
+
+.market-stat-label {
+    -fx-text-fill: #B4C5BA;
+}
+
+.market-stat-value {
+    -fx-text-fill: #7BE0AA;
+}
+
+.market-stat-value.blue {
+    -fx-text-fill: #5DA8D6;
+}
+
+.market-stat-value.orange {
+    -fx-text-fill: #E6C07B;
+}
+
+.market-stat-value.dark {
+    -fx-text-fill: #E6F2EA;
+}
+
+.order-stat-value {
+    -fx-text-fill: #E6F2EA;
+}
+
+.order-stat-value.accent {
+    -fx-text-fill: #7BE0AA;
+}
+
+.order-stat-label {
+    -fx-text-fill: #B4C5BA;
+}
+
+.market-chart .chart-plot-background {
+    -fx-background-color: #1A2A1E;
+}
+
+.market-chart .chart-vertical-grid-lines {
+    -fx-stroke: #2F4636;
+}
+
+.market-chart .chart-horizontal-grid-lines {
+    -fx-stroke: #2F4636;
+}
+
+.market-chart .chart-series-line {
+    -fx-stroke: #7BE0AA;
+    -fx-effect: dropshadow(gaussian, rgba(123, 224, 170, 0.3), 4, 0, 0, 2);
+}
+
+.market-chart .chart-line-symbol {
+    -fx-background-color: #7BE0AA;
+}
+
+.market-chart .axis-label {
+    -fx-text-fill: #B4C5BA;
+}
+
+.market-chart .axis-tick-label {
+    -fx-text-fill: #B4C5BA;
+}

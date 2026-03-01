@@ -66,6 +66,31 @@ public class ApiConfig {
     public static boolean isCarbonApiEnabled() {
         return Boolean.parseBoolean(props.getProperty("api.carbon.enabled", "true"));
     }
+
+    // Climatiq API Configuration
+
+    public static String getClimatiqApiKey() {
+        String key = System.getenv("CLIMATIQ_API_KEY");
+        if (key == null || key.trim().isEmpty()) {
+            key = System.getenv("CLIMATIQ_API");
+        }
+        if (key == null || key.trim().isEmpty()) {
+            key = props.getProperty("carbon.pricing.api.key");
+        }
+        if (key == null || key.trim().isEmpty() || key.startsWith("YOUR_")) {
+            System.err.println("[API CONFIG] Warning: CLIMATIQ_API_KEY/CLIMATIQ_API not set");
+            return "";
+        }
+        return key.trim();
+    }
+
+    public static String getClimatiqApiUrl() {
+        return props.getProperty("carbon.pricing.api.url", "https://api.climatiq.io");
+    }
+
+    public static boolean isClimatiqApiEnabled() {
+        return Boolean.parseBoolean(props.getProperty("api.carbon.enabled", "true"));
+    }
     
     // OpenWeatherMap API Configuration
     

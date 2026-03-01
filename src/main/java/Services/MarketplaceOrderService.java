@@ -139,6 +139,67 @@ public class MarketplaceOrderService {
     }
 
     /**
+     * Create an order from an accepted offer with negotiated unit price.
+     * This method only creates the order record; payment is handled separately.
+     */
+    public int createOrderFromOffer(int listingId, int buyerId, int sellerId, double quantity, double unitPrice) {
+        int orderId = -1;
+
+        try {
+            if (conn == null) return orderId;
+
+            conn.setAutoCommit(false);
+
+            try {
+                var listing = listingService.getListingById(listingId);
+                if (listing == null || !"ACTIVE".equals(listing.getStatus())) {
+                    System.err.println(LOG_TAG + " ERROR: Listing not active for offer order");
+                    conn.rollback();
+                    return orderId;
+                }
+
+                double totalAmount = quantity * unitPrice;
+
+                String sql = "INSERT INTO marketplace_orders " +
+                    "(listing_id, buyer_id, seller_id, quantity, unit_price_usd, total_amount_usd, status) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+                try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+                    stmt.setInt(1, listingId);
+                    stmt.setInt(2, buyerId);
+                    stmt.setInt(3, sellerId);
+                    stmt.setDouble(4, quantity);
+                    stmt.setDouble(5, unitPrice);
+                    stmt.setDouble(6, totalAmount);
+                    stmt.setString(7, "PENDING");
+                    stmt.executeUpdate();
+
+                    try (ResultSet rs = stmt.getGeneratedKeys()) {
+                        if (rs.next()) {
+                            orderId = rs.getInt(1);
+                        }
+                    }
+                }
+
+                conn.commit();
+                System.out.println(LOG_TAG + String.format(
+                    " Offer order created: ID %d | Buyer: %d | Seller: %d | Qty: %.2f | Unit: $%.2f",
+                    orderId, buyerId, sellerId, quantity, unitPrice
+                ));
+                return orderId;
+
+            } catch (SQLException e) {
+                conn.rollback();
+                System.err.println(LOG_TAG + " ERROR creating offer order: " + e.getMessage());
+            }
+        } catch (SQLException e) {
+            System.err.println(LOG_TAG + " ERROR: Database connection failed for offer order");
+        }
+
+        return orderId;
+    }
+
+    /**
      * Complete an order after successful payment
      * Transfers credits and releases escrow
      */

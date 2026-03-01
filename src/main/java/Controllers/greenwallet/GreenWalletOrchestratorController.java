@@ -2,6 +2,7 @@ package Controllers.greenwallet;
 
 import Models.Wallet;
 import Models.User;
+import Models.OperationWallet;
 import Services.WalletService;
 import Services.ClimatiqApiService;
 import Services.AirQualityService;
@@ -20,6 +21,8 @@ import javafx.application.Platform;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
+import java.math.BigDecimal;
 
 /**
  * GREEN WALLET ORCHESTRATOR - Main Controller
@@ -131,7 +134,7 @@ public class GreenWalletOrchestratorController {
     @FXML private Label lblPeerRank;
     
     // Transactions Table
-    @FXML private TableView<Models.OperationWallet> tableTransactions;
+    @FXML private TableView<OperationWallet> tableTransactions;
     @FXML private Button btnRefresh;
     @FXML private Button btnFilterTransactions;
     
@@ -212,9 +215,20 @@ public class GreenWalletOrchestratorController {
         if (currentUser == null) return;
         
         // Load wallets for current user
-        // TODO: Replace with actual service call
-        // List<Wallet> userWallets = walletService.getWalletsByUserId(currentUser.getId());
-        // cmbWalletSelector.setItems(FXCollections.observableArrayList(userWallets));
+        try {
+            java.util.List<Wallet> userWallets = walletService.getWalletsByOwnerId(currentUser.getId().intValue());
+            if (userWallets != null && !userWallets.isEmpty()) {
+                cmbWalletSelector.setItems(javafx.collections.FXCollections.observableArrayList(userWallets));
+                
+                // Auto-select first wallet
+                cmbWalletSelector.getSelectionModel().selectFirst();
+                if (cmbWalletSelector.getValue() != null) {
+                    loadWallet(cmbWalletSelector.getValue());
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("[Orchestrator] Error loading wallets: " + e.getMessage());
+        }
         
         cmbWalletSelector.setOnAction(e -> {
             Wallet selectedWallet = cmbWalletSelector.getValue();
@@ -276,12 +290,15 @@ public class GreenWalletOrchestratorController {
     private void updateSidebarStats() {
         if (currentWallet == null) return;
         
-        double available = currentWallet.getTotalCredits(); // TODO: Calculate actual available
-        double retired = 0.0; // TODO: Calculate retired from transactions
+        double available = currentWallet.getAvailableCredits();
+        double retired = currentWallet.getRetiredCredits();
         
         lblSidebarAvailable.setText(String.format("%.2f tCO₂", available));
         lblSidebarRetired.setText(String.format("%.2f tCO₂", retired));
-        lblSidebarGoal.setText("Goal: 100 tCO₂"); // TODO: Get from user goals
+        
+        // Calculate goal as 2x current retired credits or minimum 100
+        double goal = Math.max(100.0, retired * 2);
+        lblSidebarGoal.setText(String.format("Goal: %.0f tCO₂", goal));
     }
     
     /**
@@ -566,17 +583,50 @@ public class GreenWalletOrchestratorController {
     
     private void navigateToGestionProjets() {
         System.out.println("[Orchestrator] Navigating to Gestion Projets...");
-        // TODO: Implement navigation
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader();
+            loader.setLocation(getClass().getResource("/GestionProjet.fxml"));
+            javafx.scene.Parent root = loader.load();
+            
+            javafx.stage.Stage stage = (javafx.stage.Stage) rootPane.getScene().getWindow();
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.setTitle("Gestion de Projets - Green Wallet");
+        } catch (Exception e) {
+            System.err.println("[Orchestrator] Error navigating to Gestion Projets: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     private void navigateToMarketplace() {
         System.out.println("[Orchestrator] Navigating to Marketplace...");
-        // TODO: Implement navigation
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader();
+            loader.setLocation(getClass().getResource("/fxml/marketplace.fxml"));
+            javafx.scene.Parent root = loader.load();
+            
+            javafx.stage.Stage stage = (javafx.stage.Stage) rootPane.getScene().getWindow();
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.setTitle("Marketplace - Green Wallet");
+        } catch (Exception e) {
+            System.err.println("[Orchestrator] Error navigating to Marketplace: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     private void navigateToSettings() {
         System.out.println("[Orchestrator] Navigating to Settings...");
-        // TODO: Implement navigation
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader();
+            loader.setLocation(getClass().getResource("/settings.fxml"));
+            javafx.scene.Parent root = loader.load();
+            
+            javafx.stage.Stage stage = (javafx.stage.Stage) rootPane.getScene().getWindow();
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.setTitle("Settings - Green Wallet");
+        } catch (Exception e) {
+            System.err.println("[Orchestrator] Error navigating to Settings: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
     // ============================================================================
@@ -631,7 +681,71 @@ public class GreenWalletOrchestratorController {
      */
     private void exportToCsv() {
         System.out.println("[Orchestrator] Exporting to CSV...");
-        // TODO: Implement CSV export
+        
+        if (currentWallet == null) {
+            showAlert("No Wallet", "Please select a wallet to export.", javafx.scene.control.Alert.AlertType.WARNING);
+            return;
+        }
+        
+        try {
+            javafx.stage.FileChooser fileChooser = new javafx.stage.FileChooser();
+            fileChooser.setTitle("Export Wallet Data");
+            fileChooser.setInitialFileName("wallet_" + currentWallet.getWalletNumber() + "_export.csv");
+            fileChooser.getExtensionFilters().add(
+                new javafx.stage.FileChooser.ExtensionFilter("CSV Files", "*.csv")
+            );
+            
+            javafx.stage.Stage stage = (javafx.stage.Stage) rootPane.getScene().getWindow();
+            java.io.File file = fileChooser.showSaveDialog(stage);
+            
+            if (file != null) {
+                exportWalletToCsv(file);
+                showAlert("Export Success", "Wallet data exported to: " + file.getAbsolutePath(), 
+                    javafx.scene.control.Alert.AlertType.INFORMATION);
+            }
+        } catch (Exception e) {
+            System.err.println("[Orchestrator] Export failed: " + e.getMessage());
+            showAlert("Export Failed", "Failed to export wallet data: " + e.getMessage(), 
+                javafx.scene.control.Alert.AlertType.ERROR);
+        }
+    }
+    
+    /**
+     * Export wallet to CSV file
+     */
+    private void exportWalletToCsv(java.io.File file) throws java.io.IOException {
+        try (java.io.FileWriter writer = new java.io.FileWriter(file)) {
+            // Write header
+            writer.write("Wallet Number,Name,Owner Type,Owner ID,Available Credits,Retired Credits,Total Credits\n");
+            
+            // Write wallet data
+            writer.write(String.format("%s,%s,%s,%d,%.2f,%.2f,%.2f\n",
+                currentWallet.getWalletNumber(),
+                currentWallet.getName() != null ? currentWallet.getName() : "Unnamed",
+                currentWallet.getOwnerType(),
+                currentWallet.getOwnerId(),
+                currentWallet.getAvailableCredits(),
+                currentWallet.getRetiredCredits(),
+                currentWallet.getTotalCredits()
+            ));
+            
+            writer.write("\n\nTransaction History\n");
+            writer.write("ID,Type,Amount,Date,Reference\n");
+            
+            // Get transactions
+            List<OperationWallet> transactions = walletService.getWalletTransactions(currentWallet.getId());
+            if (transactions != null) {
+                for (OperationWallet transaction : transactions) {
+                    writer.write(String.format("%d,%s,%.2f,%s,%s\n",
+                        transaction.getId(),
+                        transaction.getType(),
+                        transaction.getAmount(),
+                        transaction.getCreatedAt(),
+                        transaction.getReferenceNote() != null ? transaction.getReferenceNote() : ""
+                    ));
+                }
+            }
+        }
     }
     
     /**
@@ -639,7 +753,44 @@ public class GreenWalletOrchestratorController {
      */
     private void createNewWallet() {
         System.out.println("[Orchestrator] Creating new wallet...");
-        // TODO: Show create wallet form
+        
+        if (currentUser == null) {
+            showAlert("Not Logged In", "Please log in to create a wallet.", javafx.scene.control.Alert.AlertType.WARNING);
+            return;
+        }
+        
+        // Show text input dialog for wallet name
+        javafx.scene.control.TextInputDialog dialog = new javafx.scene.control.TextInputDialog();
+        dialog.setTitle("Create New Wallet");
+        dialog.setHeaderText("Create a new carbon credit wallet");
+        dialog.setContentText("Wallet Name:");
+        
+        java.util.Optional<String> result = dialog.showAndWait();
+        result.ifPresent(name -> {
+            if (!name.trim().isEmpty()) {
+                try {
+                    Wallet newWallet = new Wallet("USER", currentUser.getId().intValue());
+                    newWallet.setName(name.trim());
+                    
+                    int walletId = walletService.createWallet(newWallet);
+                    
+                    if (walletId > 0) {
+                        showAlert("Wallet Created", "New wallet created successfully!", 
+                            javafx.scene.control.Alert.AlertType.INFORMATION);
+                        
+                        // Reload wallet list
+                        setupWalletSelector();
+                    } else {
+                        showAlert("Creation Failed", "Failed to create wallet. Please try again.", 
+                            javafx.scene.control.Alert.AlertType.ERROR);
+                    }
+                } catch (Exception e) {
+                    System.err.println("[Orchestrator] Error creating wallet: " + e.getMessage());
+                    showAlert("Creation Failed", "Error: " + e.getMessage(), 
+                        javafx.scene.control.Alert.AlertType.ERROR);
+                }
+            }
+        });
     }
     
     /**
@@ -648,7 +799,30 @@ public class GreenWalletOrchestratorController {
     @FXML
     public void onBack() {
         System.out.println("[Orchestrator] Navigating back...");
-        // TODO: Implement back navigation
+        try {
+            // Navigate back to main menu or dashboard
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader();
+            loader.setLocation(getClass().getResource("/main.fxml"));
+            javafx.scene.Parent root = loader.load();
+            
+            javafx.stage.Stage stage = (javafx.stage.Stage) rootPane.getScene().getWindow();
+            stage.setScene(new javafx.scene.Scene(root));
+            stage.setTitle("Green Ledger - Main Menu");
+        } catch (Exception e) {
+            System.err.println("[Orchestrator] Error navigating back: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+    
+    /**
+     * Show alert dialog
+     */
+    private void showAlert(String title, String message, javafx.scene.control.Alert.AlertType type) {
+        javafx.scene.control.Alert alert = new javafx.scene.control.Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
 
     // ============================================================================

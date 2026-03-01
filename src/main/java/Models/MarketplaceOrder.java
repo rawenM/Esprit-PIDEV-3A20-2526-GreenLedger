@@ -21,6 +21,7 @@ public class MarketplaceOrder {
     private Timestamp createdAt;
     private Timestamp completionDate;
     private Timestamp updatedAt;
+    private Integer escrowId;  // Reference to escrow hold during payment
 
     // Constructors
     public MarketplaceOrder() {}
@@ -152,6 +153,14 @@ public class MarketplaceOrder {
 
     public void setUpdatedAt(Timestamp updatedAt) {
         this.updatedAt = updatedAt;
+    }
+
+    public Integer getEscrowId() {
+        return escrowId;
+    }
+
+    public void setEscrowId(Integer escrowId) {
+        this.escrowId = escrowId;
     }
 
     // Utility methods

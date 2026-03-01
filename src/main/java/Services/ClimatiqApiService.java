@@ -74,9 +74,9 @@ public class ClimatiqApiService {
     
     public ClimatiqApiService() {
         this.gson = new Gson();
-        this.apiKey = System.getenv("CLIMATIQ_API_KEY");
-        this.baseUrl = "https://api.climatiq.io/v1";
-        this.enabled = apiKey != null && !apiKey.isEmpty();
+        this.apiKey = ApiConfig.getClimatiqApiKey();
+        this.baseUrl = normalizeBaseUrl(ApiConfig.getClimatiqApiUrl());
+        this.enabled = ApiConfig.isClimatiqApiEnabled() && apiKey != null && !apiKey.isEmpty();
         
         // Circuit breaker: opens after 5 failures, half-open after 30s
         CircuitBreakerConfig cbConfig = CircuitBreakerConfig.custom()
@@ -111,6 +111,19 @@ public class ClimatiqApiService {
             System.out.println("  • Rate limiter: 1000 req/min");
             System.out.println("  • Cache: 90-day TTL, 10K factor capacity");
         }
+    }
+
+    private String normalizeBaseUrl(String configuredUrl) {
+        String url = (configuredUrl == null || configuredUrl.isBlank())
+            ? "https://api.climatiq.io"
+            : configuredUrl.trim();
+        if (url.endsWith("/")) {
+            url = url.substring(0, url.length() - 1);
+        }
+        if (!url.endsWith("/v1")) {
+            url = url + "/v1";
+        }
+        return url;
     }
     
     /**

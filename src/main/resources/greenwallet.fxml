@@ -69,6 +69,14 @@
                 </HBox>
             </VBox>
 
+            <Separator styleClass="sidebar-sep" style="-fx-margin: 12 0;"/>
+            
+            <!-- Wallet Selector -->
+            <VBox spacing="6" style="-fx-padding: 8;">
+                <Label text="Wallet Actif" style="-fx-font-size: 10px; -fx-opacity: 0.6; -fx-font-weight: 600;"/>
+                <ComboBox fx:id="cmbWalletSelector" promptText="Sélectionner Wallet" prefWidth="204" styleClass="field"/>
+            </VBox>
+
             <Region VBox.vgrow="ALWAYS"/>
             
             <!-- User Context Footer -->
@@ -113,10 +121,8 @@
                         <!-- Wallet Info Display -->
                         <VBox spacing="2" style="-fx-padding: 8 12; -fx-background-color: #f3f4f6; -fx-background-radius: 8;">
                             <HBox spacing="8" alignment="CENTER_LEFT">
-                                <Label text="Wallet:" style="-fx-font-size: 10px; -fx-opacity: 0.7;"/>
-                                <Label fx:id="lblWalletNumber" text="—" style="-fx-font-size: 11px; -fx-font-weight: 600; -fx-font-family: monospace;"/>
-                                <Label text="|" style="-fx-font-size: 10px; -fx-opacity: 0.3;"/>
                                 <Label fx:id="lblHolderName" text="—" style="-fx-font-size: 11px; -fx-font-weight: 600;"/>
+                                <Label fx:id="lblWalletNumber" text="—" managed="false" visible="false"/>
                             </HBox>
                             <HBox spacing="8" alignment="CENTER_LEFT">
                                 <Label fx:id="lblOwnerType" text="—" style="-fx-font-size: 10px; -fx-opacity: 0.7;"/>
@@ -124,9 +130,6 @@
                                 <Label fx:id="lblStatus" text="—" style="-fx-font-size: 10px; -fx-text-fill: #10b981;"/>
                             </HBox>
                         </VBox>
-                        
-                        <ComboBox fx:id="cmbWalletSelector" promptText="Sélectionner Wallet" prefWidth="220" styleClass="field"/>
-                        <Button fx:id="btnCreateWallet" text="+ Nouveau" styleClass="btn btn-secondary" prefHeight="34"/>
                     </HBox>
                 </VBox>
             </top>
@@ -135,56 +138,144 @@
             <center>
                 <ScrollPane fitToWidth="true" fitToHeight="false" style="-fx-background-color: transparent; -fx-background: transparent;">
                     <VBox spacing="16" style="-fx-padding: 0 24 20 24;">
-                        
-                        <!-- SCOPE BREAKDOWN WATERFALL -->
-                        <VBox spacing="12" styleClass="card" style="-fx-padding: 20;">
-                            <HBox spacing="8" alignment="CENTER_LEFT">
-                                <Label text="📊" style="-fx-font-size: 16;"/>
-                                <Label text="Décomposition par Scope GHG" styleClass="section-title"/>
-                                <Region HBox.hgrow="ALWAYS"/>
-                                <Label fx:id="lblScopeDataQuality" text="🥇 Tier 2 Data Quality" 
-                                       style="-fx-font-size: 11px; -fx-padding: 4 10; -fx-background-color: #d1fae5; -fx-background-radius: 12; -fx-text-fill: #065f46; -fx-font-weight: 600;"/>
-                            </HBox>
-                            
-                            <!-- Waterfall Chart Container (Canvas will be injected here by controller) -->
-                            <Pane fx:id="waterfallChartPane" prefHeight="200" 
-                                  style="-fx-background-color: #f9fafb; -fx-border-color: #e5e7eb; -fx-border-radius: 8; -fx-background-radius: 8;">
-                                <!-- JavaScript Canvas or JavaFX Canvas for waterfall chart -->
-                            </Pane>
-                            
-                            <!-- Scope Stats Grid -->
-                            <GridPane hgap="12" vgap="10" style="-fx-padding: 12 0 0 0;">
-                                <VBox spacing="4" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                    <Label text="Scope 1: Direct" style="-fx-font-size: 11px; -fx-opacity: 0.7; -fx-font-weight: 600;"/>
-                                    <HBox spacing="6" alignment="CENTER_LEFT">
-                                        <Label fx:id="lblScope1Amount" text="32.5 tCO₂e" 
-                                               style="-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #ef4444;"/>
-                                        <Label text="(26%)" style="-fx-font-size: 12px; -fx-opacity: 0.6;"/>
-                                    </HBox>
-                                    <Label text="Fleet, On-site Fuel" style="-fx-font-size: 10px; -fx-opacity: 0.6;"/>
-                                </VBox>
-                                
-                                <VBox spacing="4" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                    <Label text="Scope 2: Énergie" style="-fx-font-size: 11px; -fx-opacity: 0.7; -fx-font-weight: 600;"/>
-                                    <HBox spacing="6" alignment="CENTER_LEFT">
-                                        <Label fx:id="lblScope2Amount" text="45.3 tCO₂e" 
-                                               style="-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #f97316;"/>
-                                        <Label text="(36%)" style="-fx-font-size: 12px; -fx-opacity: 0.6;"/>
-                                    </HBox>
-                                    <Label text="Electricity, Steam" style="-fx-font-size: 10px; -fx-opacity: 0.6;"/>
-                                </VBox>
-                                
-                                <VBox spacing="4" GridPane.columnIndex="2" GridPane.rowIndex="0">
-                                    <Label text="Scope 3: Chaîne" style="-fx-font-size: 11px; -fx-opacity: 0.7; -fx-font-weight: 600;"/>
-                                    <HBox spacing="6" alignment="CENTER_LEFT">
-                                        <Label fx:id="lblScope3Amount" text="47.7 tCO₂e" 
-                                               style="-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #d97706;"/>
-                                        <Label text="(38%)" style="-fx-font-size: 12px; -fx-opacity: 0.6;"/>
-                                    </HBox>
-                                    <Label text="Procurement, Travel" style="-fx-font-size: 10px; -fx-opacity: 0.6;"/>
-                                </VBox>
-                            </GridPane>
-                        </VBox>
+
+                        <!-- SCOPE + CLIMATIQ ON SAME LINE -->
+                        <HBox spacing="16" alignment="TOP_LEFT">
+                            <!-- SCOPE BREAKDOWN WATERFALL -->
+                            <VBox spacing="12" styleClass="card" style="-fx-padding: 20;" HBox.hgrow="ALWAYS">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Label text="📊" style="-fx-font-size: 15;"/>
+                                    <Label text="Décomposition par Scope GHG" styleClass="section-title"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label fx:id="lblScopeDataQuality" text="🥇 Tier 2 Data Quality"
+                                           style="-fx-font-size: 10px; -fx-padding: 3 8; -fx-background-color: #d1fae5; -fx-background-radius: 12; -fx-text-fill: #065f46; -fx-font-weight: 600;"/>
+                                </HBox>
+
+                                <Pane fx:id="waterfallChartPane" prefHeight="158"
+                                      style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-background-radius: 10;"/>
+
+                                <GridPane hgap="10" vgap="8" style="-fx-padding: 4 0 0 0;">
+                                    <VBox spacing="3" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                        <Label text="Scope 1: Direct" style="-fx-font-size: 10px; -fx-opacity: 0.7; -fx-font-weight: 600;"/>
+                                        <HBox spacing="5" alignment="CENTER_LEFT">
+                                            <Label fx:id="lblScope1Amount" text="32.5 tCO₂e"
+                                                   style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #ef4444;"/>
+                                            <Label text="(26%)" style="-fx-font-size: 11px; -fx-opacity: 0.6;"/>
+                                        </HBox>
+                                    </VBox>
+
+                                    <VBox spacing="3" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                        <Label text="Scope 2: Énergie" style="-fx-font-size: 10px; -fx-opacity: 0.7; -fx-font-weight: 600;"/>
+                                        <HBox spacing="5" alignment="CENTER_LEFT">
+                                            <Label fx:id="lblScope2Amount" text="45.3 tCO₂e"
+                                                   style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #f97316;"/>
+                                            <Label text="(36%)" style="-fx-font-size: 11px; -fx-opacity: 0.6;"/>
+                                        </HBox>
+                                    </VBox>
+
+                                    <VBox spacing="3" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                                        <Label text="Scope 3: Chaîne" style="-fx-font-size: 10px; -fx-opacity: 0.7; -fx-font-weight: 600;"/>
+                                        <HBox spacing="5" alignment="CENTER_LEFT">
+                                            <Label fx:id="lblScope3Amount" text="47.7 tCO₂e"
+                                                   style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #d97706;"/>
+                                            <Label text="(38%)" style="-fx-font-size: 11px; -fx-opacity: 0.6;"/>
+                                        </HBox>
+                                    </VBox>
+                                </GridPane>
+                            </VBox>
+
+                            <!-- CLIMATIQ EMISSIONS STUDIO -->
+                            <VBox spacing="12" prefWidth="454" styleClass="card" style="-fx-padding: 20;">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Label text="🌍 Climatiq Emissions Studio" styleClass="section-title"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label text="API Live" styleClass="status-badge-success"/>
+                                </HBox>
+
+                                <Label text="Calcul intelligent des émissions par scénario opérationnel." style="-fx-font-size: 13px; -fx-text-fill: #6B7F77;"/>
+
+                                <TabPane tabClosingPolicy="UNAVAILABLE" prefHeight="172">
+                                    <tabs>
+                                        <Tab text="⚡ Electricité">
+                                            <content>
+                                                <GridPane hgap="8" vgap="8" style="-fx-padding: 10;">
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="24"/>
+                                                        <ColumnConstraints percentWidth="36"/>
+                                                        <ColumnConstraints percentWidth="40"/>
+                                                    </columnConstraints>
+
+                                                    <Label text="Conso" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                                    <TextField fx:id="txtApiElectricityValue" text="100" promptText="kWh" styleClass="field" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                                    <ComboBox fx:id="cmbApiElectricityUnit" styleClass="field" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+
+                                                    <Label text="Pays" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                                    <TextField fx:id="txtApiCountry" text="FR" promptText="FR, US, TN..." styleClass="field" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                    <TextField fx:id="txtApiState" promptText="State (opt)" styleClass="field" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+
+                                                    <Button fx:id="btnRunElectricityInline" text="Calculer" onAction="#onCalculateElectricityInline" styleClass="btn btn-primary" prefHeight="36" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                                                </GridPane>
+                                            </content>
+                                        </Tab>
+
+                                        <Tab text="⛽ Carburant">
+                                            <content>
+                                                <GridPane hgap="8" vgap="8" style="-fx-padding: 10;">
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="24"/>
+                                                        <ColumnConstraints percentWidth="36"/>
+                                                        <ColumnConstraints percentWidth="40"/>
+                                                    </columnConstraints>
+
+                                                    <Label text="Type" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                                    <ComboBox fx:id="cmbApiFuelType" styleClass="field" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                                    <Label text="dfo/rfo/lng" style="-fx-font-size: 10px; -fx-opacity: 0.65;" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+
+                                                    <Label text="Quantité" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                                    <TextField fx:id="txtApiFuelValue" text="100" styleClass="field" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                    <ComboBox fx:id="cmbApiFuelUnit" styleClass="field" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+
+                                                    <Button fx:id="btnRunFuelInline" text="Calculer" onAction="#onCalculateFuelInline" styleClass="btn btn-primary" prefHeight="36" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                                                </GridPane>
+                                            </content>
+                                        </Tab>
+
+                                        <Tab text="🚢 Transport">
+                                            <content>
+                                                <GridPane hgap="8" vgap="8" style="-fx-padding: 10;">
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="24"/>
+                                                        <ColumnConstraints percentWidth="36"/>
+                                                        <ColumnConstraints percentWidth="40"/>
+                                                    </columnConstraints>
+
+                                                    <Label text="Poids" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                                    <TextField fx:id="txtApiShipWeight" text="1000" styleClass="field" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                                    <ComboBox fx:id="cmbApiShipWeightUnit" styleClass="field" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+
+                                                    <Label text="Distance" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                                    <TextField fx:id="txtApiShipDistance" text="1000" styleClass="field" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                    <ComboBox fx:id="cmbApiShipDistanceUnit" styleClass="field" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+
+                                                    <Label text="Mode" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                                                    <ComboBox fx:id="cmbApiShipMethod" styleClass="field" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                                    <Button fx:id="btnRunShippingInline" text="Calculer" onAction="#onCalculateShippingInline" styleClass="btn btn-primary" prefHeight="36" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                                                </GridPane>
+                                            </content>
+                                        </Tab>
+                                    </tabs>
+                                </TabPane>
+
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Label text="Résultats API" style="-fx-font-size: 12px; -fx-text-fill: #6B7F77; -fx-font-weight: 600;"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button text="Effacer" onAction="#onClearApiResults" styleClass="btn btn-secondary" prefHeight="36"/>
+                                </HBox>
+                                <TextArea fx:id="txtApiResults" prefHeight="94" wrapText="true" styleClass="field"
+                                          promptText="Résultats Climatiq ici..."/>
+                            </VBox>
+
+                        </HBox>
                         
                         <!-- INTERACTIVE MAP + BATCH EXPLORER (SPLIT VIEW) -->
                         <HBox spacing="16" prefHeight="400">

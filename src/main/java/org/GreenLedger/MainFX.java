@@ -20,7 +20,7 @@ public class MainFX extends Application {
     private ResetHttpServer resetServer;
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) throws Exception {
 
         // Test de la connexion a la base de donnees
         MyConnection db = MyConnection.getInstance();
