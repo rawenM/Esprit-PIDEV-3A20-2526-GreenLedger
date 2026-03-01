@@ -203,6 +203,66 @@ public class MarketplaceListingService {
     /**
      * Deactivate listing (remove from marketplace)
      */
+    /**
+     * Update listing price and acceptance thresholds
+     */
+    public boolean updateListingPrice(int listingId, double newPrice, Double minPrice, Double autoAcceptPrice) {
+        try {
+            if (conn == null) return false;
+
+            String sql = "UPDATE marketplace_listings SET " +
+                "price_per_unit = ?, " +
+                "min_price_usd = ?, " +
+                "auto_accept_price_usd = ?, " +
+                "total_price_usd = (quantity_or_id * ?), " +
+                "updated_at = NOW() WHERE id = ?";
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setDouble(1, newPrice);
+                stmt.setObject(2, minPrice);
+                stmt.setObject(3, autoAcceptPrice);
+                stmt.setDouble(4, newPrice);
+                stmt.setInt(5, listingId);
+
+                int updated = stmt.executeUpdate();
+                if (updated > 0) {
+                    System.out.println(LOG_TAG + " Listing " + listingId + " price updated to $" + newPrice);
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println(LOG_TAG + " ERROR updating listing price: " + e.getMessage());
+        }
+
+        return false;
+    }
+
+    /**
+     * Update listing description
+     */
+    public boolean updateListingDescription(int listingId, String description) {
+        try {
+            if (conn == null) return false;
+
+            String sql = "UPDATE marketplace_listings SET description = ?, updated_at = NOW() WHERE id = ?";
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setString(1, description);
+                stmt.setInt(2, listingId);
+
+                int updated = stmt.executeUpdate();
+                if (updated > 0) {
+                    System.out.println(LOG_TAG + " Listing " + listingId + " description updated");
+                    return true;
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println(LOG_TAG + " ERROR updating listing description: " + e.getMessage());
+        }
+
+        return false;
+    }
+
     public boolean deactivateListing(int listingId) {
         return updateListingStatus(listingId, "CANCELLED");
     }

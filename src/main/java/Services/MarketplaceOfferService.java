@@ -126,6 +126,10 @@ public class MarketplaceOfferService {
         return false;
     }
 
+    public boolean updateOfferStatus(int offerId, String status) {
+        return updateOfferStatus(offerId, status, null);
+    }
+
     private boolean updateOfferStatus(int offerId, String status, Double counterPrice) {
         String sql = "UPDATE marketplace_offers SET status = ?, counter_price_usd = ? WHERE id = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {

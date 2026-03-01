@@ -9,19 +9,25 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
+import javafx.event.ActionEvent;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.chart.LineChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.web.WebView;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.application.Platform;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * Controller for the marketplace browse and purchase interface
@@ -92,12 +98,14 @@ public class MarketplaceController extends BaseController {
     @FXML private Button counterOfferButton;
     @FXML private Button rejectOfferButton;
     @FXML private Button cancelOfferButton;
+    @FXML private Button payNowButton;
 
     // Price Display
     @FXML private Label currentCarbonPriceLabel;
     @FXML private Label marketPanelPriceLabel;
     @FXML private Label marketPanelNoteLabel;
     @FXML private LineChart<Number, Number> marketMiniChart;
+    @FXML private LineChart<Number, Number> marketChart;
 
     // Services
     private final MarketplaceListingService listingService = MarketplaceListingService.getInstance();
@@ -128,6 +136,7 @@ public class MarketplaceController extends BaseController {
         loadOffers();
         updateCarbonPrice();
         setupPriceChart();
+        updatePriceLabel(); // Initialize price range label
     }
 
     /**
@@ -199,10 +208,43 @@ public class MarketplaceController extends BaseController {
             sentSellerColumn.setCellValueFactory(new PropertyValueFactory<>("sellerId"));
             sentQuantityColumn.setCellValueFactory(new PropertyValueFactory<>("quantity"));
             sentPriceColumn.setCellValueFactory(new PropertyValueFactory<>("offerPriceUsd"));
-            sentStatusColumn.setCellValueFactory(new PropertyValueFactory<>("status"));
+            sentStatusColumn.setCellValueFactory(cellData -> {
+                String status = cellData.getValue().getStatus();
+                String displayStatus;
+                if ("PAID_PENDING".equals(status)) {
+                    displayStatus = "DONE (processing)";
+                } else if ("COMPLETED".equals(status)) {
+                    displayStatus = "DONE";
+                } else {
+                    displayStatus = status;
+                }
+                return new javafx.beans.property.SimpleStringProperty(displayStatus);
+            });
             
             offersSentTable.setItems(offersSentData);
             offersSentTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
+            
+            // Initialize button as disabled
+            if (payNowButton != null) {
+                payNowButton.setDisable(true);
+            }
+            
+            // Add selection listener to enable/disable Pay Now button
+            offersSentTable.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+                updatePayNowButtonState();
+            });
+        }
+    }
+    
+    /**
+     * Update Pay Now button state based on selected offer
+     */
+    private void updatePayNowButtonState() {
+        MarketplaceOffer selected = offersSentTable.getSelectionModel().getSelectedItem();
+        if (selected != null && "ACCEPTED".equals(selected.getStatus())) {
+            payNowButton.setDisable(false);
+        } else {
+            payNowButton.setDisable(true);
         }
     }
 
@@ -218,14 +260,34 @@ public class MarketplaceController extends BaseController {
         priceMinSlider.setMin(0);
         priceMinSlider.setMax(100);
         priceMinSlider.setValue(0);
+        priceMinSlider.setBlockIncrement(5);
+        priceMinSlider.setMajorTickUnit(20);
 
         priceMaxSlider.setMin(0);
         priceMaxSlider.setMax(100);
         priceMaxSlider.setValue(100);
+        priceMaxSlider.setBlockIncrement(5);
+        priceMaxSlider.setMajorTickUnit(20);
 
-        // Update label when sliders change
-        priceMinSlider.valueProperty().addListener((obs, oldVal, newVal) -> updatePriceLabel());
-        priceMaxSlider.valueProperty().addListener((obs, oldVal, newVal) -> updatePriceLabel());
+        // Update label and filter when sliders change
+        priceMinSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            // Ensure min doesn't exceed max
+            if (newVal.doubleValue() > priceMaxSlider.getValue()) {
+                priceMinSlider.setValue(priceMaxSlider.getValue());
+            }
+            updatePriceLabel();
+            loadListings();
+        });
+        
+        priceMaxSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            // Ensure max doesn't go below min
+            if (newVal.doubleValue() < priceMinSlider.getValue()) {
+                priceMaxSlider.setValue(priceMinSlider.getValue());
+            }
+            updatePriceLabel();
+            loadListings();
+        });
+        
         assetTypeFilter.valueProperty().addListener((obs, oldVal, newVal) -> loadListings());
     }
 
@@ -244,26 +306,33 @@ public class MarketplaceController extends BaseController {
     private void loadListings() {
         new Thread(() -> {
             try {
-                String assetType = assetTypeFilter.getValue();
-                if ("All Types".equals(assetType)) {
-                    assetType = null;
-                }
-
+                // Get all active listings
                 List<MarketplaceListing> listings = listingService.getActiveListings();
                 
-                // Filter by price range
-                double minPrice = priceMinSlider.getValue();
-                double maxPrice = priceMaxSlider.getValue();
-
-                listings.removeIf(l -> l.getPricePerUnit() < minPrice || l.getPricePerUnit() > maxPrice);
+                // Get filter values on JavaFX thread
+                final String assetTypeValue = assetTypeFilter.getValue();
+                final double minPrice = priceMinSlider.getValue();
+                final double maxPrice = priceMaxSlider.getValue();
+                
+                // Apply asset type filter
+                if (assetTypeValue != null && !"All Types".equals(assetTypeValue)) {
+                    listings.removeIf(l -> !assetTypeValue.equals(l.getAssetType()));
+                }
+                
+                // Apply price range filter
+                listings.removeIf(l -> {
+                    double price = l.getPricePerUnit();
+                    return price < minPrice || price > maxPrice;
+                });
 
                 javafx.application.Platform.runLater(() -> {
                     listingsData.clear();
                     listingsData.addAll(listings);
-                    System.out.println(LOG_TAG + " Loaded " + listings.size() + " listings");
+                    System.out.println(LOG_TAG + " Loaded " + listings.size() + " listings (filtered from " + listingService.getActiveListings().size() + " total)");
                 });
             } catch (Exception e) {
                 System.err.println(LOG_TAG + " ERROR loading listings: " + e.getMessage());
+                e.printStackTrace();
             }
         }).start();
     }
@@ -334,15 +403,27 @@ public class MarketplaceController extends BaseController {
                 // Load offers sent (as buyer)
                 List<MarketplaceOffer> sent = offerService.getOffersSent(userId);
 
+                // Keep only actionable offers in Received tab
+                List<MarketplaceOffer> actionableReceived = received.stream()
+                    .filter(o -> "PENDING".equals(o.getStatus()) || "COUNTERED".equals(o.getStatus()))
+                    .collect(Collectors.toList());
+
+                // Hide fully completed/cancelled offers from Sent actionable list
+                List<MarketplaceOffer> actionableSent = sent.stream()
+                    .filter(o -> !"COMPLETED".equals(o.getStatus()) && !"CANCELLED".equals(o.getStatus()))
+                    .collect(Collectors.toList());
+
                 javafx.application.Platform.runLater(() -> {
                     offersReceivedData.clear();
-                    offersReceivedData.addAll(received);
+                    offersReceivedData.addAll(actionableReceived);
                     
                     offersSentData.clear();
-                    offersSentData.addAll(sent);
+                    offersSentData.addAll(actionableSent);
                     
-                    System.out.println(LOG_TAG + " Loaded " + received.size() + " offers received, " + 
-                                      sent.size() + " offers sent");
+                    updatePayNowButtonState();  // Update button state after loading offers
+                    
+                    System.out.println(LOG_TAG + " Loaded offers -> received actionable: " + actionableReceived.size() +
+                                      ", sent actionable: " + actionableSent.size());
                 });
             } catch (Exception e) {
                 System.err.println(LOG_TAG + " ERROR loading offers: " + e.getMessage());
@@ -378,30 +459,49 @@ public class MarketplaceController extends BaseController {
                 
                 javafx.application.Platform.runLater(() -> {
                     // Clear existing data
-                    marketMiniChart.getData().clear();
+                    if (marketMiniChart != null) {
+                        marketMiniChart.getData().clear();
+                    }
+                    if (marketChart != null) {
+                        marketChart.getData().clear();
+                    }
                     
-                    // Create series for the chart
-                    XYChart.Series<Number, Number> series = new XYChart.Series<>();
-                    series.setName("Carbon Price (USD/tCO2e)");
+                    // Create series for the charts
+                    XYChart.Series<Number, Number> miniSeries = new XYChart.Series<>();
+                    miniSeries.setName("Carbon Price (USD/tCO2e)");
+                    
+                    XYChart.Series<Number, Number> mainSeries = new XYChart.Series<>();
+                    mainSeries.setName("Carbon Price (USD/tCO2e)");
                     
                     // Add data points to series
                     for (int i = 0; i < priceHistory.size(); i++) {
                         CarbonPriceSnapshot snapshot = priceHistory.get(i);
-                        series.getData().add(new XYChart.Data<>(i, snapshot.getUsdPerTon()));
+                        miniSeries.getData().add(new XYChart.Data<>(i, snapshot.getUsdPerTon()));
+                        mainSeries.getData().add(new XYChart.Data<>(i, snapshot.getUsdPerTon()));
                     }
                     
-                    // Add series to chart
-                    marketMiniChart.getData().add(series);
+                    // Add series to charts
+                    if (marketMiniChart != null) {
+                        marketMiniChart.getData().add(miniSeries);
+                    }
+                    if (marketChart != null) {
+                        marketChart.getData().add(mainSeries);
+                    }
                     
                     // Set chart title and display current price
                     if (!priceHistory.isEmpty()) {
                         CarbonPriceSnapshot latest = priceHistory.get(priceHistory.size() - 1);
-                        marketPanelPriceLabel.setText(String.format("$%.2f/tCO2e", latest.getUsdPerTon()));
-                        marketPanelNoteLabel.setText("30-day price history with daily updates");
+                        if (marketPanelPriceLabel != null) {
+                            marketPanelPriceLabel.setText(String.format("$%.2f/tCO2e", latest.getUsdPerTon()));
+                        }
+                        if (marketPanelNoteLabel != null) {
+                            marketPanelNoteLabel.setText("30-day price history with daily updates");
+                        }
                     }
                 });
             } catch (Exception e) {
                 System.err.println(LOG_TAG + " ERROR setting up price chart: " + e.getMessage());
+                e.printStackTrace();
             }
         }).start();
     }
@@ -568,7 +668,100 @@ public class MarketplaceController extends BaseController {
             return;
         }
 
-        showAlert("Edit listing feature coming soon");
+        // Show edit dialog
+        Dialog<Void> dialog = new Dialog<>();
+        dialog.setTitle("Edit Listing");
+        dialog.setHeaderText("Modify listing details");
+        dialog.setResizable(true);
+
+        VBox content = new VBox(12);
+        content.setPadding(new Insets(16));
+
+        // Price field
+        Label priceLabel = new Label("Price Per Unit ($):");
+        TextField priceField = new TextField(String.valueOf(selected.getPricePerUnit()));
+        priceField.setPrefWidth(200);
+
+        // Min price
+        Label minPriceLabel = new Label("Minimum Price ($):");
+        TextField minPriceField = new TextField();
+        if (selected.getMinPriceUsd() != null) {
+            minPriceField.setText(String.valueOf(selected.getMinPriceUsd()));
+        }
+        minPriceField.setPrefWidth(200);
+
+        // Auto-accept price
+        Label autoAcceptLabel = new Label("Auto-Accept Price ($):");
+        TextField autoAcceptField = new TextField();
+        if (selected.getAutoAcceptPriceUsd() != null) {
+            autoAcceptField.setText(String.valueOf(selected.getAutoAcceptPriceUsd()));
+        }
+        autoAcceptField.setPrefWidth(200);
+
+        // Description
+        Label descLabel = new Label("Description:");
+        TextArea descArea = new TextArea(selected.getDescription() != null ? selected.getDescription() : "");
+        descArea.setWrapText(true);
+        descArea.setPrefHeight(100);
+        descArea.setPrefWidth(300);
+
+        content.getChildren().addAll(
+            priceLabel, priceField,
+            minPriceLabel, minPriceField,
+            autoAcceptLabel, autoAcceptField,
+            descLabel, descArea
+        );
+
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().addAll(
+            new ButtonType("Save", ButtonBar.ButtonData.OK_DONE),
+            ButtonType.CANCEL
+        );
+
+        dialog.setResultConverter(buttonType -> {
+            if (buttonType.getButtonData() == ButtonBar.ButtonData.OK_DONE) {
+                try {
+                    double newPrice = Double.parseDouble(priceField.getText());
+                    if (newPrice <= 0) {
+                        showAlert("Price must be greater than 0");
+                        return null;
+                    }
+
+                    Double minPrice = minPriceField.getText().isEmpty() ? 
+                        null : Double.parseDouble(minPriceField.getText());
+                    
+                    Double autoAcceptPrice = autoAcceptField.getText().isEmpty() ? 
+                        null : Double.parseDouble(autoAcceptField.getText());
+
+                    // Validate price constraints
+                    if (minPrice != null && minPrice > newPrice) {
+                        showAlert("Minimum price cannot exceed asking price");
+                        return null;
+                    }
+
+                    if (autoAcceptPrice != null && autoAcceptPrice < (minPrice != null ? minPrice : 0)) {
+                        showAlert("Auto-accept price must be at least the minimum price");
+                        return null;
+                    }
+
+                    // Update listing
+                    if (listingService.updateListingPrice(selected.getId(), newPrice, minPrice, autoAcceptPrice)) {
+                        if (!descArea.getText().isEmpty() && !descArea.getText().equals(selected.getDescription())) {
+                            listingService.updateListingDescription(selected.getId(), descArea.getText());
+                        }
+                        showAlert("✓ Listing updated successfully!");
+                        loadMyListings();
+                    } else {
+                        showAlert("Error updating listing");
+                    }
+                } catch (NumberFormatException e) {
+                    showAlert("Invalid price format");
+                }
+            }
+            return null;
+        });
+
+        dialog.showAndWait();
     }
 
     /**
@@ -602,11 +795,19 @@ public class MarketplaceController extends BaseController {
      * Show alert dialog
      */
     private void showAlert(String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Marketplace");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        Runnable show = () -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Marketplace");
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        };
+
+        if (Platform.isFxApplicationThread()) {
+            show.run();
+        } else {
+            Platform.runLater(show);
+        }
     }
 
     /**
@@ -825,6 +1026,207 @@ public class MarketplaceController extends BaseController {
                 showAlert("Error rejecting offer");
             }
         }
+    }
+
+    /**
+     * Handle pay now button - process payment for accepted offer
+     */
+    @FXML
+    public void handlePayNow(ActionEvent event) {
+        MarketplaceOffer selected = offersSentTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("Please select an offer to pay for");
+            return;
+        }
+
+        if (!"ACCEPTED".equals(selected.getStatus())) {
+            showAlert("Can only pay for accepted offers");
+            return;
+        }
+
+        int buyerId = getCurrentUserId();
+        double finalPrice = selected.getCounterPriceUsd() != null
+            ? selected.getCounterPriceUsd()
+            : selected.getOfferPriceUsd();
+        double totalAmount = finalPrice * selected.getQuantity();
+        double platformFee = totalAmount * 0.029 + 0.30;
+        double finalTotal = totalAmount + platformFee;
+
+        String confirmMessage = String.format(
+            "Payment Confirmation\n\n" +
+            "Quantity: %.2f units\n" +
+            "Price per unit: $%.2f\n" +
+            "Subtotal: $%.2f\n" +
+            "Platform fee (2.9%% + $0.30): $%.2f\n" +
+            "Total Amount: $%.2f\n\n" +
+            "Proceed with Stripe Checkout?",
+            selected.getQuantity(),
+            finalPrice,
+            totalAmount,
+            platformFee,
+            finalTotal
+        );
+
+        if (!confirmAction(confirmMessage)) {
+            return;
+        }
+
+        payNowButton.setDisable(true);
+
+        new Thread(() -> {
+            try {
+                int orderId = orderService.createOrderFromOffer(
+                    (int) selected.getListingId(),
+                    buyerId,
+                    (int) selected.getSellerId(),
+                    selected.getQuantity(),
+                    finalPrice
+                );
+
+                if (orderId <= 0) {
+                    showAlert("Error creating order");
+                    Platform.runLater(() -> payNowButton.setDisable(false));
+                    return;
+                }
+
+                String checkoutUrl = stripeService.createHostedCheckoutUrl(
+                    orderId,
+                    finalTotal,
+                    buyerId,
+                    (int) selected.getSellerId(),
+                    selected.getQuantity(),
+                    finalPrice
+                );
+
+                if (checkoutUrl == null || checkoutUrl.isEmpty()) {
+                    showAlert("Error creating Stripe checkout session");
+                    Platform.runLater(() -> payNowButton.setDisable(false));
+                    return;
+                }
+
+                Platform.runLater(() -> {
+                    openPaymentLink(checkoutUrl, orderId, selected.getId());
+                    String testModeHint = stripeService.isTestMode()
+                        ? "\n\nTEST MODE: Use card 4242 4242 4242 4242, any future date, any CVC."
+                        : "";
+
+                    showAlert("✅ Stripe Checkout opened!\n\n" +
+                        "Order ID: #" + orderId + "\n" +
+                        "Total Amount: $" + String.format("%.2f", finalTotal) + "\n\n" +
+                        "Complete payment on the Stripe hosted page." + testModeHint);
+                });
+
+            } catch (Exception e) {
+                showAlert("Error processing payment: " + e.getMessage());
+                Platform.runLater(() -> payNowButton.setDisable(false));
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
+    /**
+     * Open payment link in an in-app popup window
+     */
+    private void openPaymentLink(String paymentLink, int orderId, int offerId) {
+        try {
+            WebView webView = new WebView();
+            webView.getEngine().locationProperty().addListener((obs, oldUrl, newUrl) -> {
+                if (newUrl == null) {
+                    return;
+                }
+
+                if (newUrl.contains("/payment/success") && newUrl.contains("session_id=")) {
+                    String sessionId = extractSessionId(newUrl);
+                    if (sessionId == null || sessionId.isEmpty()) {
+                        return;
+                    }
+
+                    new Thread(() -> {
+                        try {
+                            String paymentIntentId = stripeService.getPaidCheckoutPaymentIntent(sessionId);
+                            if (paymentIntentId != null && !paymentIntentId.isEmpty()) {
+                                boolean completed = orderService.completeOrder(orderId, paymentIntentId);
+                                if (completed) {
+                                    offerService.updateOfferStatus(offerId, "COMPLETED");
+                                    Platform.runLater(() -> {
+                                        Stage stage = (Stage) webView.getScene().getWindow();
+                                        stage.close();
+                                        showAlert("✅ Payment successful!\n\nOrder #" + orderId + " completed.");
+                                        loadOffers();
+                                        loadOrderHistory();
+                                        loadListings();
+                                        loadMyListings();
+                                        payNowButton.setDisable(false);
+                                    });
+                                } else {
+                                    Platform.runLater(() -> {
+                                        showAlert("Payment confirmed, but order finalization failed. Please contact support with order #" + orderId);
+                                        payNowButton.setDisable(false);
+                                    });
+                                }
+                            } else {
+                                Platform.runLater(() -> {
+                                    showAlert("Payment not confirmed yet. Please complete checkout first.");
+                                    payNowButton.setDisable(false);
+                                });
+                            }
+                        } catch (Exception e) {
+                            Platform.runLater(() -> {
+                                showAlert("Error confirming checkout: " + e.getMessage());
+                                payNowButton.setDisable(false);
+                            });
+                        }
+                    }).start();
+                } else if (newUrl.contains("/payment/cancel")) {
+                    Stage stage = (Stage) webView.getScene().getWindow();
+                    stage.close();
+                    showAlert("Payment cancelled. Offer remains accepted and unpaid.");
+                    payNowButton.setDisable(false);
+                }
+            });
+
+            webView.getEngine().load(paymentLink);
+
+            BorderPane root = new BorderPane(webView);
+            Scene scene = new Scene(root, 980, 760);
+
+            Stage popup = new Stage();
+            popup.setTitle("Stripe Checkout");
+            popup.setScene(scene);
+            popup.initModality(Modality.APPLICATION_MODAL);
+
+            if (payNowButton != null && payNowButton.getScene() != null) {
+                popup.initOwner(payNowButton.getScene().getWindow());
+            }
+
+            popup.show();
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Stripe Checkout URL");
+            alert.setHeaderText("Unable to open in-app checkout popup. Copy this URL:");
+            TextArea textArea = new TextArea(paymentLink);
+            textArea.setWrapText(true);
+            textArea.setPrefHeight(100);
+            textArea.setEditable(false);
+            alert.getDialogPane().setContent(textArea);
+            alert.showAndWait();
+            payNowButton.setDisable(false);
+        }
+    }
+
+    private String extractSessionId(String url) {
+        String key = "session_id=";
+        int index = url.indexOf(key);
+        if (index < 0) {
+            return null;
+        }
+
+        String value = url.substring(index + key.length());
+        int amp = value.indexOf('&');
+        if (amp >= 0) {
+            value = value.substring(0, amp);
+        }
+        return value;
     }
 
     /**

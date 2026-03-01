@@ -6,7 +6,9 @@ import Models.TypeUtilisateur;
 import Models.User;
 import Services.WalletService;
 import Services.ExternalCarbonApiService;
+import Services.ClimatiqApiService;
 import Services.AirQualityService;
+import Models.climatiq.EmissionResult;
 import Models.dto.external.CarbonEstimateResponse;
 import Models.dto.external.AirPollutionResponse;
 import Models.dto.external.AirQualityData;
@@ -22,12 +24,17 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.paint.Color;
 import javafx.scene.web.WebView;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import org.GreenLedger.MainFX;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
@@ -47,6 +54,7 @@ public class GreenWalletController extends BaseController {
     // Services
     private WalletService walletService;
     private ExternalCarbonApiService carbonApiService;
+    private ClimatiqApiService climatiqApiService;
     private AirQualityService airQualityService;
     private Wallet currentWallet;
     
@@ -98,6 +106,7 @@ public class GreenWalletController extends BaseController {
     @FXML private Label lblSidebarGoal;
 
     // Impact Alert Section
+    @FXML private HBox impactBar;
     @FXML private Label lblImpactAmount;
     @FXML private Label lblImpactGoal;
     @FXML private ProgressBar progressImpact;
@@ -160,6 +169,22 @@ public class GreenWalletController extends BaseController {
     @FXML private Button btnCalculateShipping;
     @FXML private Button btnCheckAirQuality;
     @FXML private TextArea txtApiResults;
+
+    // Inline Climatiq Studio Controls
+    @FXML private TextField txtApiElectricityValue;
+    @FXML private ComboBox<String> cmbApiElectricityUnit;
+    @FXML private TextField txtApiCountry;
+    @FXML private TextField txtApiState;
+
+    @FXML private ComboBox<String> cmbApiFuelType;
+    @FXML private TextField txtApiFuelValue;
+    @FXML private ComboBox<String> cmbApiFuelUnit;
+
+    @FXML private TextField txtApiShipWeight;
+    @FXML private ComboBox<String> cmbApiShipWeightUnit;
+    @FXML private TextField txtApiShipDistance;
+    @FXML private ComboBox<String> cmbApiShipDistanceUnit;
+    @FXML private ComboBox<String> cmbApiShipMethod;
 
     // Content Pane
     @FXML private VBox contentPane;
@@ -234,6 +259,7 @@ public class GreenWalletController extends BaseController {
         super.initialize();
         walletService = new WalletService();
         carbonApiService = new ExternalCarbonApiService();
+        climatiqApiService = new ClimatiqApiService();
         airQualityService = new AirQualityService();
         
         System.out.println("[CACHE] Loading persisted cache from disk...");
@@ -247,6 +273,7 @@ public class GreenWalletController extends BaseController {
         setupMapWebView();
         setupListeners();
         setupApiListeners();
+        setupInlineApiSection();
         loadWallets();
 
         if (btnWalletOverview != null) {
@@ -299,13 +326,26 @@ public class GreenWalletController extends BaseController {
             @Override
             public String toString(Wallet wallet) {
                 if (wallet == null) return null;
-                String name = wallet.getName() != null ? wallet.getName() : "Unnamed Wallet";
-                return String.format("#%s - %s (%s)", formatWalletNumber(wallet.getWalletNumber()), name, wallet.getOwnerType());
+                return formatWalletDisplay(wallet);
             }
 
             @Override
             public Wallet fromString(String string) {
                 return null;
+            }
+        });
+
+        // Add custom button cell factory for better dropdown display
+        cmbWalletSelector.setCellFactory(param -> new javafx.scene.control.ListCell<Wallet>() {
+            @Override
+            protected void updateItem(Wallet wallet, boolean empty) {
+                super.updateItem(wallet, empty);
+                if (empty || wallet == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(formatWalletDisplay(wallet));
+                }
             }
         });
         
@@ -410,6 +450,162 @@ public class GreenWalletController extends BaseController {
         }
         if (btnCheckAirQuality != null) {
             btnCheckAirQuality.setOnAction(e -> checkAirQuality());
+        }
+    }
+
+    private void setupInlineApiSection() {
+        if (cmbApiElectricityUnit != null) {
+            cmbApiElectricityUnit.getItems().setAll("kWh", "MWh");
+            cmbApiElectricityUnit.setValue("kWh");
+        }
+
+        if (cmbApiFuelType != null) {
+            cmbApiFuelType.getItems().setAll("dfo", "rfo", "lng", "lpg", "cng", "coal", "petcoke");
+            cmbApiFuelType.setValue("dfo");
+        }
+
+        if (cmbApiFuelUnit != null) {
+            cmbApiFuelUnit.getItems().setAll("litre", "gallon", "tonne");
+            cmbApiFuelUnit.setValue("litre");
+        }
+
+        if (cmbApiShipWeightUnit != null) {
+            cmbApiShipWeightUnit.getItems().setAll("kg", "lb", "mt", "g");
+            cmbApiShipWeightUnit.setValue("kg");
+        }
+
+        if (cmbApiShipDistanceUnit != null) {
+            cmbApiShipDistanceUnit.getItems().setAll("km", "mi");
+            cmbApiShipDistanceUnit.setValue("km");
+        }
+
+        if (cmbApiShipMethod != null) {
+            cmbApiShipMethod.getItems().setAll("ship", "train", "truck", "plane");
+            cmbApiShipMethod.setValue("ship");
+        }
+    }
+
+    @FXML
+    private void onCalculateElectricityInline() {
+        if (!ensureClimatiqApiAvailable()) return;
+        try {
+            double value = Double.parseDouble(txtApiElectricityValue.getText().trim().replace(',', '.'));
+            String unit = cmbApiElectricityUnit != null ? cmbApiElectricityUnit.getValue() : "kWh";
+            String country = txtApiCountry != null ? txtApiCountry.getText().trim() : "FR";
+            String state = txtApiState != null ? txtApiState.getText().trim() : "";
+            String region = country == null || country.isBlank() ? "FR" : country.toUpperCase();
+            if (!state.isBlank()) {
+                region = region + "-" + state.toUpperCase();
+            }
+            final String finalRegion = region;
+
+            appendToApiResults("⚡ Calcul d'émissions d'électricité Climatiq en cours...\n");
+            new Thread(() -> {
+                try {
+                    EmissionResult response = climatiqApiService.calculateEmission(
+                            "electricity-energy_source_grid_mix",
+                            value,
+                            unit == null ? "kWh" : unit,
+                                finalRegion,
+                            "greenwallet-inline"
+                    );
+                    Platform.runLater(() -> {
+                        if (response != null && response.getCo2eAmount() != null) {
+                            appendToApiResults(formatClimatiqResult(response, "Électricité"));
+                        } else {
+                            appendToApiResults(buildClimatiqApiErrorMessage());
+                        }
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(() -> appendToApiResults("❌ Erreur: " + e.getMessage() + "\n"));
+                }
+            }).start();
+        } catch (Exception e) {
+            showWarning("Valeur invalide", "Veuillez saisir une consommation valide.");
+        }
+    }
+
+    @FXML
+    private void onCalculateFuelInline() {
+        if (!ensureClimatiqApiAvailable()) return;
+        try {
+            double value = Double.parseDouble(txtApiFuelValue.getText().trim().replace(',', '.'));
+            String fuelType = cmbApiFuelType != null ? cmbApiFuelType.getValue() : "dfo";
+            String fuelUnit = cmbApiFuelUnit != null ? cmbApiFuelUnit.getValue() : "litre";
+            String activityId = mapFuelActivityId(fuelType);
+
+            appendToApiResults("⛽ Calcul d'émissions de carburant Climatiq en cours...\n");
+            new Thread(() -> {
+                try {
+                    EmissionResult response = climatiqApiService.calculateEmission(
+                            activityId,
+                            value,
+                            fuelUnit == null ? "litre" : fuelUnit,
+                            "GLOBAL",
+                            "greenwallet-inline"
+                    );
+                    Platform.runLater(() -> {
+                        if (response != null && response.getCo2eAmount() != null) {
+                            appendToApiResults(formatClimatiqResult(response, "Carburant (" + fuelType + ")"));
+                        } else {
+                            appendToApiResults(buildClimatiqApiErrorMessage());
+                        }
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(() -> appendToApiResults("❌ Erreur: " + e.getMessage() + "\n"));
+                }
+            }).start();
+        } catch (Exception e) {
+            showWarning("Valeur invalide", "Veuillez saisir une quantité de carburant valide.");
+        }
+    }
+
+    @FXML
+    private void onCalculateShippingInline() {
+        if (!ensureClimatiqApiAvailable()) return;
+        try {
+            double weight = Double.parseDouble(txtApiShipWeight.getText().trim().replace(',', '.'));
+            double distance = Double.parseDouble(txtApiShipDistance.getText().trim().replace(',', '.'));
+
+            String weightUnit = cmbApiShipWeightUnit != null ? cmbApiShipWeightUnit.getValue() : "kg";
+            String distanceUnit = cmbApiShipDistanceUnit != null ? cmbApiShipDistanceUnit.getValue() : "km";
+            String method = cmbApiShipMethod != null ? cmbApiShipMethod.getValue() : "ship";
+            String activityId = mapShippingActivityId(method);
+
+            double weightKg = convertWeightToKg(weight, weightUnit);
+            double distanceKm = convertDistanceToKm(distance, distanceUnit);
+            double tonneKm = (weightKg / 1000.0) * distanceKm;
+
+            appendToApiResults("🚢 Calcul d'émissions de transport Climatiq en cours...\n");
+            new Thread(() -> {
+                try {
+                    EmissionResult response = climatiqApiService.calculateEmission(
+                            activityId,
+                            tonneKm,
+                            "tonne_km",
+                            "GLOBAL",
+                            "greenwallet-inline"
+                    );
+                    Platform.runLater(() -> {
+                        if (response != null && response.getCo2eAmount() != null) {
+                            appendToApiResults(formatClimatiqResult(response, "Transport (" + method + ")"));
+                        } else {
+                            appendToApiResults(buildClimatiqApiErrorMessage());
+                        }
+                    });
+                } catch (Exception e) {
+                    Platform.runLater(() -> appendToApiResults("❌ Erreur: " + e.getMessage() + "\n"));
+                }
+            }).start();
+        } catch (Exception e) {
+            showWarning("Valeur invalide", "Veuillez saisir des valeurs de transport valides.");
+        }
+    }
+
+    @FXML
+    private void onClearApiResults() {
+        if (txtApiResults != null) {
+            txtApiResults.clear();
         }
     }
 
@@ -1102,12 +1298,21 @@ public class GreenWalletController extends BaseController {
             System.err.println("[SCOPE BREAKDOWN] ✗ lblScope3Amount is NULL!");
         }
 
+        renderScopeWaterfallChart(scope1, scope2, scope3, total);
+
         // Update impact alert - calculate from available data
         if (lblImpactAmount != null) {
             // Calculate impact as the total emissions (sum of scopes)
             double impact = scope1 + scope2 + scope3;
             // Show emissions above baseline (simulated as 20% of total for now)
             double aboveBaseline = impact * 0.2;
+
+            // Only show impact bar if there's meaningful data
+            boolean showImpact = Math.abs(aboveBaseline) > 0.05;
+            if (impactBar != null) {
+                impactBar.setVisible(showImpact);
+                impactBar.setManaged(showImpact);
+            }
 
             if (aboveBaseline > 0.05) {
                 lblImpactAmount.setText(String.format("+%.1f tCO₂e", aboveBaseline));
@@ -1120,7 +1325,7 @@ public class GreenWalletController extends BaseController {
                 lblImpactAmount.setStyle("-fx-font-size: 22px; -fx-font-weight: 700; -fx-text-fill: #6b7280;");
             }
 
-            System.out.println("[SCOPE BREAKDOWN] Impact amount updated: " + lblImpactAmount.getText());
+            System.out.println("[SCOPE BREAKDOWN] Impact amount updated: " + lblImpactAmount.getText() + " | Banner visible: " + showImpact);
         }
         if (lblImpactGoal != null) {
             // Calculate progress based on reduction goals
@@ -1163,7 +1368,55 @@ public class GreenWalletController extends BaseController {
         if (lblScope3Amount != null) {
             lblScope3Amount.setText("—");
         }
+        if (waterfallChartPane != null) {
+            waterfallChartPane.getChildren().clear();
+        }
         tableTransactions.setItems(FXCollections.observableArrayList());
+    }
+
+    private void renderScopeWaterfallChart(double scope1, double scope2, double scope3, double total) {
+        if (waterfallChartPane == null) {
+            return;
+        }
+
+        waterfallChartPane.getChildren().clear();
+
+        double paneHeight = waterfallChartPane.getPrefHeight() > 0 ? waterfallChartPane.getPrefHeight() : 200;
+        double maxBarHeight = Math.max(90, paneHeight - 60);
+        double denom = Math.max(total, 1.0);
+
+        double h1 = Math.max(8, (scope1 / denom) * maxBarHeight);
+        double h2 = Math.max(8, (scope2 / denom) * maxBarHeight);
+        double h3 = Math.max(8, (scope3 / denom) * maxBarHeight);
+
+        HBox bars = new HBox(24);
+        bars.setAlignment(Pos.BOTTOM_CENTER);
+        bars.setPadding(new Insets(20, 20, 20, 20));
+        bars.prefWidthProperty().bind(waterfallChartPane.widthProperty());
+        bars.prefHeightProperty().bind(waterfallChartPane.heightProperty());
+
+        bars.getChildren().add(createScopeBar("Scope 1", scope1, h1, Color.web("#ef4444")));
+        bars.getChildren().add(createScopeBar("Scope 2", scope2, h2, Color.web("#f97316")));
+        bars.getChildren().add(createScopeBar("Scope 3", scope3, h3, Color.web("#d97706")));
+
+        waterfallChartPane.getChildren().add(bars);
+    }
+
+    private VBox createScopeBar(String title, double amount, double barHeight, Color color) {
+        Label amountLabel = new Label(String.format("%.1f", amount));
+        amountLabel.setStyle("-fx-font-size: 11px; -fx-font-weight: 700; -fx-text-fill: #1f2937;");
+
+        Rectangle bar = new Rectangle(72, barHeight);
+        bar.setArcWidth(10);
+        bar.setArcHeight(10);
+        bar.setFill(color);
+
+        Label titleLabel = new Label(title);
+        titleLabel.setStyle("-fx-font-size: 11px; -fx-font-weight: 600; -fx-text-fill: #4b5563;");
+
+        VBox box = new VBox(8, amountLabel, bar, titleLabel);
+        box.setAlignment(Pos.BOTTOM_CENTER);
+        return box;
     }
 
     private void loadTransactions() {
@@ -2109,6 +2362,36 @@ public class GreenWalletController extends BaseController {
         return walletNumber == null ? "—" : String.valueOf(walletNumber);
     }
 
+    /**
+     * Safe wallet display formatting that filters out corrupted/serialized data.
+     * Returns a clean string regardless of database state.
+     */
+    private String formatWalletDisplay(Wallet wallet) {
+        if (wallet == null) return "Unknown Wallet";
+        
+        String ownerType = wallet.getOwnerType() != null ? wallet.getOwnerType().toString() : "UNKNOWN";
+        String walletNum = formatWalletNumber(wallet.getWalletNumber());
+        
+        // Sanitize name: remove any non-ASCII or control characters
+        String name = wallet.getName();
+        if (name == null || name.isEmpty()) {
+            return String.format("Wallet #%s (%s)", walletNum, ownerType);
+        }
+        
+        // Remove control characters, serialized data artifacts, and invalid UTF-8
+        String cleanName = name.replaceAll("[^\\p{Print}]", "")          // Remove control chars
+                               .replaceAll("(?i)(JavaBin|Raw|\\x00)", "") // Remove serialization artifacts
+                               .replaceAll("[\\s]+", " ")                 // Normalize whitespace
+                               .trim();
+        
+        // If name became empty after cleaning, fall back to generic
+        if (cleanName.isEmpty() || cleanName.length() < 2) {
+            return String.format("Wallet #%s (%s)", walletNum, ownerType);
+        }
+        
+        return String.format("%s (Wallet #%s)", cleanName, walletNum);
+    }
+
     private Integer parseIntegerOrNull(String value) {
         if (value == null) {
             return null;
@@ -2600,6 +2883,110 @@ public class GreenWalletController extends BaseController {
             return false;
         }
         return true;
+    }
+
+    private String buildClimatiqApiErrorMessage() {
+        String lastError = climatiqApiService != null ? climatiqApiService.getLastError() : null;
+        if (lastError == null || lastError.trim().isEmpty()) {
+            return "❌ Aucune donnée retournée par Climatiq.\n";
+        }
+        return "❌ API Climatiq Error: " + lastError + "\n";
+    }
+
+    private boolean ensureClimatiqApiAvailable() {
+        if (climatiqApiService == null || !climatiqApiService.isEnabled()) {
+            appendToApiResults("❌ Climatiq API non configurée. Ajoutez CLIMATIQ_API_KEY (ou CLIMATIQ_API).\n");
+            showWarning("API Climatiq non configurée", "La clé Climatiq est manquante. Ajoutez CLIMATIQ_API_KEY (ou CLIMATIQ_API).");
+            return false;
+        }
+        return true;
+    }
+
+    private String mapFuelActivityId(String fuelType) {
+        if (fuelType == null) return "fuel_combustion";
+        return switch (fuelType.toLowerCase()) {
+            case "lng", "lpg", "cng" -> "natural_gas_combustion";
+            case "coal", "petcoke" -> "coal_combustion";
+            case "rfo", "dfo" -> "diesel_combustion";
+            default -> "fuel_combustion";
+        };
+    }
+
+    private String mapShippingActivityId(String method) {
+        if (method == null) return "freight_transport";
+        return switch (method.toLowerCase()) {
+            case "ship" -> "sea_freight";
+            case "train" -> "rail_freight";
+            case "truck" -> "road_freight";
+            case "plane" -> "air_freight";
+            default -> "freight_transport";
+        };
+    }
+
+    private String formatClimatiqResult(EmissionResult result, String scenarioLabel) {
+        double co2eKg = result.getCo2eAmount().doubleValue();
+        double co2eTonnes = co2eKg / 1000.0;
+
+        JsonObject payload = new JsonObject();
+        payload.addProperty("scenario", scenarioLabel);
+        payload.addProperty("co2e_kg", co2eKg);
+        payload.addProperty("co2e_tonnes", co2eTonnes);
+        payload.addProperty("tier", result.getTier());
+        payload.addProperty("tier_description", result.getTierDescription());
+
+        if (result.getUncertaintyPercent() != null) {
+            payload.addProperty("uncertainty_percent", result.getUncertaintyPercent());
+        }
+
+        if (result.getActivityAmount() != null) {
+            payload.addProperty("activity_amount", result.getActivityAmount());
+        }
+        if (result.getActivityUnit() != null) {
+            payload.addProperty("activity_unit", result.getActivityUnit());
+        }
+        if (result.getCalculationId() != null) {
+            payload.addProperty("calculation_id", result.getCalculationId());
+        }
+
+        if (result.getEmissionFactor() != null) {
+            JsonObject factor = new JsonObject();
+            factor.addProperty("id", result.getEmissionFactor().getId());
+            factor.addProperty("name", result.getEmissionFactor().getName());
+            factor.addProperty("region", result.getEmissionFactor().getRegion());
+            factor.addProperty("year", result.getEmissionFactor().getYear());
+            factor.addProperty("source", result.getEmissionFactor().getSource());
+            factor.addProperty("methodology", result.getEmissionFactor().getMethodology());
+            payload.add("emission_factor", factor);
+        }
+
+        String prettyJson = new GsonBuilder().setPrettyPrinting().create().toJson(payload);
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("═══════════════════════════════════════════════════\n");
+        sb.append("✅ RÉSULTAT CLIMATIQ\n");
+        sb.append("═══════════════════════════════════════════════════\n\n");
+
+        sb.append("📌 Scénario: ").append(scenarioLabel).append("\n");
+        sb.append(String.format("🌍 Émissions CO₂e: %.3f kg\n", co2eKg));
+        sb.append(String.format("📊 Équivalent: %.6f tonnes\n", co2eTonnes));
+
+        if (result.getTier() != null) {
+            sb.append("🏷 Tier GHG: ").append(result.getTier()).append(" - ").append(result.getTierDescription()).append("\n");
+        }
+
+        if (result.getUncertaintyPercent() != null) {
+            sb.append(String.format("🎯 Incertitude: ±%.1f%%\n", result.getUncertaintyPercent()));
+        }
+
+        if (result.getEmissionFactor() != null && result.getEmissionFactor().getName() != null) {
+            sb.append("🧾 Facteur: ").append(result.getEmissionFactor().getName()).append("\n");
+        }
+
+        sb.append("\n📦 DÉTAILS JSON\n");
+        sb.append(prettyJson).append("\n");
+
+        sb.append("\n═══════════════════════════════════════════════════\n\n");
+        return sb.toString();
     }
 
     private double convertWeightToKg(double value, String unit) {

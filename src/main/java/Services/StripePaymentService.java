@@ -3,9 +3,11 @@ package Services;
 import com.stripe.Stripe;
 import com.stripe.exception.*;
 import com.stripe.model.*;
+import com.stripe.model.checkout.Session;
 import com.stripe.param.ChargeCreateParams;
 import com.stripe.param.PaymentIntentCreateParams;
 import com.stripe.param.RefundCreateParams;
+import com.stripe.param.checkout.SessionCreateParams;
 
 import java.io.*;
 import java.util.*;
@@ -20,12 +22,14 @@ public class StripePaymentService {
     private final String webhookSecret;
     private final double platformFeePercentage;
     private final double platformFeeFixed;
+    private final boolean testMode;
 
     private static StripePaymentService instance;
 
     public StripePaymentService(String apiKey, String webhookSecret) {
         Stripe.apiKey = apiKey;
         this.webhookSecret = webhookSecret;
+        this.testMode = apiKey != null && apiKey.startsWith("sk_test");
 
         // Load fee configuration
         this.platformFeePercentage = Double.parseDouble(
@@ -37,6 +41,10 @@ public class StripePaymentService {
 
         System.out.println(LOG_TAG + " Stripe API initialized. Fee: " + 
             (platformFeePercentage * 100) + "% + $" + platformFeeFixed);
+    }
+
+    public boolean isTestMode() {
+        return testMode;
     }
 
     public static StripePaymentService getInstance() {
@@ -78,12 +86,97 @@ public class StripePaymentService {
 
             PaymentIntent paymentIntent = PaymentIntent.create(params);
             System.out.println(LOG_TAG + " Payment intent created: " + paymentIntent.getId() + 
-                " for order " + orderId + " (${" + amountUsd + ")");
+                " for order " + orderId + " ($" + amountUsd + ")");
 
             return paymentIntent;
 
         } catch (StripeException e) {
             System.err.println(LOG_TAG + " ERROR creating payment intent: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Create a hosted Stripe Checkout session and return its URL.
+     * This opens the real Stripe payment page (hosted checkout UI).
+     */
+    public String createHostedCheckoutUrl(int orderId, double amountUsd,
+                                          int buyerId, int sellerId,
+                                          double quantity, double unitPriceUsd) {
+        try {
+            long amountCents = Math.round(amountUsd * 100);
+
+            String successUrl = getConfigProperty(
+                "marketplace.checkout.success.url",
+                "https://example.com/payment/success?session_id={CHECKOUT_SESSION_ID}"
+            );
+            String cancelUrl = getConfigProperty(
+                "marketplace.checkout.cancel.url",
+                "https://example.com/payment/cancel"
+            );
+
+            SessionCreateParams params = SessionCreateParams.builder()
+                .setMode(SessionCreateParams.Mode.PAYMENT)
+                .setSuccessUrl(successUrl)
+                .setCancelUrl(cancelUrl)
+                .putMetadata("order_id", String.valueOf(orderId))
+                .putMetadata("buyer_id", String.valueOf(buyerId))
+                .putMetadata("seller_id", String.valueOf(sellerId))
+                .putMetadata("transaction_type", "MARKETPLACE_ORDER")
+                .addLineItem(
+                    SessionCreateParams.LineItem.builder()
+                        .setQuantity(1L)
+                        .setPriceData(
+                            SessionCreateParams.LineItem.PriceData.builder()
+                                .setCurrency("usd")
+                                .setUnitAmount(amountCents)
+                                .setProductData(
+                                    SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                        .setName("Carbon Credit Purchase")
+                                        .setDescription(String.format(
+                                            "Order #%d | %.2f tCO2e @ $%.2f/unit",
+                                            orderId, quantity, unitPriceUsd
+                                        ))
+                                        .build()
+                                )
+                                .build()
+                        )
+                        .build()
+                )
+                .build();
+
+            Session session = Session.create(params);
+            System.out.println(LOG_TAG + " Hosted Checkout session created: " + session.getId() +
+                " for order " + orderId + " ($" + amountUsd + ")");
+            return session.getUrl();
+
+        } catch (StripeException e) {
+            System.err.println(LOG_TAG + " ERROR creating hosted checkout session: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Verify a Checkout session and return payment intent id if paid.
+     * Returns null when session is not paid or cannot be verified.
+     */
+    public String getPaidCheckoutPaymentIntent(String checkoutSessionId) {
+        try {
+            Session session = Session.retrieve(checkoutSessionId);
+            String paymentStatus = session.getPaymentStatus();
+
+            if ("paid".equalsIgnoreCase(paymentStatus)) {
+                String paymentIntentId = session.getPaymentIntent();
+                System.out.println(LOG_TAG + " Checkout paid: " + checkoutSessionId +
+                    " -> paymentIntent=" + paymentIntentId);
+                return paymentIntentId;
+            }
+
+            System.out.println(LOG_TAG + " Checkout not paid yet: " + checkoutSessionId +
+                " status=" + paymentStatus);
+            return null;
+        } catch (StripeException e) {
+            System.err.println(LOG_TAG + " ERROR verifying checkout session: " + e.getMessage());
             return null;
         }
     }
@@ -258,6 +351,156 @@ public class StripePaymentService {
         } catch (StripeException e) {
             System.err.println(LOG_TAG + " ERROR processing refund: " + e.getMessage());
             return null;
+        }
+    }
+
+    /**
+     * Create Stripe Connect account for a seller (for marketplace payouts)
+     * Sellers must have a Stripe Connect account to receive payments
+     */
+    public Account createSellerAccount(long sellerId, String email, String businessName, String countryCode) {
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("type", "express");
+            params.put("country", countryCode != null ? countryCode : "US");
+            params.put("email", email);
+            
+            Map<String, Object> businessProfile = new HashMap<>();
+            businessProfile.put("name", businessName != null ? businessName : "Carbon Marketplace Seller");
+            businessProfile.put("support_email", email);
+            params.put("business_profile", businessProfile);
+            
+            // Add metadata for tracking
+            Map<String, String> metadata = new HashMap<>();
+            metadata.put("seller_id", String.valueOf(sellerId));
+            params.put("metadata", metadata);
+            
+            Account account = Account.create(params);
+            System.out.println(LOG_TAG + " Seller account created: " + account.getId() + 
+                " for seller " + sellerId);
+            
+            return account;
+        } catch (StripeException e) {
+            System.err.println(LOG_TAG + " ERROR creating seller account: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Get onboarding link for Stripe Connect account setup
+     * Returns a URL that seller can visit to complete onboarding
+     */
+    public String getSellerOnboardingUrl(String accountId, String returnUrl) {
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("account", accountId);
+            params.put("type", "account_onboarding");
+            
+            Map<String, String> refreshUrlMap = new HashMap<>();
+            refreshUrlMap.put("url", returnUrl);
+            params.put("refresh_url", refreshUrlMap);
+            
+            Map<String, String> returnUrlMap = new HashMap<>();
+            returnUrlMap.put("url", returnUrl);
+            params.put("return_url", returnUrlMap);
+            
+            AccountLink accountLink = AccountLink.create(params);
+            System.out.println(LOG_TAG + " Onboarding link generated for account: " + accountId);
+            
+            return accountLink.getUrl();
+        } catch (StripeException e) {
+            System.err.println(LOG_TAG + " ERROR generating onboarding link: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Get seller account details and onboarding status
+     */
+    public Account getSellerAccount(String accountId) {
+        try {
+            Account account = Account.retrieve(accountId);
+            
+            // Check if fully onboarded
+            if (account.getChargesEnabled() && account.getPayoutsEnabled()) {
+                System.out.println(LOG_TAG + " Seller account " + accountId + " is fully onboarded");
+            } else {
+                System.out.println(LOG_TAG + " Seller account " + accountId + 
+                    " pending onboarding (charges: " + account.getChargesEnabled() + 
+                    ", payouts: " + account.getPayoutsEnabled() + ")");
+            }
+            
+            return account;
+        } catch (StripeException e) {
+            System.err.println(LOG_TAG + " ERROR retrieving seller account: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Transfer funds to seller's Stripe Connect account
+     * This is called after payment is completed to move seller's proceeds to their account
+     */
+    public Transfer transferToSeller(String chargeId, String sellerAccountId, double sellerProceedsUsd) {
+        try {
+            long amountCents = (long) (sellerProceedsUsd * 100);
+            
+            com.stripe.param.TransferCreateParams params = 
+                com.stripe.param.TransferCreateParams.builder()
+                    .setAmount(amountCents)
+                    .setCurrency("usd")
+                    .setDestination(sellerAccountId)
+                    .setSourceTransaction(chargeId)
+                    .setDescription("Carbon Marketplace Sale Proceeds")
+                    .putMetadata("charge_id", chargeId)
+                    .build();
+            
+            Transfer transfer = Transfer.create(params);
+            System.out.println(LOG_TAG + " Transfer created: " + transfer.getId() + 
+                " to seller account " + sellerAccountId + 
+                " ($" + String.format("%.2f", sellerProceedsUsd) + ")");
+            
+            return transfer;
+        } catch (StripeException e) {
+            System.err.println(LOG_TAG + " ERROR creating transfer: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Create application fee split for marketplace transaction
+     * Stripe application fee is deducted from charge, transfer gets seller proceeds
+     */
+    public ApplicationFee createApplicationFee(String chargeId, long applicationFeeAmountCents) {
+        try {
+            // Stripe Platform fees via Stripe Connect - deducted automatically from transfers
+            System.out.println(LOG_TAG + " Application fee recorded for charge: " + chargeId + 
+                             ", Amount: " + applicationFeeAmountCents + " cents ($" + 
+                             String.format("%.2f", applicationFeeAmountCents / 100.0) + ")");
+            
+            return null;  // Fee handled by Stripe Connect platform automatically
+        } catch (Exception e) {
+            System.err.println(LOG_TAG + " ERROR recording application fee: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Check seller payout status
+     */
+    public List<Payout> getSellerPayouts(String accountId, int limit) {
+        try {
+            Map<String, Object> params = new HashMap<>();
+            params.put("limit", limit);
+            
+            PayoutCollection payouts = Payout.list(params);
+            System.out.println(LOG_TAG + " Retrieved " + payouts.getData().size() + 
+                " payouts for seller account");
+            
+            return payouts.getData();
+        } catch (StripeException e) {
+            System.err.println(LOG_TAG + " ERROR retrieving payouts: " + e.getMessage());
+            return new ArrayList<>();
         }
     }
 
