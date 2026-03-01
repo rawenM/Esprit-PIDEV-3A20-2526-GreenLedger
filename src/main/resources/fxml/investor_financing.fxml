@@ -22,6 +22,9 @@
             </HBox>
             <Separator styleClass="sidebar-sep"/>
             <Button fx:id="btnNavDashboard" text="📊 Tableau de bord" onAction="#handleGoDashboard" styleClass="nav-btn"/>
+            <Button text="📊 Tableau analytique"
+                    onAction="#GoDashboard"
+                    styleClass="nav-btn"/>
             <Button fx:id="btnNavInvestments" text="💰 Investissements" onAction="#handleGoInvestments" styleClass="nav-btn nav-btn-active"/>
             <Button fx:id="btnNavFinancement" text="💳 Financement avancé" onAction="#handleGoFinancement" styleClass="nav-btn"/>
             <Button fx:id="btnNavSettings" text="⚙️ Paramètres" onAction="#handleGoSettings" styleClass="nav-btn"/>

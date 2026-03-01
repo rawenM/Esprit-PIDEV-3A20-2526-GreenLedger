@@ -17,6 +17,9 @@
         <Separator styleClass="sidebar-sep"/>
 
         <Button fx:id="btnDashboard" text="📊 Tableau de bord" onAction="#handleGoDashboard" styleClass="nav-btn"/>
+        <Button text="📊 Tableau analytique"
+                onAction="#GoDashboard"
+                styleClass="nav-btn"/>
         <Button fx:id="btnFinancement" text="💳 Financement" onAction="#handleGoFinancement"
                 styleClass="nav-btn nav-btn-active"/>
         <Button fx:id="btnOffres" text="🧾 Offres" onAction="#handleGoInvestments" styleClass="nav-btn"/>

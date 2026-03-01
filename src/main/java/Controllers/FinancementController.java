@@ -488,4 +488,11 @@ public class FinancementController extends BaseController {
         }
     }
 
+    @FXML
+    private void GoDashboard() {
+        try { org.GreenLedger.MainFX.setRoot("Investment_dashboard"); }
+        catch (IOException e) { e.printStackTrace(); }
+    }
+
+
 }

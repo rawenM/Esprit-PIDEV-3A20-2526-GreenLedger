@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.chart.*?>
+<?import javafx.geometry.Insets?>
+
+<HBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.InvestmentDashboardController"
+      spacing="0" styleClass="page">
+
+    <!-- SIDEBAR -->
+    <VBox prefWidth="220" styleClass="sidebar">
+        <HBox alignment="CENTER_LEFT" spacing="8">
+            <Label text="📈" style="-fx-font-size:20px;"/>
+            <Label text="Tableau de bord" styleClass="sidebar-title"/>
+        </HBox>
+        <Separator styleClass="sidebar-sep"/>
+        <Button text="💳 Financement" onAction="#handleGoFinancement" styleClass="nav-btn"/>
+        <Button text="💰 Investissements" onAction="#handleGoInvestments" styleClass="nav-btn"/>
+        <Button text="🤖 Agent de risque" onAction="#handleGoRiskAgent" styleClass="nav-btn"/>
+        <Separator styleClass="sidebar-sep"/>
+        <Button text="🔄 Actualiser" onAction="#handleRefresh" styleClass="nav-btn"/>
+        <Region VBox.vgrow="ALWAYS"/>
+    </VBox>
+
+    <!-- MAIN CONTENT -->
+    <VBox spacing="0" HBox.hgrow="ALWAYS" styleClass="content-area">
+
+        <!-- PAGE HEADER -->
+        <HBox spacing="16" alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="28" right="32" bottom="20" left="32"/>
+            </padding>
+            <VBox spacing="4">
+                <Label text="📊 Tableau de Bord Analytique" styleClass="page-title"/>
+                <Label text="Analyse des investissements avec régression linéaire et projections"
+                       styleClass="page-subtitle"/>
+            </VBox>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="🔄 Actualiser les données"
+                    onAction="#handleRefresh"
+                    styleClass="btn btn-secondary"
+                    prefHeight="36"/>
+        </HBox>
+
+        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS"
+                    style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox spacing="24">
+                <padding>
+                    <Insets top="8" right="32" bottom="32" left="32"/>
+                </padding>
+
+                <!-- KPI CARDS ROW -->
+                <HBox spacing="16">
+
+                    <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label text="TOTAL INVESTI" styleClass="stat-title"/>
+                        <Label fx:id="lblTotalInvesti" text="—" styleClass="stat-value accent-green"/>
+                        <Label text="Tous les financements" style="-fx-font-size:11px; -fx-opacity:0.7;"/>
+                    </VBox>
+
+                    <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label text="MOYENNE MENSUELLE" styleClass="stat-title"/>
+                        <Label fx:id="lblMoyenneMensuelle" text="—" styleClass="stat-value accent-blue"/>
+                        <Label text="Par mois" style="-fx-font-size:11px; -fx-opacity:0.7;"/>
+                    </VBox>
+
+                    <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label text="MEILLEUR MOIS" styleClass="stat-title"/>
+                        <Label fx:id="lblMeilleurMois" text="—" styleClass="stat-value accent-amber"/>
+                        <Label text="Montant le plus élevé" style="-fx-font-size:11px; -fx-opacity:0.7;"/>
+                    </VBox>
+
+                    <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                        <Label text="TENDANCE" styleClass="stat-title"/>
+                        <Label fx:id="lblTendance" text="—" styleClass="stat-value accent-blue"/>
+                        <Label text="Direction d'investissement" style="-fx-font-size:11px; -fx-opacity:0.7;"/>
+                    </VBox>
+
+                </HBox>
+
+                <!-- MAIN CHART CARD -->
+                <VBox spacing="12" styleClass="card">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <VBox spacing="4" HBox.hgrow="ALWAYS">
+                            <Label text="📈 Évolution Mensuelle des Investissements"
+                                   styleClass="page-title"/>
+                            <Label text="Données réelles + ligne de tendance (régression linéaire) + projection 3 mois"
+                                   styleClass="page-subtitle"/>
+                        </VBox>
+                        <Label fx:id="lblRegressionFormula"
+                               text=""
+                               style="-fx-font-size:11px; -fx-text-fill:#64748b; -fx-font-style:italic;"/>
+                    </HBox>
+
+                    <!-- LEGEND -->
+                    <HBox spacing="20" alignment="CENTER_LEFT">
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <Label text="●" style="-fx-text-fill:#3b82f6; -fx-font-size:16px;"/>
+                            <Label text="Données réelles" style="-fx-font-size:11px;"/>
+                        </HBox>
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <Label text="●" style="-fx-text-fill:#10b981; -fx-font-size:16px;"/>
+                            <Label text="Tendance (régression)" style="-fx-font-size:11px;"/>
+                        </HBox>
+                        <HBox spacing="6" alignment="CENTER_LEFT">
+                            <Label text="●" style="-fx-text-fill:#ef4444; -fx-font-size:16px;"/>
+                            <Label text="Projection 3 mois" style="-fx-font-size:11px;"/>
+                        </HBox>
+                    </HBox>
+
+                    <!-- THE CHART -->
+                    <LineChart fx:id="chartInvestments"
+                               animated="true"
+                               prefHeight="380"
+                               style="-fx-background-color: transparent;">
+                        <xAxis>
+                            <CategoryAxis fx:id="xAxis" label="Mois"/>
+                        </xAxis>
+                        <yAxis>
+                            <NumberAxis fx:id="yAxis" label="Montant (TND)" lowerBound="0"/>
+                        </yAxis>
+                    </LineChart>
+                </VBox>
+
+                <!-- REGRESSION EXPLANATION CARD -->
+                <VBox spacing="12" styleClass="card">
+                    <padding>
+                        <Insets top="16" right="20" bottom="16" left="20"/>
+                    </padding>
+
+                    <Label text="🧮 Détails de la Régression Linéaire" styleClass="page-title"/>
+
+                    <HBox spacing="24">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:#f8faff; -fx-background-radius:8; -fx-padding:12;">
+                            <Label text="FORMULE CALCULÉE" styleClass="stat-title"/>
+                            <Label fx:id="lblFormuleComplete" text="y = a + b·x"
+                                   style="-fx-font-size:16px; -fx-font-weight:bold; -fx-text-fill:#1e3a5f;"/>
+                            <Label text="où x = numéro du mois, y = montant prédit"
+                                   style="-fx-font-size:10px; -fx-text-fill:#94a3b8;"/>
+                        </VBox>
+
+                        <VBox spacing="8" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:#f8faff; -fx-background-radius:8; -fx-padding:12;">
+                            <Label text="PENTE (b)" styleClass="stat-title"/>
+                            <Label fx:id="lblSlope" text="—"
+                                   style="-fx-font-size:16px; -fx-font-weight:bold;"/>
+                            <Label text="Variation mensuelle moyenne"
+                                   style="-fx-font-size:10px; -fx-text-fill:#94a3b8;"/>
+                        </VBox>
+
+                        <VBox spacing="8" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:#f8faff; -fx-background-radius:8; -fx-padding:12;">
+                            <Label text="ORDONNÉE (a)" styleClass="stat-title"/>
+                            <Label fx:id="lblIntercept" text="—"
+                                   style="-fx-font-size:16px; -fx-font-weight:bold;"/>
+                            <Label text="Valeur de départ estimée"
+                                   style="-fx-font-size:10px; -fx-text-fill:#94a3b8;"/>
+                        </VBox>
+
+                        <VBox spacing="8" HBox.hgrow="ALWAYS"
+                              style="-fx-background-color:#f8faff; -fx-background-radius:8; -fx-padding:12;">
+                            <Label text="PROJECTION M+3" styleClass="stat-title"/>
+                            <Label fx:id="lblProjection3" text="—"
+                                   style="-fx-font-size:16px; -fx-font-weight:bold; -fx-text-fill:#ef4444;"/>
+                            <Label text="Estimation dans 3 mois"
+                                   style="-fx-font-size:10px; -fx-text-fill:#94a3b8;"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </VBox>
+</HBox>

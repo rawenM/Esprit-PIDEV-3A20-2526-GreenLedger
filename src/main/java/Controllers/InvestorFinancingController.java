@@ -433,4 +433,15 @@ public class InvestorFinancingController extends BaseController {
         alert.setContentText(message);
         alert.showAndWait();
     }
+
+    @FXML
+    private void GoDashboard() {
+        try {
+            org.GreenLedger.MainFX.setRoot("Investment_dashboard");
+        } catch (IOException ex) {
+            System.err.println("[ERROR] Navigation error: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+    }
 }
+
