@@ -21,6 +21,9 @@ public class ProjectEsgService {
     private final EvaluationService evaluationService = new EvaluationService();
     private final CritereImpactService critereService = new CritereImpactService();
 
+    public ProjectEsgService() {
+    }
+
     public static class EsgBreakdown {
         public final double e; // 0..10
         public final double s; // 0..10

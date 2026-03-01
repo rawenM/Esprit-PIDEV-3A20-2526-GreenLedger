@@ -9,18 +9,30 @@ import java.util.List;
 
 public class EvaluationService {
 
-    Connection conn = MyConnection.getConnection();
+    private String lastErrorMessage;
+
+    public String getLastErrorMessage() {
+        return lastErrorMessage;
+    }
+
+    private void setLastError(SQLException ex, String context) {
+        String state = ex.getSQLState();
+        int code = ex.getErrorCode();
+        this.lastErrorMessage = context + " | SQLState=" + state + " | Code=" + code + " | " + ex.getMessage();
+    }
 
     public void ajouter(Evaluation e) {
         String sql = "INSERT INTO evaluation(observations_globales, score_final, est_valide, id_projet) VALUES (?,?,?,?)";
-        try {
-            PreparedStatement ps = conn.prepareStatement(sql);
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, e.getObservations());
             ps.setDouble(2, e.getScoreGlobal());
             ps.setBoolean(3, decisionToFlag(e.getDecision()));
             ps.setInt(4, e.getIdProjet());
             ps.executeUpdate();
+            lastErrorMessage = null;
         } catch (SQLException ex) {
+            setLastError(ex, "ajouter evaluation");
             System.out.println(ex.getMessage());
         }
     }
@@ -30,9 +42,9 @@ public class EvaluationService {
         String sql = "SELECT e.*, p.titre AS titre_projet FROM evaluation e " +
                 "LEFT JOIN projet p ON p.id = e.id_projet " +
                 "ORDER BY e.date_evaluation DESC";
-        try {
-            Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery(sql);
+        try (Connection conn = MyConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 Evaluation e = new Evaluation();
                 e.setIdEvaluation(rs.getInt("id_evaluation"));
@@ -53,14 +65,15 @@ public class EvaluationService {
     public void supprimer(int id) {
         String sqlCritere = "DELETE FROM evaluation_resultat WHERE id_evaluation=?";
         String sqlEvaluation = "DELETE FROM evaluation WHERE id_evaluation=?";
-        try {
-            PreparedStatement psCritere = conn.prepareStatement(sqlCritere);
-            psCritere.setInt(1, id);
-            psCritere.executeUpdate();
-
-            PreparedStatement psEval = conn.prepareStatement(sqlEvaluation);
-            psEval.setInt(1, id);
-            psEval.executeUpdate();
+        try (Connection conn = MyConnection.getConnection()) {
+            try (PreparedStatement psCritere = conn.prepareStatement(sqlCritere)) {
+                psCritere.setInt(1, id);
+                psCritere.executeUpdate();
+            }
+            try (PreparedStatement psEval = conn.prepareStatement(sqlEvaluation)) {
+                psEval.setInt(1, id);
+                psEval.executeUpdate();
+            }
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
@@ -68,8 +81,8 @@ public class EvaluationService {
 
     public void modifier(Evaluation e) {
         String sql = "UPDATE evaluation SET observations_globales=?, score_final=?, est_valide=?, id_projet=? WHERE id_evaluation=?";
-        try {
-            PreparedStatement ps = conn.prepareStatement(sql);
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, e.getObservations());
             ps.setDouble(2, e.getScoreGlobal());
             ps.setBoolean(3, decisionToFlag(e.getDecision()));
@@ -88,7 +101,8 @@ public class EvaluationService {
                 "JOIN projet p ON p.id = e.id_projet " +
                 "WHERE p.entreprise_id = ? " +
                 "ORDER BY e.date_evaluation DESC";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, entrepriseId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -116,7 +130,8 @@ public class EvaluationService {
                 "JOIN projet p ON p.id = e.id_projet " +
                 "WHERE e.id_projet = ? " +
                 "ORDER BY e.date_evaluation DESC";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, projetId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -139,9 +154,9 @@ public class EvaluationService {
 
     public int ajouterAvecCriteres(Evaluation e, java.util.List<Models.EvaluationResult> criteres) {
         String sqlEval = "INSERT INTO evaluation(observations_globales, score_final, est_valide, id_projet) VALUES (?,?,?,?)";
-        boolean previousAutoCommit = true;
-        try {
-            previousAutoCommit = conn.getAutoCommit();
+        String sqlResult = "INSERT INTO evaluation_resultat(id_evaluation, id_critere, est_respecte, note, commentaire_expert) VALUES (?,?,?,?,?)";
+        try (Connection conn = MyConnection.getConnection()) {
+            boolean previousAutoCommit = conn.getAutoCommit();
             conn.setAutoCommit(false);
 
             int evaluationId;
@@ -154,38 +169,42 @@ public class EvaluationService {
                 try (ResultSet rs = psEval.getGeneratedKeys()) {
                     if (!rs.next()) {
                         conn.rollback();
+                        lastErrorMessage = "ajouter evaluation: aucune clé générée";
                         return -1;
                     }
                     evaluationId = rs.getInt(1);
                 }
             }
 
-            Services.CritereImpactService critereService = new Services.CritereImpactService();
-            critereService.ajouterResultats(evaluationId, criteres);
+            try (PreparedStatement psRes = conn.prepareStatement(sqlResult)) {
+                for (Models.EvaluationResult c : criteres) {
+                    psRes.setInt(1, evaluationId);
+                    psRes.setInt(2, c.getIdCritere());
+                    psRes.setBoolean(3, c.isEstRespecte());
+                    psRes.setInt(4, c.getNote());
+                    psRes.setString(5, c.getCommentaireExpert());
+                    psRes.addBatch();
+                }
+                psRes.executeBatch();
+            }
 
             conn.commit();
+            conn.setAutoCommit(previousAutoCommit);
+            lastErrorMessage = null;
             return evaluationId;
         } catch (SQLException ex) {
-            try {
-                conn.rollback();
-            } catch (SQLException ignore) {
-                // ignore rollback failures
-            }
+            setLastError(ex, "ajouter evaluation + criteres");
             System.out.println(ex.getMessage());
             return -1;
-        } finally {
-            try {
-                conn.setAutoCommit(previousAutoCommit);
-            } catch (SQLException ignore) {
-                // ignore restore failures
-            }
         }
     }
 
     public java.util.Set<Integer> getProjetIdsWithEvaluations() {
         java.util.Set<Integer> ids = new java.util.HashSet<>();
         String sql = "SELECT DISTINCT id_projet FROM evaluation";
-        try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+        try (Connection conn = MyConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 ids.add(rs.getInt("id_projet"));
             }

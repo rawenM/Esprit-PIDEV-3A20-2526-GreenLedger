@@ -19,7 +19,11 @@ public class UserDAOImpl implements IUserDAO {
     private final boolean hasTokenHashColumn;
 
     public UserDAOImpl() {
-        this.connection = MyConnection.getInstance().getConnection();
+        try {
+            this.connection = MyConnection.getConnection();
+        } catch (SQLException e) {
+            throw new IllegalStateException("Impossible d'ouvrir la connexion DB", e);
+        }
         boolean hasTokenExpiry = false;
         boolean hasTokenHash = false;
         // Tentative d'ajout de la colonne token_expiry si elle n'existe pas (migration légère)
@@ -579,3 +583,4 @@ public class UserDAOImpl implements IUserDAO {
         }
     }
 }
+

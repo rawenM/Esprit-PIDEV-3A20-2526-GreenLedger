@@ -6,6 +6,8 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
 
 <HBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
@@ -41,10 +43,22 @@
     <!-- Content -->
     <VBox spacing="0" HBox.hgrow="ALWAYS" styleClass="content-area">
 
-        <!-- Stats Section -->
-        <HBox spacing="16" alignment="CENTER_LEFT">
+        <HBox fx:id="evaluationBanner" visible="false" managed="false" styleClass="banner-success" alignment="CENTER_LEFT">
             <padding>
-                <Insets top="12" right="32" bottom="20" left="32"/>
+                <Insets top="10" right="16" bottom="10" left="16"/>
+            </padding>
+            <Label fx:id="lblEvaluationBanner" text="" styleClass="banner-text"/>
+        </HBox>
+
+        <VBox spacing="8" styleClass="hero-header">
+            <Label text="Centre d'evaluation carbone" styleClass="hero-title"/>
+            <Label text="Suivez les criteres, validez les projets et analysez les impacts en un coup d'oeil." styleClass="hero-subtitle"/>
+        </VBox>
+
+        <!-- Stats Section -->
+        <HBox spacing="16" alignment="CENTER_LEFT" styleClass="hero-stats">
+            <padding>
+                <Insets top="0" right="32" bottom="12" left="32"/>
             </padding>
 
             <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
@@ -54,13 +68,13 @@
             </VBox>
 
             <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                <Label text="PROJETS ÉVALUÉS" styleClass="stat-title"/>
+                <Label text="PROJETS EVALUES" styleClass="stat-title"/>
                 <Label fx:id="lblProjetsEvalues" text="0" styleClass="stat-value accent-blue"/>
                 <Label text="✅" style="-fx-font-size: 18px;"/>
             </VBox>
 
             <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
-                <Label text="CRITÈRES D'IMPACT" styleClass="stat-title"/>
+                <Label text="CRITERES D'IMPACT" styleClass="stat-title"/>
                 <Label fx:id="lblCriteresImpact" text="0" styleClass="stat-value accent-amber"/>
                 <Label text="⚖️" style="-fx-font-size: 18px;"/>
             </VBox>
@@ -68,25 +82,28 @@
 
         <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS"
                     style="-fx-background-color: transparent; -fx-background: transparent;">
-            <VBox spacing="24">
+            <VBox spacing="12">
                 <padding>
-                    <Insets top="8" right="32" bottom="32" left="32"/>
+                    <Insets top="6" right="20" bottom="20" left="20"/>
                 </padding>
 
                 <!-- Evaluation + Criteria Section -->
-                <VBox spacing="12" styleClass="card">
+                <VBox spacing="10" styleClass="card card-focus compact-card">
                     <padding>
-                        <Insets top="20" right="20" bottom="20" left="20"/>
+                        <Insets top="18" right="18" bottom="18" left="18"/>
                     </padding>
 
-                    <HBox alignment="CENTER_LEFT" spacing="8">
+                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="section-header">
                         <Label text="⚖️" style="-fx-font-size: 18px;"/>
-                        <Label text="Critères d'Impact" styleClass="page-title"/>
+                        <VBox spacing="2">
+                            <Label text="Critères d'impact" styleClass="section-title"/>
+                            <Label text="Definissez les criteres et pesez leur importance." styleClass="section-subtitle"/>
+                        </VBox>
                     </HBox>
 
                     <TableView fx:id="tableCriteres"
                                styleClass="table-card selectable-table"
-                               prefHeight="280" minHeight="220">
+                               prefHeight="240" minHeight="200">
                         <placeholder>
                             <VBox alignment="CENTER" spacing="8" style="-fx-padding: 40;">
                                 <Label text="⚖️" style="-fx-font-size: 32px; -fx-opacity: 0.3;"/>
@@ -158,33 +175,12 @@
                     </HBox>
 
                     <HBox spacing="12">
-                        <VBox spacing="8" prefWidth="220">
-                            <Label text="ID Projet" styleClass="form-label"/>
-                            <TextField fx:id="txtIdProjet" editable="false" styleClass="field"/>
-                        </VBox>
-                        <VBox spacing="8" HBox.hgrow="ALWAYS">
-                            <Label text="Decision" styleClass="form-label"/>
-                            <HBox spacing="16">
-                                <RadioButton fx:id="chkDecisionApproved" text="Approuver"/>
-                                <RadioButton fx:id="chkDecisionRejected" text="Rejeter"/>
-                            </HBox>
+                        <VBox spacing="8" prefWidth="320">
+                            <Label text="Projet sélectionné" styleClass="form-label"/>
+                            <Label fx:id="lblSelectedProjectName" text="—" styleClass="field-readonly"/>
+                            <TextField fx:id="txtIdProjet" editable="false" visible="false" managed="false"/>
                         </VBox>
                     </HBox>
-
-                    <!-- ESG Project Score Section -->
-                    <VBox spacing="8" style="-fx-padding: 6 0 0 0;">
-                        <Label text="Score ESG Projet (0–100)" styleClass="form-label"/>
-                        <HBox spacing="10" alignment="CENTER_LEFT">
-                            <Button fx:id="btnCalcEsg" text="🧮 Calculer ESG" onAction="#handleCalculateESG" styleClass="btn-secondary"/>
-                            <Button fx:id="btnSaveEsg" text="💾 Enregistrer dans Projet" onAction="#handleSaveESG" styleClass="btn"/>
-                            <Label fx:id="lblEsgScore" text="—" styleClass="stat-value accent-green" style="-fx-font-size: 16;"/>
-                        </HBox>
-                        <TextArea fx:id="txtEsgDetails"
-                                  promptText="La formule et les détails E/S/G apparaîtront ici…"
-                                  wrapText="true"
-                                  styleClass="field textarea"
-                                  style="-fx-pref-height: 90px;"/>
-                    </VBox>
 
                     <VBox spacing="8">
                         <Label text="Observations" styleClass="form-label"/>
@@ -203,64 +199,6 @@
 
                 </VBox>
 
-                <!-- Signature section moved to the bottom -->
-
-                <!-- AI Analysis Section -->
-                <VBox spacing="12" styleClass="card">
-                    <HBox alignment="CENTER_LEFT" spacing="8">
-                        <Label text="🧠" style="-fx-font-size: 18px;"/>
-                        <Label text="Analyse avancée (IA)" styleClass="page-title"/>
-                    </HBox>
-
-                    <HBox spacing="8">
-                        <Button fx:id="btnScorePreview"
-                                text="🔎 Prévisualiser score"
-                                onAction="#handleScorePreview"
-                                styleClass="btn-secondary"/>
-                        <Button fx:id="btnAISuggest"
-                                text="🤖 Suggestion IA"
-                                onAction="#handleAISuggest"
-                                styleClass="btn-primary"/>
-                        <Button fx:id="btnWhatIf"
-                                text="🧪 What-if +1 note"
-                                onAction="#handleWhatIf"
-                                styleClass="btn"/>
-                    </HBox>
-
-                    <Label fx:id="lblAISuggestion"
-                           style="-fx-font-size: 14px; -fx-text-fill: #059669;"
-                           text=""/>
-
-                    <TextArea fx:id="txtAIInsights"
-                              promptText="Explications et facteurs clés apparaîtront ici..."
-                              wrapText="true"
-                              styleClass="field textarea"
-                              style="-fx-pref-height: 110px;"/>
-                </VBox>
-
-                <!-- Evaluations Table Section -->
-                <VBox spacing="12">
-                    <Label text="Evaluations recentes"
-                           styleClass="section-title-sidebar"/>
-                    <Label text="Cliquez une évaluation pour la charger dans le formulaire" styleClass="select-hint"/>
-
-                    <TableView fx:id="tableAudits" prefHeight="220" minHeight="220"
-                               VBox.vgrow="ALWAYS"
-                               styleClass="table-card table-projects">
-                        <placeholder>
-                            <Label text="Aucune evaluation" styleClass="placeholder-label"/>
-                        </placeholder>
-                        <columns>
-                            <TableColumn fx:id="colDate" text="Date" prefWidth="140" styleClass="col-center"/>
-                            <TableColumn fx:id="colDecision" text="Validation" prefWidth="140" styleClass="col-center"/>
-                            <TableColumn fx:id="colProjetNom" text="Titre projet" prefWidth="220" styleClass="col-left"/>
-                            <TableColumn fx:id="colObservations" text="Observations" prefWidth="320" styleClass="col-left"/>
-                            <TableColumn fx:id="colScore" text="Score" prefWidth="100" styleClass="col-center"/>
-                            <TableColumn fx:id="colAction" text="Statut" prefWidth="140" styleClass="col-center"/>
-                        </columns>
-                    </TableView>
-                </VBox>
-
                 <!-- Electronic Signature (last section) -->
                 <VBox spacing="12" styleClass="card">
                     <HBox alignment="CENTER_LEFT" spacing="8">
@@ -268,7 +206,7 @@
                         <Label text="Signature électronique" styleClass="page-title"/>
                     </HBox>
                     <Label text="Signez ci-dessous. La signature sera incluse dans le PDF." styleClass="select-hint"/>
-                    <Canvas fx:id="signatureCanvas" width="520.0" height="140.0"/>
+                    <Canvas fx:id="signatureCanvas" width="1200.0" height="200.0" HBox.hgrow="ALWAYS"/>
                     <HBox spacing="8" alignment="CENTER_LEFT">
                         <Button text="Effacer" onAction="#handleClearSignature" styleClass="btn-secondary"/>
                         <Region HBox.hgrow="ALWAYS"/>
@@ -282,3 +220,5 @@
     </VBox>
 
 </HBox>
+
+

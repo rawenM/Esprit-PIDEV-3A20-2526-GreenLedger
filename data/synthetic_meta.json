@@ -1,0 +1,23 @@
+{
+  "rows": 100000,
+  "seed": 42,
+  "columns": [
+    "sector",
+    "region",
+    "size",
+    "baseline_emissions_tco2",
+    "target_reduction_pct",
+    "avg_note",
+    "min_note",
+    "compliance_rate",
+    "blocking_criteria",
+    "scope1_tco2",
+    "scope2_tco2",
+    "scope3_tco2",
+    "total_tco2",
+    "scenario_delta",
+    "score",
+    "risk_level",
+    "decision"
+  ]
+}

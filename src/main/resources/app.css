@@ -751,229 +751,48 @@
     -fx-padding: 6;
 }
 
-/* Badge/Chip Styles */
-.badge {
-    -fx-background-color: #D9EDE3;
-    -fx-text-fill: #163D21;
-    -fx-padding: 4 12 4 12;
-    -fx-background-radius: 16;
-    -fx-border-radius: 16;
-    -fx-font-size: 11px;
-    -fx-font-weight: 600;
-    -fx-border-width: 1;
-    -fx-border-color: #2D5F3F;
+/* ===== ML DECISION - PROGRESS BAR VISIBILITY ===== */
+.progress-bar {
+    -fx-pref-height: 12px;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-background-insets: 0;
 }
 
-.badge-success {
-    -fx-background-color: #D9EDE3;
-    -fx-text-fill: #1E4D2B;
-    -fx-border-color: #2D5F3F;
+.progress-bar > .track {
+    -fx-background-color: #E6ECE9;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
 }
 
-.badge-warning {
-    -fx-background-color: #FEF3D8;
-    -fx-text-fill: #8B6B1F;
-    -fx-border-color: #D9A34E;
-}
-
-.badge-danger {
-    -fx-background-color: #FADEDE;
-    -fx-text-fill: #8B2020;
-    -fx-border-color: #C14343;
-}
-
-.badge-info {
-    -fx-background-color: #E3EEF4;
-    -fx-text-fill: #2B5270;
-    -fx-border-color: #4A7BA3;
-}
-
-/* Alert/Message Box - Glass Morphism */
-.alert-success {
-    -fx-background-color: #F0FAF4;
-    -fx-border-color: #2D5F3F;
-    -fx-border-width: 1;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-padding: 14 16 14 16;
-    -fx-effect: dropshadow(gaussian, rgba(45, 95, 63, 0.08), 8, 0, 0, 2);
-}
-
-.alert-warning {
-    -fx-background-color: #FFF9ED;
-    -fx-border-color: #D9A34E;
-    -fx-border-width: 1;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-padding: 14 16 14 16;
-    -fx-effect: dropshadow(gaussian, rgba(217, 163, 78, 0.08), 8, 0, 0, 2);
-}
-
-.alert-error {
-    -fx-background-color: #FEF5F5;
-    -fx-border-color: #C14343;
-    -fx-border-width: 1;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-padding: 14 16 14 16;
-    -fx-effect: dropshadow(gaussian, rgba(193, 67, 67, 0.08), 8, 0, 0, 2);
-}
-
-.alert-info {
-    -fx-background-color: #F4F9FC;
-    -fx-border-color: #4A7BA3;
-    -fx-border-width: 1;
-    -fx-background-radius: 10;
-    -fx-border-radius: 10;
-    -fx-padding: 14 16 14 16;
-    -fx-effect: dropshadow(gaussian, rgba(74, 123, 163, 0.08), 8, 0, 0, 2);
-}
-
-/* Loading Spinner/Indicator */
-.progress-indicator {
-    -fx-progress-color: #2D5F3F;
-}
-
-.progress-indicator > .percentage {
-    -fx-fill: #2D5F3F;
-}
-
-/* Toggle Switch - Modern iOS Style */
-.toggle-button {
-    -fx-background-color: #C4D3CB;
-    -fx-background-radius: 16;
-    -fx-border-radius: 16;
-    -fx-padding: 4 8 4 8;
-}
-
-.toggle-button:selected {
+.progress-bar > .bar {
     -fx-background-color: #2D5F3F;
-    -fx-text-fill: white;
+    -fx-background-radius: 6;
+    -fx-padding: 0.25em;
 }
 
-/* Checkbox - Modern Check */
-.check-box {
-    -fx-text-fill: #2A3F38;
+/* ===== CONFIDENCE BAR (ML DECISION) ===== */
+.confidence-bar {
+    -fx-pref-height: 12px;
+    -fx-min-height: 12px;
+    -fx-background-insets: 0;
 }
 
-.check-box > .box {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #C4D3CB;
-    -fx-border-width: 2;
-    -fx-background-radius: 5;
-    -fx-border-radius: 5;
-}
-
-.check-box:selected > .box {
-    -fx-background-color: #2D5F3F;
-    -fx-border-color: #2D5F3F;
-}
-
-.check-box:selected > .box > .mark {
-    -fx-background-color: white;
-}
-
-.check-box:hover > .box {
-    -fx-border-color: #2D5F3F;
-}
-
-/* Radio Button - Modern Circle */
-.radio-button {
-    -fx-text-fill: #2A3F38;
-}
-
-.radio-button > .radio {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #C4D3CB;
-    -fx-border-width: 2;
-    -fx-background-radius: 12;
-    -fx-border-radius: 12;
-}
-
-.radio-button:selected > .radio {
-    -fx-border-color: #2D5F3F;
-}
-
-.radio-button:selected > .radio > .dot {
-    -fx-background-color: #2D5F3F;
-    -fx-background-radius: 8;
-}
-
-.radio-button:hover > .radio {
-    -fx-border-color: #2D5F3F;
-}
-
-/* Slider - Modern Track */
-.slider {
-    -fx-padding: 10 0 10 0;
-}
-
-.slider > .track {
+.confidence-bar > .track {
     -fx-background-color: #E0E5E3;
-    -fx-background-radius: 4;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
 }
 
-.slider > .thumb {
+.confidence-bar > .bar {
     -fx-background-color: #2D5F3F;
-    -fx-background-radius: 10;
-    -fx-pref-width: 20;
-    -fx-pref-height: 20;
-    -fx-effect: dropshadow(gaussian, rgba(45, 95, 63, 0.3), 6, 0, 0, 1);
+    -fx-background-radius: 6;
+    -fx-padding: 0.25em;
 }
 
-.slider > .colored-track {
-    -fx-background-color: #2D5F3F;
-    -fx-background-radius: 4;
-}
-
-/* Text Area - Enhanced */
-.text-area {
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
-    -fx-border-width: 1.5;
-    -fx-border-color: #D4DDD8;
-}
-
-.text-area:focused {
-    -fx-border-color: #2D5F3F;
-    -fx-border-width: 2;
-    -fx-effect: dropshadow(gaussian, rgba(45, 95, 63, 0.12), 8, 0, 0, 0);
-}
-
-.text-area .content {
-    -fx-background-color: #FFFFFF;
-    -fx-background-radius: 8;
-    -fx-padding: 12 14 12 14;
-}
-
-/* Spinner - Modern Number Input */
-.spinner {
-    -fx-background-radius: 8;
-    -fx-border-radius: 8;
-}
-
-.spinner > .text-field {
-    -fx-background-color: #FFFFFF;
-    -fx-border-color: #E2E8F0;
-}
-
-.spinner > .increment-arrow-button,
-.spinner > .decrement-arrow-button {
-    -fx-background-color: rgba(16, 185, 129, 0.1);
-}
-
-.spinner > .increment-arrow-button:hover,
-.spinner > .decrement-arrow-button:hover {
-    -fx-background-color: rgba(16, 185, 129, 0.2);
-}
-
-/* Column Alignment Styles */
-.col-center .label {
-    -fx-alignment: CENTER;
-}
-
-.col-left .label {
-    -fx-alignment: CENTER_LEFT;
+/* Improve readability in recommendation/statistics text areas */
+.field.textarea {
+    -fx-line-spacing: 2px;
 }
 
 /* =====================================
@@ -981,3 +800,114 @@
    Modern. Vibrant. Smooth. Animated.
    Colors that speak volumes.
    ===================================== */
+
+/* ===== BANNERS - IN-APP NOTIFICATIONS ===== */
+.banner {
+    -fx-background-color: #FFFFFF;
+    -fx-border-width: 1;
+    -fx-border-color: #E0E5E3;
+    -fx-background-radius: 8;
+    -fx-padding: 12 16;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0, 0, 2);
+}
+
+.banner-success {
+    -fx-background-color: #EAF7F1;
+    -fx-border-color: #2D5F3F;
+    -fx-border-width: 1;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 10 16 10 16;
+    -fx-effect: dropshadow(gaussian, rgba(45, 95, 63, 0.08), 8, 0, 0, 2);
+}
+
+.banner-error {
+    -fx-background-color: #FEF5F5;
+    -fx-border-color: #C14343;
+    -fx-border-width: 1;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 10 16 10 16;
+    -fx-effect: dropshadow(gaussian, rgba(193, 67, 67, 0.08), 8, 0, 0, 2);
+}
+
+.banner-warning {
+    -fx-background-color: #FFF9ED;
+    -fx-border-color: #D9A34E;
+    -fx-border-width: 1;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 10 16 10 16;
+    -fx-effect: dropshadow(gaussian, rgba(217, 163, 78, 0.08), 8, 0, 0, 2);
+}
+
+.banner-info {
+    -fx-background-color: #F4F9FC;
+    -fx-border-color: #4A7BA3;
+    -fx-border-width: 1;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-padding: 10 16 10 16;
+    -fx-effect: dropshadow(gaussian, rgba(74, 123, 163, 0.08), 8, 0, 0, 2);
+}
+
+.banner-text {
+    -fx-text-fill: #1E4D2B;
+    -fx-font-weight: 700;
+    -fx-font-size: 13px;
+}
+
+/* Close Button for Banners */
+.banner .close-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #1A2E26;
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+
+.banner .close-btn:hover {
+    -fx-text-fill: #2D5F3F;
+}
+
+.banner .close-btn:pressed {
+    -fx-text-fill: #1E4D2B;
+}
+
+/* ===== HERO & SECTION STYLES ===== */
+.hero-header {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-padding: 12 32 8 32;
+}
+
+.hero-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+    -fx-text-fill: #1A2E26;
+}
+
+.hero-subtitle {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6B7F77;
+}
+
+.section-title {
+    -fx-font-size: 16px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #1A2E26;
+}
+
+.section-subtitle {
+    -fx-font-size: 11px;
+    -fx-text-fill: #8A9D95;
+}
+
+.card-focus {
+    -fx-border-color: #E0E5E3;
+    -fx-background-color: #FFFFFF;
+}
+
+.compact-card {
+    -fx-padding: 18 20 18 20;
+}
