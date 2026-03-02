@@ -159,7 +159,7 @@ public class GmailApiService {
     /**
      * Méthode générique pour envoyer un email via Gmail API
      */
-    private boolean sendEmail(String toEmail, String subject, String htmlContent) {
+    public boolean sendEmail(String toEmail, String subject, String htmlContent) {
         if (!isConfigured()) {
             System.out.println("[Gmail API] Service non configuré - Email simulé");
             System.out.println("  To: " + toEmail);

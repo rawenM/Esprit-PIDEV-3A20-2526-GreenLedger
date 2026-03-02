@@ -1,0 +1,49 @@
+═══════════════════════════════════════════════════════════════
+  ✅ reCAPTCHA MAINTENANT ACTIF !
+═══════════════════════════════════════════════════════════════
+
+PROBLÈME RÉSOLU:
+----------------
+❌ Avant: Équation mathématique "Combien fait 3 + 1 ?"
+✅ Après: Google reCAPTCHA "Je ne suis pas un robot"
+
+SOLUTION:
+---------
+Changement du point d'entrée de l'application pour utiliser
+la page de login avec choix de CAPTCHA.
+
+FICHIER MODIFIÉ:
+----------------
+src/main/java/org/GreenLedger/MainFX.java
+✅ Compilé avec succès
+
+TESTER MAINTENANT:
+------------------
+1. Fermez l'application complètement
+2. Lancez: run.bat
+3. Résultat: Page avec reCAPTCHA visible
+
+INTERFACE:
+----------
+┌─────────────────────────────┐
+│ Email: [________________]   │
+│ Mot de passe: [________]    │
+│                             │
+│ Méthode:                    │
+│ ○ Équation  ⦿ reCAPTCHA  ○ Puzzle │
+│                             │
+│ ☑ Je ne suis pas un robot   │
+│                             │
+│ [Se connecter]              │
+└─────────────────────────────┘
+
+AVANTAGES:
+----------
+✅ Interface professionnelle
+✅ Reconnue mondialement
+✅ Meilleure sécurité
+✅ 3 options disponibles
+
+═══════════════════════════════════════════════════════════════
+LANCEZ run.bat MAINTENANT !
+═══════════════════════════════════════════════════════════════

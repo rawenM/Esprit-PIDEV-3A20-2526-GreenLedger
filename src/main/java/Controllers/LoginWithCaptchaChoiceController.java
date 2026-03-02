@@ -102,8 +102,9 @@ public class LoginWithCaptchaChoiceController {
             }
         } catch (Exception ignored) {}
 
-        // Initialiser avec CAPTCHA mathématique par défaut
-        setupMathCaptcha();
+        // Initialiser avec Google reCAPTCHA par défaut (plus professionnel)
+        recaptchaRadio.setSelected(true);
+        switchCaptchaMethod(null);
     }
 
     /**

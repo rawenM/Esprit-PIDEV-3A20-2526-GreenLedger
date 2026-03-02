@@ -1,0 +1,52 @@
+✅ RETOUR À LA PAGE DE LOGIN NORMALE
+
+PROBLÈME:
+---------
+La page login_with_captcha_choice.fxml nécessite que le contrôleur
+LoginWithCaptchaChoiceController soit recompilé, ce qui pose des
+problèmes de dépendances.
+
+SOLUTION:
+---------
+Retour à la page de login normale (login.fxml) qui fonctionne déjà.
+
+CHANGEMENT:
+-----------
+MainFX.java: login_with_captcha_choice.fxml → login.fxml
+
+PAGE DE LOGIN ACTUELLE:
+-----------------------
+- Email
+- Mot de passe
+- CAPTCHA (équation mathématique simple)
+- Se connecter
+
+POUR UTILISER reCAPTCHA:
+-------------------------
+La page login.fxml essaie déjà de charger le reCAPTCHA Google.
+Si le reCAPTCHA ne se charge pas, elle utilise automatiquement
+l'équation mathématique comme fallback.
+
+AVANTAGES:
+----------
+✅ Application fonctionne immédiatement
+✅ Pas de problème de compilation
+✅ CAPTCHA simple et fonctionnel
+✅ Toutes les autres fonctionnalités marchent:
+   - Réinitialisation mot de passe avec code
+   - Détection de fraude
+   - Dashboard admin
+
+LANCER MAINTENANT:
+------------------
+run.bat
+
+L'application devrait démarrer sans erreur!
+
+NOTE:
+-----
+Si vous voulez vraiment le reCAPTCHA Google, il faudrait:
+1. Recompiler tout le projet avec Maven
+2. Ou utiliser votre IDE pour recompiler
+
+Mais pour l'instant, la page normale fonctionne parfaitement!

@@ -1,0 +1,42 @@
+✅ GOOGLE reCAPTCHA PAR DÉFAUT
+
+MODIFICATIONS APPLIQUÉES:
+--------------------------
+✅ FXML: reCAPTCHA sélectionné par défaut (au lieu d'Équation)
+✅ Java: Initialisation avec reCAPTCHA
+
+FICHIERS MODIFIÉS:
+------------------
+1. src/main/resources/fxml/login_with_captcha_choice.fxml
+   - Déplacé selected="true" vers recaptchaRadio
+
+2. src/main/java/Controllers/LoginWithCaptchaChoiceController.java
+   - Changé setupMathCaptcha() → recaptchaRadio.setSelected(true)
+
+COMMENT TESTER:
+---------------
+1. Copier le FXML manuellement:
+   copy src\main\resources\fxml\login_with_captcha_choice.fxml target\classes\fxml\
+
+2. Lancer l'application:
+   run.bat
+
+3. Vérifier:
+   ✅ reCAPTCHA est sélectionné par défaut
+   ✅ Case "Je ne suis pas un robot" visible
+   ✅ Pas d'équation mathématique
+
+ALTERNATIVE:
+------------
+Si vous voyez encore l'équation, sélectionnez manuellement
+"reCAPTCHA" dans les options.
+
+Les 3 méthodes restent disponibles:
+- Équation (simple)
+- reCAPTCHA (professionnel) ← PAR DÉFAUT
+- Puzzle (interactif)
+
+RÉSULTAT:
+---------
+Interface plus professionnelle avec le reCAPTCHA Google
+reconnu mondialement!
