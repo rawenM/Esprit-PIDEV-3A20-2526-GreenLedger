@@ -287,4 +287,29 @@ public class ProjetController {
             showError("Navigation impossible: " + e.getMessage());
         }
     }
+
+    @FXML
+    private void onOpenAssistant() {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/AssistantChat.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            Controllers.AssistantChatController c = loader.getController();
+          //  c.setContextHint("Écran: liste projets. L'utilisateur veut comprendre comment préparer et soumettre un projet.");
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Assistant GreenLedger");
+            stage.setScene(new javafx.scene.Scene(root, 720, 560));
+            stage.show();
+
+        } catch (Exception e) {
+            javafx.scene.control.Alert a = new javafx.scene.control.Alert(
+                    javafx.scene.control.Alert.AlertType.ERROR,
+                    "Impossible d'ouvrir l'assistant:\n" + e.getMessage(),
+                    javafx.scene.control.ButtonType.OK
+            );
+            a.setHeaderText(null);
+            a.showAndWait();
+        }
+    }
 }

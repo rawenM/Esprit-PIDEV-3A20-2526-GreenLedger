@@ -62,6 +62,13 @@
             <version>2.0.29</version>
         </dependency>
 
+        <!-- twilio SMS projet  -->
+        <dependency>
+            <groupId>com.twilio.sdk</groupId>
+            <artifactId>twilio</artifactId>
+            <version>9.14.0</version>
+        </dependency>
+
         <!-- NLP -->
         <dependency>
             <groupId>org.apache.opennlp</groupId>

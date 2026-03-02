@@ -27,7 +27,7 @@
         <Region VBox.vgrow="ALWAYS"/>
     </VBox>
 
-    <!-- Content -->
+
     <VBox spacing="0" HBox.hgrow="ALWAYS" styleClass="content-area">
 
         <!-- Header + Stats -->
@@ -90,20 +90,34 @@
                         <Label text="Liste des projets" styleClass="page-title"/>
                     </HBox>
 
-                    <TableView fx:id="table" prefHeight="520"
-                               VBox.vgrow="ALWAYS"
-                               styleClass="table-card table-projects">
-                        <placeholder>
-                            <Label text="Aucun projet" styleClass="placeholder-label"/>
-                        </placeholder>
-                        <columns>
-                            <TableColumn fx:id="colId" text="ID" prefWidth="70" styleClass="col-center"/>
-                            <TableColumn fx:id="colTitre" text="Titre" prefWidth="320" styleClass="col-left"/>
-                            <TableColumn fx:id="colStatut" text="Statut" prefWidth="160" styleClass="col-center"/>
-                            <TableColumn fx:id="colBudget" text="Budget" prefWidth="160" styleClass="col-center"/>
-                            <TableColumn fx:id="colEvaluation" text="Evaluation" prefWidth="160" styleClass="col-center"/>
-                        </columns>
-                    </TableView>
+                    <!-- StackPane pour placer le bouton Assistant en bas à droite -->
+                    <StackPane VBox.vgrow="ALWAYS">
+
+                        <TableView fx:id="table" prefHeight="520"
+                                   VBox.vgrow="ALWAYS"
+                                   styleClass="table-card table-projects">
+                            <placeholder>
+                                <Label text="Aucun projet" styleClass="placeholder-label"/>
+                            </placeholder>
+                            <columns>
+                                <TableColumn fx:id="colId" text="ID" prefWidth="70" styleClass="col-center"/>
+                                <TableColumn fx:id="colTitre" text="Titre" prefWidth="320" styleClass="col-left"/>
+                                <TableColumn fx:id="colStatut" text="Statut" prefWidth="160" styleClass="col-center"/>
+                                <TableColumn fx:id="colBudget" text="Budget" prefWidth="160" styleClass="col-center"/>
+                                <TableColumn fx:id="colEvaluation" text="Evaluation" prefWidth="160" styleClass="col-center"/>
+                            </columns>
+                        </TableView>
+
+                        <Button text="🤖 Assistant"
+                                onAction="#onOpenAssistant"
+                                StackPane.alignment="BOTTOM_RIGHT"
+                                style="-fx-background-color:#1f7a3a; -fx-text-fill:white; -fx-background-radius:12; -fx-padding: 8 14; -fx-font-weight: bold;"/>
+                        <StackPane.margin>
+                            <Insets top="0" right="8" bottom="8" left="0"/>
+                        </StackPane.margin>
+
+                    </StackPane>
+
                 </VBox>
 
             </VBox>

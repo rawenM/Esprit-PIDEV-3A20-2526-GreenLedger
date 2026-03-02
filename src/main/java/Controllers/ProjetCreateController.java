@@ -45,27 +45,22 @@ public class ProjetCreateController {
         refreshFilesUI();
     }
 
-    // ===============================
-    // BACK (NE FERME PAS L'APP)
-    // ===============================
     @FXML
     private void onBack() {
-        // ✅ Navigation standard (si MainFX existe)
+
         try {
-            org.GreenLedger.MainFX.setRoot("GestionProjet"); // ton accueil
+            org.GreenLedger.MainFX.setRoot("GestionProjet");
             return;
         } catch (Exception ignored) {}
 
-        // ✅ Fallback: fermer seulement si c'est une fenêtre secondaire
+
         try {
             Stage stage = (Stage) tfTitre.getScene().getWindow();
             if (stage.getOwner() != null) stage.close();
         } catch (Exception ignored) {}
     }
 
-    // ===============================
-    // ADD FILES
-    // ===============================
+
     @FXML
     private void onAddFiles() {
         FileChooser fc = new FileChooser();
@@ -101,9 +96,7 @@ public class ProjetCreateController {
         }
     }
 
-    // ===============================
-    // PDF PREVIEW + OPEN BROWSER
-    // ===============================
+
     @FXML
     private void onGeneratePdf() {
         try {
@@ -124,9 +117,7 @@ public class ProjetCreateController {
         }
     }
 
-    // ===============================
-    // SAVE DRAFT
-    // ===============================
+
     @FXML
     private void onSaveDraft() {
         try {
@@ -149,9 +140,6 @@ public class ProjetCreateController {
         }
     }
 
-    // ===============================
-    // SUBMIT + PDF FINAL
-    // ===============================
     @FXML
     private void onAdd() {
         try {
@@ -193,9 +181,7 @@ public class ProjetCreateController {
         }
     }
 
-    // ===============================
-    // BUILD PROJET
-    // ===============================
+
     private Projet buildProjetFromForm() {
         Projet p = new Projet();
 
