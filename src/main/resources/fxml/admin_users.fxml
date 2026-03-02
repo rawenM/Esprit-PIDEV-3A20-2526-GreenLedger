@@ -21,6 +21,7 @@
 
             <Label text="GESTION" styleClass="section-title-sidebar"/>
             <Button text="👤 Utilisateurs" styleClass="nav-btn" onAction="#handleNavUsers"/>
+            <Button text="📊 Statistiques" styleClass="nav-btn" onAction="#handleNavStatistics"/>
             <Button text="📁 Projets" styleClass="nav-btn" onAction="#handleNavProjets"/>
             <Button text="📊 Evaluations" styleClass="nav-btn" onAction="#handleNavEvaluations"/>
 
@@ -133,7 +134,6 @@
                             <TableColumn fx:id="typeColumn" text="Type" prefWidth="130"/>
                             <TableColumn fx:id="statutColumn" text="Statut" prefWidth="120"/>
                             <TableColumn fx:id="dateInscriptionColumn" text="Date Inscription" prefWidth="150"/>
-                            <TableColumn fx:id="fraudScoreColumn" text="Score Fraude" prefWidth="200"/>
                             <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="200"/>
                         </columns>
                     </TableView>

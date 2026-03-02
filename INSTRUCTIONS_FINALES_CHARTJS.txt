@@ -1,0 +1,178 @@
+========================================
+🎯 INSTRUCTIONS FINALES - Chart.js
+========================================
+
+✅ TOUT EST PRÊT!
+Les fichiers ont été mis à jour avec succès.
+
+========================================
+🚀 LANCER L'APPLICATION MAINTENANT
+========================================
+
+COMMANDE:
+./run.bat
+
+PUIS:
+1. Connectez-vous avec un compte ADMIN
+2. Dans le menu de gauche, cliquez sur "📊 Statistiques"
+3. La page s'ouvre avec:
+   - Stats rapides en haut
+   - Bouton "← Retour au Dashboard" visible
+   - 4 graphiques Chart.js
+
+========================================
+🖱️ UTILISATION
+========================================
+
+SCROLLER:
+✅ Utilisez la MOLETTE DE LA SOURIS (haut/bas)
+✅ Utilisez la BARRE DE DÉFILEMENT à droite
+✅ Drag avec la souris (pannable)
+
+NAVIGATION:
+✅ "🔄 Actualiser" → Recharge les données
+✅ "← Retour au Dashboard" → Retour admin
+
+INTERACTIVITÉ:
+✅ Survolez les graphiques → Voir valeurs
+✅ Cliquez sur légende → Masquer/Afficher
+✅ Animations fluides
+
+========================================
+📊 CE QUI EST VISIBLE
+========================================
+
+EN HAUT (FIXE):
+- Titre: "📊 Statistiques Utilisateurs"
+- Bouton "🔄 Actualiser" (bleu)
+- Bouton "← Retour au Dashboard" (gris)
+- 4 stats: Total, Actifs, Nouveaux (30j), Taux Fraude
+
+EN SCROLLANT:
+1. Répartition par Statut (Donut)
+2. Répartition par Type (Pie)
+3. Inscriptions par Mois (Line)
+4. Scores de Fraude (Bar)
+
+========================================
+✅ VÉRIFICATIONS
+========================================
+
+SI LE SCROLL NE FONCTIONNE PAS:
+1. Fermez l'application
+2. Relancez: ./run.bat
+3. Reconnectez-vous en admin
+4. Retestez
+
+SI LE BOUTON N'EST PAS VISIBLE:
+1. Vérifiez que vous êtes sur la bonne page
+2. Le bouton est en haut à droite
+3. Texte: "← Retour au Dashboard"
+
+SI LES GRAPHIQUES SONT COUPÉS:
+1. Scrollez avec la molette
+2. Utilisez la barre de défilement
+3. Les 4 graphiques sont visibles en scrollant
+
+========================================
+🎯 POUR LA DÉMO JURY
+========================================
+
+SCÉNARIO (2-3 minutes):
+
+1. "Voici notre dashboard de statistiques"
+   → Montrer la page
+
+2. "Nous avons 4 graphiques interactifs"
+   → Scroller pour montrer les 4
+
+3. "Les graphiques sont générés avec Chart.js"
+   → Mentionner l'API
+
+4. "Les données viennent en temps réel de MySQL"
+   → Cliquer "Actualiser"
+
+5. "Les graphiques sont interactifs"
+   → Survoler pour montrer les valeurs
+   → Cliquer sur légende
+
+6. "Navigation simple"
+   → Cliquer "Retour au Dashboard"
+
+========================================
+📝 POINTS TECHNIQUES À MENTIONNER
+========================================
+
+✅ API: Chart.js v4.4.0
+✅ Gratuite et open source
+✅ Communication Java ↔ JavaScript
+✅ WebView JavaFX
+✅ Données temps réel depuis MySQL
+✅ 4 types de graphiques différents
+✅ Interface responsive et moderne
+
+========================================
+🏆 RÉSUMÉ PROJET
+========================================
+
+APIS INTÉGRÉES:
+1. Gmail API (envoi emails)
+2. Google reCAPTCHA (sécurité)
+3. Chart.js (visualisation)
+
+FONCTIONNALITÉS IA:
+1. Détection de fraude (7 indicateurs)
+
+FONCTIONNALITÉS AVANCÉES:
+1. Reset mot de passe avec code
+2. Dashboard admin complet
+3. Statistiques interactives
+4. Gestion utilisateurs
+
+========================================
+📞 COMMANDES DE SECOURS
+========================================
+
+Si problème, dans l'ordre:
+
+1. ./update-resources.bat
+2. ./compile-chartjs.bat
+3. ./run.bat
+
+Si toujours problème:
+
+1. ./compile-all.bat
+2. ./update-resources.bat
+3. ./run.bat
+
+========================================
+✅ CHECKLIST AVANT DÉMO
+========================================
+
+[ ] Application lancée (./run.bat)
+[ ] Connexion admin réussie
+[ ] Page statistiques accessible
+[ ] Bouton "← Retour au Dashboard" visible
+[ ] Scroll avec molette fonctionne
+[ ] 4 graphiques visibles
+[ ] Interactivité testée (survol, clic)
+[ ] Bouton "Actualiser" fonctionne
+[ ] Retour au dashboard fonctionne
+
+========================================
+🎉 TOUT EST PRÊT!
+========================================
+
+Votre application GreenLedger est maintenant complète avec:
+✅ 3 APIs intégrées
+✅ 1 IA de détection de fraude
+✅ Dashboard admin professionnel
+✅ Statistiques interactives Chart.js
+✅ Sécurité renforcée (reCAPTCHA, reset password)
+
+Bonne chance pour votre présentation! 🚀
+
+========================================
+Date: 2 mars 2026
+Version: 1.0 - Production Ready
+========================================

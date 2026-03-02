@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="Controllers.UserStatisticsController"
+      spacing="16"
+      styleClass="content-area">
+
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+
+    <!-- Header avec stats -->
+    <VBox spacing="16" styleClass="card" style="-fx-background-color: white;">
+        <HBox alignment="CENTER_LEFT" spacing="16">
+            <Label text="📊 Statistiques Utilisateurs" styleClass="page-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="🔄 Actualiser" styleClass="btn-primary" onAction="#handleRefresh" 
+                    style="-fx-font-size: 14px; -fx-padding: 10 20 10 20;"/>
+        </HBox>
+
+        <!-- Stats rapides -->
+        <HBox spacing="12">
+            <VBox alignment="CENTER" styleClass="stat-card" spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Total Utilisateurs" styleClass="stat-title"/>
+                <Label fx:id="totalUsersLabel" text="0" styleClass="stat-value accent-blue"/>
+            </VBox>
+            <VBox alignment="CENTER" styleClass="stat-card" spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Actifs" styleClass="stat-title"/>
+                <Label fx:id="activeUsersLabel" text="0" styleClass="stat-value accent-green"/>
+            </VBox>
+            <VBox alignment="CENTER" styleClass="stat-card" spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Nouveaux (30j)" styleClass="stat-title"/>
+                <Label fx:id="newUsersLabel" text="0" styleClass="stat-value accent-amber"/>
+            </VBox>
+            <VBox alignment="CENTER" styleClass="stat-card" spacing="5" HBox.hgrow="ALWAYS">
+                <Label text="Taux de Fraude" styleClass="stat-title"/>
+                <Label fx:id="fraudRateLabel" text="0%" styleClass="stat-value accent-red"/>
+            </VBox>
+        </HBox>
+    </VBox>
+
+    <!-- Graphiques Chart.js dans ScrollPane -->
+    <ScrollPane fitToWidth="true" 
+                vbarPolicy="ALWAYS" 
+                hbarPolicy="NEVER"
+                pannable="true"
+                prefHeight="600"
+                VBox.vgrow="ALWAYS"
+                style="-fx-background-color: transparent; -fx-background: transparent;">
+        <VBox spacing="16">
+            <!-- Graphiques Chart.js -->
+            <VBox styleClass="card">
+                <Label text="📈 Visualisations Interactives (Chart.js)" styleClass="page-subtitle" 
+                       style="-fx-padding: 10 10 10 10;"/>
+                <WebView fx:id="chartsWebView" prefHeight="1600" minHeight="1600" maxHeight="1600"/>
+            </VBox>
+
+            <!-- Informations -->
+            <HBox spacing="12" styleClass="card" style="-fx-padding: 15;">
+                <Label text="ℹ️" style="-fx-font-size: 20px;"/>
+                <VBox spacing="5">
+                    <Label text="Graphiques générés avec Chart.js" styleClass="form-label"/>
+                    <Label text="Les données sont mises à jour en temps réel depuis votre base de données MySQL" 
+                           styleClass="page-subtitle" wrapText="true"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </ScrollPane>
+</VBox>

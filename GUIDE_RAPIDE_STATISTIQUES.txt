@@ -1,0 +1,133 @@
+========================================
+📊 GUIDE RAPIDE - Page Statistiques
+========================================
+
+🚀 ACCÈS RAPIDE
+========================================
+
+1. Lancez: ./run.bat
+2. Connectez-vous en ADMIN
+3. Menu gauche → Cliquez "📊 Statistiques"
+
+========================================
+🖱️ COMMENT NAVIGUER
+========================================
+
+SCROLLER:
+✅ Molette de la souris (haut/bas)
+✅ Barre de défilement à droite
+✅ Drag avec la souris (pannable)
+
+BOUTONS:
+✅ "🔄 Actualiser" → Recharge les données
+✅ "← Retour au Dashboard" → Retour admin
+
+========================================
+📈 LES 4 GRAPHIQUES
+========================================
+
+1️⃣ RÉPARTITION PAR STATUT (Donut)
+   - Actifs (vert)
+   - En Attente (jaune)
+   - Bloqués (rouge)
+   - Suspendus (gris)
+
+2️⃣ RÉPARTITION PAR TYPE (Pie)
+   - Investisseurs (bleu)
+   - Porteurs de Projet (orange)
+   - Admins (violet)
+   - Experts Carbone (cyan)
+
+3️⃣ INSCRIPTIONS PAR MOIS (Line)
+   - 6 derniers mois
+   - Courbe verte avec remplissage
+   - Points interactifs
+
+4️⃣ SCORES DE FRAUDE (Bar)
+   - Sûr 0-30 (vert)
+   - Faible 31-50 (vert clair)
+   - Moyen 51-70 (jaune)
+   - Élevé 71-85 (orange)
+   - Critique 86-100 (rouge)
+
+========================================
+💡 INTERACTIVITÉ
+========================================
+
+SURVOL:
+→ Passez la souris sur un graphique
+→ Voir les valeurs exactes
+
+LÉGENDE:
+→ Cliquez sur un élément de la légende
+→ Masquer/Afficher cette donnée
+
+ANIMATIONS:
+→ Graphiques animés au chargement
+→ Transitions fluides
+
+========================================
+🎯 STATS RAPIDES (EN HAUT)
+========================================
+
+📊 Total Utilisateurs → Nombre total
+✅ Actifs → Utilisateurs actifs
+🆕 Nouveaux (30j) → Inscriptions récentes
+🔒 Taux de Fraude → Pourcentage risque
+
+========================================
+⚠️ DÉPANNAGE
+========================================
+
+PROBLÈME: Graphiques ne s'affichent pas
+SOLUTION: Vérifiez votre connexion internet (CDN)
+
+PROBLÈME: Scroll ne fonctionne pas
+SOLUTION: Recompilez avec ./compile-chartjs.bat
+
+PROBLÈME: Bouton retour invisible
+SOLUTION: Vérifiez que vous êtes sur la bonne page
+
+PROBLÈME: Données vides
+SOLUTION: Normal si pas d'utilisateurs en base
+
+========================================
+🏆 POUR LA DÉMO JURY
+========================================
+
+SCÉNARIO:
+1. "Voici notre dashboard de statistiques"
+2. Montrer les 4 graphiques en scrollant
+3. Survoler pour montrer l'interactivité
+4. Cliquer sur légende pour masquer/afficher
+5. "Les données viennent en temps réel de MySQL"
+6. Cliquer "Actualiser" pour recharger
+7. "Nous utilisons Chart.js, une API moderne"
+
+TEMPS: 2-3 minutes max
+
+========================================
+✅ CHECKLIST AVANT DÉMO
+========================================
+
+[ ] Application lancée
+[ ] Connecté en admin
+[ ] Page statistiques accessible
+[ ] Les 4 graphiques visibles
+[ ] Scroll fonctionne
+[ ] Bouton retour visible
+[ ] Interactivité testée
+[ ] Données chargées
+
+========================================
+📞 COMMANDES UTILES
+========================================
+
+Compiler:     ./compile-chartjs.bat
+Lancer:       ./run.bat
+Tout compiler: ./compile-all.bat
+
+========================================
+Date: 2 mars 2026
+Version: 1.0 - Finale
+========================================

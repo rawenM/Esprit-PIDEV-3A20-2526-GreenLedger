@@ -1,0 +1,144 @@
+========================================
+✅ SOLUTION - Scroll Chart.js
+========================================
+
+PROBLÈME:
+Les modifications ne s'appliquent pas car les fichiers 
+dans target/classes ne sont pas mis à jour.
+
+========================================
+SOLUTION RAPIDE
+========================================
+
+ÉTAPE 1: Mettre à jour les ressources
+./update-resources.bat
+
+ÉTAPE 2: Relancer l'application
+./run.bat
+
+ÉTAPE 3: Tester
+- Connectez-vous en admin
+- Cliquez sur "📊 Statistiques"
+- Utilisez la MOLETTE DE LA SOURIS pour scroller
+- Le bouton "← Retour au Dashboard" doit être visible
+
+========================================
+POURQUOI CE PROBLÈME?
+========================================
+
+JavaFX charge les fichiers FXML et HTML depuis:
+target/classes/
+
+Quand vous modifiez:
+src/main/resources/
+
+Les changements ne sont PAS automatiquement copiés!
+
+SOLUTION:
+Utiliser update-resources.bat pour copier les fichiers
+
+========================================
+COMMANDES UTILES
+========================================
+
+1. Mettre à jour les ressources:
+   ./update-resources.bat
+
+2. Compiler le code Java:
+   ./compile-chartjs.bat
+
+3. Tout compiler (code + ressources):
+   ./compile-all.bat
+
+4. Lancer l'application:
+   ./run.bat
+
+========================================
+ORDRE CORRECT
+========================================
+
+Pour appliquer des modifications:
+
+1️⃣ Modifier le code Java
+   → Compiler avec compile-chartjs.bat
+
+2️⃣ Modifier les fichiers FXML/HTML
+   → Copier avec update-resources.bat
+
+3️⃣ Relancer l'application
+   → ./run.bat
+
+========================================
+VÉRIFICATION
+========================================
+
+Pour vérifier que les fichiers sont à jour:
+
+1. Ouvrir: target/classes/fxml/user_statistics.fxml
+2. Chercher: "← Retour au Dashboard"
+3. Si trouvé → Fichier à jour ✅
+4. Si pas trouvé → Relancer update-resources.bat
+
+========================================
+FICHIERS CONCERNÉS
+========================================
+
+SOURCES (à modifier):
+- src/main/resources/fxml/user_statistics.fxml
+- src/main/resources/charts/user-statistics.html
+
+CIBLES (utilisés par l'app):
+- target/classes/fxml/user_statistics.fxml
+- target/classes/charts/user-statistics.html
+
+========================================
+MODIFICATIONS APPLIQUÉES
+========================================
+
+Dans user_statistics.fxml:
+✅ ScrollPane avec vbarPolicy="ALWAYS"
+✅ Bouton "← Retour au Dashboard" visible
+✅ Header avec fond blanc
+✅ WebView height: 1600px
+
+Dans user-statistics.html:
+✅ Canvas height: 280px fixe
+✅ Graphiques 3 et 4 en pleine largeur
+✅ Padding optimisé
+
+========================================
+TEST FINAL
+========================================
+
+1. ./update-resources.bat
+2. ./run.bat
+3. Connexion admin
+4. Cliquer "📊 Statistiques"
+5. Vérifier:
+   [ ] Bouton "← Retour au Dashboard" visible
+   [ ] Scroll avec molette fonctionne
+   [ ] Barre de défilement visible à droite
+   [ ] 4 graphiques visibles en scrollant
+
+========================================
+SI ÇA NE MARCHE TOUJOURS PAS
+========================================
+
+OPTION 1: Recompiler tout
+./compile-all.bat
+
+OPTION 2: Nettoyer et recompiler
+1. Supprimer le dossier target/
+2. ./compile-all.bat
+3. ./update-resources.bat
+4. ./run.bat
+
+OPTION 3: Vérifier les fichiers
+1. Ouvrir target/classes/fxml/user_statistics.fxml
+2. Vérifier que les modifications sont présentes
+3. Si non, copier manuellement
+
+========================================
+Date: 2 mars 2026
+Statut: ✅ SOLUTION APPLIQUÉE
+========================================
