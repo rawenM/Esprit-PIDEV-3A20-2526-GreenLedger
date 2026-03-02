@@ -1,6 +1,9 @@
 package Services;
 
 import Models.MarketplaceOrder;
+import Models.BatchEventService;
+import Models.BatchEventType;
+import Models.CarbonCreditBatch;
 import DataBase.MyConnection;
 
 import java.sql.*;
@@ -260,6 +263,29 @@ public class MarketplaceOrderService {
                     System.err.println(LOG_TAG + " ERROR: Credit transfer failed for order " + orderId);
                     conn.rollback();
                     return false;
+                }
+                
+                // Record marketplace_sold event on transferred batches
+                try {
+                    List<CarbonCreditBatch> buyerBatches = walletService.getWalletBatches(buyerWalletId);
+                    BatchEventService batchEventService = new BatchEventService();
+                    
+                    for (CarbonCreditBatch batch : buyerBatches) {
+                        if (batch.getStatus() != null && batch.getStatus().equals("AVAILABLE")) {
+                            com.google.gson.JsonObject eventData = new com.google.gson.JsonObject();
+                            eventData.addProperty("order_id", orderId);
+                            eventData.addProperty("buyer_id", order.getBuyerId());
+                            eventData.addProperty("seller_id", order.getSellerId());
+                            eventData.addProperty("amount", order.getQuantity());
+                            eventData.addProperty("price_usd", order.getTotalAmountUsd());
+                            batchEventService.recordEvent(batch.getId(), 
+                                BatchEventType.MARKETPLACE_SOLD, eventData, actor);
+                            break; // Record event on first available batch
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println(LOG_TAG + " Warning: Could not record batch event: " + e.getMessage());
+                    // Don't fail the whole transaction for event logging
                 }
 
                 // Record marketplace_order_batches linkage

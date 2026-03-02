@@ -419,11 +419,11 @@ public class GreenWalletController extends BaseController {
         }
 
         if (btnViewAllBatches != null) {
-            btnViewAllBatches.setOnAction(e -> showInfo("Bientôt disponible", "La vue complète des batches sera disponible prochainement"));
+            btnViewAllBatches.setOnAction(e -> showBatches());
         }
 
         if (btnIssueBatch != null) {
-            btnIssueBatch.setOnAction(e -> showInfo("Bientôt disponible", "La création de batches sera implémentée prochainement"));
+            btnIssueBatch.setOnAction(e -> showQuickIssueDialog());
         }
 
         if (btnTestAdd25 != null) {
@@ -1204,6 +1204,7 @@ public class GreenWalletController extends BaseController {
                 System.out.println("[LOAD WALLET] ✓ Wallet loaded successfully");
                 updateWalletDisplay();
                 loadTransactions();
+                loadBatches();
             } else {
                 System.err.println("[LOAD WALLET] ✗ Wallet is NULL after loading!");
             }
@@ -1434,6 +1435,43 @@ public class GreenWalletController extends BaseController {
             tableTransactions.setItems(transactionList);
         } catch (Exception e) {
             showError("Erreur lors du chargement des transactions", e.getMessage());
+        }
+    }
+
+    private void loadBatches() {
+        if (currentWallet == null || listBatches == null) return;
+        
+        try {
+            List<CarbonCreditBatch> batches = walletService.getWalletBatches(currentWallet.getId());
+            ObservableList<String> batchDisplayList = FXCollections.observableArrayList();
+            
+            for (CarbonCreditBatch batch : batches) {
+                String display = String.format("📦 Batch #%d | %s | %.2f tCO₂ (%.2f disponible) | %s",
+                    batch.getId(),
+                    batch.getSerialNumber() != null ? batch.getSerialNumber() : "N/A",
+                    batch.getTotalAmount() != null ? batch.getTotalAmount().doubleValue() : 0.0,
+                    batch.getRemainingAmount() != null ? batch.getRemainingAmount().doubleValue() : 0.0,
+                    batch.getStatus()
+                );
+                batchDisplayList.add(display);
+            }
+            
+            listBatches.setItems(batchDisplayList);
+            
+            // Add click handler to open batch lineage viewer
+            listBatches.setOnMouseClicked(event -> {
+                if (event.getClickCount() == 2) {
+                    int selectedIndex = listBatches.getSelectionModel().getSelectedIndex();
+                    if (selectedIndex >= 0 && selectedIndex < batches.size()) {
+                        CarbonCreditBatch selectedBatch = batches.get(selectedIndex);
+                        openBatchLineageViewer(selectedBatch.getId());
+                    }
+                }
+            });
+            
+        } catch (Exception e) {
+            System.err.println("[LOAD BATCHES] Error loading batches: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 

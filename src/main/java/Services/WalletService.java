@@ -5,6 +5,7 @@ import Models.Wallet;
 import Models.CarbonCreditBatch;
 import Models.OperationWallet;
 import Models.BatchEventType;
+import Models.BatchEventService;
 import com.google.gson.JsonObject;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -312,6 +313,26 @@ public class WalletService {
      */
     public boolean quickIssueCredits(int walletId, double amount, String description) {
         try {
+            conn.setAutoCommit(false);
+            
+            // Get wallet to determine project ID
+            Wallet wallet = getWalletById(walletId);
+            if (wallet == null) {
+                conn.rollback();
+                return false;
+            }
+            
+            // Create batch for traceability (using wallet's owner_id as project substitute)
+            int projectId = wallet.getOwnerId() > 0 ? wallet.getOwnerId() : 1;
+            int batchId = createCreditBatch(projectId, walletId, amount, 
+                "QUICK_ISSUE", Models.BatchType.PRIMARY);
+            
+            if (batchId <= 0) {
+                conn.rollback();
+                return false;
+            }
+            
+            // Update wallet credits
             String sql = "UPDATE wallet SET available_credits = available_credits + ? WHERE id = ?";
             try (PreparedStatement ps = conn.prepareStatement(sql)) {
                 ps.setDouble(1, amount);
@@ -319,12 +340,33 @@ public class WalletService {
                 ps.executeUpdate();
             }
             
-            // Record simple transaction without batch
-            recordTransaction(walletId, null, "ISSUE", amount, description);
+            // Record transaction with batch linkage
+            recordTransaction(walletId, batchId, "ISSUE", amount, description);
+            
+            // Record batch event
+            BatchEventService eventService = new BatchEventService();
+            com.google.gson.JsonObject eventData = new com.google.gson.JsonObject();
+            eventData.addProperty("amount", amount);
+            eventData.addProperty("wallet_id", walletId);
+            eventData.addProperty("description", description);
+            eventService.recordEvent(batchId, BatchEventType.ISSUED, eventData, "SYSTEM");
+            
+            conn.commit();
             return true;
         } catch (SQLException ex) {
+            try {
+                conn.rollback();
+            } catch (SQLException e) {
+                System.err.println("Error rolling back: " + e.getMessage());
+            }
             System.out.println("Error quick issuing credits: " + ex.getMessage());
             return false;
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                System.err.println("Error resetting autocommit: " + e.getMessage());
+            }
         }
     }
 
