@@ -18,7 +18,11 @@ public class WalletService {
     private Connection conn;
 
     public WalletService() {
-        this.conn = MyConnection.getConnection();
+        try {
+            this.conn = MyConnection.getConnection();
+        } catch (SQLException e) {
+            throw new IllegalStateException("Impossible d'ouvrir la connexion DB", e);
+        }
     }
 
     // ==================== CRUD OPERATIONS ====================

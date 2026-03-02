@@ -10,96 +10,105 @@ import java.util.List;
 
 public class ProjetService {
 
-    private final Connection cnx = MyConnection.getConnection();
-
-
     public List<Projet> afficher() {
-        String sql =
-                "SELECT p.id, p.entreprise_id, p.titre, p.description, p.statut, p.score_esg, " +
-                        "       p.company_address, p.company_email, p.company_phone, " +
-                        "       b.id_budget, b.montant, b.raison, b.devise " +
-                        "FROM projet p " +
-                        "LEFT JOIN budget b ON b.id_projet = p.id " +
-                        "ORDER BY p.date_creation DESC";
+        try (Connection cnx = MyConnection.getConnection()) {
+            String sql = "SELECT id, entreprise_id, titre, description, budget, statut, score_esg, " +
+                    "       company_address, company_email, company_phone " +
+                    "FROM projet " +
+                    "ORDER BY date_creation DESC";
 
-        List<Projet> list = new ArrayList<>();
+            List<Projet> list = new ArrayList<>();
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+            try (PreparedStatement ps = cnx.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                list.add(mapProjetWithBudget(rs));
+                while (rs.next()) {
+                    Integer score = (Integer) rs.getObject("score_esg");
+
+                    Projet p = new Projet(
+                            rs.getInt("id"),
+                            rs.getInt("entreprise_id"),
+                            rs.getString("titre"),
+                            rs.getString("description"),
+                            rs.getDouble("budget"),
+                            score,
+                            rs.getString("statut"),
+                            rs.getString("company_address"),
+                            rs.getString("company_email"),
+                            rs.getString("company_phone")
+                    );
+
+                    list.add(p);
+                }
+
+            } catch (SQLException e) {
+                System.out.println("Erreur afficher projets: " + e.getMessage());
             }
 
+            return list;
         } catch (SQLException e) {
-            System.out.println("Erreur afficher projets: " + e.getMessage());
+            System.out.println("Erreur afficher projets (connexion): " + e.getMessage());
+            return new ArrayList<>();
         }
-
-        return list;
     }
 
     public List<Projet> getByEntreprise(int entrepriseId) {
-        String sql =
-                "SELECT p.id, p.entreprise_id, p.titre, p.description, p.statut, p.score_esg, " +
-                        "       p.company_address, p.company_email, p.company_phone, " +
-                        "       b.id_budget, b.montant, b.raison, b.devise " +
-                        "FROM projet p " +
-                        "LEFT JOIN budget b ON b.id_projet = p.id " +
-                        "WHERE p.entreprise_id=? " +
-                        "ORDER BY p.date_creation DESC";
+        try (Connection cnx = MyConnection.getConnection()) {
+            String sql = "SELECT id, entreprise_id, titre, description, budget, statut, score_esg, " +
+                    "       company_address, company_email, company_phone " +
+                    "FROM projet " +
+                    "WHERE entreprise_id=? " +
+                    "ORDER BY date_creation DESC";
 
-        List<Projet> list = new ArrayList<>();
+            List<Projet> list = new ArrayList<>();
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            ps.setInt(1, entrepriseId);
+            try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+                ps.setInt(1, entrepriseId);
 
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(mapProjetWithBudget(rs));
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        Integer score = (Integer) rs.getObject("score_esg");
+                        Projet p = new Projet(
+                                rs.getInt("id"),
+                                rs.getInt("entreprise_id"),
+                                rs.getString("titre"),
+                                rs.getString("description"),
+                                rs.getDouble("budget"),
+                                score,
+                                rs.getString("statut"),
+                                rs.getString("company_address"),
+                                rs.getString("company_email"),
+                                rs.getString("company_phone")
+                        );
+
+                        list.add(p);
+                    }
                 }
+
+            } catch (SQLException e) {
+                System.out.println("Erreur getByEntreprise: " + e.getMessage());
             }
 
+            return list;
         } catch (SQLException e) {
-            System.out.println("Erreur getByEntreprise: " + e.getMessage());
+            System.out.println("Erreur getByEntreprise (connexion): " + e.getMessage());
+            return new ArrayList<>();
         }
-
-        return list;
-    }
-
-    public List<Projet> getByEntreprise(Integer entrepriseId) {
-        if (entrepriseId == null) return new ArrayList<>();
-        return getByEntreprise(entrepriseId.intValue());
     }
 
     public void insert(Projet p) {
-        insertAndReturnId(p);
-    }
+        String sql = "INSERT INTO projet (" +
+                "  entreprise_id, titre, description, budget, statut, score_esg, " +
+                "  company_address, company_email, company_phone" +
+                ") VALUES (?,?,?,?,?,?,?,?,?)";
 
-    public int insertAndReturnId(Projet p) {
-        if (p == null) return -1;
-
-        Budget b = extractBudgetSafe(p);
-
-        String sqlProjet =
-                "INSERT INTO projet (entreprise_id, titre, description, statut, score_esg, company_address, company_email, company_phone) " +
-                        "VALUES (?,?,?,?,?,?,?,?)";
-
-        String sqlBudget =
-                "INSERT INTO budget (montant, raison, devise, id_projet) VALUES (?,?,?,?)";
-
-        try {
-            cnx.setAutoCommit(false);
-
-            int newId;
-            try (PreparedStatement ps = cnx.prepareStatement(sqlProjet, Statement.RETURN_GENERATED_KEYS)) {
-
-                ps.setInt(1, p.getEntrepriseId());
-                ps.setString(2, p.getTitre());
-                ps.setString(3, p.getDescription());
-
-                // statut
-                String statut = safeStatut(p);
-                ps.setString(4, statut);
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, p.getEntrepriseId());
+            ps.setString(2, p.getTitre());
+            ps.setString(3, p.getDescription());
+            ps.setDouble(4, p.getBudget());
+            ps.setString(5, p.getStatut());
 
                 // score ESG doit rester NULL côté entreprise
                 if (p.getScoreEsg() == null) ps.setNull(5, Types.INTEGER);
@@ -165,43 +174,22 @@ public class ProjetService {
                 "UPDATE projet SET titre=?, description=?, company_address=?, company_email=?, company_phone=? " +
                         "WHERE id=?";
 
-        String sqlBudget =
-                "UPDATE budget SET montant=?, raison=?, devise=? WHERE id_projet=?";
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setString(1, p.getTitre());
+            ps.setString(2, p.getDescription());
+            ps.setDouble(3, p.getBudget());
+            ps.setString(4, p.getStatut());
+            if (p.getScoreEsg() == null) ps.setNull(5, Types.INTEGER);
+            else ps.setInt(5, p.getScoreEsg());
 
-        try {
-            cnx.setAutoCommit(false);
+            ps.setString(6, p.getCompanyAddress());
+            ps.setString(7, p.getCompanyEmail());
+            ps.setString(8, p.getCompanyPhone());
 
-            try (PreparedStatement ps = cnx.prepareStatement(sqlProjet)) {
-                ps.setString(1, p.getTitre());
-                ps.setString(2, p.getDescription());
-                ps.setString(3, p.getCompanyAddress());
-                ps.setString(4, p.getCompanyEmail());
-                ps.setString(5, p.getCompanyPhone());
-                ps.setInt(6, p.getId());
-                ps.executeUpdate();
-            }
+            ps.setInt(9, p.getId());
 
-            int updated;
-            try (PreparedStatement psB = cnx.prepareStatement(sqlBudget)) {
-                psB.setDouble(1, b.getMontant());
-                psB.setString(2, b.getRaison());
-                psB.setString(3, normalizeDevise(b.getDevise()));
-                psB.setInt(4, p.getId());
-                updated = psB.executeUpdate();
-            }
-
-            if (updated == 0) {
-                String ins = "INSERT INTO budget (montant, raison, devise, id_projet) VALUES (?,?,?,?)";
-                try (PreparedStatement psIns = cnx.prepareStatement(ins)) {
-                    psIns.setDouble(1, b.getMontant());
-                    psIns.setString(2, b.getRaison());
-                    psIns.setString(3, normalizeDevise(b.getDevise()));
-                    psIns.setInt(4, p.getId());
-                    psIns.executeUpdate();
-                }
-            }
-
-            cnx.commit();
+            ps.executeUpdate();
 
         } catch (SQLException e) {
             rollbackQuietly();
@@ -214,7 +202,8 @@ public class ProjetService {
 
     public void updateDescriptionOnly(int id, String description, String address, String email, String phone) {
         String sql = "UPDATE projet SET description=?, company_address=?, company_email=?, company_phone=? WHERE id=?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setString(1, description);
             ps.setString(2, address);
             ps.setString(3, email);
@@ -229,7 +218,8 @@ public class ProjetService {
 
     public void delete(int id) {
         String sql = "DELETE FROM projet WHERE id=?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -248,7 +238,8 @@ public class ProjetService {
         }
 
         String sql = "UPDATE projet SET statut='CANCELLED' WHERE id=?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -265,7 +256,8 @@ public class ProjetService {
         }
 
         String sql = "UPDATE projet SET statut=? WHERE id=?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setString(1, statut);
             ps.setInt(2, idProjet);
             return ps.executeUpdate() > 0;
@@ -277,7 +269,8 @@ public class ProjetService {
 
     public String getStatutById(int idProjet) {
         String sql = "SELECT statut FROM projet WHERE id=?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idProjet);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getString("statut");

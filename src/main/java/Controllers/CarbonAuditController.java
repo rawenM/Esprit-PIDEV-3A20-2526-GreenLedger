@@ -3,29 +3,44 @@ package Controllers;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.application.Platform;
+import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.FlowPane;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.cell.PropertyValueFactory;
 import Models.CritereReference;
 import Models.Evaluation;
 import Models.EvaluationResult;
 import Models.Projet;
 import Services.CritereImpactService;
 import Services.EvaluationService;
-import org.GreenLedger.MainFX;
 import Services.ProjetService;
 import Services.ProjectEsgService;
+import Services.DynamicPdfService;
+import com.google.gson.Gson;
+import com.google.gson.reflect.TypeToken;
+import org.GreenLedger.MainFX;
 import Utils.SessionManager;
 import Models.TypeUtilisateur;
 import Models.User;
 
-
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
+import DataBase.MyConnection;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import javafx.animation.PauseTransition;
 
 public class CarbonAuditController extends BaseController {
 
@@ -36,13 +51,16 @@ public class CarbonAuditController extends BaseController {
         selectedProjet = projet;
     }
 
+    public static void setLastSelectedEvaluationId(Integer evaluationId) {
+        lastSelectedEvaluationId = evaluationId;
+    }
+
     @FXML private Button btnGestionProjets;
 
     @FXML private Button btnGestionEvaluations;
 
     @FXML private Button btnSettings;
 
-    @FXML private ComboBox<String> comboProjet;
     @FXML private TableView<Evaluation> tableAudits;
     @FXML private TableView<Projet> tableProjets;
     @FXML private TableView<CritereReference> tableCriteres;
@@ -68,6 +86,7 @@ public class CarbonAuditController extends BaseController {
     @FXML private TextField txtIdProjet;
     @FXML private RadioButton chkDecisionApproved;
     @FXML private RadioButton chkDecisionRejected;
+    @FXML private Label lblSelectedProjectName;
 
     @FXML private FlowPane flowCriteres;
     @FXML private TextField txtNomCritere;
@@ -94,6 +113,9 @@ public class CarbonAuditController extends BaseController {
     @FXML private TextArea txtAIInsights;
     @FXML private Button btnExportPdf;
 
+    @FXML private javafx.scene.layout.HBox evaluationBanner;
+    @FXML private Label lblEvaluationBanner;
+
     // Signature UI
     @FXML private javafx.scene.canvas.Canvas signatureCanvas;
     private javafx.scene.canvas.GraphicsContext sigGc;
@@ -105,6 +127,14 @@ public class CarbonAuditController extends BaseController {
     @FXML private Button btnSaveEsg;
     @FXML private Label lblEsgScore;
     @FXML private TextArea txtEsgDetails;
+
+    // ML UI
+    @FXML private Button btnMlPredict;
+    @FXML private TextArea txtMlRecommendation;
+    @FXML private Label lblMlStatus;
+    @FXML private Label lblDecisionValue;
+    @FXML private javafx.scene.control.ListView<String> listMlFactors;
+    @FXML private javafx.scene.chart.LineChart<Number, Number> mlFactorsChart;
 
     private final EvaluationService evaluationService = new EvaluationService();
     private final ProjetService projetService = new ProjetService();
@@ -118,6 +148,24 @@ public class CarbonAuditController extends BaseController {
     private Integer selectedEvaluationId;
 
     private final ToggleGroup decisionGroup = new ToggleGroup();
+
+    private String lastMlDecision;
+    private Double lastMlConfidence;
+
+    private static final java.util.Map<Integer, String> mlDecisionByProject = new java.util.concurrent.ConcurrentHashMap<>();
+
+    public static Projet getSelectedProjet() {
+        return selectedProjet;
+    }
+
+    public static void storeMlDecision(int projectId, String decision) {
+        if (decision == null) return;
+        mlDecisionByProject.put(projectId, decision);
+    }
+
+    private static String getStoredMlDecision(int projectId) {
+        return mlDecisionByProject.get(projectId);
+    }
 
     @FXML
     public void initialize() {
@@ -263,31 +311,22 @@ public class CarbonAuditController extends BaseController {
         if (tableProjets != null) {
             tableProjets.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selected) -> {
                 if (selected != null) {
-                    String label = selected.getId() + " - " + selected.getTitre();
+                    selectedProjet = selected;
                     if (txtIdProjet != null) {
                         txtIdProjet.setText(String.valueOf(selected.getId()));
                     }
-                    if (comboProjet != null) {
-                        comboProjet.getSelectionModel().select(label);
-                    }
-                }
-            });
-        }
-        if (comboProjet != null) {
-            comboProjet.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, selected) -> {
-                if (selected != null) {
-                    Integer extracted = extractLeadingNumber(selected);
-                    if (extracted != null && txtIdProjet != null) {
-                        txtIdProjet.setText(String.valueOf(extracted));
-                    }
-                    if (selectedEvaluationId == null) {
-                        rebuildCriteriaFields(null);
+                    if (lblSelectedProjectName != null) {
+                        lblSelectedProjectName.setText(selected.getTitre());
                     }
                 }
             });
         }
 
         selectProjetIfSet();
+
+        if (lastSelectedEvaluationId != null) {
+            loadEvaluationById(lastSelectedEvaluationId);
+        }
 
         if (boxAddCritere != null) {
             boxAddCritere.setVisible(true);
@@ -311,6 +350,10 @@ public class CarbonAuditController extends BaseController {
                 signatureDrawn = true;
             });
         }
+
+        if (lblDecisionValue != null) {
+            lblDecisionValue.setText("Décision ML: —");
+        }
     }
 
     private void refreshCriteres() {
@@ -326,17 +369,6 @@ public class CarbonAuditController extends BaseController {
         ObservableList<Projet> projets = FXCollections.observableArrayList(projetService.afficher());
         if (tableProjets != null) {
             tableProjets.setItems(projets);
-        }
-        if (comboProjet != null) {
-            ObservableList<String> labels = FXCollections.observableArrayList();
-            for (Projet projet : projets) {
-                String statut = projet.getStatut();
-                if (statut == null || !statut.equalsIgnoreCase("SUBMITTED")) {
-                    continue;
-                }
-                labels.add(projet.getId() + " - " + projet.getTitre());
-            }
-            comboProjet.setItems(labels);
         }
         updateProjetStats(projets);
         selectProjetIfSet();
@@ -425,6 +457,9 @@ public class CarbonAuditController extends BaseController {
         }
         if (txtIdProjet != null) {
             txtIdProjet.setText(String.valueOf(selectedProjet.getId()));
+        }
+        if (lblSelectedProjectName != null) {
+            lblSelectedProjectName.setText(selectedProjet.getTitre());
         }
         selectedEvaluationId = null;
         rebuildCriteriaFields(null);
@@ -559,107 +594,185 @@ public class CarbonAuditController extends BaseController {
 
     @FXML
     void ajouterEvaluation() {
-        Evaluation evaluation = readEvaluationFromForm(false);
-        if (evaluation == null) {
-            return;
-        }
-        List<EvaluationResult> resultats = collectResultatsFromFields();
-        if (resultats == null || resultats.isEmpty()) {
-            showError("Ajoutez au moins un critere avant de creer l'evaluation.");
-            return;
-        }
-        evaluation.setScoreGlobal(calculateScore(resultats));
-        if (txtScoreFinal != null) {
-            txtScoreFinal.setText(formatScore(evaluation.getScoreGlobal()));
-        }
-
-        // Affichage minimaliste IA: "NomCritere: Recommandation" (top 3)
         try {
-            java.util.List<String> recs = advancedFacade.criterionRecommendations(resultats);
-            if (lblAISuggestion != null) {
-                String compact = recs.stream().limit(3).collect(Collectors.joining(" • "));
-                lblAISuggestion.setText(compact);
+            if (!validateEvaluationSchema()) {
+                return;
             }
-        } catch (Exception ignore) { }
 
-        int createdId = evaluationService.ajouterAvecCriteres(evaluation, resultats);
-        if (createdId <= 0) {
-            showError("Creation evaluation echouee.");
-            return;
-        }
+            Integer ensuredProjectId = resolveCurrentProjectId();
+            if (ensuredProjectId != null && txtIdProjet != null) {
+                txtIdProjet.setText(String.valueOf(ensuredProjectId));
+            }
 
-        // Calculer et persister le score ESG du projet suite à la nouvelle évaluation
-        try {
-            Integer esg = projectEsgService.calculateEsgForProject(evaluation.getIdProjet());
-            if (esg != null) {
-                // Récupérer le projet et mettre à jour scoreEsg
-                java.util.List<Projet> all = projetService.afficher();
-                if (all != null) {
-                    for (Projet p : all) {
-                        if (p != null && p.getId() == evaluation.getIdProjet()) {
-                            p.setScoreEsg(esg);
-                            try { projetService.update(p); } catch (Exception ignore) {}
+            // Lancer l'IA d'abord pour obtenir la decision avant la creation.
+            handleMlPredict();
+
+            Evaluation evaluation = readEvaluationFromForm(false);
+            if (evaluation == null) {
+                return;
+            }
+            List<EvaluationResult> resultats = collectResultatsFromFields();
+            if (resultats == null || resultats.isEmpty()) {
+                showError("Ajoutez au moins un critere avant de creer l'evaluation.");
+                return;
+            }
+            if (resolveDecision(false, evaluation.getIdProjet()) == null) {
+                String localDecision = computeLocalDecision(resultats);
+                if (localDecision != null) {
+                    lastMlDecision = localDecision;
+                    storeMlDecision(evaluation.getIdProjet(), localDecision);
+                }
+            }
+            if (resolveDecision(false, evaluation.getIdProjet()) == null) {
+                showError("Lancez l'evaluation ML pour obtenir la decision.");
+                return;
+            }
+
+            evaluation.setScoreGlobal(calculateScore(resultats));
+            if (txtScoreFinal != null) {
+                txtScoreFinal.setText(formatScore(evaluation.getScoreGlobal()));
+            }
+
+            // Affichage minimaliste IA: "NomCritere: Recommandation" (top 3)
+            try {
+                java.util.List<String> recs = advancedFacade.criterionRecommendations(resultats);
+                if (lblAISuggestion != null) {
+                    String compact = recs.stream().limit(3).collect(Collectors.joining(" • "));
+                    lblAISuggestion.setText(compact);
+                }
+            } catch (Exception ignore) { }
+
+            int createdId = evaluationService.ajouterAvecCriteres(evaluation, resultats);
+            if (createdId <= 0) {
+                String details = evaluationService.getLastErrorMessage();
+                showError("Creation evaluation echouee." + (details != null ? ("\n" + details) : ""));
+                return;
+            }
+
+            // Calculer et persister le score ESG du projet suite à la nouvelle évaluation
+            try {
+                Integer esg = projectEsgService.calculateEsgForProject(evaluation.getIdProjet());
+                if (esg != null) {
+                    // Récupérer le projet et mettre à jour scoreEsg
+                    java.util.List<Projet> all = projetService.afficher();
+                    if (all != null) {
+                        for (Projet p : all) {
+                            if (p != null && p.getId() == evaluation.getIdProjet()) {
+                                p.setScoreEsg(esg);
+                                try { projetService.update(p); } catch (Exception ignore) {}
+                                break;
+                            }
+                        }
+                    }
+                }
+            } catch (Exception ex) {
+                // On ne bloque pas l'UX si l'ESG ne peut pas être calculé
+                System.err.println("ESG update failed: " + ex.getMessage());
+            }
+
+            // ============ EXTERNAL API INTEGRATION ============
+            // Enrich evaluation with external carbon and air quality data
+            try {
+                // Get the project details
+                java.util.List<Projet> allProjects = projetService.afficher();
+                if (allProjects != null) {
+                    for (Projet proj : allProjects) {
+                        if (proj != null && proj.getId() == evaluation.getIdProjet()) {
+                            // Run external API enrichment off the UI thread to avoid blocking
+                            final Projet projFinal = proj;
+                            final Integer evalIdFinal = createdId;
+                            java.util.concurrent.CompletableFuture
+                                    .runAsync(() -> {
+                                        try {
+                                            Models.CarbonReport carbonReport = carbonReportService.createReport(
+                                                    (long) projFinal.getId(),
+                                                    projFinal.getTitre(),
+                                                    (long) projFinal.getEntrepriseId(),
+                                                    projFinal.getCompanyEmail() != null ? projFinal.getCompanyEmail() : "Unknown"
+                                            );
+                                            if (carbonReport != null) {
+                                                carbonReportService.enrichWithExternalData(carbonReport, projFinal);
+                                                javafx.application.Platform.runLater(() -> {
+                                                    if (txtAIInsights != null && carbonReport.getEvaluationDetails() != null) {
+                                                        String currentText = txtAIInsights.getText();
+                                                        txtAIInsights.setText(currentText + "\n\n" + carbonReport.getEvaluationDetails());
+                                                    }
+                                                    System.out.println("[AUDIT CONTROLLER] ✓ External API data integrated for evaluation " + evalIdFinal);
+                                                });
+                                            }
+                                        } catch (Exception apiEx) {
+                                            javafx.application.Platform.runLater(() -> {
+                                                System.err.println("[AUDIT CONTROLLER] External API enrichment failed: " + apiEx.getMessage());
+                                                if (txtAIInsights != null) {
+                                                    String currentText = txtAIInsights.getText();
+                                                    txtAIInsights.setText(currentText + "\n\n⚠️ External API data unavailable");
+                                                }
+                                            });
+                                        }
+                                    })
+                                    .orTimeout(5, java.util.concurrent.TimeUnit.SECONDS)
+                                    .exceptionally(ex -> {
+                                        javafx.application.Platform.runLater(() -> {
+                                            System.err.println("[AUDIT CONTROLLER] External API timeout: " + ex.getMessage());
+                                            if (txtAIInsights != null) {
+                                                String currentText = txtAIInsights.getText();
+                                                txtAIInsights.setText(currentText + "\n\n⚠️ External API timeout");
+                                            }
+                                        });
+                                        return null;
+                                    });
                             break;
                         }
                     }
                 }
-            }
-        } catch (Exception ex) {
-            // On ne bloque pas l'UX si l'ESG ne peut pas être calculé
-            System.err.println("ESG update failed: " + ex.getMessage());
-        }
-
-        // ============ EXTERNAL API INTEGRATION ============
-        // Enrich evaluation with external carbon and air quality data
-        try {
-            // Get the project details
-            java.util.List<Projet> allProjects = projetService.afficher();
-            if (allProjects != null) {
-                for (Projet proj : allProjects) {
-                    if (proj != null && proj.getId() == evaluation.getIdProjet()) {
-                        // Create a carbon report for this evaluation
-                        Models.CarbonReport carbonReport = carbonReportService.createReport(
-                            (long) proj.getId(),
-                            proj.getTitre(),
-                            (long) proj.getEntrepriseId(),
-                            proj.getCompanyEmail() != null ? proj.getCompanyEmail() : "Unknown"
-                        );
-                        
-                        // Enrich with external API data (graceful degradation)
-                        if (carbonReport != null) {
-                            carbonReportService.enrichWithExternalData(carbonReport, proj);
-                            
-                            // Display enrichment info in AI insights area
-                            if (txtAIInsights != null && carbonReport.getEvaluationDetails() != null) {
-                                String currentText = txtAIInsights.getText();
-                                txtAIInsights.setText(currentText + "\n\n" + carbonReport.getEvaluationDetails());
-                            }
-                            
-                            System.out.println("[AUDIT CONTROLLER] ✓ External API data integrated");
-                        }
-                        break;
-                    }
+            } catch (Exception apiEx) {
+                // Graceful degradation - continue without external data
+                System.err.println("[AUDIT CONTROLLER] External API enrichment failed: " + apiEx.getMessage());
+                if (txtAIInsights != null) {
+                    String currentText = txtAIInsights.getText();
+                    txtAIInsights.setText(currentText + "\n\n⚠️ External API data unavailable");
                 }
             }
-        } catch (Exception apiEx) {
-            // Graceful degradation - continue without external data
-            System.err.println("[AUDIT CONTROLLER] External API enrichment failed: " + apiEx.getMessage());
-            if (txtAIInsights != null) {
-                String currentText = txtAIInsights.getText();
-                txtAIInsights.setText(currentText + "\n\n⚠️ External API data unavailable");
-            }
-        }
-        // ==================================================
+            // ==================================================
 
-        refreshEvaluations();
-        refreshProjets();
-        refreshCriteres();
-        rebuildCriteriaFields(createdId);
-        clearEvaluationForm();
+            refreshEvaluations();
+            refreshProjets();
+            refreshCriteres();
+            rebuildCriteriaFields(createdId);
+            clearEvaluationForm();
+
+            // Auto run ML and redirect to dashboard
+            selectedProjet = findProjectById(evaluation.getIdProjet());
+            showCongratsPopupAndRedirect();
+        } catch (Exception ex) {
+            System.err.println("Creation evaluation crashed: " + ex.getMessage());
+            showError("Creation evaluation echouee: " + ex.getMessage());
+        }
+    }
+
+    private void showCongratsPopupAndRedirect() {
+        if (evaluationBanner != null && lblEvaluationBanner != null) {
+            lblEvaluationBanner.setText("Evaluation creee. Score ESG en calcul, decision ML en cours...");
+            evaluationBanner.setVisible(true);
+            evaluationBanner.setManaged(true);
+        }
+
+        PauseTransition delay = new PauseTransition(javafx.util.Duration.seconds(1.8));
+        delay.setOnFinished(event -> {
+            if (evaluationBanner != null) {
+                evaluationBanner.setVisible(false);
+                evaluationBanner.setManaged(false);
+            }
+            handleOpenMlDashboard();
+        });
+        delay.play();
     }
 
     @FXML
     void modifierEvaluation() {
+        if (!validateEvaluationSchema()) {
+            return;
+        }
         Evaluation evaluation = readEvaluationFromForm(true);
         if (evaluation == null) {
             return;
@@ -821,16 +934,21 @@ public class CarbonAuditController extends BaseController {
             return null;
         }
         String observations = requireLength(txtObservations, "Observations", 10, 250);
-        String decision = decisionFromSelection();
         Integer idProjet = parseInt(txtIdProjet.getText(), "ID Projet");
 
-        if (observations == null || decision == null || idProjet == null) {
+        if (observations == null || idProjet == null) {
             return null;
         }
 
         String statut = projetService.getStatutById(idProjet);
         if (statut != null && statut.trim().equalsIgnoreCase("CANCELLED")) {
             showError("Impossible d'evaluer un projet cancelled.");
+            return null;
+        }
+
+        String decision = resolveDecision(requireId, idProjet);
+        if (decision == null) {
+            showError("Lancez l'évaluation ML pour obtenir la décision.");
             return null;
         }
 
@@ -845,6 +963,67 @@ public class CarbonAuditController extends BaseController {
         return evaluation;
     }
 
+    private void loadEvaluationById(int evaluationId) {
+        Evaluation target = getEvaluationById(evaluationId);
+        if (target == null) {
+            return;
+        }
+        applyEvaluationToForm(target);
+        if (target.getDecision() != null) {
+            lastMlDecision = target.getDecision();
+        }
+        selectedEvaluationId = target.getIdEvaluation();
+    }
+
+    private Evaluation getEvaluationById(int evaluationId) {
+        List<Evaluation> all = evaluationService.afficher();
+        if (all == null) return null;
+        for (Evaluation ev : all) {
+            if (ev != null && ev.getIdEvaluation() == evaluationId) {
+                return ev;
+            }
+        }
+        return null;
+    }
+
+    private String resolveDecision(boolean requireId, int projectId) {
+        if (lastMlDecision != null) {
+            return mapMlDecision(lastMlDecision);
+        }
+        String stored = getStoredMlDecision(projectId);
+        if (stored != null) {
+            return mapMlDecision(stored);
+        }
+        if (requireId) {
+            if (tableAudits != null) {
+                Evaluation selected = tableAudits.getSelectionModel().getSelectedItem();
+                if (selected != null && selected.getDecision() != null) {
+                    return selected.getDecision();
+                }
+            }
+            Integer evalId = selectedEvaluationId != null ? selectedEvaluationId : lastSelectedEvaluationId;
+            if (evalId != null) {
+                Evaluation ev = getEvaluationById(evalId);
+                if (ev != null && ev.getDecision() != null) {
+                    return ev.getDecision();
+                }
+            }
+        }
+        return null;
+    }
+
+    private String mapMlDecision(String mlDecision) {
+        if (mlDecision == null) return null;
+        String v = mlDecision.trim().toLowerCase();
+        if (v.contains("approve") || v.contains("accept") || v.contains("ok") || v.contains("accepted")) {
+            return "Approuve";
+        }
+        if (v.contains("reject") || v.contains("refuse") || v.contains("rejected")) {
+            return "Rejete";
+        }
+        return "Rejete";
+    }
+
     private void clearEvaluationForm() {
         if (txtObservations != null) {
             txtObservations.clear();
@@ -855,32 +1034,32 @@ public class CarbonAuditController extends BaseController {
         if (txtScoreFinal != null) {
             txtScoreFinal.clear();
         }
-        clearDecisionSelection();
-    }
-
-    private String decisionFromSelection() {
-        if (chkDecisionApproved == null || chkDecisionRejected == null) {
-            showError("Decision manquante.");
-            return null;
+        lastMlDecision = null;
+        lastMlConfidence = null;
+        lastSelectedEvaluationId = null;
+        if (lblDecisionValue != null) {
+            lblDecisionValue.setText("Décision ML: —");
         }
-        if (chkDecisionApproved.isSelected() == chkDecisionRejected.isSelected()) {
-            showError("Selectionnez une seule decision.");
-            return null;
+        if (lblMlStatus != null) {
+            lblMlStatus.setText("ML: prêt");
         }
-        return chkDecisionApproved.isSelected() ? "Approuve" : "Rejete";
+        if (listMlFactors != null) {
+            listMlFactors.getItems().clear();
+        }
+        if (mlFactorsChart != null) {
+            mlFactorsChart.getData().clear();
+        }
     }
 
     private void enforceSingleDecision() {
-        // ToggleGroup already enforces single selection.
+        if (chkDecisionApproved == null || chkDecisionRejected == null) {
+            return;
+        }
         chkDecisionApproved.setToggleGroup(decisionGroup);
         chkDecisionRejected.setToggleGroup(decisionGroup);
 
-        if (chkDecisionApproved != null) {
-            chkDecisionApproved.setDisable(false);
-        }
-        if (chkDecisionRejected != null) {
-            chkDecisionRejected.setDisable(false);
-        }
+        chkDecisionApproved.setDisable(false);
+        chkDecisionRejected.setDisable(false);
     }
 
     private void setDecisionCheckboxes(String decision) {
@@ -905,112 +1084,299 @@ public class CarbonAuditController extends BaseController {
         }
     }
 
-    private Integer parseInt(String text, String fieldName) {
+    private void applyEvaluationToForm(Evaluation selected) {
+        if (selected == null) {
+            return;
+        }
+        if (txtObservations != null) {
+            txtObservations.setText(selected.getObservations());
+        }
+        if (txtIdProjet != null) {
+            txtIdProjet.setText(String.valueOf(selected.getIdProjet()));
+        }
+        if (lblSelectedProjectName != null && selected.getTitreProjet() != null) {
+            lblSelectedProjectName.setText(selected.getTitreProjet());
+        }
+        if (txtScoreFinal != null) {
+            txtScoreFinal.setText(formatScore(selected.getScoreGlobal()));
+        }
+        if (lblDecisionValue != null) {
+            lblDecisionValue.setText("Décision ML: " + selected.getDecision());
+        }
+        selectedEvaluationId = selected.getIdEvaluation();
+        lastSelectedEvaluationId = selectedEvaluationId;
+        rebuildCriteriaFields(selectedEvaluationId);
+    }
+
+    @FXML
+    private void handleOpenMlDashboard() {
+        if (txtIdProjet != null && !txtIdProjet.getText().isBlank()) {
+            Integer id = parseInt(txtIdProjet.getText(), "ID Projet");
+            if (id != null) {
+                Projet p = findProjectById(id);
+                if (p != null) {
+                    selectedProjet = p;
+                }
+            }
+        }
         try {
-            return Integer.parseInt(text.trim());
-        } catch (NumberFormatException ex) {
-            showError(fieldName + " invalide.");
-            return null;
+            MainFX.setRoot("mlDecision");
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
-    /**
-     * Poids: entier entre 1 et 10.
-     */
-    private Integer requireNote(String text) {
-        Integer note = parseInt(text, "Note");
-        if (note == null) {
-            return null;
+    private Integer resolveCurrentProjectId() {
+        if (txtIdProjet != null) {
+            String raw = txtIdProjet.getText();
+            if (raw != null && !raw.trim().isEmpty()) {
+                try {
+                    return Integer.parseInt(raw.trim());
+                } catch (NumberFormatException ignore) {
+                    // fall through
+                }
+            }
         }
-        if (note < 1 || note > 10) {
-            showError("Note doit etre entre 1 et 10.");
-            return null;
-        }
-        return note;
-    }
-
-    private String requireText(TextInputControl control, String fieldName) {
-        if (control == null) {
-            return null;
-        }
-        String value = control.getText() != null ? control.getText().trim() : "";
-        if (value.isEmpty()) {
-            showError(fieldName + " est obligatoire.");
-            return null;
-        }
-        return value;
-    }
-
-    private String requireLength(TextInputControl control, String fieldName, int min, int max) {
-        String value = requireText(control, fieldName);
-        if (value == null) {
-            return null;
-        }
-        int len = value.length();
-        if (len < min || len > max) {
-            showError(fieldName + " doit etre entre " + min + " et " + max + " caracteres.");
-            return null;
-        }
-        return value;
-    }
-
-    private void showError(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Validation");
-        alert.setHeaderText("Erreur de saisie");
-        alert.setContentText(message);
-        alert.showAndWait();
-    }
-
-    private void applyDecisionToStatus(Evaluation evaluation) {
-        if (evaluation == null) {
-            showError("Selectionnez une evaluation.");
-            return;
-        }
-        String status = mapDecisionToStatus(evaluation.getDecision());
-        if (status == null) {
-            showError("Decision invalide. Utilisez accepte/approuve ou refuse/rejete.");
-            return;
-        }
-        boolean updated = projetService.updateStatut(evaluation.getIdProjet(), status);
-        if (!updated) {
-            showError("Mise a jour statut echouee.");
-            return;
-        }
-        refreshProjets();
-        refreshEvaluations();
-    }
-
-    private String mapDecisionToStatus(String decision) {
-        if (decision == null) {
-            return null;
-        }
-        String value = decision.trim().toLowerCase();
-        if (value.isEmpty()) {
-            return null;
-        }
-        if (value.contains("accepte") || value.contains("accept") || value.contains("approuve") || value.contains("approve")) {
-            return "IN_PROGRESS";
-        }
-        if (value.contains("refuse") || value.contains("refus") || value.contains("rejete") || value.contains("reject")) {
-            return "CANCELLED";
+        if (selectedProjet != null) {
+            return selectedProjet.getId();
         }
         return null;
     }
 
-    private Integer extractLeadingNumber(String value) {
-        int i = 0;
-        while (i < value.length() && Character.isWhitespace(value.charAt(i))) {
-            i++;
+    @FXML
+    void handleMlPredict() {
+        try {
+            if (lblMlStatus != null) {
+                lblMlStatus.setText("");
+            }
+
+            Integer projetId = resolveCurrentProjectId();
+            if (projetId == null) {
+                return;
+            }
+
+            List<EvaluationResult> results = buildResultsLenientForEsg();
+            if (results.isEmpty()) {
+                return;
+            }
+
+            Projet project = findProjectById(projetId);
+            String description = project != null && project.getDescription() != null && !project.getDescription().isBlank()
+                    ? project.getDescription()
+                    : (project != null ? project.getTitre() : "");
+            String sector = (project != null && project.getActivityType() != null && !project.getActivityType().isBlank())
+                    ? project.getActivityType() : "unknown";
+            double budget = project != null ? project.getBudget() : 0.0;
+
+            Map<String, Object> payloadMap = new java.util.LinkedHashMap<>();
+            payloadMap.put("description", description);
+            payloadMap.put("budget", budget);
+            payloadMap.put("sector", sector);
+            payloadMap.put("criteres", buildCriteriaPayload(results));
+
+            String payload = new Gson().toJson(payloadMap);
+            if (payload == null || payload.isBlank()) {
+                return;
+            }
+
+            String baseUrl = System.getenv().getOrDefault("ML_API_BASE_URL", "http://localhost:8082");
+            String endpoint = baseUrl.endsWith("/") ? baseUrl + "analyze-project" : baseUrl + "/analyze-project";
+
+            HttpRequest req = HttpRequest.newBuilder()
+                    .uri(URI.create(endpoint))
+                    .header("Content-Type", "application/json")
+                    .header("Accept", "application/json")
+                    .timeout(Duration.ofSeconds(8))
+                    .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8))
+                    .build();
+
+            HttpClient client = HttpClient.newHttpClient();
+            HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
+            String body = resp.body() == null ? "" : resp.body().trim();
+            if (resp.statusCode() != 200 || body.isEmpty()) {
+                String localDecision = computeLocalDecision(results);
+                if (localDecision != null) {
+                    lastMlDecision = localDecision;
+                    storeMlDecision(projetId, localDecision);
+                    if (lblDecisionValue != null) {
+                        lblDecisionValue.setText("Décision ML: " + mapMlDecision(localDecision));
+                    }
+                }
+                return;
+            }
+
+            String jsonBody = body;
+            if (!jsonBody.startsWith("{")) {
+                int start = jsonBody.indexOf('{');
+                int end = jsonBody.lastIndexOf('}');
+                if (start >= 0 && end > start) {
+                    jsonBody = jsonBody.substring(start, end + 1).trim();
+                }
+            }
+            if (!jsonBody.startsWith("{")) {
+                return;
+            }
+
+            Map<String, Object> parsed = new Gson().fromJson(jsonBody, new TypeToken<Map<String, Object>>(){}.getType());
+            int esgScore = getInt(parsed.get("predicted_esg_score"), 0);
+            int credibility = getInt(parsed.get("credibility_score"), 0);
+            String carbonRisk = String.valueOf(parsed.getOrDefault("carbon_risk", "N/A"));
+            String recommendations = String.valueOf(parsed.getOrDefault("recommendations", ""));
+
+            String decision = deriveDecision(esgScore, carbonRisk);
+            lastMlDecision = decision;
+            storeMlDecision(projetId, decision);
+            lastMlConfidence = credibility / 100.0;
+
+            if (txtMlRecommendation != null) {
+                StringBuilder sb = new StringBuilder();
+                sb.append("ESG: ").append(esgScore).append(" | Risk: ").append(carbonRisk).append("\n\n");
+                if (recommendations != null && !recommendations.isBlank()) {
+                    sb.append(recommendations);
+                }
+                txtMlRecommendation.setText(sb.toString().trim());
+            }
+            if (lblDecisionValue != null) {
+                lblDecisionValue.setText("Décision ML: " + mapMlDecision(decision));
+            }
+        } catch (Exception ignored) {
+            // Silent fallback: keep local recommendations/decision.
         }
-        int start = i;
-        while (i < value.length() && Character.isDigit(value.charAt(i))) {
-            i++;
+    }
+
+    private java.util.List<java.util.Map<String, Object>> buildCriteriaPayload(List<EvaluationResult> results) {
+        java.util.Map<Integer, String> names = new java.util.HashMap<>();
+        for (CritereReference ref : referenceCriteres) {
+            names.put(ref.getIdCritere(), ref.getNomCritere());
         }
-        if (i == start) {
+        java.util.List<java.util.Map<String, Object>> out = new java.util.ArrayList<>();
+        for (EvaluationResult r : results) {
+            java.util.Map<String, Object> row = new java.util.LinkedHashMap<>();
+            row.put("name", names.getOrDefault(r.getIdCritere(), "Critere #" + r.getIdCritere()));
+            row.put("note", r.getNote());
+            row.put("respect", r.isEstRespecte());
+            out.add(row);
+        }
+        return out;
+    }
+
+    private String deriveDecision(int esgScore, String carbonRisk) {
+        String risk = carbonRisk == null ? "" : carbonRisk.toLowerCase(java.util.Locale.ROOT);
+        if (esgScore >= 65 && !risk.contains("high")) {
+            return "APPROVE";
+        }
+        if (esgScore >= 55 && risk.contains("low")) {
+            return "APPROVE";
+        }
+        return "REJECT";
+    }
+
+    private String computeLocalDecision(List<EvaluationResult> results) {
+        if (results == null || results.isEmpty()) {
             return null;
         }
-        return Integer.parseInt(value.substring(start, i));
+        double score = calculateScore(results);
+        double complianceRate = results.stream().mapToDouble(r -> r.isEstRespecte() ? 1.0 : 0.0).average().orElse(0.0);
+        if (score >= 6.5 && complianceRate >= 0.6) {
+            return "APPROVE";
+        }
+        return "REJECT";
+    }
+
+    private int getInt(Object value, int fallback) {
+        if (value == null) return fallback;
+        try {
+            if (value instanceof Number) {
+                return ((Number) value).intValue();
+            }
+            return Integer.parseInt(String.valueOf(value));
+        } catch (Exception ex) {
+            return fallback;
+        }
+    }
+
+    private void updateMlVisualization(List<EvaluationResult> results, String decision, String confStr) {
+        if (listMlFactors != null) {
+            listMlFactors.getItems().clear();
+        }
+        if (mlFactorsChart != null) {
+            mlFactorsChart.getData().clear();
+        }
+
+        List<Models.ScoreExplanation> explanations = advancedFacade.explainScore(results);
+        explanations.sort(java.util.Comparator.comparingDouble(Models.ScoreExplanation::getContribution).reversed());
+
+        if (listMlFactors != null) {
+            for (int i = 0; i < Math.min(5, explanations.size()); i++) {
+                Models.ScoreExplanation e = explanations.get(i);
+                listMlFactors.getItems().add(e.getNomCritere() + " • impact " + String.format(java.util.Locale.ROOT, "%.2f", e.getContribution()));
+            }
+        }
+
+        if (mlFactorsChart != null) {
+            javafx.scene.chart.XYChart.Series<Number, Number> series = new javafx.scene.chart.XYChart.Series<>();
+            series.setName("Impact par critère");
+            int idx = 1;
+            for (Models.ScoreExplanation e : explanations) {
+                if (idx > 8) break;
+                series.getData().add(new javafx.scene.chart.XYChart.Data<>(idx, e.getContribution()));
+                idx++;
+            }
+            mlFactorsChart.getData().add(series);
+        }
+    }
+
+    private Projet findProjectById(int projetId) {
+        List<Projet> all = projetService.afficher();
+        if (all == null) return null;
+        for (Projet p : all) {
+            if (p != null && p.getId() == projetId) return p;
+        }
+        return null;
+    }
+
+    private boolean validateEvaluationSchema() {
+        String[][] required = new String[][]{
+                {"evaluation", "id_evaluation"},
+                {"evaluation", "date_evaluation"},
+                {"evaluation", "observations_globales"},
+                {"evaluation", "score_final"},
+                {"evaluation", "est_valide"},
+                {"evaluation", "id_projet"},
+                {"evaluation_resultat", "id_evaluation"},
+                {"evaluation_resultat", "id_critere"},
+                {"evaluation_resultat", "note"},
+                {"evaluation_resultat", "commentaire_expert"},
+                {"evaluation_resultat", "est_respecte"},
+                {"critere_reference", "id_critere"},
+                {"critere_reference", "nom_critere"},
+                {"critere_reference", "poids"},
+                {"projet", "id"}
+        };
+
+        try (Connection conn = MyConnection.getConnection()) {
+            for (String[] req : required) {
+                if (!columnExists(conn, req[0], req[1])) {
+                    showError("Schéma incomplet: colonne manquante " + req[0] + "." + req[1]);
+                    return false;
+                }
+            }
+        } catch (SQLException ex) {
+            showError("Échec vérification base: " + ex.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    private boolean columnExists(Connection conn, String table, String column) throws SQLException {
+        String sql = "SELECT 1 FROM information_schema.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = ? AND COLUMN_NAME = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, table);
+            ps.setString(2, column);
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
     }
 
     private <S> void applyWrapping(TableColumn<S, String> column) {
@@ -1037,6 +1403,22 @@ public class CarbonAuditController extends BaseController {
                 }
             }
         });
+    }
+
+    private void setupStaticInputConstraints() {
+        // Currently handled by dynamic fields; kept for future static constraints.
+    }
+
+    private void setActiveNav(Button active) {
+        if (btnGestionProjets != null) {
+            btnGestionProjets.getStyleClass().remove("nav-btn-active");
+        }
+        if (btnGestionEvaluations != null) {
+            btnGestionEvaluations.getStyleClass().remove("nav-btn-active");
+        }
+        if (active != null) {
+            active.getStyleClass().add("nav-btn-active");
+        }
     }
 
     @FXML
@@ -1091,19 +1473,76 @@ public class CarbonAuditController extends BaseController {
         return "fxml/dashboard";
     }
 
-    private void setActiveNav(Button active) {
-        if (btnGestionProjets != null) {
-            btnGestionProjets.getStyleClass().remove("nav-btn-active");
-        }
-        if (btnGestionEvaluations != null) {
-            btnGestionEvaluations.getStyleClass().remove("nav-btn-active");
-        }
-        if (active != null) {
-            active.getStyleClass().add("nav-btn-active");
+    private Integer parseInt(String text, String fieldName) {
+        try {
+            return Integer.parseInt(text.trim());
+        } catch (NumberFormatException ex) {
+            showError(fieldName + " invalide.");
+            return null;
         }
     }
 
-    private double calculateScore(java.util.List<EvaluationResult> criteres) {
+    private Integer requireNote(String text) {
+        Integer note = parseInt(text, "Note");
+        if (note == null) {
+            return null;
+        }
+        if (note < 1 || note > 10) {
+            showError("Note doit etre entre 1 et 10.");
+            return null;
+        }
+        return note;
+    }
+
+    private String requireText(TextInputControl control, String fieldName) {
+        if (control == null) {
+            return null;
+        }
+        String value = control.getText() != null ? control.getText().trim() : "";
+        if (value.isEmpty()) {
+            showError(fieldName + " est obligatoire.");
+            return null;
+        }
+        return value;
+    }
+
+    private String requireLength(TextInputControl control, String fieldName, int min, int max) {
+        String value = requireText(control, fieldName);
+        if (value == null) {
+            return null;
+        }
+        int len = value.length();
+        if (len < min || len > max) {
+            showError(fieldName + " doit etre entre " + min + " et " + max + " caracteres.");
+            return null;
+        }
+        return value;
+    }
+
+    private void showError(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Validation");
+        alert.setHeaderText("Erreur de saisie");
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+    private Integer extractLeadingNumber(String value) {
+        int i = 0;
+        while (i < value.length() && Character.isWhitespace(value.charAt(i))) {
+            i++;
+        }
+        int start = i;
+        while (i < value.length() && Character.isDigit(value.charAt(i))) {
+            i++;
+        }
+        if (i == start) {
+            return null;
+        }
+        return Integer.parseInt(value.substring(start, i));
+    }
+
+    private double calculateScore(List<EvaluationResult> criteres) {
         if (criteres.isEmpty()) {
             return 0.0;
         }
@@ -1150,18 +1589,12 @@ public class CarbonAuditController extends BaseController {
             Integer idCritere = (Integer) row.getProperties().get("critereId");
             javafx.scene.control.TextField noteField = (javafx.scene.control.TextField) row.getProperties().get("noteField");
             javafx.scene.control.CheckBox respectBox = (javafx.scene.control.CheckBox) row.getProperties().get("respectBox");
-            if (noteField == null) {
-                continue;
-            }
+            if (idCritere == null || noteField == null) continue;
             String text = noteField.getText() == null ? "" : noteField.getText().trim();
-            if (text.isEmpty()) {
-                continue;
-            }
+            if (text.isEmpty()) continue;
             try {
                 int note = Integer.parseInt(text);
-                if (note < 1 || note > 10) {
-                    continue;
-                }
+                if (note < 1 || note > 10) continue;
                 int poids = idCritere == null ? 1 : getPoidsForCritere(idCritere);
                 double noteEff = note * ((respectBox != null && respectBox.isSelected()) ? 1.0 : NON_COMPLIANCE_FACTOR);
                 if (noteEff < 0) noteEff = 0;
@@ -1179,12 +1612,6 @@ public class CarbonAuditController extends BaseController {
         return String.format(java.util.Locale.US, "%.2f", score);
     }
 
-    /**
-     * Collecte des résultats depuis les champs dynamiques.
-     * On applique ici la validation requise :
-     * - note obligatoire et entre 1 et 10
-     * - commentaire technique entre 8 et 250
-     */
     private List<EvaluationResult> collectResultatsFromFields() {
         if (criteriaFieldsBox == null) {
             return java.util.Collections.emptyList();
@@ -1205,7 +1632,6 @@ public class CarbonAuditController extends BaseController {
             }
 
             Integer note = requireNote(noteField.getText());
-            // Commentaire technique : min 8 max 250
             String commentaire = requireLength(commentField, "Commentaire technique", 8, 250);
             if (idCritere == null || note == null || commentaire == null) {
                 return null;
@@ -1219,6 +1645,38 @@ public class CarbonAuditController extends BaseController {
             results.add(result);
         }
         return results;
+    }
+
+    // Construit des résultats tolérants (sans exiger les commentaires) et renseigne le nom du critère
+    private java.util.List<Models.EvaluationResult> buildResultsLenientForEsg() {
+        java.util.List<Models.EvaluationResult> list = new java.util.ArrayList<>();
+        if (criteriaFieldsBox == null) return list;
+        java.util.Map<Integer, String> nameIndex = new java.util.HashMap<>();
+        for (Models.CritereReference ref : referenceCriteres) {
+            nameIndex.put(ref.getIdCritere(), ref.getNomCritere());
+        }
+        for (javafx.scene.Node node : criteriaFieldsBox.getChildren()) {
+            if (!(node instanceof javafx.scene.layout.HBox)) continue;
+            javafx.scene.layout.HBox row = (javafx.scene.layout.HBox) node;
+            Integer idCritere = (Integer) row.getProperties().get("critereId");
+            javafx.scene.control.TextField noteField = (javafx.scene.control.TextField) row.getProperties().get("noteField");
+            javafx.scene.control.CheckBox respectBox = (javafx.scene.control.CheckBox) row.getProperties().get("respectBox");
+            if (idCritere == null || noteField == null) continue;
+            String text = noteField.getText() == null ? "" : noteField.getText().trim();
+            if (text.isEmpty()) continue;
+            try {
+                int note = Integer.parseInt(text);
+                if (note < 1 || note > 10) continue;
+                String nom = nameIndex.getOrDefault(idCritere, "Critère #" + idCritere);
+                Models.EvaluationResult r = new Models.EvaluationResult();
+                r.setIdCritere(idCritere);
+                r.setNomCritere(nom);
+                r.setNote(note);
+                r.setEstRespecte(respectBox != null && respectBox.isSelected());
+                list.add(r);
+            } catch (NumberFormatException ignore) { }
+        }
+        return list;
     }
 
     private void rebuildCriteriaFields(Integer evaluationId) {
@@ -1246,7 +1704,6 @@ public class CarbonAuditController extends BaseController {
             noteField.getStyleClass().add("field");
             noteField.setPrefWidth(120);
 
-            // TextFormatter pour n'accepter que des chiffres (0-99)
             UnaryOperator<TextFormatter.Change> integerFilter = change -> {
                 String newText = change.getControlNewText();
                 if (newText.matches("\\d{0,2}")) {
@@ -1256,10 +1713,9 @@ public class CarbonAuditController extends BaseController {
             };
             noteField.setTextFormatter(new TextFormatter<>(integerFilter));
 
-            // Validation visuelle à la saisie (on marque si hors bornes)
             noteField.textProperty().addListener((obs, oldVal, newVal) -> {
                 if (newVal == null || newVal.trim().isEmpty()) {
-                    markInvalid(noteField, false); // allow empty until submission
+                    markInvalid(noteField, false);
                     updateScorePreview();
                     return;
                 }
@@ -1277,7 +1733,6 @@ public class CarbonAuditController extends BaseController {
             commentField.getStyleClass().addAll("field", "textarea");
             commentField.setPrefRowCount(2);
 
-            // Limiter longueur et validation visuelle
             limitTextLength(commentField, 250);
             commentField.textProperty().addListener((obs, oldV, newV) -> {
                 boolean invalid = !newV.trim().isEmpty() && (newV.trim().length() < 8 || newV.trim().length() > 250);
@@ -1303,17 +1758,6 @@ public class CarbonAuditController extends BaseController {
         updateScorePreview();
     }
 
-    /**
-     * Setup input constraints for static form fields
-     */
-    private void setupStaticInputConstraints() {
-        // This method can be expanded to add constraints to static fields
-        // Currently, dynamic fields have their own constraints in rebuildCriteriaFields
-    }
-
-    /**
-     * Mark a TextField as invalid by applying CSS style
-     */
     private void markInvalid(javafx.scene.control.TextField field, boolean invalid) {
         if (field == null) return;
         if (invalid) {
@@ -1325,9 +1769,6 @@ public class CarbonAuditController extends BaseController {
         }
     }
 
-    /**
-     * Mark a TextArea as invalid by applying CSS style
-     */
     private void markInvalid(javafx.scene.control.TextArea field, boolean invalid) {
         if (field == null) return;
         if (invalid) {
@@ -1339,9 +1780,6 @@ public class CarbonAuditController extends BaseController {
         }
     }
 
-    /**
-     * Limit text length in TextArea
-     */
     private void limitTextLength(javafx.scene.control.TextArea field, int maxLength) {
         if (field == null) return;
         field.textProperty().addListener((obs, oldVal, newVal) -> {
@@ -1358,31 +1796,40 @@ public class CarbonAuditController extends BaseController {
         }
     }
 
-    private void updateDecisionAvailability() {
-        // Decision is always enabled; no gating.
-    }
-
-    private boolean areCriteriaComplete() {
-        return true;
-    }
-
-    private void applyEvaluationToForm(Evaluation selected) {
-        if (selected == null) {
+    private void applyDecisionToStatus(Evaluation evaluation) {
+        if (evaluation == null) {
+            showError("Selectionnez une evaluation.");
             return;
         }
-        if (txtObservations != null) {
-            txtObservations.setText(selected.getObservations());
+        String status = mapDecisionToStatus(evaluation.getDecision());
+        if (status == null) {
+            showError("Decision invalide. Utilisez accepte/approuve ou refuse/rejete.");
+            return;
         }
-        setDecisionCheckboxes(selected.getDecision());
-        if (txtIdProjet != null) {
-            txtIdProjet.setText(String.valueOf(selected.getIdProjet()));
+        boolean updated = projetService.updateStatut(evaluation.getIdProjet(), status);
+        if (!updated) {
+            showError("Mise a jour statut echouee.");
+            return;
         }
-        if (txtScoreFinal != null) {
-            txtScoreFinal.setText(formatScore(selected.getScoreGlobal()));
+        refreshProjets();
+        refreshEvaluations();
+    }
+
+    private String mapDecisionToStatus(String decision) {
+        if (decision == null) {
+            return null;
         }
-        selectedEvaluationId = selected.getIdEvaluation();
-        lastSelectedEvaluationId = selectedEvaluationId;
-        rebuildCriteriaFields(selectedEvaluationId);
+        String value = decision.trim().toLowerCase();
+        if (value.isEmpty()) {
+            return null;
+        }
+        if (value.contains("accepte") || value.contains("accept") || value.contains("approuve") || value.contains("approve")) {
+            return "IN_PROGRESS";
+        }
+        if (value.contains("refuse") || value.contains("refus") || value.contains("rejete") || value.contains("reject")) {
+            return "CANCELLED";
+        }
+        return null;
     }
 
     @FXML
@@ -1441,43 +1888,93 @@ public class CarbonAuditController extends BaseController {
         }
     }
 
-    // Construit des résultats tolérants (sans exiger les commentaires) et renseigne le nom du critère
-    private java.util.List<Models.EvaluationResult> buildResultsLenientForEsg() {
-        java.util.List<Models.EvaluationResult> list = new java.util.ArrayList<>();
-        if (criteriaFieldsBox == null) return list;
-        java.util.Map<Integer, String> nameIndex = new java.util.HashMap<>();
-        for (Models.CritereReference ref : referenceCriteres) {
-            nameIndex.put(ref.getIdCritere(), ref.getNomCritere());
-        }
-        for (javafx.scene.Node node : criteriaFieldsBox.getChildren()) {
-            if (!(node instanceof javafx.scene.layout.HBox)) continue;
-            javafx.scene.layout.HBox row = (javafx.scene.layout.HBox) node;
-            Integer idCritere = (Integer) row.getProperties().get("critereId");
-            javafx.scene.control.TextField noteField = (javafx.scene.control.TextField) row.getProperties().get("noteField");
-            javafx.scene.control.CheckBox respectBox = (javafx.scene.control.CheckBox) row.getProperties().get("respectBox");
-            if (idCritere == null || noteField == null) continue;
-            String text = noteField.getText() == null ? "" : noteField.getText().trim();
-            if (text.isEmpty()) continue;
-            try {
-                int note = Integer.parseInt(text);
-                if (note < 1 || note > 10) continue;
-                String nom = nameIndex.getOrDefault(idCritere, "Critère #" + idCritere);
-                Models.EvaluationResult r = new Models.EvaluationResult();
-                r.setIdCritere(idCritere);
-                r.setNomCritere(nom);
-                r.setNote(note);
-                r.setEstRespecte(respectBox != null && respectBox.isSelected());
-                list.add(r);
-            } catch (NumberFormatException ignore) { }
-        }
-        return list;
-    }
-
     @FXML
     void handleClearSignature() {
         if (sigGc != null && signatureCanvas != null) {
             sigGc.clearRect(0, 0, signatureCanvas.getWidth(), signatureCanvas.getHeight());
             signatureDrawn = false;
+        }
+    }
+
+    @FXML
+    void handleExportPdf() {
+        try {
+            Evaluation evaluation;
+            java.util.List<EvaluationResult> resultats;
+            if (selectedEvaluationId != null) {
+                evaluation = tableAudits != null ? tableAudits.getSelectionModel().getSelectedItem() : null;
+                if (evaluation == null) {
+                    for (Evaluation ev : evaluationService.afficher()) {
+                        if (ev != null && ev.getIdEvaluation() == selectedEvaluationId) {
+                            evaluation = ev;
+                            break;
+                        }
+                    }
+                }
+                if (evaluation == null) {
+                    showError("Aucune évaluation sélectionnée.");
+                    return;
+                }
+                resultats = critereImpactService.afficherParEvaluation(selectedEvaluationId);
+                if (resultats == null) resultats = java.util.Collections.emptyList();
+            } else {
+                evaluation = readEvaluationFromForm(false);
+                if (evaluation == null) {
+                    showError("Remplissez le formulaire ou sélectionnez une évaluation pour exporter.");
+                    return;
+                }
+                resultats = collectResultatsFromFields();
+                if (resultats == null || resultats.isEmpty()) {
+                    showError("Ajoutez au moins un critère pour exporter.");
+                    return;
+                }
+                evaluation.setScoreGlobal(calculateScore(resultats));
+            }
+
+            Models.AiSuggestion suggestion = advancedFacade.suggest(null, resultats);
+
+            javafx.stage.FileChooser chooser = new javafx.stage.FileChooser();
+            chooser.setTitle("Exporter l'évaluation en PDF");
+            chooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("PDF", "*.pdf"));
+            String baseName = "evaluation-" + (selectedEvaluationId != null ? selectedEvaluationId : evaluation.getIdProjet());
+            chooser.setInitialFileName(baseName + ".pdf");
+            javafx.stage.Window owner = (btnExportPdf != null && btnExportPdf.getScene() != null) ? btnExportPdf.getScene().getWindow() : null;
+            java.io.File file = chooser.showSaveDialog(owner);
+            if (file == null) return;
+
+            byte[] signaturePng = getSignaturePng();
+            String evaluatorName = (lblProfileName != null && lblProfileName.getText() != null && !lblProfileName.getText().isEmpty())
+                    ? lblProfileName.getText() : "Utilisateur";
+            String evaluatorRole = (lblProfileType != null && lblProfileType.getText() != null && !lblProfileType.getText().isEmpty())
+                    ? lblProfileType.getText() : "Expert Carbone";
+
+            boolean usedDynamic = false;
+            try {
+                Services.DynamicPdfService dynamic = new Services.DynamicPdfService();
+                if (dynamic.isConfigured()) {
+                    String html = dynamic.buildEvaluationHtml(evaluation, resultats, suggestion, signaturePng, evaluatorName, evaluatorRole);
+                    dynamic.writePdfFromHtml(html, file);
+                    usedDynamic = true;
+                }
+            } catch (Exception ex) {
+                // Fall back silently
+            }
+
+            if (!usedDynamic) {
+                new Services.PdfService().generateEvaluationPdfWithSignature(
+                        evaluation, resultats, suggestion, file, signaturePng, evaluatorName, evaluatorRole
+                );
+            }
+
+            Alert ok = new Alert(Alert.AlertType.INFORMATION);
+            ok.setHeaderText("Export PDF reussi");
+            ok.setContentText("[API CONFIG] DynamicPDF export completed\nFichier sauvegarde: " + file.getAbsolutePath());
+            ok.showAndWait();
+
+            System.out.println("[API CONFIG] DynamicPDF export completed -> " + file.getAbsolutePath());
+
+        } catch (Exception ex) {
+            showError("Echec export PDF: " + ex.getMessage());
         }
     }
 
@@ -1489,7 +1986,6 @@ public class CarbonAuditController extends BaseController {
         javafx.scene.image.WritableImage wi = new javafx.scene.image.WritableImage(w, h);
         signatureCanvas.snapshot(null, wi);
 
-        // Manually convert JavaFX image to AWT BufferedImage (no javafx.embed.swing dependency)
         javafx.scene.image.PixelReader pr = wi.getPixelReader();
         if (pr == null) return null;
         java.awt.image.BufferedImage bi = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_ARGB);
@@ -1507,128 +2003,4 @@ public class CarbonAuditController extends BaseController {
             return null;
         }
     }
-
-    @FXML
-    void handleExportPdf() {
-        try {
-            Evaluation evaluation;
-            java.util.List<EvaluationResult> resultats;
-            if (selectedEvaluationId != null) {
-                // Utiliser l'évaluation sélectionnée dans le tableau
-                evaluation = tableAudits != null ? tableAudits.getSelectionModel().getSelectedItem() : null;
-                if (evaluation == null) {
-                    // fallback: rechercher par id
-                    for (Evaluation ev : evaluationService.afficher()) {
-                        if (ev != null && ev.getIdEvaluation() == selectedEvaluationId) {
-                            evaluation = ev;
-                            break;
-                        }
-                    }
-                }
-                if (evaluation == null) {
-                    showError("Aucune évaluation sélectionnée.");
-                    return;
-                }
-                resultats = critereImpactService.afficherParEvaluation(selectedEvaluationId);
-                if (resultats == null) resultats = java.util.Collections.emptyList();
-            } else {
-                // Exporter depuis le formulaire courant si complet
-                evaluation = readEvaluationFromForm(false);
-                if (evaluation == null) {
-                    showError("Remplissez le formulaire ou sélectionnez une évaluation pour exporter.");
-                    return;
-                }
-                resultats = collectResultatsFromFields();
-                if (resultats == null || resultats.isEmpty()) {
-                    showError("Ajoutez au moins un critère pour exporter.");
-                    return;
-                }
-                evaluation.setScoreGlobal(calculateScore(resultats));
-            }
-
-            // Suggestion IA (facultatif mais utile dans le PDF)
-            Models.AiSuggestion suggestion = advancedFacade.suggest(null, resultats);
-
-            // Choisir l'emplacement du fichier
-            javafx.stage.FileChooser chooser = new javafx.stage.FileChooser();
-            chooser.setTitle("Exporter l'évaluation en PDF");
-            chooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("PDF", "*.pdf"));
-            String baseName = "evaluation-" + (selectedEvaluationId != null ? selectedEvaluationId : evaluation.getIdProjet());
-            chooser.setInitialFileName(baseName + ".pdf");
-            javafx.stage.Window owner = (btnExportPdf != null && btnExportPdf.getScene() != null) ? btnExportPdf.getScene().getWindow() : null;
-            java.io.File file = chooser.showSaveDialog(owner);
-            if (file == null) return;
-
-            byte[] signaturePng = getSignaturePng();
-            String evaluatorName = (lblProfileName != null && lblProfileName.getText() != null && !lblProfileName.getText().isEmpty())
-                    ? lblProfileName.getText() : "Utilisateur";
-            String evaluatorRole = (lblProfileType != null && lblProfileType.getText() != null && !lblProfileType.getText().isEmpty())
-                    ? lblProfileType.getText() : "Expert Carbone";
-
-            new Services.PdfService().generateEvaluationPdfWithSignature(
-                    evaluation, resultats, suggestion, file, signaturePng, evaluatorName, evaluatorRole
-            );
-
-            // After local PDF generation: call remote extraction (pdfrest) using PdfRestService.
-            // Run extraction in background thread to avoid blocking UI.
-            final java.io.File exported = file;
-            final String apiMsgPrefix = "Extraction distante: ";
-            new Thread(() -> {
-                try {
-                    // Prefer Adobe service if configured
-                    Services.AdobePdfService adobe = new Services.AdobePdfService();
-                    String extracted = null;
-                    if (adobe.isConfigured()) {
-                        try {
-                            extracted = adobe.extractTextFromFilePath(exported.getAbsolutePath());
-                        } catch (Exception adEx) {
-                            System.err.println("Adobe extraction failed: " + adEx.getMessage());
-                        }
-                    }
-                    if (extracted == null || extracted.isEmpty()) {
-                        // fallback to PdfRestService
-                        try {
-                            Services.PdfRestService rest = new Services.PdfRestService();
-                            extracted = rest.extractTextFromFilePath(exported.getAbsolutePath());
-                        } catch (Exception prEx) {
-                            System.err.println("PdfRest extraction failed: " + prEx.getMessage());
-                        }
-                    }
-                    final String display = (extracted == null || extracted.isEmpty()) ? "(Aucun texte extrait)" : extracted;
-                    Platform.runLater(() -> {
-                        // Populate AI insights area with extracted text summary
-                        if (txtAIInsights != null) {
-                            String previous = txtAIInsights.getText() == null ? "" : txtAIInsights.getText();
-                            String added = (previous.isEmpty() ? "" : (previous + "\n\n")) + "[Extraction PDF] \n" + display;
-                            txtAIInsights.setText(added);
-                        }
-                        Alert info = new Alert(Alert.AlertType.INFORMATION);
-                        info.setTitle("Extraction PDF");
-                        info.setHeaderText("Extraction terminée");
-                        javafx.scene.control.TextArea ta = new javafx.scene.control.TextArea(display);
-                        ta.setWrapText(true);
-                        ta.setEditable(false);
-                        ta.setPrefWidth(600);
-                        ta.setPrefHeight(400);
-                        info.getDialogPane().setContent(ta);
-                        info.showAndWait();
-                    });
-                } catch (Exception ex) {
-                    final String msg = ex.getMessage();
-                    Platform.runLater(() -> {
-                        showError(apiMsgPrefix + (msg == null ? "Erreur inconnue" : msg));
-                    });
-                }
-            }).start();
-
-            Alert ok = new Alert(Alert.AlertType.INFORMATION);
-            ok.setHeaderText("Export PDF réussi");
-            ok.setContentText("Fichier sauvegardé: " + file.getAbsolutePath() + "\nL'extraction distante est en cours...");
-            ok.showAndWait();
-
-        } catch (Exception ex) {
-            showError("Échec export PDF: " + ex.getMessage());
-        }
-    }
-
 }

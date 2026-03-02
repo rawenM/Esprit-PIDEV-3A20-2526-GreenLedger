@@ -11,7 +11,8 @@ public class ApiServerBootstrap {
             started = true;
             Thread t = new Thread(() -> {
                 try {
-                    new Api.ApiServer().start(8080);
+                    int port = Integer.parseInt(System.getenv().getOrDefault("API_PORT", "8081"));
+                    new Api.ApiServer().start(port);
                 } catch (Exception ex) {
                     // Port already in use or startup failed; avoid crashing UI
                     System.err.println("[API] Startup skipped: " + ex.getMessage());

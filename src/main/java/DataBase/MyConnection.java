@@ -9,7 +9,7 @@ public class MyConnection {
     private Connection conn;
     private static MyConnection instance;
 
-    private String url = "jdbc:mysql://localhost:3308/greenledger";
+    private String url = "jdbc:mysql://localhost:3306/greenledger";
     private String user = "root";
     private String pwd = "";
 
@@ -18,7 +18,7 @@ public class MyConnection {
             conn = DriverManager.getConnection(url, user, pwd);
             System.out.println("Connexion établie !");
         } catch (SQLException e) {
-            System.out.println("Erreur connexion DB");
+            System.out.println("Erreur connexion DB: " + e.getMessage());
         }
     }
 
@@ -29,8 +29,9 @@ public class MyConnection {
         return instance;
     }
 
-    public static Connection getConnection() {
-        return MyConnection.getInstance().conn;
+    public static Connection getConnection() throws SQLException {
+        MyConnection inst = MyConnection.getInstance();
+        return DriverManager.getConnection(inst.url, inst.user, inst.pwd);
     }
 
     // Fermer la connexion
@@ -40,16 +41,15 @@ public class MyConnection {
                 conn.close();
                 System.out.println("[CLEAN] Connexion fermée");
             } catch (SQLException e) {
-                System.err.println("[CLEAN] Erreur lors de la fermeture de la connexion");
-                e.printStackTrace();
+                System.err.println("[CLEAN] Erreur lors de la fermeture de la connexion: " + e.getMessage());
             }
         }
     }
 
     // Tester la connexion
     public boolean testConnection() {
-        try {
-            return conn != null && !conn.isClosed();
+        try (Connection c = DriverManager.getConnection(url, user, pwd)) {
+            return c != null && !c.isClosed();
         } catch (SQLException e) {
             return false;
         }
