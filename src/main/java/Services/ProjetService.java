@@ -3,7 +3,7 @@ package Services;
 import DataBase.MyConnection;
 import Models.Budget;
 import Models.Projet;
-
+import Models.ProjectMLData;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -280,6 +280,43 @@ public class ProjetService {
         }
         return null;
     }
+
+
+    public Projet getById(int id) {
+        String sql = "SELECT p.id, p.entreprise_id, p.titre, p.description, " +
+                "       p.statut, p.score_esg, p.date_creation, " +
+                "       p.company_address, p.company_email, p.company_phone, " +
+                "       COALESCE(b.montant, 0) AS budget " +
+                "FROM projet p " +
+                "LEFT JOIN budget b ON b.id_projet = p.id " +
+                "WHERE p.id = ?";
+
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Integer score = (Integer) rs.getObject("score_esg");
+                return new Projet(
+                        rs.getInt("id"),
+                        rs.getInt("entreprise_id"),
+                        rs.getString("titre"),
+                        rs.getString("description"),
+                        rs.getDouble("budget"),       // from budget table via JOIN
+                        score,
+                        rs.getString("statut"),
+                        rs.getString("company_address"),
+                        rs.getString("company_email"),
+                        rs.getString("company_phone")
+                );
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erreur getById projet: " + e.getMessage());
+        }
+        return null;
+    }
+
 
     // ✅ Overload attendu (Integer)
     public String getStatutById(Integer idProjet) {
