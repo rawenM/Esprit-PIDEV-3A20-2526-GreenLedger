@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.chart.LineChart?>
+<?import javafx.scene.chart.NumberAxis?>
+
+<HBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.MlDecisionController"
+      spacing="0" styleClass="page">
+
+    <!-- Sidebar -->
+    <VBox prefWidth="220" styleClass="sidebar">
+        <HBox alignment="CENTER_LEFT" spacing="8">
+            <Label text="🧠" style="-fx-font-size: 18px;"/>
+            <Label text="ML Decision" styleClass="sidebar-title"/>
+        </HBox>
+        <Separator styleClass="sidebar-sep"/>
+        <Button text="← Retour" styleClass="btn btn-secondary" onAction="#handleBack"/>
+        <Region VBox.vgrow="ALWAYS"/>
+        <VBox spacing="2" alignment="TOP_LEFT" style="-fx-padding: 10 0 0 0;">
+            <Label fx:id="lblProfileName" styleClass="page-title"/>
+            <Label fx:id="lblProfileType" styleClass="page-subtitle"/>
+        </VBox>
+    </VBox>
+
+    <!-- Content -->
+    <VBox spacing="0" HBox.hgrow="ALWAYS" styleClass="content-area">
+        <VBox spacing="8" styleClass="hero-header">
+            <Label text="Decision carbone" styleClass="hero-title"/>
+            <Label text="Visualisez l'impact des criteres et la logique ESG." styleClass="hero-subtitle"/>
+        </VBox>
+
+        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS"
+                    style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox spacing="20">
+                <padding>
+                    <Insets top="8" right="32" bottom="32" left="32"/>
+                </padding>
+
+                <VBox spacing="10" styleClass="card card-focus">
+                    <HBox alignment="CENTER_LEFT" spacing="10" styleClass="section-header">
+                        <Label text="📌" style="-fx-font-size: 18px;"/>
+                        <VBox spacing="2">
+                            <Label text="Projet selectionne" styleClass="section-title"/>
+                            <Label fx:id="lblProjectName" text="—" styleClass="ml-project-name"/>
+                        </VBox>
+                    </HBox>
+                    <Label fx:id="lblStatus" text="" styleClass="muted-note"/>
+                </VBox>
+
+                <HBox spacing="16">
+                    <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label text="Decision ML" styleClass="form-label"/>
+                        <Label fx:id="lblDecision" text="—" styleClass="ml-decision-badge"/>
+                        <Label text="Confiance" styleClass="form-label"/>
+                        <ProgressBar fx:id="barConfidence" styleClass="confidence-bar" prefWidth="260" prefHeight="12" minHeight="12" maxWidth="Infinity" visible="true" managed="true"/>
+                        <Label fx:id="lblConfidence" text="0%" styleClass="status-text"/>
+                    </VBox>
+
+                    <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label text="Resume rapide" styleClass="form-label"/>
+                        <HBox spacing="12">
+                            <VBox spacing="6" styleClass="ml-kpi-card">
+                                <Label text="Score" styleClass="ml-kpi-label"/>
+                                <Label fx:id="lblScore" text="—" styleClass="ml-kpi-value"/>
+                            </VBox>
+                            <VBox spacing="6" styleClass="ml-kpi-card">
+                                <Label text="Conformite" styleClass="ml-kpi-label"/>
+                                <Label fx:id="lblCompliance" text="—" styleClass="ml-kpi-value"/>
+                            </VBox>
+                            <VBox spacing="6" styleClass="ml-kpi-card">
+                                <Label text="Note min" styleClass="ml-kpi-label"/>
+                                <Label fx:id="lblMinNote" text="—" styleClass="ml-kpi-value"/>
+                            </VBox>
+                            <VBox spacing="6" styleClass="ml-kpi-card">
+                                <Label text="ESG" styleClass="ml-kpi-label"/>
+                                <Label fx:id="lblEsgScore" text="—" styleClass="ml-kpi-value"/>
+                            </VBox>
+                        </HBox>
+                        <Label fx:id="lblEsgImportance" text="Le score ESG mesure l'impact environnemental, social et de gouvernance du projet." styleClass="muted-note" wrapText="true"/>
+                        <Button fx:id="btnRunMl" text="🔮 Lancer ML" onAction="#handleRunMl" styleClass="btn-primary"
+                                visible="false" managed="false"/>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="16">
+                    <VBox spacing="8" styleClass="card" prefWidth="260">
+                        <Label text="Facteurs cles" styleClass="form-label"/>
+                        <ListView fx:id="listFactors" prefHeight="180" styleClass="ml-factors-list"/>
+                    </VBox>
+                    <VBox spacing="10" styleClass="card" HBox.hgrow="ALWAYS">
+                        <Label text="Courbe d'impact (reelle)" styleClass="form-label"/>
+                        <LineChart fx:id="chartImpact" prefHeight="260" animated="false">
+                            <xAxis>
+                                <NumberAxis label="Criteres (ordre d'impact)" forceZeroInRange="true"/>
+                            </xAxis>
+                            <yAxis>
+                                <NumberAxis label="Impact / Note / ESG" forceZeroInRange="true"/>
+                            </yAxis>
+                        </LineChart>
+                    </VBox>
+                </HBox>
+
+                <HBox spacing="16">
+                    <VBox spacing="8" styleClass="card" prefWidth="420" HBox.hgrow="ALWAYS">
+                        <Label text="Statistiques cles" styleClass="form-label"/>
+                        <TextArea fx:id="txtExplanation" wrapText="true" editable="false" focusTraversable="false"
+                                  styleClass="field textarea" style="-fx-pref-height: 180px;"/>
+                    </VBox>
+
+                    <VBox spacing="8" styleClass="card" prefWidth="640" HBox.hgrow="ALWAYS">
+                        <Label text="Recommendations" styleClass="form-label"/>
+                        <TextArea fx:id="txtRecommendations" wrapText="true" editable="false" focusTraversable="false"
+                                  styleClass="field textarea" style="-fx-pref-height: 200px;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </VBox>
+</HBox>
+
+
+

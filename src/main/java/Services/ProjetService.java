@@ -9,60 +9,21 @@ import java.util.List;
 
 public class ProjetService {
 
-    private final Connection cnx = MyConnection.getConnection();
-
     public List<Projet> afficher() {
-        String sql = "SELECT id, entreprise_id, titre, description, budget, statut, score_esg, " +
-                "       company_address, company_email, company_phone " +
-                "FROM projet " +
-                "ORDER BY date_creation DESC";
+        try (Connection cnx = MyConnection.getConnection()) {
+            String sql = "SELECT id, entreprise_id, titre, description, budget, statut, score_esg, " +
+                    "       company_address, company_email, company_phone " +
+                    "FROM projet " +
+                    "ORDER BY date_creation DESC";
 
-        List<Projet> list = new ArrayList<>();
+            List<Projet> list = new ArrayList<>();
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+            try (PreparedStatement ps = cnx.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery()) {
 
-            while (rs.next()) {
-                Integer score = (Integer) rs.getObject("score_esg");
-
-                Projet p = new Projet(
-                        rs.getInt("id"),
-                        rs.getInt("entreprise_id"),
-                        rs.getString("titre"),
-                        rs.getString("description"),
-                        rs.getDouble("budget"),
-                        score,
-                        rs.getString("statut"),
-                        rs.getString("company_address"),
-                        rs.getString("company_email"),
-                        rs.getString("company_phone")
-                );
-
-                list.add(p);
-            }
-
-        } catch (SQLException e) {
-            System.out.println("Erreur afficher projets: " + e.getMessage());
-        }
-
-        return list;
-    }
-
-    public List<Projet> getByEntreprise(int entrepriseId) {
-        String sql = "SELECT id, entreprise_id, titre, description, budget, statut, score_esg, " +
-                "       company_address, company_email, company_phone " +
-                "FROM projet " +
-                "WHERE entreprise_id=? " +
-                "ORDER BY date_creation DESC";
-
-        List<Projet> list = new ArrayList<>();
-
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
-            ps.setInt(1, entrepriseId);
-
-            try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Integer score = (Integer) rs.getObject("score_esg");
+
                     Projet p = new Projet(
                             rs.getInt("id"),
                             rs.getInt("entreprise_id"),
@@ -78,13 +39,60 @@ public class ProjetService {
 
                     list.add(p);
                 }
+
+            } catch (SQLException e) {
+                System.out.println("Erreur afficher projets: " + e.getMessage());
             }
 
+            return list;
         } catch (SQLException e) {
-            System.out.println("Erreur getByEntreprise: " + e.getMessage());
+            System.out.println("Erreur afficher projets (connexion): " + e.getMessage());
+            return new ArrayList<>();
         }
+    }
 
-        return list;
+    public List<Projet> getByEntreprise(int entrepriseId) {
+        try (Connection cnx = MyConnection.getConnection()) {
+            String sql = "SELECT id, entreprise_id, titre, description, budget, statut, score_esg, " +
+                    "       company_address, company_email, company_phone " +
+                    "FROM projet " +
+                    "WHERE entreprise_id=? " +
+                    "ORDER BY date_creation DESC";
+
+            List<Projet> list = new ArrayList<>();
+
+            try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+                ps.setInt(1, entrepriseId);
+
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        Integer score = (Integer) rs.getObject("score_esg");
+                        Projet p = new Projet(
+                                rs.getInt("id"),
+                                rs.getInt("entreprise_id"),
+                                rs.getString("titre"),
+                                rs.getString("description"),
+                                rs.getDouble("budget"),
+                                score,
+                                rs.getString("statut"),
+                                rs.getString("company_address"),
+                                rs.getString("company_email"),
+                                rs.getString("company_phone")
+                        );
+
+                        list.add(p);
+                    }
+                }
+
+            } catch (SQLException e) {
+                System.out.println("Erreur getByEntreprise: " + e.getMessage());
+            }
+
+            return list;
+        } catch (SQLException e) {
+            System.out.println("Erreur getByEntreprise (connexion): " + e.getMessage());
+            return new ArrayList<>();
+        }
     }
 
     public void insert(Projet p) {
@@ -93,7 +101,8 @@ public class ProjetService {
                 "  company_address, company_email, company_phone" +
                 ") VALUES (?,?,?,?,?,?,?,?,?)";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, p.getEntrepriseId());
             ps.setString(2, p.getTitre());
             ps.setString(3, p.getDescription());
@@ -121,7 +130,8 @@ public class ProjetService {
                 "  company_address=?, company_email=?, company_phone=? " +
                 "WHERE id=?";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setString(1, p.getTitre());
             ps.setString(2, p.getDescription());
             ps.setDouble(3, p.getBudget());
@@ -145,7 +155,8 @@ public class ProjetService {
 
     public void updateDescriptionOnly(int id, String description, String address, String email, String phone) {
         String sql = "UPDATE projet SET description=?, company_address=?, company_email=?, company_phone=? WHERE id=?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setString(1, description);
             ps.setString(2, address);
             ps.setString(3, email);
@@ -159,7 +170,8 @@ public class ProjetService {
 
     public void delete(int id) {
         String sql = "DELETE FROM projet WHERE id=?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -169,7 +181,8 @@ public class ProjetService {
 
     public void cancel(int id) {
         String sql = "UPDATE projet SET statut='CANCELLED' WHERE id=?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {
@@ -179,7 +192,8 @@ public class ProjetService {
 
     public boolean updateStatut(int idProjet, String statut) {
         String sql = "UPDATE projet SET statut=? WHERE id=?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setString(1, statut);
             ps.setInt(2, idProjet);
             return ps.executeUpdate() > 0;
@@ -191,7 +205,8 @@ public class ProjetService {
 
     public String getStatutById(int idProjet) {
         String sql = "SELECT statut FROM projet WHERE id=?";
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, idProjet);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {

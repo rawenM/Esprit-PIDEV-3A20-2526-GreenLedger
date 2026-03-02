@@ -63,7 +63,7 @@ public class ExpertProjetController extends BaseController {
     private TableColumn<Projet, Void> colIcon;
 
     @FXML
-    private TableColumn<Projet, Void> colAi;
+    private TableColumn<Projet, Void> colDecision;
 
     @FXML
     private TableColumn<Projet, Void> colPdf;
@@ -120,9 +120,8 @@ public class ExpertProjetController extends BaseController {
             return new SimpleStringProperty(label);
         });
         colAction.setCellFactory(createActionCell());
-        colAi.setCellFactory(createAiCell());
+        colDecision.setCellFactory(createDecisionCell());
         colPdf.setCellFactory(createPdfCell());
-        colCalcEsg.setCellFactory(createCalcEsgCell());
         colIcon.setCellFactory(column -> new TableCell<>() {
             private final Label icon = new Label(">>");
             {
@@ -181,12 +180,19 @@ public class ExpertProjetController extends BaseController {
 
     private Callback<TableColumn<Projet, Void>, TableCell<Projet, Void>> createActionCell() {
         return column -> new TableCell<>() {
-            private final Button button = new Button("Evaluer");
+            private final Button button = new Button();
             {
                 button.getStyleClass().addAll("btn", "btn-primary");
                 button.setOnAction(event -> {
                     Projet projet = getTableView().getItems().get(getIndex());
                     try {
+                        java.util.List<Evaluation> evals = evaluationService.afficherParProjet(projet.getId());
+                        if (evals != null && !evals.isEmpty()) {
+                            Evaluation last = evals.get(evals.size() - 1);
+                            CarbonAuditController.setLastSelectedEvaluationId(last.getIdEvaluation());
+                        } else {
+                            CarbonAuditController.setLastSelectedEvaluationId(null);
+                        }
                         CarbonAuditController.setSelectedProjet(projet);
                         MainFX.setRoot("gestionCarbone");
                     } catch (IOException e) {
@@ -199,9 +205,16 @@ public class ExpertProjetController extends BaseController {
                 super.updateItem(item, empty);
                 if (empty) {
                     setGraphic(null);
-                } else {
-                    setGraphic(button);
+                    return;
                 }
+                Projet projet = getTableView().getItems().get(getIndex());
+                boolean hasEvaluation = false;
+                try {
+                    java.util.List<Evaluation> evals = evaluationService.afficherParProjet(projet.getId());
+                    hasEvaluation = evals != null && !evals.isEmpty();
+                } catch (Exception ignore) { }
+                button.setText(hasEvaluation ? "Modifier" : "Evaluer");
+                setGraphic(button);
             }
         };
     }
@@ -259,95 +272,18 @@ public class ExpertProjetController extends BaseController {
         };
     }
 
-    private Callback<TableColumn<Projet, Void>, TableCell<Projet, Void>> createAiCell() {
+    private Callback<TableColumn<Projet, Void>, TableCell<Projet, Void>> createDecisionCell() {
         return column -> new TableCell<>() {
-            private final Button btn = new Button("IA");
+            private final Button btn = new Button("Check Decision");
             {
                 btn.getStyleClass().addAll("btn", "btn-secondary");
                 btn.setOnAction(event -> {
                     Projet p = getTableView().getItems().get(getIndex());
-                    // Récupérer la dernière évaluation du projet
-                    java.util.List<Models.Evaluation> evals = evaluationService.afficherParProjet(p.getId());
-                    if (evals == null || evals.isEmpty()) {
-                        javafx.scene.control.Alert a = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-                        a.setHeaderText("Suggestion IA");
-                        a.setContentText("Aucune évaluation trouvée pour ce projet.");
-                        a.showAndWait();
-                        return;
-                    }
-                    Models.Evaluation last = evals.get(evals.size() - 1);
-                    java.util.List<Models.EvaluationResult> res = new Services.CritereImpactService().afficherParEvaluation(last.getIdEvaluation());
-                    if (res == null || res.isEmpty()) {
-                        javafx.scene.control.Alert a = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-                        a.setHeaderText("Suggestion IA");
-                        a.setContentText("Aucun résultat de critères pour l'évaluation #" + last.getIdEvaluation());
-                        a.showAndWait();
-                        return;
-                    }
-                    Models.AiSuggestion s = new Services.AdvancedEvaluationFacade().suggest(p, res);
-                    StringBuilder msg = new StringBuilder();
-                    msg.append("Suggestion: ").append(s.getSuggestionDecision())
-                            .append(" • Confiance: ").append(String.format(java.util.Locale.ROOT, "%.2f", s.getConfiance()))
-                            .append(" • Score: ").append(String.format(java.util.Locale.ROOT, "%.2f", s.getScore()));
-                    if (!s.getTopFactors().isEmpty()) {
-                        msg.append("\n\nFacteurs clés:\n");
-                        for (String f : s.getTopFactors()) {
-                            msg.append(" • ").append(f).append("\n");
-                        }
-                    }
-                    if (!s.getWarnings().isEmpty()) {
-                        msg.append("\nAvertissements:\n");
-                        for (String w : s.getWarnings()) {
-                            msg.append(" • ").append(w).append("\n");
-                        }
-                    }
-                    javafx.scene.control.Alert a = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-                    a.setHeaderText("Suggestion IA – Projet #" + p.getId());
-                    a.setContentText(msg.toString().trim());
-                    a.showAndWait();
-                });
-            }
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                setGraphic(empty ? null : btn);
-            }
-        };
-    }
-
-    private Callback<TableColumn<Projet, Void>, TableCell<Projet, Void>> createCalcEsgCell() {
-        return column -> new TableCell<>() {
-            private final Button btn = new Button("Calc ESG");
-            {
-                btn.getStyleClass().addAll("btn", "btn");
-                btn.setOnAction(event -> {
-                    Projet p = getTableView().getItems().get(getIndex());
                     try {
-                        Integer esg = new Services.ProjectEsgService().calculateEsgForProject(p.getId());
-                        if (esg == null) {
-                            javafx.scene.control.Alert a = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-                            a.setHeaderText("Calcul ESG");
-                            a.setContentText("Impossible de calculer le score ESG (aucune évaluation/critères).");
-                            a.showAndWait();
-                            return;
-                        }
-                        p.setScoreEsg(esg);
-                        // Persister si possible
-                        try {
-                            new Services.ProjetService().update(p);
-                        } catch (Exception ignored) { }
-                        // Rafraîchir l'affichage de la colonne Score ESG
-                        getTableView().refresh();
-
-                        javafx.scene.control.Alert ok = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.INFORMATION);
-                        ok.setHeaderText("Score ESG mis à jour");
-                        ok.setContentText("Projet #" + p.getId() + " • ESG = " + esg);
-                        ok.showAndWait();
-                    } catch (Exception ex) {
-                        javafx.scene.control.Alert err = new javafx.scene.control.Alert(javafx.scene.control.Alert.AlertType.ERROR);
-                        err.setHeaderText("Échec calcul ESG");
-                        err.setContentText(ex.getMessage());
-                        err.showAndWait();
+                        CarbonAuditController.setSelectedProjet(p);
+                        MainFX.setRoot("mlDecision");
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
                 });
             }

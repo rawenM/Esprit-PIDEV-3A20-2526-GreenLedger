@@ -8,19 +8,22 @@ import Services.AdvancedEvaluationFacade;
 import Services.CritereImpactService;
 import Services.EvaluationService;
 import Services.PdfService;
-import Services.PdfRestService;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -50,86 +53,12 @@ public class ApiServer {
         server.createContext("/api/ai/evaluations/suggest-decision", this::handleSuggestDecision);
         server.createContext("/api/evaluations/pdf", this::handleEvaluationPdf);
         server.createContext("/api/ai/doccat", this::handleDoccat); // ML debug endpoint
-        // New endpoint: extract text from a PDF file using external pdfrest API with local fallback
-        server.createContext("/api/pdf/extract", this::handlePdfExtract);
-        // New endpoint: upload PDF bytes (POST) and extract text
-        server.createContext("/api/pdf/upload-extract", this::handlePdfUploadExtract);
+        server.createContext("/api/ai/evaluations/predict", this::handlePredictDecision);
+        server.createContext("/predict", this::handlePredictDecision);
 
         server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
         System.out.println("API server started on http://localhost:" + port);
         server.start();
-    }
-
-    /**
-     * GET /api/pdf/extract?path={localPath}
-     * Responds with JSON: { success: bool, text: string|null, error: string|null }
-     * Security: only allows files under the current project directory to avoid arbitrary file access.
-     */
-    private void handlePdfExtract(HttpExchange exchange) throws IOException {
-        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
-            send(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
-            return;
-        }
-        Map<String, String> params = parseQuery(exchange.getRequestURI().getRawQuery());
-        String path = params.get("path");
-        if (path == null || path.isEmpty()) {
-            send(exchange, 400, "{\"success\":false,\"text\":null,\"error\":\"Missing 'path' query param\"}");
-            return;
-        }
-        File f = new File(path);
-        if (!f.exists() || !f.isFile()) {
-            send(exchange, 400, "{\"success\":false,\"text\":null,\"error\":\"File not found or is not a file\"}");
-            return;
-        }
-        // Restrict to project directory for safety
-        String projectRoot = new File(".").getCanonicalPath();
-        String canonical = f.getCanonicalPath();
-        if (!canonical.startsWith(projectRoot)) {
-            send(exchange, 403, "{\"success\":false,\"text\":null,\"error\":\"Access to the requested path is forbidden\"}");
-            return;
-        }
-
-        // allow per-request API key via header X-PDFREST-API-KEY (optional)
-        String headerKey = exchange.getRequestHeaders().getFirst("X-PDFREST-API-KEY");
-
-        try {
-            String text = new PdfRestService(headerKey).extractTextFromFilePath(canonical);
-            String json = String.format(Locale.ROOT, "{\"success\":true,\"text\":\"%s\",\"error\":null}", escape(text));
-            send(exchange, 200, json);
-        } catch (Exception ex) {
-            String msg = escape(ex.getMessage());
-            send(exchange, 502, "{\"success\":false,\"text\":null,\"error\":\"" + msg + "\"}");
-        }
-    }
-
-    /**
-     * POST /api/pdf/upload-extract
-     * Body: raw PDF bytes with Content-Type: application/pdf
-     * Responds: JSON { success: bool, text: string|null, error: string|null }
-     */
-    private void handlePdfUploadExtract(com.sun.net.httpserver.HttpExchange exchange) throws IOException {
-        if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
-            send(exchange, 405, "{\"success\":false,\"text\":null,\"error\":\"Method Not Allowed\"}");
-            return;
-        }
-        String ct = exchange.getRequestHeaders().getFirst("Content-Type");
-        if (ct == null || !ct.toLowerCase().contains("pdf")) {
-            send(exchange, 400, "{\"success\":false,\"text\":null,\"error\":\"Content-Type must be application/pdf\"}");
-            return;
-        }
-        byte[] bodyBytes = exchange.getRequestBody().readAllBytes();
-        if (bodyBytes == null || bodyBytes.length == 0) {
-            send(exchange, 400, "{\"success\":false,\"text\":null,\"error\":\"Empty request body\"}");
-            return;
-        }
-        String headerKey = exchange.getRequestHeaders().getFirst("X-PDFREST-API-KEY");
-        try {
-            String text = new Services.PdfRestService(headerKey).extractText(bodyBytes);
-            String json = String.format(Locale.ROOT, "{\"success\":true,\"text\":\"%s\",\"error\":null}", escape(text));
-            send(exchange, 200, json);
-        } catch (Exception ex) {
-            send(exchange, 502, "{\"success\":false,\"text\":null,\"error\":\"" + escape(ex.getMessage()) + "\"}");
-        }
     }
 
     private void handleListReferences(HttpExchange exchange) throws IOException {
@@ -281,6 +210,161 @@ public class ApiServer {
                 .collect(java.util.stream.Collectors.joining(","));
         String body = "{\"best\":\"" + escape(best) + "\",\"scores\":{" + scoreJson + "}}";
         send(exchange, 200, body);
+    }
+
+    private void handlePredictDecision(HttpExchange exchange) throws IOException {
+        if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+            send(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
+            return;
+        }
+
+        System.out.println("[ML] /predict request received");
+
+        String body;
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(exchange.getRequestBody(), StandardCharsets.UTF_8))) {
+            StringBuilder sb = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                sb.append(line);
+            }
+            body = sb.toString();
+        }
+
+        if (body == null || body.isBlank()) {
+            send(exchange, 400, "{\"error\":\"Empty request body\"}");
+            System.out.println("[ML] /predict failed: empty body");
+            return;
+        }
+
+        String projectRoot = System.getenv().getOrDefault("PROJECT_ROOT", System.getProperty("user.dir"));
+        File rootDir = resolveProjectRoot(projectRoot);
+        File modelFile = resolveModelFile(rootDir);
+        if (!modelFile.exists()) {
+            boolean built = tryBuildModel(rootDir);
+            if (!built || !modelFile.exists()) {
+                send(exchange, 500, "{\"error\":\"Model file missing. Run ml/run_pipeline.py to generate models/carbon_model.joblib\"}");
+                System.out.println("[ML] /predict failed: model missing");
+                return;
+            }
+        }
+
+        String python = resolvePythonExecutable();
+        if (python == null) {
+            String msg = "Python introuvable. Définissez PYTHON avec le chemin complet (ex: C:\\Users\\Mega-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe).";
+            send(exchange, 500, "{\"error\":\"" + escape(msg) + "\"}");
+            System.out.println("[ML] /predict failed: python not found");
+            return;
+        }
+
+        File scriptFile = new File(rootDir, "ml/predict.py");
+        ProcessBuilder pb = new ProcessBuilder(
+                python,
+                scriptFile.getAbsolutePath(),
+                "--model",
+                modelFile.getAbsolutePath()
+        );
+        pb.directory(rootDir);
+        pb.redirectErrorStream(true);
+
+        try {
+            Process proc = pb.start();
+            proc.getOutputStream().write(body.getBytes(StandardCharsets.UTF_8));
+            proc.getOutputStream().flush();
+            proc.getOutputStream().close();
+
+            BufferedReader br = new BufferedReader(new InputStreamReader(proc.getInputStream(), StandardCharsets.UTF_8));
+            StringBuilder out = new StringBuilder();
+            String line;
+            while ((line = br.readLine()) != null) {
+                out.append(line);
+            }
+
+            boolean finished = proc.waitFor(8, TimeUnit.SECONDS);
+            if (!finished) {
+                proc.destroyForcibly();
+                send(exchange, 500, "{\"error\":\"Predictor timeout\"}");
+                System.out.println("[ML] /predict failed: timeout");
+                return;
+            }
+
+            int exit = proc.exitValue();
+            if (exit != 0) {
+                String err = out.length() == 0 ? "Predictor failed" : out.toString();
+                send(exchange, 500, "{\"error\":\"" + escape(err) + "\"}");
+                System.out.println("[ML] /predict failed: exit=" + exit);
+                return;
+            }
+
+            send(exchange, 200, out.toString());
+            System.out.println("[ML] /predict success");
+        } catch (IOException ioEx) {
+            String msg = "Python introuvable. Définissez PYTHON avec le chemin complet (ex: C:\\Users\\Mega-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe).";
+            send(exchange, 500, "{\"error\":\"" + escape(msg) + "\"}");
+            System.out.println("[ML] /predict failed: python not found");
+        } catch (InterruptedException ex) {
+            Thread.currentThread().interrupt();
+            send(exchange, 500, "{\"error\":\"Predictor interrupted\"}");
+            System.out.println("[ML] /predict failed: interrupted");
+        }
+    }
+
+    private File resolveModelFile(File rootDir) {
+        String modelPath = System.getenv().getOrDefault("CARBON_MODEL_PATH", "models/carbon_model.joblib");
+        File modelFile = new File(modelPath);
+        if (!modelFile.isAbsolute()) {
+            modelFile = new File(rootDir, modelPath);
+        }
+        return modelFile;
+    }
+
+    private String resolvePythonExecutable() {
+        String env = System.getenv("PYTHON");
+        if (env != null && !env.isBlank() && new File(env).exists()) return env;
+        String envAlt = System.getenv("PYTHON_EXE_PATH");
+        if (envAlt != null && !envAlt.isBlank() && new File(envAlt).exists()) return envAlt;
+
+        String[] candidates = new String[] {
+                "C:\\Users\\Mega-PC\\AppData\\Local\\Programs\\Python\\Python312\\python.exe",
+                "C:\\Users\\Mega-PC\\AppData\\Local\\Programs\\Python\\Python311\\python.exe",
+                "C:\\Users\\Mega-PC\\AppData\\Local\\Programs\\Python\\Python310\\python.exe"
+        };
+        for (String c : candidates) {
+            if (new File(c).exists()) return c;
+        }
+        return "python"; // final fallback; may still fail if not on PATH
+    }
+
+    private boolean tryBuildModel(File rootDir) {
+        String python = resolvePythonExecutable();
+        if (python == null) return false;
+        File scriptFile = new File(rootDir, "ml/run_pipeline.py");
+        if (!scriptFile.exists()) return false;
+        ProcessBuilder pb = new ProcessBuilder(python, scriptFile.getAbsolutePath(), "--rows", "20000");
+        pb.directory(rootDir);
+        pb.redirectErrorStream(true);
+        try {
+            Process proc = pb.start();
+            boolean finished = proc.waitFor(120, TimeUnit.SECONDS);
+            if (!finished) {
+                proc.destroyForcibly();
+                return false;
+            }
+            return proc.exitValue() == 0;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
+    private File resolveProjectRoot(String start) {
+        File dir = new File(start);
+        if (!dir.exists()) return new File(System.getProperty("user.dir"));
+        File cursor = dir.isFile() ? dir.getParentFile() : dir;
+        while (cursor != null) {
+            File pom = new File(cursor, "pom.xml");
+            if (pom.exists()) return cursor;
+            cursor = cursor.getParentFile();
+        }
+        return new File(System.getProperty("user.dir"));
     }
 
     // Helpers

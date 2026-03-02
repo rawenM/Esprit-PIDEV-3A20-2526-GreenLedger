@@ -1,0 +1,72 @@
+{
+  "accuracy": 1.0,
+  "classification_report": {
+    "APPROVE": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 3825.0
+    },
+    "REJECT": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 2878.0
+    },
+    "REVIEW": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 13297.0
+    },
+    "accuracy": 1.0,
+    "macro avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 20000.0
+    },
+    "weighted avg": {
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1-score": 1.0,
+      "support": 20000.0
+    }
+  },
+  "feature_columns": [
+    "sector",
+    "region",
+    "size",
+    "baseline_emissions_tco2",
+    "target_reduction_pct",
+    "avg_note",
+    "min_note",
+    "compliance_rate",
+    "blocking_criteria",
+    "scope1_tco2",
+    "scope2_tco2",
+    "scope3_tco2",
+    "total_tco2",
+    "scenario_delta",
+    "score"
+  ],
+  "categorical_columns": [
+    "sector",
+    "region",
+    "size"
+  ],
+  "numeric_columns": [
+    "baseline_emissions_tco2",
+    "target_reduction_pct",
+    "avg_note",
+    "min_note",
+    "compliance_rate",
+    "blocking_criteria",
+    "scope1_tco2",
+    "scope2_tco2",
+    "scope3_tco2",
+    "total_tco2",
+    "scenario_delta",
+    "score"
+  ]
+}

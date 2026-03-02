@@ -532,4 +532,3 @@ public class UserServiceImpl implements IUserService {
                 .collect(Collectors.toList());
     }
 }
-
