@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+
+<HBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.FinanceRiskAgentController"
+      spacing="0" styleClass="page">
+
+
+    <VBox prefWidth="220" styleClass="sidebar">
+        <HBox alignment="CENTER_LEFT" spacing="8">
+            <Label text="🤖" style="-fx-font-size:20px;"/>
+            <Label text="Claude Risk" styleClass="sidebar-title"/>
+        </HBox>
+
+        <Separator styleClass="sidebar-sep"/>
+
+        <Button text="💳 Financement" onAction="#handleGoFinancement" styleClass="nav-btn"/>
+        <Button text="📊 Tableau de bord" onAction="#handleGoDashboard" styleClass="nav-btn"/>
+
+        <Separator styleClass="sidebar-sep"/>
+
+        <Button text="🔄 Recharger le modele" onAction="#handleReloadModel" styleClass="nav-btn"/>
+        <Button text="⚙️ Parametres" onAction="#handleGoSettings" styleClass="nav-btn"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+    </VBox>
+
+    <VBox spacing="0" HBox.hgrow="ALWAYS" styleClass="content-area">
+
+        <HBox spacing="16" alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="28" right="32" bottom="20" left="32"/>
+            </padding>
+
+            <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <Label text="Investissement Recommendation" styleClass="stat-title"/>
+                <Label fx:id="lblModelStatus" text="Chargement..." styleClass="stat-value accent-blue"/>
+            </VBox>
+
+            <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <Label text="RISQUE" styleClass="stat-title"/>
+                <Label fx:id="lblRiskScore" text="N/A" styleClass="stat-value accent-amber"/>
+                <Label text="Derniere analyse" style="-fx-font-size:11px; -fx-opacity:0.7;"/>
+            </VBox>
+
+            <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <Label text="CONFIANCE" styleClass="stat-title"/>
+                <Label fx:id="lblConfidence" text="N/A" styleClass="stat-value accent-green"/>
+            </VBox>
+        </HBox>
+
+        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS"
+                    style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox spacing="24">
+                <padding>
+                    <Insets top="8" right="32" bottom="32" left="32"/>
+                </padding>
+
+                <!-- ── RISK AGENT SECTION ─────────────────────────────── -->
+                <VBox spacing="12">
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="🧠" style="-fx-font-size:18px;"/>
+                        <Label text="Agent de Risque - Financement" styleClass="page-title"/>
+                    </HBox>
+                    <Label text="Analyse des dossiers d'investissement et estimation du risque" styleClass="page-subtitle"/>
+                </VBox>
+
+                <VBox spacing="12" styleClass="card">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="📥" style="-fx-font-size:18px;"/>
+                        <Label text="Parametres d'entree" styleClass="page-title"/>
+                    </HBox>
+
+                    <HBox spacing="12">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Budget" styleClass="form-label"/>
+                            <TextField fx:id="txtMontant" promptText="Ex: 15000" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Duree" styleClass="form-label"/>
+                            <TextField fx:id="txtDuree" promptText="Ex: 24" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Type" styleClass="form-label"/>
+                            <ComboBox fx:id="cmbSecteur" promptText="Selectionner" styleClass="field">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="solar"/>
+                                        <String fx:value="wind"/>
+                                        <String fx:value="agriculture"/>
+                                        <String fx:value="recycling"/>
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="12">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Impact CO2" styleClass="form-label"/>
+                            <TextField fx:id="txtTaux" promptText="Ex: 12.5" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Maturite" styleClass="form-label"/>
+                            <TextField fx:id="txtScoreCredit" promptText="Ex: 36" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Ratio de financement" styleClass="form-label"/>
+                            <TextField fx:id="txtApport" promptText="Ex: 0.35" styleClass="field"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Button text="⚡ Analyser le risque" onAction="#handleRunRiskAnalysis" styleClass="btn btn-primary" prefHeight="36" prefWidth="180"/>
+                        <Button text="🧹 Reinitialiser" onAction="#handleReset" styleClass="btn btn-secondary" prefHeight="36" prefWidth="160"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblLastUpdate" text="" style="-fx-opacity:0.7;"/>
+                    </HBox>
+                </VBox>
+
+                <VBox spacing="12" styleClass="card">
+                    <padding>
+                        <Insets top="16" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="📊" style="-fx-font-size:18px;"/>
+                        <Label text="Explication" styleClass="page-title"/>
+                    </HBox>
+
+                    <TextArea fx:id="txtNotes" text="Aucune analyse pour le moment." wrapText="true" styleClass="field textarea" style="-fx-pref-height: 140px;"/>
+                </VBox>
+
+                <!-- ── TAUX RECOMMENDATION SECTION ────────────────────── -->
+                <Separator/>
+
+                <VBox spacing="6">
+                    <Label text="💡 Recommandation de Taux Optimal" styleClass="section-title"/>
+                    <Label text="Selectionnez un financement pour obtenir le taux recommande par le modele ML"
+                           styleClass="page-subtitle"/>
+                </VBox>
+
+                <!-- INPUT CARD -->
+                <VBox spacing="16" styleClass="card">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <Label text="📋 Parametres du financement" styleClass="section-title"/>
+
+                    <!-- ROW 1: Financement selector + Project info -->
+                    <HBox spacing="16">
+                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                            <Label text="Financement ID" styleClass="form-label"/>
+                            <ComboBox fx:id="cmbFinancementTaux"
+                                      styleClass="field"
+                                      promptText="Choisir un financement..."
+                                      prefWidth="220"/>
+                        </VBox>
+                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                            <Label text="Projet lie" styleClass="form-label"/>
+                            <Label fx:id="lblProjetTitre"
+                                   text="—"
+                                   style="-fx-font-size:13px; -fx-font-weight:bold; -fx-text-fill:#1e3a5f;"/>
+                            <Label fx:id="lblProjetStatut"
+                                   text=""
+                                   style="-fx-font-size:11px; -fx-text-fill:#64748b;"/>
+                        </VBox>
+                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                            <Label text="Score ESG" styleClass="form-label"/>
+                            <Label fx:id="lblProjetEsg"
+                                   text="—"
+                                   style="-fx-font-size:13px; -fx-font-weight:bold;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- ROW 2: Offre parameters -->
+                    <HBox spacing="16">
+                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                            <Label text="Type d'offre" styleClass="form-label"/>
+                            <ComboBox fx:id="cmbTypeOffreTaux"
+                                      styleClass="field"
+                                      promptText="Type..."
+                                      prefWidth="180">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="Pret Solaire"/>
+                                        <String fx:value="Pret Eolien"/>
+                                        <String fx:value="Financement Agricole"/>
+                                        <String fx:value="Pret Immobilier Vert"/>
+                                        <String fx:value="Micro-credit Energie"/>
+                                        <String fx:value="Pret Recyclage"/>
+                                        <String fx:value="Financement PME Verte"/>
+                                        <String fx:value="Pret Long Terme"/>
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+                        </VBox>
+                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                            <Label text="Duree souhaitee (mois)" styleClass="form-label"/>
+                            <TextField fx:id="txtDureeTaux"
+                                       styleClass="field"
+                                       promptText="Ex: 120"
+                                       prefWidth="160"/>
+                        </VBox>
+                        <VBox spacing="6" HBox.hgrow="ALWAYS">
+                            <Label text="Anciennete entreprise (ans)" styleClass="form-label"/>
+                            <TextField fx:id="txtAncienneteTaux"
+                                       styleClass="field"
+                                       promptText="Ex: 5"
+                                       prefWidth="160"/>
+                        </VBox>
+                        <VBox spacing="6" alignment="BOTTOM_LEFT">
+                            <Label text="" styleClass="form-label"/>
+                            <Button text="🤖 Recommander le taux"
+                                    onAction="#recommanderTaux"
+                                    styleClass="btn btn-primary"
+                                    prefHeight="36"
+                                    prefWidth="200"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- RESULT CARD — hidden until prediction runs -->
+                <VBox fx:id="tauxResultPanel"
+                      spacing="16" styleClass="card"
+                      visible="false" managed="false">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Label text="✅ Resultat de la recommandation"
+                               styleClass="section-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="🔄 Nouvelle analyse"
+                                onAction="#resetTauxPanel"
+                                styleClass="btn btn-secondary"
+                                prefHeight="32"/>
+                    </HBox>
+
+                    <!-- Main taux display -->
+                    <HBox spacing="24" alignment="CENTER_LEFT">
+
+                        <!-- Big taux number -->
+                        <VBox spacing="4" alignment="CENTER"
+                              style="-fx-background-color:#0f172a; -fx-background-radius:12; -fx-padding: 20 32 20 32;">
+                            <Label text="TAUX RECOMMANDE"
+                                   style="-fx-font-size:10px; -fx-font-weight:bold; -fx-text-fill:rgba(255,255,255,0.5);"/>
+                            <Label fx:id="lblTauxResult"
+                                   text="—"
+                                   style="-fx-font-size:36px; -fx-font-weight:bold; -fx-text-fill:#10b981;"/>
+                            <Label fx:id="lblTauxInterpretation"
+                                   text=""
+                                   style="-fx-font-size:11px; -fx-text-fill:rgba(255,255,255,0.6);"/>
+                        </VBox>
+
+                        <!-- Breakdown cards -->
+                        <VBox spacing="10" HBox.hgrow="ALWAYS">
+                            <HBox spacing="10">
+                                <VBox spacing="3" HBox.hgrow="ALWAYS"
+                                      style="-fx-background-color:#f8faff; -fx-background-radius:8; -fx-padding:10 14 10 14; -fx-border-color:#e2e8f0; -fx-border-radius:8;">
+                                    <Label text="PROJET" style="-fx-font-size:9px; -fx-font-weight:bold; -fx-text-fill:#94a3b8;"/>
+                                    <Label fx:id="lblBreakdownProjet" text="—"
+                                           style="-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:#0f172a;"/>
+                                </VBox>
+                                <VBox spacing="3" HBox.hgrow="ALWAYS"
+                                      style="-fx-background-color:#f8faff; -fx-background-radius:8; -fx-padding:10 14 10 14; -fx-border-color:#e2e8f0; -fx-border-radius:8;">
+                                    <Label text="STATUT" style="-fx-font-size:9px; -fx-font-weight:bold; -fx-text-fill:#94a3b8;"/>
+                                    <Label fx:id="lblBreakdownStatut" text="—"
+                                           style="-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:#0f172a;"/>
+                                </VBox>
+                            </HBox>
+                            <HBox spacing="10">
+                                <VBox spacing="3" HBox.hgrow="ALWAYS"
+                                      style="-fx-background-color:#f8faff; -fx-background-radius:8; -fx-padding:10 14 10 14; -fx-border-color:#e2e8f0; -fx-border-radius:8;">
+                                    <Label text="SCORE ESG" style="-fx-font-size:9px; -fx-font-weight:bold; -fx-text-fill:#94a3b8;"/>
+                                    <Label fx:id="lblBreakdownEsg" text="—"
+                                           style="-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:#0f172a;"/>
+                                </VBox>
+                                <VBox spacing="3" HBox.hgrow="ALWAYS"
+                                      style="-fx-background-color:#f8faff; -fx-background-radius:8; -fx-padding:10 14 10 14; -fx-border-color:#e2e8f0; -fx-border-radius:8;">
+                                    <Label text="DUREE" style="-fx-font-size:9px; -fx-font-weight:bold; -fx-text-fill:#94a3b8;"/>
+                                    <Label fx:id="lblBreakdownDuree" text="—"
+                                           style="-fx-font-size:12px; -fx-font-weight:bold; -fx-text-fill:#0f172a;"/>
+                                </VBox>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Explanation -->
+                    <VBox spacing="4"
+                          style="-fx-background-color:#f0f9ff; -fx-background-radius:8; -fx-padding:12 16 12 16; -fx-border-color:#bae6fd; -fx-border-radius:8;">
+                        <Label text="🧮 Explication du modele"
+                               style="-fx-font-size:11px; -fx-font-weight:bold; -fx-text-fill:#0369a1;"/>
+                        <Label fx:id="lblTauxExplication"
+                               text=""
+                               style="-fx-font-size:11px; -fx-text-fill:#0c4a6e;"
+                               wrapText="true"/>
+                    </VBox>
+
+                </VBox>
+                <!-- ── END TAUX SECTION ───────────────────────────────── -->
+
+            </VBox>
+        </ScrollPane>
+
+    </VBox>
+</HBox>

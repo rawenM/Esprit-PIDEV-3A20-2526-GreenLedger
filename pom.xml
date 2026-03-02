@@ -13,6 +13,12 @@
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+    <repositories>
+    <repository>
+    <id>central</id>
+    <url>https://repo.maven.apache.org/maven2/</url>
+    </repository>
+    </repositories>
     <dependencies>
         <dependency>
             <groupId>mysql</groupId>
@@ -59,6 +65,7 @@
             <artifactId>jakarta.mail</artifactId>
             <version>2.0.1</version> <!-- stable & widely available -->
         </dependency>
+<<<<<<< HEAD
 
         <!-- Apache PDFBox for PDF generation -->
         <dependency>
@@ -100,6 +107,20 @@
             <groupId>com.dynamicpdf.api</groupId>
             <artifactId>dynamicpdf-api</artifactId>
             <version>0.9.0</version>
+=======
+        <!-- Weka pour les algorithmes de machine learning -->
+        <dependency>
+            <groupId>nz.ac.waikato.cms.weka</groupId>
+            <artifactId>weka-stable</artifactId>
+            <version>3.8.6</version>
+        </dependency>
+
+        <!-- JSON -->
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20231013</version>
+>>>>>>> origin/rawen_madien_gestion_financement
         </dependency>
     </dependencies>
 

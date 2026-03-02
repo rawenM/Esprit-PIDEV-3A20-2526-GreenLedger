@@ -1,5 +1,9 @@
 package Models;
 
+import javafx.fxml.FXML;
+
+import java.io.IOException;
+
 public class Financement {
     private int id;
     private int projetId;
