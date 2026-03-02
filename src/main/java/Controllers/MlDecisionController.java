@@ -7,6 +7,10 @@ import Services.AdvancedEvaluationFacade;
 import Services.CritereImpactService;
 import Services.EvaluationService;
 import Services.ProjectEsgService;
+import Services.MlDecisionSnapshotService;
+import Utils.SessionManager;
+import Models.MlDecisionSnapshot;
+import Models.User;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import javafx.fxml.FXML;
@@ -73,6 +77,7 @@ public class MlDecisionController extends BaseController {
     private final EvaluationService evaluationService = new EvaluationService();
     private final CritereImpactService critereImpactService = new CritereImpactService();
     private final AdvancedEvaluationFacade facade = new AdvancedEvaluationFacade();
+    private final MlDecisionSnapshotService snapshotService = new MlDecisionSnapshotService();
 
     private Projet selectedProjet;
     private List<EvaluationResult> lastResults;
@@ -427,6 +432,7 @@ public class MlDecisionController extends BaseController {
             updateDecision(decision, String.valueOf(Math.max(0.0, Math.min(1.0, credibility / 100.0))));
             updateRecommendationsText(recommendations);
             setStatus("ML termine");
+            persistSnapshot(buildSnapshot(decision, credibility / 100.0));
             System.out.println("[ML] Training completed");
         } catch (Exception ex) {
             setStatus("");
@@ -618,9 +624,85 @@ public class MlDecisionController extends BaseController {
             if (sb.length() == 0) {
                 sb.append("Aucune recommandation disponible.");
             }
+
             txtRecommendations.setText(sb.toString().trim());
         }
+        persistSnapshot(buildSnapshot(decision, complianceRate));
         System.out.println("[ML] Recommendations API and ML model successful");
     }
-}
 
+    private MlDecisionSnapshot buildSnapshot(String decision, double confidence) {
+        MlDecisionSnapshot snapshot = new MlDecisionSnapshot();
+        snapshot.setProjectId(selectedProjet != null ? selectedProjet.getId() : null);
+        snapshot.setProjectName(selectedProjet != null ? selectedProjet.getTitre() : null);
+
+        Evaluation latest = selectedProjet != null ? getLatestEvaluation(selectedProjet.getId()) : null;
+        snapshot.setEvaluationId(latest != null ? latest.getIdEvaluation() : null);
+
+        snapshot.setDecision(decision);
+        snapshot.setConfidence(confidence);
+
+        if (lblScore != null) {
+            snapshot.setScore(parseDoubleLabel(lblScore.getText()));
+        }
+        if (lblCompliance != null) {
+            snapshot.setCompliance(parsePercentLabel(lblCompliance.getText()));
+        }
+        if (lblMinNote != null) {
+            snapshot.setMinNote(parseIntLabel(lblMinNote.getText()));
+        }
+        if (lblEsgScore != null) {
+            snapshot.setEsgScore(parseIntLabel(lblEsgScore.getText()));
+        }
+        if (listFactors != null) {
+            snapshot.setFactors(String.join("\n", listFactors.getItems()));
+        }
+        if (txtExplanation != null) {
+            snapshot.setExplanation(txtExplanation.getText());
+        }
+        if (txtRecommendations != null) {
+            snapshot.setRecommendations(txtRecommendations.getText());
+        }
+
+        User user = SessionManager.getInstance().getCurrentUser();
+        if (user != null) {
+            snapshot.setCreatedByUserId(user.getId());
+        }
+        return snapshot;
+    }
+
+    private void persistSnapshot(MlDecisionSnapshot snapshot) {
+        snapshotService.insert(snapshot);
+    }
+
+    private Double parseDoubleLabel(String text) {
+        if (text == null) return null;
+        String cleaned = text.replace("/10", "").trim();
+        try {
+            return Double.parseDouble(cleaned);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    private Double parsePercentLabel(String text) {
+        if (text == null) return null;
+        String cleaned = text.replace("%", "").trim();
+        try {
+            return Double.parseDouble(cleaned) / 100.0;
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+
+    private Integer parseIntLabel(String text) {
+        if (text == null) return null;
+        String cleaned = text.trim();
+        if (cleaned.isEmpty() || cleaned.equals("—")) return null;
+        try {
+            return Integer.parseInt(cleaned);
+        } catch (NumberFormatException ex) {
+            return null;
+        }
+    }
+}
