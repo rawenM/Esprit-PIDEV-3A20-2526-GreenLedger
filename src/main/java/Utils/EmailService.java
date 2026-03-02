@@ -8,8 +8,17 @@ import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+import jakarta.mail.internet.MimeBodyPart;
+import jakarta.mail.internet.MimeMultipart;
+import jakarta.activation.DataHandler;
+import jakarta.activation.DataSource;
+import jakarta.activation.FileDataSource;
 
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
 
 /**
@@ -39,6 +48,13 @@ public class EmailService {
                 return;
             }
         }
+
+        loadFromDotenv();
+        if (validateConfig()) {
+            configured = true;
+            return;
+        }
+
         try (InputStream in = getClass().getResourceAsStream("/config.properties")) {
             if (in == null) return;
             smtpProps.load(in);
@@ -48,6 +64,55 @@ public class EmailService {
             }
         } catch (Exception e) {
             System.err.println("[CLEAN] Impossible de charger config.properties pour EmailService: " + e.getMessage());
+        }
+    }
+
+    private void loadFromDotenv() {
+        String baseDir = System.getProperty("user.dir");
+        Path[] candidates = new Path[] {
+                Paths.get(baseDir, ".env"),
+                Paths.get(baseDir, "env.example"),
+                Paths.get(baseDir, ".env.example")
+        };
+        for (Path path : candidates) {
+            if (!Files.exists(path)) {
+                continue;
+            }
+            try {
+                for (String line : Files.readAllLines(path, StandardCharsets.UTF_8)) {
+                    String trimmed = line.trim();
+                    if (trimmed.isEmpty() || trimmed.startsWith("#")) {
+                        continue;
+                    }
+                    int idx = trimmed.indexOf('=');
+                    if (idx <= 0) {
+                        continue;
+                    }
+                    String key = trimmed.substring(0, idx).trim();
+                    String value = trimmed.substring(idx + 1).trim();
+                    if ((value.startsWith("\"") && value.endsWith("\"")) || (value.startsWith("'") && value.endsWith("'"))) {
+                        value = value.substring(1, value.length() - 1);
+                    }
+                    mapDotenvValue(key, value);
+                }
+            } catch (Exception e) {
+                System.err.println("[CLEAN] Lecture dotenv echouee: " + e.getMessage());
+            }
+        }
+    }
+
+    private void mapDotenvValue(String key, String value) {
+        if (key == null || value == null) return;
+        switch (key) {
+            case "SMTP_HOST" -> smtpProps.putIfAbsent("smtp.host", value);
+            case "SMTP_PORT" -> smtpProps.putIfAbsent("smtp.port", value);
+            case "SMTP_USERNAME" -> smtpProps.putIfAbsent("smtp.username", value);
+            case "SMTP_PASSWORD" -> smtpProps.putIfAbsent("smtp.password", value);
+            case "SMTP_FROM" -> smtpProps.putIfAbsent("smtp.from", value);
+            case "SMTP_AUTH" -> smtpProps.putIfAbsent("smtp.auth", value);
+            case "SMTP_STARTTLS" -> smtpProps.putIfAbsent("smtp.starttls.enable", value);
+            case "APP_RESET_URL_PREFIX" -> smtpProps.putIfAbsent("app.reset.url.prefix", value);
+            default -> { }
         }
     }
 
@@ -87,6 +152,48 @@ public class EmailService {
     public boolean sendAccountStatusEmail(String to, String fullName, String status) {
         StatusEmail statusEmail = buildStatusEmail(fullName, status);
         return sendEmail(to, statusEmail.subject, statusEmail.htmlBody, true);
+    }
+
+    public boolean sendEvaluationReportEmail(String to, String subject, String htmlBody, java.io.File attachmentPdf) {
+        if (!configured) {
+            System.out.println("[CLEAN] SMTP non configure, email simule a: " + to);
+            System.out.println("[CLEAN] Sujet: " + subject);
+            System.out.println("[CLEAN] Corps: " + htmlBody);
+            if (attachmentPdf != null) {
+                System.out.println("[CLEAN] Piece jointe: " + attachmentPdf.getAbsolutePath());
+            }
+            return false;
+        }
+        try {
+            Session session = createSession();
+            MimeMessage message = new MimeMessage(session);
+            message.setFrom(new InternetAddress(smtpProps.getProperty("smtp.from")));
+            message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
+            message.setSubject(subject, "UTF-8");
+
+            MimeBodyPart htmlPart = new MimeBodyPart();
+            htmlPart.setContent(htmlBody, "text/html; charset=UTF-8");
+
+            if (attachmentPdf != null && attachmentPdf.exists()) {
+                MimeBodyPart attachmentPart = new MimeBodyPart();
+                DataSource source = new FileDataSource(attachmentPdf);
+                attachmentPart.setDataHandler(new DataHandler(source));
+                attachmentPart.setFileName(attachmentPdf.getName());
+
+                MimeMultipart multipart = new MimeMultipart();
+                multipart.addBodyPart(htmlPart);
+                multipart.addBodyPart(attachmentPart);
+                message.setContent(multipart);
+            } else {
+                message.setContent(htmlBody, "text/html; charset=UTF-8");
+            }
+
+            Transport.send(message);
+            return true;
+        } catch (MessagingException e) {
+            System.err.println("[CLEAN] Echec envoi email: " + e.getMessage());
+            return false;
+        }
     }
 
     private boolean sendEmail(String to, String subject, String body, boolean isHtml) {

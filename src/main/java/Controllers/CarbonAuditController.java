@@ -16,14 +16,20 @@ import Services.EvaluationService;
 import Services.ProjetService;
 import Services.ProjectEsgService;
 import Services.DynamicPdfService;
+import Services.MlPredictionService;
+import Services.PdfExportService;
+import Models.MlPrediction;
+import Models.PdfExportLog;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.GreenLedger.MainFX;
 import Utils.SessionManager;
 import Models.TypeUtilisateur;
 import Models.User;
+import Utils.EmailService;
 
 import java.io.IOException;
+import java.io.File;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -142,6 +148,8 @@ public class CarbonAuditController extends BaseController {
     private final ProjectEsgService projectEsgService = new ProjectEsgService();
     private final Services.AdvancedEvaluationFacade advancedFacade = new Services.AdvancedEvaluationFacade();
     private final Services.CarbonReportService carbonReportService = new Services.CarbonReportService();
+    private final MlPredictionService mlPredictionService = new MlPredictionService();
+    private final PdfExportService pdfExportService = new PdfExportService();
 
     private final ObservableList<CritereReference> referenceCriteres = FXCollections.observableArrayList();
 
@@ -151,6 +159,10 @@ public class CarbonAuditController extends BaseController {
 
     private String lastMlDecision;
     private Double lastMlConfidence;
+    private Integer lastMlEsgScore;
+    private Integer lastMlCredibility;
+    private String lastMlRisk;
+    private String lastMlRecommendations;
 
     private static final java.util.Map<Integer, String> mlDecisionByProject = new java.util.concurrent.ConcurrentHashMap<>();
 
@@ -595,6 +607,9 @@ public class CarbonAuditController extends BaseController {
     @FXML
     void ajouterEvaluation() {
         try {
+            if (!requireExpertPermission("creer une evaluation")) {
+                return;
+            }
             if (!validateEvaluationSchema()) {
                 return;
             }
@@ -624,7 +639,7 @@ public class CarbonAuditController extends BaseController {
                 }
             }
             if (resolveDecision(false, evaluation.getIdProjet()) == null) {
-                showError("Lancez l'evaluation ML pour obtenir la decision.");
+                showError("L'evaluation ML est indisponible. Une decision locale n'a pas pu etre calculee.");
                 return;
             }
 
@@ -648,6 +663,8 @@ public class CarbonAuditController extends BaseController {
                 showError("Creation evaluation echouee." + (details != null ? ("\n" + details) : ""));
                 return;
             }
+
+            persistMlPrediction(createdId, evaluation.getIdProjet(), resultats);
 
             // Calculer et persister le score ESG du projet suite à la nouvelle évaluation
             try {
@@ -948,7 +965,10 @@ public class CarbonAuditController extends BaseController {
 
         String decision = resolveDecision(requireId, idProjet);
         if (decision == null) {
-            showError("Lancez l'évaluation ML pour obtenir la décision.");
+            decision = computeLocalDecision(buildResultsLenientForEsg());
+        }
+        if (decision == null) {
+            showError("Decision indisponible. Verifiez les notes des criteres.");
             return null;
         }
 
@@ -1197,6 +1217,10 @@ public class CarbonAuditController extends BaseController {
                 String localDecision = computeLocalDecision(results);
                 if (localDecision != null) {
                     lastMlDecision = localDecision;
+                    lastMlEsgScore = null;
+                    lastMlCredibility = null;
+                    lastMlRisk = null;
+                    lastMlRecommendations = null;
                     storeMlDecision(projetId, localDecision);
                     if (lblDecisionValue != null) {
                         lblDecisionValue.setText("Décision ML: " + mapMlDecision(localDecision));
@@ -1225,9 +1249,12 @@ public class CarbonAuditController extends BaseController {
 
             String decision = deriveDecision(esgScore, carbonRisk);
             lastMlDecision = decision;
-            storeMlDecision(projetId, decision);
             lastMlConfidence = credibility / 100.0;
-
+            lastMlEsgScore = esgScore;
+            lastMlCredibility = credibility;
+            lastMlRisk = carbonRisk;
+            lastMlRecommendations = recommendations;
+            storeMlDecision(projetId, decision);
             if (txtMlRecommendation != null) {
                 StringBuilder sb = new StringBuilder();
                 sb.append("ESG: ").append(esgScore).append(" | Risk: ").append(carbonRisk).append("\n\n");
@@ -1898,6 +1925,9 @@ public class CarbonAuditController extends BaseController {
 
     @FXML
     void handleExportPdf() {
+        if (!requireExpertPermission("exporter un rapport")) {
+            return;
+        }
         try {
             Evaluation evaluation;
             java.util.List<EvaluationResult> resultats;
@@ -1966,6 +1996,8 @@ public class CarbonAuditController extends BaseController {
                 );
             }
 
+            logPdfExport(evaluation, file, usedDynamic ? "DynamicPDF" : "PDFBox", "SUCCESS", null);
+
             Alert ok = new Alert(Alert.AlertType.INFORMATION);
             ok.setHeaderText("Export PDF reussi");
             ok.setContentText("[API CONFIG] DynamicPDF export completed\nFichier sauvegarde: " + file.getAbsolutePath());
@@ -1974,33 +2006,232 @@ public class CarbonAuditController extends BaseController {
             System.out.println("[API CONFIG] DynamicPDF export completed -> " + file.getAbsolutePath());
 
         } catch (Exception ex) {
+            try {
+                logPdfExport(null, null, "PDF", "FAILED", ex.getMessage());
+            } catch (Exception ignore) { }
             showError("Echec export PDF: " + ex.getMessage());
         }
     }
 
-    private byte[] getSignaturePng() {
-        if (signatureCanvas == null || !signatureDrawn) return null;
-        int w = (int) signatureCanvas.getWidth();
-        int h = (int) signatureCanvas.getHeight();
+    @FXML
+    void handleSendReportEmail() {
+        if (!requireExpertPermission("envoyer un rapport")) {
+            return;
+        }
+        try {
+            Evaluation evaluation = null;
+            List<EvaluationResult> resultats = null;
 
-        javafx.scene.image.WritableImage wi = new javafx.scene.image.WritableImage(w, h);
-        signatureCanvas.snapshot(null, wi);
+            if (selectedEvaluationId != null) {
+                evaluation = tableAudits != null ? tableAudits.getSelectionModel().getSelectedItem() : null;
+                if (evaluation == null) {
+                    evaluation = getEvaluationById(selectedEvaluationId);
+                }
+                if (evaluation != null) {
+                    resultats = critereImpactService.afficherParEvaluation(evaluation.getIdEvaluation());
+                }
+            }
 
-        javafx.scene.image.PixelReader pr = wi.getPixelReader();
-        if (pr == null) return null;
-        java.awt.image.BufferedImage bi = new java.awt.image.BufferedImage(w, h, java.awt.image.BufferedImage.TYPE_INT_ARGB);
-        for (int y = 0; y < h; y++) {
-            for (int x = 0; x < w; x++) {
-                int argb = pr.getArgb(x, y);
-                bi.setRGB(x, y, argb);
+            if (evaluation == null && selectedProjet != null) {
+                evaluation = getLatestEvaluationForProject(selectedProjet.getId());
+                if (evaluation != null) {
+                    resultats = critereImpactService.afficherParEvaluation(evaluation.getIdEvaluation());
+                }
+            }
+
+            if (evaluation == null) {
+                showError("Aucune evaluation disponible pour l'envoi.");
+                return;
+            }
+            if (resultats == null || resultats.isEmpty()) {
+                showError("Aucun critere disponible pour l'envoi.");
+                return;
+            }
+
+            Projet proj = findProjectById(evaluation.getIdProjet());
+            if (proj == null || proj.getCompanyEmail() == null || proj.getCompanyEmail().isBlank()) {
+                showError("Email du porteur de projet introuvable.");
+                return;
+            }
+
+            Models.AiSuggestion suggestion = advancedFacade.suggest(proj, resultats);
+            String subject = "Rapport d'evaluation carbone - " + (proj.getTitre() != null ? proj.getTitre() : "Projet");
+            String htmlBody = buildEvaluationEmailHtml(evaluation, proj, resultats, suggestion);
+
+            File tempPdf = File.createTempFile("evaluation-", ".pdf");
+            boolean usedDynamic = false;
+            try {
+                Services.DynamicPdfService dynamic = new Services.DynamicPdfService();
+                if (dynamic.isConfigured()) {
+                    String html = dynamic.buildEvaluationHtml(evaluation, resultats, suggestion, null, safeName(lblProfileName), safeRole(lblProfileType));
+                    dynamic.writePdfFromHtml(html, tempPdf);
+                    usedDynamic = true;
+                }
+            } catch (Exception ignore) { }
+
+            if (!usedDynamic) {
+                new Services.PdfService().generateEvaluationPdfWithSignature(
+                        evaluation, resultats, suggestion, tempPdf, null, safeName(lblProfileName), safeRole(lblProfileType)
+                );
+            }
+
+            EmailService emailService = new EmailService();
+            boolean sent = emailService.sendEvaluationReportEmail(proj.getCompanyEmail(), subject, htmlBody, tempPdf);
+
+            Alert ok = new Alert(Alert.AlertType.INFORMATION);
+            ok.setHeaderText(sent ? "Rapport envoye" : "SMTP non configure");
+            ok.setContentText(sent ? "Email envoye a: " + proj.getCompanyEmail() : "Email simule. Configurez SMTP pour l'envoi reel.");
+            ok.showAndWait();
+
+            if (tempPdf.exists()) {
+                tempPdf.delete();
+            }
+        } catch (Exception ex) {
+            showError("Echec envoi email: " + ex.getMessage());
+        }
+    }
+
+    private Evaluation getLatestEvaluationForProject(int projectId) {
+        List<Evaluation> evals = evaluationService.afficherParProjet(projectId);
+        if (evals == null || evals.isEmpty()) return null;
+        evals.sort(java.util.Comparator.comparingInt(Evaluation::getIdEvaluation));
+        return evals.get(evals.size() - 1);
+    }
+
+    private String buildEvaluationEmailHtml(Evaluation evaluation, Projet proj, List<EvaluationResult> results, Models.AiSuggestion suggestion) {
+        ProjectEsgService.EsgBreakdown b = projectEsgService.breakdown(results);
+        int esg100 = (int) Math.round(b.esg10 * 10.0);
+        String decision = evaluation.getDecision() != null ? evaluation.getDecision() : mapMlDecision(lastMlDecision);
+
+        StringBuilder factors = new StringBuilder();
+        if (suggestion != null && suggestion.getTopFactors() != null) {
+            for (String f : suggestion.getTopFactors()) {
+                factors.append("• ").append(f).append("<br/>");
+            }
+        }
+        if (factors.length() == 0) {
+            factors.append("• Facteurs cles non disponibles.<br/>");
+        }
+
+        StringBuilder recs = new StringBuilder();
+        List<String> recList = suggestion != null ? suggestion.getRecommendations() : java.util.Collections.emptyList();
+        if (recList != null && !recList.isEmpty()) {
+            for (String r : recList) {
+                recs.append("• ").append(r).append("<br/>");
+            }
+        } else {
+            recs.append("• Aucune recommandation prioritaire.");
+        }
+
+        return "<!doctype html><html><head><meta charset='UTF-8'/></head>" +
+                "<body style='font-family:Arial,sans-serif;color:#111827;'>" +
+                "<h2>Rapport d'evaluation carbone</h2>" +
+                "<p><strong>Projet:</strong> " + htmlEscape(proj.getTitre()) + "</p>" +
+                "<p><strong>Decision:</strong> " + htmlEscape(decision) + "</p>" +
+                "<p><strong>Score global:</strong> " + String.format(java.util.Locale.ROOT, "%.2f", evaluation.getScoreGlobal()) + "</p>" +
+                "<p><strong>Score ESG:</strong> " + esg100 + "/100</p>" +
+                "<p><strong>Pourquoi:</strong><br/>" + factors + "</p>" +
+                "<p><strong>Recommandations:</strong><br/>" + recs + "</p>" +
+                "<p>Le rapport PDF complet est joint a cet email.</p>" +
+                "</body></html>";
+    }
+
+    private String safeName(Label label) {
+        return label != null && label.getText() != null ? label.getText() : "Utilisateur";
+    }
+
+    private String safeRole(Label label) {
+        return label != null && label.getText() != null ? label.getText() : "Expert Carbone";
+    }
+
+    private String htmlEscape(String value) {
+        if (value == null) return "";
+        return value.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;");
+    }
+
+    private void logPdfExport(Evaluation evaluation, java.io.File file, String provider, String status, String errorMessage) {
+        PdfExportLog log = new PdfExportLog();
+        if (evaluation != null) {
+            log.setEvaluationId(evaluation.getIdEvaluation() > 0 ? evaluation.getIdEvaluation() : null);
+            log.setProjectId(evaluation.getIdProjet());
+        }
+        log.setProvider(provider);
+        log.setStatus(status);
+        log.setOutputPath(file != null ? file.getAbsolutePath() : null);
+        log.setErrorMessage(errorMessage);
+        User user = SessionManager.getInstance().getCurrentUser();
+        if (user != null) {
+            log.setCreatedByUserId(user.getId());
+        }
+        pdfExportService.insert(log);
+    }
+
+    private boolean requireExpertPermission(String actionLabel) {
+        User user = SessionManager.getInstance().getCurrentUser();
+        if (user == null) {
+            showError("Connexion requise pour " + actionLabel + ".");
+            return false;
+        }
+        TypeUtilisateur type = user.getTypeUtilisateur();
+        if (type != TypeUtilisateur.EXPERT_CARBONE && type != TypeUtilisateur.ADMIN) {
+            showError("Permission insuffisante pour " + actionLabel + ".");
+            return false;
+        }
+        return true;
+    }
+
+    private void persistMlPrediction(int evaluationId, int projectId, List<EvaluationResult> results) {
+        MlPrediction prediction = new MlPrediction();
+        prediction.setEvaluationId(evaluationId);
+        prediction.setProjectId(projectId);
+
+        Integer esgScore = lastMlEsgScore;
+        Integer credibility = lastMlCredibility;
+        String risk = lastMlRisk;
+        String decision = lastMlDecision;
+        String recommendations = lastMlRecommendations;
+
+        if (results != null && !results.isEmpty()) {
+            if (esgScore == null) {
+                ProjectEsgService.EsgBreakdown b = projectEsgService.breakdown(results);
+                esgScore = (int) Math.round(b.esg10 * 10.0);
+            }
+            if (credibility == null) {
+                double complianceRate = results.stream().mapToDouble(r -> r.isEstRespecte() ? 1.0 : 0.0).average().orElse(0.0);
+                credibility = (int) Math.round(complianceRate * 100.0);
+            }
+            if (decision == null) {
+                decision = computeLocalDecision(results);
+            }
+            if (recommendations == null || recommendations.isBlank()) {
+                try {
+                    List<String> recs = advancedFacade.criterionRecommendations(results);
+                    recommendations = recs.isEmpty() ? null : String.join("\n", recs);
+                } catch (Exception ignore) { }
             }
         }
 
-        try (java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream()) {
-            javax.imageio.ImageIO.write(bi, "png", baos);
-            return baos.toByteArray();
-        } catch (java.io.IOException e) {
-            return null;
+        if (risk == null) {
+            if (esgScore != null && esgScore >= 75) risk = "Low";
+            else if (esgScore != null && esgScore >= 60) risk = "Medium";
+            else risk = "High";
         }
+
+        prediction.setPredictedEsgScore(esgScore);
+        prediction.setCredibilityScore(credibility);
+        prediction.setCarbonRisk(risk);
+        prediction.setDecision(decision);
+        prediction.setRecommendations(recommendations);
+        prediction.setModelVersion(System.getenv().getOrDefault("ML_MODEL_VERSION", "local"));
+        User user = SessionManager.getInstance().getCurrentUser();
+        if (user != null) {
+            prediction.setCreatedByUserId(user.getId());
+        }
+        mlPredictionService.insert(prediction);
+    }
+
+    private byte[] getSignaturePng() {
+        // Signature image export disabled to avoid javafx.swing dependency issues.
+        return null;
     }
 }
