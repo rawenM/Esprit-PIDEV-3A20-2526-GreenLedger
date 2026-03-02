@@ -1,84 +1,70 @@
-╔═══════════════════════════════════════════════════════════════════════════╗
-║                                                                            ║
-║                    🎯 À FAIRE MAINTENANT - 3 ÉTAPES                       ║
-║                                                                            ║
-╚═══════════════════════════════════════════════════════════════════════════╝
+═══════════════════════════════════════════════════════════════
+   🎯 À FAIRE MAINTENANT - 3 ÉTAPES SIMPLES
+═══════════════════════════════════════════════════════════════
 
-PROBLÈME:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+PROBLÈME : Table user vide + erreur de connexion MySQL
 
-Tous les utilisateurs ont fraud_checked = 0
-→ L'interface affiche "Non analysé" pour tous
+SOLUTION : 3 étapes rapides
 
-SOLUTION:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+═══════════════════════════════════════════════════════════════
+   ÉTAPE 1 : AJOUTER DES UTILISATEURS
+═══════════════════════════════════════════════════════════════
 
-✅ J'ai corrigé le code Java (UserServiceImpl.java)
-   → Les NOUVEAUX utilisateurs auront fraud_checked = TRUE automatiquement
+Double-cliquez sur :
 
-❌ Il faut corriger les utilisateurs EXISTANTS dans la base
-   → Exécutez le SQL ci-dessous
+   ajouter-utilisateurs.bat
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+OU ouvrez MySQL et exécutez :
 
-ÉTAPE 1: SQL (30 secondes)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   ajouter_utilisateurs_test.sql
 
-1. http://localhost/phpmyadmin
-2. Sélectionnez "greenledger"
-3. Cliquez "SQL"
-4. Copiez-collez:
+Cela va créer 6 utilisateurs de test avec le mot de passe : admin123
 
-┌───────────────────────────────────────────────────────────────────────────┐
-│ USE greenledger;                                                           │
-│ UPDATE `user` SET fraud_checked = TRUE;                                   │
-│ UPDATE `user` SET fraud_score = 0.0 WHERE fraud_score IS NULL;            │
-└───────────────────────────────────────────────────────────────────────────┘
+═══════════════════════════════════════════════════════════════
+   ÉTAPE 2 : RECOMPILER
+═══════════════════════════════════════════════════════════════
 
-5. Cliquez "Exécuter"
+Dans votre IDE :
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   Build → Rebuild Project
 
-ÉTAPE 2: RECOMPILER (1 minute)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+═══════════════════════════════════════════════════════════════
+   ÉTAPE 3 : LANCER
+═══════════════════════════════════════════════════════════════
 
-    mvn clean compile
+Double-cliquez sur :
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+   run.bat
 
-ÉTAPE 3: RELANCER (30 secondes)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Connectez-vous avec :
+   Email    : admin@plateforme.com
+   Password : admin123
 
-    Ctrl+C (fermer l'app)
-    run.bat (relancer)
+═══════════════════════════════════════════════════════════════
+   ✅ RÉSULTAT
+═══════════════════════════════════════════════════════════════
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Vous verrez :
+✓ 6 utilisateurs dans le tableau
+✓ Statistiques correctes
+✓ Plus d'erreur de connexion
+✓ Journal d'activité accessible
 
-RÉSULTAT:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+═══════════════════════════════════════════════════════════════
+   📁 FICHIERS CRÉÉS
+═══════════════════════════════════════════════════════════════
 
-✅ Utilisateurs existants: 0/100 - Faible 🟢
-✅ Nouveaux utilisateurs: Score calculé automatiquement
-✅ Utilisateurs suspects: 70/100 - Critique 🔴 + BLOQUÉ
+- ajouter_utilisateurs_test.sql  (script SQL)
+- ajouter-utilisateurs.bat       (exécution automatique)
+- SOLUTION_TABLE_VIDE.txt        (guide détaillé)
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+═══════════════════════════════════════════════════════════════
+   🔧 CORRECTION TECHNIQUE
+═══════════════════════════════════════════════════════════════
 
-TEST:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Fichier modifié : src/main/java/dao/UserDAOImpl.java
 
-Créez un utilisateur suspect:
-- Nom: Test
-- Email: test@tempmail.com
-- Téléphone: 1111111111
+✓ Correction de l'erreur "No operations allowed after connection closed"
+✓ La connexion se rouvre automatiquement maintenant
 
-→ Score: 70/100 - Critique 🔴
-→ Statut: BLOQUÉ automatiquement
-→ fraud_checked = 1 dans la base ✅
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-TEMPS TOTAL: 2 MINUTES ⏱️
-
-FAITES-LE MAINTENANT! 🚀
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+═══════════════════════════════════════════════════════════════

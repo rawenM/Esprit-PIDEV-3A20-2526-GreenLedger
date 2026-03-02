@@ -22,6 +22,7 @@
             <Label text="GESTION" styleClass="section-title-sidebar"/>
             <Button text="👤 Utilisateurs" styleClass="nav-btn" onAction="#handleNavUsers"/>
             <Button text="📊 Statistiques" styleClass="nav-btn" onAction="#handleNavStatistics"/>
+            <Button text="📋 Journal d'Activité" styleClass="nav-btn" onAction="#handleNavAuditLog"/>
             <Button text="📁 Projets" styleClass="nav-btn" onAction="#handleNavProjets"/>
             <Button text="📊 Evaluations" styleClass="nav-btn" onAction="#handleNavEvaluations"/>
 

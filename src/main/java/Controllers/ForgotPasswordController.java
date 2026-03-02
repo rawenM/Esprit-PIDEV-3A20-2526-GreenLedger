@@ -13,6 +13,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import Models.User;
+import Services.AuditLogService;
 import Services.IUserService;
 import Services.UserServiceImpl;
 import Utils.UnifiedEmailService;
@@ -205,6 +206,9 @@ public class ForgotPasswordController {
                 if (countdownTimeline != null) {
                     countdownTimeline.stop();
                 }
+                
+                // Enregistrer la réinitialisation dans le journal d'activité
+                AuditLogService.getInstance().logPasswordReset(currentEmail);
 
                 showSuccess("Mot de passe réinitialisé avec succès!");
                 
