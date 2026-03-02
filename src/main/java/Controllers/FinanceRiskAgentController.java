@@ -2,14 +2,20 @@ package Controllers;
 
 import Services.RiskAnalysisService;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+import Services.TauxRecommendationService;
+import Services.FinancementService;
+import Services.ProjetService;
+import Models.Financement;
+import Models.Projet;
+import javafx.collections.FXCollections;
+import javafx.scene.layout.VBox;
 
 public class FinanceRiskAgentController extends BaseController {
 
@@ -30,6 +36,26 @@ public class FinanceRiskAgentController extends BaseController {
     @FXML private TextField txtApport;        // → funding_ratio
     @FXML private ComboBox<String> cmbSecteur; // → type
     @FXML private TextArea txtNotes;          // not used by model, just for display
+
+    private final TauxRecommendationService tauxService    = new TauxRecommendationService();
+    private final FinancementService        financementSvc = new FinancementService();
+    private final ProjetService             projetSvc      = new ProjetService();
+
+    @FXML private ComboBox<Financement> cmbFinancementTaux;
+    @FXML private ComboBox<String>      cmbTypeOffreTaux;
+    @FXML private TextField             txtDureeTaux;
+    @FXML private TextField             txtAncienneteTaux;
+    @FXML private VBox                  tauxResultPanel;
+    @FXML private Label                 lblProjetTitre;
+    @FXML private Label                 lblProjetStatut;
+    @FXML private Label                 lblProjetEsg;
+    @FXML private Label                 lblTauxResult;
+    @FXML private Label                 lblTauxInterpretation;
+    @FXML private Label                 lblBreakdownProjet;
+    @FXML private Label                 lblBreakdownStatut;
+    @FXML private Label                 lblBreakdownEsg;
+    @FXML private Label                 lblBreakdownDuree;
+    @FXML private Label                 lblTauxExplication;
 
     // ── The Weka service ──────────────────────────────────────────
     // This is the class we created in Services/RiskAnalysisService.java
@@ -61,6 +87,7 @@ public class FinanceRiskAgentController extends BaseController {
         if (lblModelStatus != null) {
             lblModelStatus.setText("✅ Pret");
         }
+        initTauxSection();
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -249,4 +276,244 @@ public class FinanceRiskAgentController extends BaseController {
         if (lblRiskScore  != null) lblRiskScore.setText("N/A");
         if (lblConfidence != null) lblConfidence.setText("N/A");
     }
+
+    private void initTauxSection() {
+        try {
+            // Load all financement records into the combo
+            List<Financement> financements = financementSvc.getAll();
+            if (financements != null) {
+                cmbFinancementTaux.setItems(FXCollections.observableArrayList(financements));
+            }
+
+            // Custom display: show "ID — Projet ID — Montant TND"
+            cmbFinancementTaux.setCellFactory(lv -> new javafx.scene.control.ListCell<Financement>() {
+                @Override
+                protected void updateItem(Financement item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty || item == null ? ""
+                            : "Financement #" + item.getId()
+                            + " | Projet " + item.getProjetId()
+                            + " | " + String.format("%,.0f TND", item.getMontant()));
+                }
+            });
+            cmbFinancementTaux.setButtonCell(new javafx.scene.control.ListCell<Financement>() {
+                @Override
+                protected void updateItem(Financement item, boolean empty) {
+                    super.updateItem(item, empty);
+                    setText(empty || item == null ? ""
+                            : "Financement #" + item.getId()
+                            + " | Projet " + item.getProjetId());
+                }
+            });
+
+            // When user selects a financement → fetch and display the linked projet info
+            cmbFinancementTaux.getSelectionModel().selectedItemProperty()
+                    .addListener((obs, oldVal, selected) -> {
+                        if (selected == null) return;
+                        try {
+                            // Fetch the projet using the projet_id from financement
+                            Projet projet = projetSvc.getById(selected.getProjetId());
+                            if (projet != null) {
+                                lblProjetTitre.setText(projet.getTitre() != null
+                                        ? projet.getTitre() : "Sans titre");
+                                lblProjetStatut.setText("Statut: " + projet.getStatut());
+
+                                if (projet.getScoreEsg() != null) {
+                                    lblProjetEsg.setText(projet.getScoreEsg() + " / 100");
+                                    // Color code ESG
+                                    if (projet.getScoreEsg() >= 70)
+                                        lblProjetEsg.setStyle("-fx-font-size:13px; -fx-font-weight:bold; -fx-text-fill:#065f46;");
+                                    else if (projet.getScoreEsg() >= 40)
+                                        lblProjetEsg.setStyle("-fx-font-size:13px; -fx-font-weight:bold; -fx-text-fill:#92400e;");
+                                    else
+                                        lblProjetEsg.setStyle("-fx-font-size:13px; -fx-font-weight:bold; -fx-text-fill:#991b1b;");
+                                } else {
+                                    lblProjetEsg.setText("Non évalué");
+                                    lblProjetEsg.setStyle("-fx-font-size:13px; -fx-text-fill:#94a3b8;");
+                                }
+                            } else {
+                                lblProjetTitre.setText("Projet introuvable");
+                                lblProjetStatut.setText("");
+                                lblProjetEsg.setText("—");
+                            }
+                        } catch (Exception e) {
+                            System.err.println("Error fetching projet: " + e.getMessage());
+                            lblProjetTitre.setText("Erreur de chargement");
+                        }
+                    });
+
+        } catch (Exception e) {
+            System.err.println("[TauxSection] Init error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void recommanderTaux() {
+        // ── Validate inputs ──────────────────────────────────────────
+        Financement selectedFin = cmbFinancementTaux.getValue();
+        if (selectedFin == null) {
+            showAlert("Champ requis", "Veuillez sélectionner un financement.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        String typeOffre = cmbTypeOffreTaux.getValue();
+        if (typeOffre == null) {
+            showAlert("Champ requis", "Veuillez sélectionner un type d'offre.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        String dureeStr = txtDureeTaux.getText().trim();
+        String ancienneteStr = txtAncienneteTaux.getText().trim();
+        if (dureeStr.isEmpty() || ancienneteStr.isEmpty()) {
+            showAlert("Champ requis", "Veuillez renseigner la durée et l'ancienneté.", Alert.AlertType.WARNING);
+            return;
+        }
+
+        int duree;
+        double anciennete;
+        try {
+            duree = Integer.parseInt(dureeStr);
+            anciennete = Double.parseDouble(ancienneteStr);
+            if (duree <= 0 || anciennete <= 0) throw new NumberFormatException();
+        } catch (NumberFormatException e) {
+            showAlert("Valeur invalide", "Durée et ancienneté doivent être des nombres positifs.", Alert.AlertType.ERROR);
+            return;
+        }
+
+        // ── Fetch projet from DB using projet_id in financement ──────
+        try {
+            Projet projet = projetSvc.getById(selectedFin.getProjetId());
+
+            int scoreEsg = 50; // default if null
+            String statut = "DRAFT";
+            String titrePr = "Inconnu";
+
+            if (projet != null) {
+                if (projet.getScoreEsg() != null) scoreEsg = projet.getScoreEsg();
+                if (projet.getStatut()   != null) statut   = projet.getStatut();
+                if (projet.getTitre()    != null) titrePr  = projet.getTitre();
+            }
+
+            // Budget: use financement montant as proxy since budget table
+            // may not always have a linked record
+            double budgetMontant = selectedFin.getMontant();
+
+            // ── Run ML prediction ─────────────────────────────────────
+            double predictedTaux = tauxService.predictTaux(
+                    scoreEsg,
+                    budgetMontant,
+                    statut,
+                    duree,
+                    typeOffre,
+                    anciennete
+            );
+
+            if (predictedTaux < 0) {
+                showAlert("Erreur modèle", "Le modèle ML n'a pas pu générer une prédiction. Vérifiez que ClaudeTaux.model est bien chargé.", Alert.AlertType.ERROR);
+                return;
+            }
+
+            // ── Display results ───────────────────────────────────────
+            tauxResultPanel.setVisible(true);
+            tauxResultPanel.setManaged(true);
+
+            lblTauxResult.setText(String.format("%.2f %%", predictedTaux));
+            lblTauxInterpretation.setText(tauxService.interpretTaux(predictedTaux));
+
+            // Breakdown cards
+            lblBreakdownProjet.setText(titrePr);
+            lblBreakdownStatut.setText(statut);
+            lblBreakdownEsg.setText(scoreEsg + " / 100");
+            lblBreakdownDuree.setText(duree + " mois");
+
+            // Color the taux based on value
+            if (predictedTaux <= 4)
+                lblTauxResult.setStyle("-fx-font-size:36px; -fx-font-weight:bold; -fx-text-fill:#10b981;");
+            else if (predictedTaux <= 7)
+                lblTauxResult.setStyle("-fx-font-size:36px; -fx-font-weight:bold; -fx-text-fill:#f59e0b;");
+            else
+                lblTauxResult.setStyle("-fx-font-size:36px; -fx-font-weight:bold; -fx-text-fill:#ef4444;");
+
+            // Explanation text
+            String explication = buildExplanation(scoreEsg, statut, duree, typeOffre, anciennete, predictedTaux);
+            lblTauxExplication.setText(explication);
+
+        } catch (Exception e) {
+            System.err.println("[recommanderTaux] Error: " + e.getMessage());
+            e.printStackTrace();
+            showAlert("Erreur", "Impossible de générer la recommandation: " + e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    /**
+     * Builds a human-readable explanation of why the model
+     * recommended this specific taux, based on the input values.
+     * This explains the model's reasoning to the investor.
+     */
+    private String buildExplanation(int scoreEsg, String statut, int duree,
+                                    String typeOffre, double anciennete, double taux) {
+        StringBuilder sb = new StringBuilder();
+
+        // ESG impact
+        if (scoreEsg >= 70) {
+            sb.append("✅ Score ESG élevé (").append(scoreEsg).append(") — réduit le taux de ~").append(String.format("%.1f", scoreEsg * 0.035)).append("%. ");
+        } else if (scoreEsg >= 40) {
+            sb.append("⚠️ Score ESG modéré (").append(scoreEsg).append(") — impact neutre sur le taux. ");
+        } else {
+            sb.append("❌ Score ESG faible (").append(scoreEsg).append(") — augmente le taux de risque. ");
+        }
+
+        // Statut impact
+        switch (statut) {
+            case "APPROVED":    sb.append("✅ Statut APPROVED — profil validé, taux réduit de ~2%. "); break;
+            case "IN_PROGRESS": sb.append("🔵 Statut IN_PROGRESS — projet en cours, impact minime. "); break;
+            case "CANCELLED":   sb.append("❌ Statut CANCELLED — historique risqué, taux majoré de ~1.8%. "); break;
+            default:            sb.append("⚪ Statut " + statut + " — impact standard. "); break;
+        }
+
+        // Duration impact
+        if (duree > 180) {
+            sb.append("⚠️ Durée longue (").append(duree).append(" mois) — augmente le taux de ~").append(String.format("%.1f", (duree - 12) / 348.0 * 2.5)).append("%. ");
+        } else {
+            sb.append("✅ Durée raisonnable (").append(duree).append(" mois). ");
+        }
+
+        // Anciennete
+        if (anciennete >= 10) {
+            sb.append("✅ Entreprise établie (").append((int) anciennete).append(" ans) — réduit le taux. ");
+        } else {
+            sb.append("⚠️ Entreprise jeune (").append((int) anciennete).append(" ans) — risque légèrement plus élevé. ");
+        }
+
+        sb.append("→ Taux final recommandé : ").append(String.format("%.2f", taux)).append("%.");
+        return sb.toString();
+    }
+
+    /**
+     * Resets the taux panel to its initial hidden state.
+     */
+    @FXML
+    private void resetTauxPanel() {
+        tauxResultPanel.setVisible(false);
+        tauxResultPanel.setManaged(false);
+        cmbFinancementTaux.getSelectionModel().clearSelection();
+        cmbTypeOffreTaux.getSelectionModel().clearSelection();
+        txtDureeTaux.clear();
+        txtAncienneteTaux.clear();
+        lblProjetTitre.setText("—");
+        lblProjetStatut.setText("");
+        lblProjetEsg.setText("—");
+    }
+
+    // ── Helper: show alert ────────────────────────────────────────────
+// (only add this if your controller doesn't already have showAlert)
+    private void showAlert(String title, String message, Alert.AlertType type) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
 }
