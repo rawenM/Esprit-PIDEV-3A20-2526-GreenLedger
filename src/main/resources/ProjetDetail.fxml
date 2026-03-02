@@ -15,7 +15,6 @@
             <Insets top="20" right="24" bottom="20" left="24"/>
         </padding>
 
-        <!-- Card -->
         <VBox spacing="14" styleClass="card">
             <padding>
                 <Insets top="18" right="18" bottom="18" left="18"/>
@@ -41,7 +40,14 @@
             <HBox spacing="12">
                 <VBox spacing="6" HBox.hgrow="ALWAYS">
                     <Label text="Budget" styleClass="form-label"/>
-                    <TextField fx:id="tfBudget" disable="true" styleClass="field"/>
+
+                    <HBox spacing="10">
+                        <TextField fx:id="tfBudgetMontant" disable="true" styleClass="field" HBox.hgrow="ALWAYS"/>
+                        <ComboBox fx:id="cbBudgetDevise" disable="true" styleClass="field" prefWidth="120"/>
+                    </HBox>
+
+                    <TextArea fx:id="taBudgetRaison" disable="true" wrapText="true"
+                              styleClass="field textarea" style="-fx-pref-height: 80px;"/>
                 </VBox>
 
                 <VBox spacing="6" prefWidth="160">
@@ -74,6 +80,18 @@
                           wrapText="true"
                           styleClass="field textarea"
                           style="-fx-pref-height: 150px;"/>
+            </VBox>
+
+            <!-- ✅ Pièces jointes (read-only) -->
+            <VBox spacing="6">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Pièces jointes" styleClass="form-label"/>
+                    <Label fx:id="lblDocsCount" text="0 fichier(s)"/>
+                    <Pane HBox.hgrow="ALWAYS"/>
+                    <Button text="Ouvrir" onAction="#onOpenSelectedDoc" styleClass="btn-secondary"/>
+                </HBox>
+
+                <ListView fx:id="lvDocs" prefHeight="140"/>
             </VBox>
 
         </VBox>
