@@ -74,15 +74,36 @@
                 <TextArea fx:id="taDescription"
                           wrapText="true"
                           styleClass="field textarea"
-                          style="-fx-pref-height: 200px;"/>
+                          style="-fx-pref-height: 180px;"/>
             </VBox>
+
+            <!-- ✅ Pièces jointes -->
+            <VBox spacing="8">
+                <Label text="Pièces jointes (documents / images)" styleClass="form-label"/>
+
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Button text="➕ Ajouter fichiers" onAction="#onAddFiles" styleClass="btn-secondary"/>
+                    <Button text="🗑 Vider" onAction="#onClearFiles" styleClass="btn-secondary"/>
+                    <Label fx:id="lblFilesCount" text="0 fichier(s) sélectionné(s)"/>
+                </HBox>
+
+                <ListView fx:id="lvFiles" prefHeight="110"/>
+            </VBox>
+
+            <!-- ✅ Petit bouton PDF -->
+            <HBox alignment="CENTER_RIGHT">
+                <Button text="📄 PDF"
+                        onAction="#onGeneratePdf"
+                        styleClass="btn-secondary"
+                        prefWidth="120"/>
+            </HBox>
 
             <HBox spacing="15" alignment="CENTER">
                 <Button text="💾  DRAFT"
                         onAction="#onSaveDraft"
                         styleClass="btn-secondary"/>
 
-                <Button text="➕ Ajouter"
+                <Button text="➕ SUBMIT"
                         onAction="#onAdd"
                         styleClass="btn-primary"/>
             </HBox>

@@ -82,6 +82,18 @@
                           style="-fx-pref-height: 150px;"/>
             </VBox>
 
+            <!-- ✅ Pièces jointes (read-only) -->
+            <VBox spacing="6">
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label text="Pièces jointes" styleClass="form-label"/>
+                    <Label fx:id="lblDocsCount" text="0 fichier(s)"/>
+                    <Pane HBox.hgrow="ALWAYS"/>
+                    <Button text="Ouvrir" onAction="#onOpenSelectedDoc" styleClass="btn-secondary"/>
+                </HBox>
+
+                <ListView fx:id="lvDocs" prefHeight="140"/>
+            </VBox>
+
         </VBox>
 
         <HBox spacing="15"

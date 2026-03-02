@@ -1,15 +1,26 @@
 package Controllers;
 
 import Models.Budget;
+import Models.ProjectDocument;
 import Models.Projet;
+import Services.DocumentService;
 import Services.ProjetService;
+import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
 
+import java.awt.Desktop;
+import java.io.File;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
+
 public class ProjetDetailController {
 
     private final ProjetService service = new ProjetService();
+    private final DocumentService documentService = new DocumentService();
 
     private Projet projet;
     private Runnable onChanged = null;
@@ -28,10 +39,24 @@ public class ProjetDetailController {
     @FXML private Button btnSaveChanges;
     @FXML private Button btnCancelEdit;
 
+    // ✅ Documents / images (read-only)
+    @FXML private Label lblDocsCount;
+    @FXML private ListView<String> lvDocs;
+
+    private List<ProjectDocument> docs = new ArrayList<>();
+
     @FXML
     public void initialize() {
         if (cbBudgetDevise != null) {
             cbBudgetDevise.getItems().setAll("TND", "EUR", "USD");
+        }
+
+        if (lvDocs != null) {
+            lvDocs.setOnMouseClicked(e -> {
+                if (e.getClickCount() == 2) {
+                    onOpenSelectedDoc();
+                }
+            });
         }
     }
 
@@ -69,7 +94,6 @@ public class ProjetDetailController {
         btnSaveChanges.setVisible(true);
         btnCancelEdit.setVisible(true);
 
-
         tfScoreEsg.setDisable(true);
 
         boolean lockedTitreBudget = !"DRAFT".equalsIgnoreCase(projet.getStatut());
@@ -78,11 +102,13 @@ public class ProjetDetailController {
         if (cbBudgetDevise != null) cbBudgetDevise.setDisable(lockedTitreBudget);
         if (taBudgetRaison != null) taBudgetRaison.setDisable(lockedTitreBudget);
 
-
         taDescription.setDisable(false);
         tfCompanyAddress.setDisable(false);
         tfCompanyEmail.setDisable(false);
         tfCompanyPhone.setDisable(false);
+
+        // ✅ docs restent read-only (on ne les active pas)
+        if (lvDocs != null) lvDocs.setDisable(false);
     }
 
     @FXML
@@ -102,7 +128,6 @@ public class ProjetDetailController {
         projet.setCompanyAddress(emptyToNull(tfCompanyAddress.getText()));
         projet.setCompanyEmail(emptyToNull(tfCompanyEmail.getText()));
         projet.setCompanyPhone(emptyToNull(tfCompanyPhone.getText()));
-
 
         if (!isDraft) {
             service.updateDescriptionOnly(
@@ -148,6 +173,77 @@ public class ProjetDetailController {
         closeWindow();
     }
 
+    // =========================
+    // DOCS / IMAGES (READ-ONLY)
+    // =========================
+    @FXML
+    private void onOpenSelectedDoc() {
+        if (lvDocs == null || docs == null || docs.isEmpty()) return;
+
+        int idx = lvDocs.getSelectionModel().getSelectedIndex();
+        if (idx < 0 || idx >= docs.size()) {
+            error("Veuillez sélectionner un fichier.");
+            return;
+        }
+
+        ProjectDocument d = docs.get(idx);
+        String pth = d.getFilePath();
+        if (pth == null || pth.trim().isEmpty()) {
+            error("Chemin du fichier introuvable.");
+            return;
+        }
+
+        try {
+            File f = resolveFile(pth);
+            if (!f.exists()) {
+                error("Fichier introuvable sur disque:\n" + f.getAbsolutePath());
+                return;
+            }
+
+            // ✅ ouvre dans l'app par défaut (Edge/Chrome/Adobe/Photos)
+            Desktop.getDesktop().open(f);
+
+        } catch (Exception ex) {
+            error("Impossible d'ouvrir le fichier : " + ex.getMessage());
+        }
+    }
+
+    private void loadDocuments() {
+        docs = new ArrayList<>();
+        if (projet == null) return;
+
+        try {
+            docs = documentService.getByProject(projet.getId());
+        } catch (Exception e) {
+            System.out.println("loadDocuments error: " + e.getMessage());
+            docs = new ArrayList<>();
+        }
+
+        if (lblDocsCount != null) {
+            lblDocsCount.setText(docs.size() + " fichier(s)");
+        }
+
+        if (lvDocs != null) {
+            List<String> items = new ArrayList<>();
+            for (ProjectDocument d : docs) {
+                String tag = d.isImage() ? "🖼" : "📄";
+                items.add(tag + " " + safe(d.getFileName()));
+            }
+            lvDocs.setItems(FXCollections.observableArrayList(items));
+        }
+    }
+
+    private File resolveFile(String filePathFromDb) {
+        File f = new File(filePathFromDb);
+
+        // Si le chemin en DB est relatif ("uploads/.."), on le résout depuis le dossier du projet
+        if (!f.isAbsolute()) {
+            Path abs = Paths.get(System.getProperty("user.dir")).resolve(filePathFromDb).normalize();
+            f = abs.toFile();
+        }
+        return f;
+    }
+
     private void render() {
         if (projet == null) return;
 
@@ -157,8 +253,9 @@ public class ProjetDetailController {
         tfTitre.setText(projet.getTitre());
 
         Budget b = projet.getBudgetObj();
-        tfBudgetMontant.setText(String.valueOf(projet.getBudget()));
-        if (taBudgetRaison != null) taBudgetRaison.setText(b != null ? b.getRaison() : "");
+        double montant = (b != null) ? b.getMontant() : 0;
+        tfBudgetMontant.setText(String.valueOf(montant));
+        if (taBudgetRaison != null) taBudgetRaison.setText(b != null ? safe(b.getRaison()) : "");
         if (cbBudgetDevise != null) cbBudgetDevise.setValue(b != null && b.getDevise() != null ? b.getDevise() : "TND");
 
         Integer score = projet.getScoreEsg();
@@ -168,7 +265,6 @@ public class ProjetDetailController {
         tfCompanyAddress.setText(projet.getCompanyAddress());
         tfCompanyEmail.setText(projet.getCompanyEmail());
         tfCompanyPhone.setText(projet.getCompanyPhone());
-
 
         tfTitre.setDisable(true);
         tfBudgetMontant.setDisable(true);
@@ -183,6 +279,10 @@ public class ProjetDetailController {
 
         btnSaveChanges.setVisible(false);
         btnCancelEdit.setVisible(false);
+
+        // ✅ charger docs en mode lecture
+        loadDocuments();
+        if (lvDocs != null) lvDocs.setDisable(false);
     }
 
     private void closeWindow() {
