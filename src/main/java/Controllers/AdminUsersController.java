@@ -20,6 +20,7 @@ import Models.FraudDetectionResult;
 import Models.StatutUtilisateur;
 import Models.TypeUtilisateur;
 import Models.User;
+import Services.AuditLogService;
 import Services.IUserService;
 import Services.UserServiceImpl;
 import Utils.SessionManager;
@@ -385,6 +386,10 @@ public class AdminUsersController {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             User validatedUser = userService.validateAccount(user.getId());
             if (validatedUser != null) {
+                // Enregistrer l'action dans le journal d'activité
+                if (currentUser != null) {
+                    AuditLogService.getInstance().logAdminValidateUser(currentUser, user);
+                }
                 showSuccess("Compte validé avec succès");
                 handleRefresh();
             }
@@ -396,6 +401,10 @@ public class AdminUsersController {
             // Débloquer
             User unblockedUser = userService.unblockUser(user.getId());
             if (unblockedUser != null) {
+                // Enregistrer l'action dans le journal d'activité
+                if (currentUser != null) {
+                    AuditLogService.getInstance().logAdminUnblockUser(currentUser, user);
+                }
                 showSuccess("Utilisateur débloqué");
                 handleRefresh();
             }
@@ -410,6 +419,10 @@ public class AdminUsersController {
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 User blockedUser = userService.blockUser(user.getId());
                 if (blockedUser != null) {
+                    // Enregistrer l'action dans le journal d'activité
+                    if (currentUser != null) {
+                        AuditLogService.getInstance().logAdminBlockUser(currentUser, user);
+                    }
                     showSuccess("Utilisateur bloqué");
                     handleRefresh();
                 }
@@ -428,6 +441,10 @@ public class AdminUsersController {
         if (result.isPresent() && result.get() == ButtonType.YES) {
             boolean ok = userService.deleteUser(user.getId());
             if (ok) {
+                // Enregistrer l'action dans le journal d'activité
+                if (currentUser != null) {
+                    AuditLogService.getInstance().logAdminDeleteUser(currentUser, user);
+                }
                 showSuccess("Utilisateur supprimé");
                 handleRefresh();
             } else {
@@ -535,6 +552,24 @@ public class AdminUsersController {
     }
 
     @FXML
+    private void handleNavAuditLog() {
+        try {
+            System.out.println("[ADMIN] Navigation vers le journal d'activité");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/audit_log.fxml"));
+            Parent root = loader.load();
+            
+            if (contentPane != null) {
+                contentPane.getChildren().setAll(root);
+                System.out.println("[ADMIN] Journal d'activité chargé dans le contentPane");
+            }
+        } catch (IOException e) {
+            System.err.println("[ADMIN] Erreur lors du chargement du journal: " + e.getMessage());
+            e.printStackTrace();
+            showError("Erreur", "Impossible de charger le journal d'activité");
+        }
+    }
+
+    @FXML
     private void handleNavProjets() {
         loadContent("GestionProjet");
     }
@@ -597,6 +632,11 @@ public class AdminUsersController {
      * Affiche les détails de l'analyse de fraude pour un utilisateur
      */
     private void showFraudDetails(User user) {
+        // Enregistrer la consultation dans le journal d'activité
+        if (currentUser != null) {
+            AuditLogService.getInstance().logAdminViewFraud(currentUser, user);
+        }
+        
         Optional<FraudDetectionResult> fraudResultOpt = fraudDetectionDAO.findByUserId(user.getId());
         
         if (fraudResultOpt.isEmpty()) {

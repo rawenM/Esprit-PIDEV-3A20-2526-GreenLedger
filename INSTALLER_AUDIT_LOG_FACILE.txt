@@ -1,0 +1,132 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║     📋 INSTALLER LA TABLE AUDIT_LOG - MÉTHODE FACILE 📋       ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  ⚠️  PROBLÈME POWERSHELL                                      │
+└───────────────────────────────────────────────────────────────┘
+
+L'opérateur < ne fonctionne pas dans PowerShell.
+Voici 3 solutions simples:
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  ✅ SOLUTION 1: MYSQL WORKBENCH (RECOMMANDÉ - 2 MINUTES)      │
+└───────────────────────────────────────────────────────────────┘
+
+1. Ouvrir MySQL Workbench
+
+2. Se connecter à votre serveur MySQL
+
+3. Cliquer sur "File" → "Open SQL Script"
+
+4. Sélectionner: database_audit_log.sql
+
+5. Cliquer sur l'icône éclair ⚡ (Execute)
+   OU appuyer sur Ctrl+Shift+Enter
+
+6. Vérifier le résultat:
+   ✅ "Table audit_log créée avec succès!"
+   ✅ "5 rows affected"
+
+C'EST FAIT! ✅
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  ✅ SOLUTION 2: SCRIPT BAT (AUTOMATIQUE - 1 MINUTE)           │
+└───────────────────────────────────────────────────────────────┘
+
+Double-cliquer sur:
+   installer-audit-log-mysql.bat
+
+Le script va:
+1. Demander votre mot de passe MySQL
+2. Créer la table automatiquement
+3. Vérifier que tout fonctionne
+
+C'EST FAIT! ✅
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  ✅ SOLUTION 3: COPIER-COLLER DANS MYSQL WORKBENCH            │
+└───────────────────────────────────────────────────────────────┘
+
+1. Ouvrir: database_audit_log.sql avec un éditeur de texte
+
+2. Copier TOUT le contenu (Ctrl+A puis Ctrl+C)
+
+3. Ouvrir MySQL Workbench
+
+4. Coller dans une nouvelle requête (Ctrl+V)
+
+5. Exécuter (Ctrl+Shift+Enter)
+
+C'EST FAIT! ✅
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  ✅ SOLUTION 4: COMMANDE MYSQL DIRECTE                        │
+└───────────────────────────────────────────────────────────────┘
+
+Dans PowerShell, tapez:
+
+mysql -u root -p
+
+Puis entrez votre mot de passe.
+
+Une fois connecté, tapez:
+
+USE greenledger;
+SOURCE C:/Users/Lenovo/Desktop/GreenLedger/database_audit_log.sql;
+
+(Remplacez le chemin par le vôtre)
+
+C'EST FAIT! ✅
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  🔍 VÉRIFIER QUE ÇA A FONCTIONNÉ                              │
+└───────────────────────────────────────────────────────────────┘
+
+Dans MySQL Workbench ou en ligne de commande:
+
+SELECT COUNT(*) FROM greenledger.audit_log;
+
+Résultat attendu: 5 (les 5 logs de test)
+
+Si vous voyez 5, c'est bon! ✅
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  📊 VOIR LES LOGS DE TEST                                     │
+└───────────────────────────────────────────────────────────────┘
+
+SELECT * FROM greenledger.audit_log ORDER BY created_at DESC;
+
+Vous devriez voir:
+• 1 connexion admin
+• 1 tentative échouée
+• 1 connexion réussie
+• 1 validation de compte
+• 1 fraude détectée
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  🚀 PROCHAINE ÉTAPE                                           │
+└───────────────────────────────────────────────────────────────┘
+
+Une fois la table créée, intégrez le service dans vos contrôleurs.
+
+Consultez: GUIDE_JOURNAL_ACTIVITE.md
+
+
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║              CHOISISSEZ LA SOLUTION LA PLUS SIMPLE            ║
+║                                                               ║
+║         Je recommande: MySQL Workbench (Solution 1)          ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝

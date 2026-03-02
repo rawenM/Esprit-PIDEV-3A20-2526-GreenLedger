@@ -1,0 +1,196 @@
+═══════════════════════════════════════════════════════════════════════════
+   📋 GUIDE VISUEL - JOURNAL D'ACTIVITÉ
+═══════════════════════════════════════════════════════════════════════════
+
+🎯 OUI, IL Y A UNE INTERFACE POUR AFFICHER LE JOURNAL D'ACTIVITÉ !
+
+═══════════════════════════════════════════════════════════════════════════
+   ÉTAPE 1 : LANCER L'APPLICATION
+═══════════════════════════════════════════════════════════════════════════
+
+Double-cliquez sur : run.bat
+
+═══════════════════════════════════════════════════════════════════════════
+   ÉTAPE 2 : SE CONNECTER EN TANT QU'ADMIN
+═══════════════════════════════════════════════════════════════════════════
+
+Email    : admin@plateforme.com
+Password : [votre mot de passe admin]
+
+═══════════════════════════════════════════════════════════════════════════
+   ÉTAPE 3 : VOUS ÊTES SUR LA PAGE ADMIN
+═══════════════════════════════════════════════════════════════════════════
+
+Vous voyez cette interface :
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                           │
+│  🍃 GreenLedger Admin                                                    │
+│  ─────────────────────                                                   │
+│                                                                           │
+│  GESTION                                                                 │
+│  ┌─────────────────────────────────┐                                    │
+│  │ 👤 Utilisateurs                 │  ← Vous êtes ici                   │
+│  └─────────────────────────────────┘                                    │
+│  ┌─────────────────────────────────┐                                    │
+│  │ 📊 Statistiques                 │                                    │
+│  └─────────────────────────────────┘                                    │
+│  ┌─────────────────────────────────┐                                    │
+│  │ 📋 Journal d'Activité           │  ← CLIQUEZ ICI !                   │
+│  └─────────────────────────────────┘                                    │
+│  ┌─────────────────────────────────┐                                    │
+│  │ 📁 Projets                      │                                    │
+│  └─────────────────────────────────┘                                    │
+│  ┌─────────────────────────────────┐                                    │
+│  │ 📊 Evaluations                  │                                    │
+│  └─────────────────────────────────┘                                    │
+│                                                                           │
+│  SYSTEM                                                                  │
+│  ┌─────────────────────────────────┐                                    │
+│  │ ⚙ Settings                      │                                    │
+│  └─────────────────────────────────┘                                    │
+│                                                                           │
+└─────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════
+   ÉTAPE 4 : INTERFACE DU JOURNAL D'ACTIVITÉ
+═══════════════════════════════════════════════════════════════════════════
+
+Après avoir cliqué sur "📋 Journal d'Activité", vous verrez :
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                           │
+│  📋 Journal d'Activité          🔄 Actualiser    🗑️ Nettoyer (30j+)    │
+│                                                                           │
+│  ┌──────────────┬──────────────┬──────────────┬──────────────┐         │
+│  │ Total Logs   │ Aujourd'hui  │   Échecs     │Avertissements│         │
+│  │     156      │      12      │      3       │      5       │         │
+│  └──────────────┴──────────────┴──────────────┴──────────────┘         │
+│                                                                           │
+│  Filtrer par:  [Type d'action ▼] [Statut ▼] [Email...] [Date]          │
+│                                      🔍 Filtrer    ✖ Réinitialiser       │
+│                                                                           │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │ ID │ Date/Heure      │ Type d'Action    │ Email      │ Statut  │   │
+│  ├────┼─────────────────┼──────────────────┼────────────┼─────────┤   │
+│  │ 45 │ 03/03/26 14:23 │ USER_LOGIN       │ admin@...  │SUCCESS  │   │
+│  │ 44 │ 03/03/26 14:20 │ USER_LOGIN_FAILED│ test@...   │FAILED   │   │
+│  │ 43 │ 03/03/26 14:15 │ ADMIN_VALIDATE   │ admin@...  │SUCCESS  │   │
+│  │ 42 │ 03/03/26 14:10 │ ADMIN_BLOCK_USER │ admin@...  │SUCCESS  │   │
+│  │ 41 │ 03/03/26 14:05 │ PASSWORD_RESET   │ user@...   │SUCCESS  │   │
+│  └────┴─────────────────┴──────────────────┴────────────┴─────────┘   │
+│                                                                           │
+│                  ◀ Précédent    Page 1 / 4    Suivant ▶                 │
+│                                                                           │
+└─────────────────────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════════════════════
+   🎯 FONCTIONNALITÉS DISPONIBLES
+═══════════════════════════════════════════════════════════════════════════
+
+✅ STATISTIQUES EN TEMPS RÉEL
+   - Nombre total de logs
+   - Logs d'aujourd'hui
+   - Nombre d'échecs
+   - Nombre d'avertissements
+
+✅ FILTRES PUISSANTS
+   - Par type d'action (17 types disponibles)
+   - Par statut (SUCCESS, FAILED, WARNING)
+   - Par email utilisateur
+   - Par date spécifique
+
+✅ TABLEAU COMPLET
+   - ID du log
+   - Date et heure précises
+   - Type d'action effectuée
+   - Email de l'utilisateur
+   - Description de l'action
+   - Statut avec couleur (vert/rouge/orange)
+   - Adresse IP
+   - Bouton 📄 pour voir tous les détails
+
+✅ PAGINATION
+   - 50 logs par page
+   - Navigation facile entre les pages
+
+✅ DÉTAILS COMPLETS
+   Cliquez sur 📄 pour voir :
+   - Informations générales
+   - Détails de l'utilisateur
+   - Description de l'action
+   - Utilisateur cible (si applicable)
+   - Informations techniques (IP, navigateur, OS)
+   - Message d'erreur (si échec)
+   - Anciennes/nouvelles valeurs (si modification)
+
+✅ NETTOYAGE AUTOMATIQUE
+   - Bouton pour supprimer les logs de plus de 30 jours
+   - Confirmation avant suppression
+
+═══════════════════════════════════════════════════════════════════════════
+   📊 TYPES D'ACTIONS ENREGISTRÉES
+═══════════════════════════════════════════════════════════════════════════
+
+Le journal enregistre automatiquement :
+
+1. USER_LOGIN                - Connexion réussie
+2. USER_LOGIN_FAILED         - Échec de connexion
+3. USER_LOGOUT               - Déconnexion
+4. USER_REGISTER             - Inscription
+5. ADMIN_VALIDATE_USER       - Validation de compte par admin
+6. ADMIN_BLOCK_USER          - Blocage d'utilisateur
+7. ADMIN_UNBLOCK_USER        - Déblocage d'utilisateur
+8. ADMIN_DELETE_USER         - Suppression d'utilisateur
+9. ADMIN_VIEW_FRAUD_DETAILS  - Consultation détection fraude
+10. PASSWORD_RESET_REQUEST   - Demande de réinitialisation
+11. PASSWORD_RESET_SUCCESS   - Réinitialisation réussie
+12. PASSWORD_RESET_FAILED    - Échec réinitialisation
+13. PASSWORD_CHANGE          - Changement de mot de passe
+14. PROFILE_UPDATE           - Mise à jour du profil
+15. ACCOUNT_SUSPENDED        - Suspension de compte
+16. SECURITY_ALERT           - Alerte de sécurité
+17. SYSTEM_ERROR             - Erreur système
+
+═══════════════════════════════════════════════════════════════════════════
+   ⚡ ENREGISTREMENT AUTOMATIQUE
+═══════════════════════════════════════════════════════════════════════════
+
+Le journal fonctionne AUTOMATIQUEMENT :
+
+✓ Chaque connexion est enregistrée
+✓ Chaque action admin est tracée
+✓ Chaque échec est documenté
+✓ Aucune configuration nécessaire
+✓ Conforme RGPD (logs non modifiables)
+
+═══════════════════════════════════════════════════════════════════════════
+   🧪 TESTEZ MAINTENANT !
+═══════════════════════════════════════════════════════════════════════════
+
+1. Recompilez le projet dans votre IDE
+   (Build → Rebuild Project)
+
+2. Lancez run.bat
+
+3. Connectez-vous avec admin@plateforme.com
+
+4. Cliquez sur "📋 Journal d'Activité" dans le menu de gauche
+
+5. Vous verrez tous vos logs de connexion !
+
+═══════════════════════════════════════════════════════════════════════════
+   ✅ RÉSUMÉ
+═══════════════════════════════════════════════════════════════════════════
+
+OUI, il y a une interface complète pour afficher le journal d'activité !
+
+Elle se trouve dans le menu de gauche de l'interface admin.
+
+Le bouton est : 📋 Journal d'Activité
+
+L'interface est complète avec statistiques, filtres, tableau et détails.
+
+Tout fonctionne automatiquement dès maintenant !
+
+═══════════════════════════════════════════════════════════════════════════

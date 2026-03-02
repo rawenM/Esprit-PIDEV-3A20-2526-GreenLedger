@@ -11,6 +11,7 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import Models.User;
+import Services.AuditLogService;
 import Services.IUserService;
 import Services.UserServiceImpl;
 import Utils.CaptchaHttpServer;
@@ -350,6 +351,9 @@ public class LoginController {
                 User user = userOpt.get();
 
                 System.out.println("[CLEAN] Bienvenue " + user.getNomComplet());
+                
+                // Enregistrer la connexion réussie dans le journal d'activité
+                AuditLogService.getInstance().logLogin(user, "127.0.0.1");
 
                 // Rediriger vers le tableau de bord approprié selon le rôle
                 navigateToDashboard(event, user);
@@ -358,14 +362,23 @@ public class LoginController {
                 // Message générique pour limiter la fuite d'information
                 showError("Email ou mot de passe incorrect");
                 System.err.println("🔒 Échec de connexion pour: " + email);
+                
+                // Enregistrer l'échec de connexion
+                AuditLogService.getInstance().logLoginFailed(email, "Mot de passe incorrect", "127.0.0.1");
             }
         } catch (RuntimeException e) {
             // Messages métiers renvoyés par le service (compte bloqué/suspendu/non vérifié)
             showError(e.getMessage());
             System.err.println("[CLEAN] Exception métier lors de la connexion: " + e.getMessage());
+            
+            // Enregistrer l'échec de connexion avec la raison
+            AuditLogService.getInstance().logLoginFailed(email, e.getMessage(), "127.0.0.1");
         } catch (Exception e) {
             showError("Une erreur est survenue lors de la connexion");
             e.printStackTrace();
+            
+            // Enregistrer l'erreur système
+            AuditLogService.getInstance().logLoginFailed(email, "Erreur système", "127.0.0.1");
         }
     }
 

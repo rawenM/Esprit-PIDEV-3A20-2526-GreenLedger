@@ -30,17 +30,35 @@ public class MyConnection {
     }
 
     public static Connection getConnection() {
-        return MyConnection.getInstance().conn;
+        MyConnection instance = MyConnection.getInstance();
+        try {
+            // Vérifier si la connexion est fermée et la rouvrir si nécessaire
+            if (instance.conn == null || instance.conn.isClosed()) {
+                System.out.println("[DB] Reconnexion à la base de données...");
+                instance.conn = DriverManager.getConnection(instance.url, instance.user, instance.pwd);
+                System.out.println("[DB] Reconnexion réussie!");
+            }
+        } catch (SQLException e) {
+            System.err.println("[DB] Erreur lors de la reconnexion: " + e.getMessage());
+            try {
+                instance.conn = DriverManager.getConnection(instance.url, instance.user, instance.pwd);
+            } catch (SQLException ex) {
+                System.err.println("[DB] Impossible de se reconnecter: " + ex.getMessage());
+            }
+        }
+        return instance.conn;
     }
 
-    // Fermer la connexion
+    // Fermer la connexion (déconseillé pour le singleton)
     public void closeConnection() {
         if (conn != null) {
             try {
                 conn.close();
-                System.out.println("[CLEAN] Connexion fermée");
+                System.out.println("[DB] Connexion fermée");
+                // Réinitialiser l'instance pour forcer une reconnexion
+                conn = null;
             } catch (SQLException e) {
-                System.err.println("[CLEAN] Erreur lors de la fermeture de la connexion");
+                System.err.println("[DB] Erreur lors de la fermeture de la connexion");
                 e.printStackTrace();
             }
         }
