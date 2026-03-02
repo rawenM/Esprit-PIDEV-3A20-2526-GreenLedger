@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.SystemTestController">
+    <top>
+        <Label text="Green Wallet + Batch + Marketplace Integration Test Console" style="-fx-font-size: 16px; -fx-font-weight: bold;" BorderPane.alignment="CENTER">
+            <BorderPane.margin>
+                <Insets top="10" left="10" right="10"/>
+            </BorderPane.margin>
+        </Label>
+    </top>
+
+    <center>
+        <VBox spacing="10" style="-fx-border-color: #e0e0e0; -fx-border-width: 1;">
+            <padding>
+                <Insets top="10" left="10" right="10" bottom="10"/>
+            </padding>
+
+            <!-- Test Controls Section -->
+            <Label text="Test Controls" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1976d2;"/>
+
+            <!-- Wallet Creation -->
+            <VBox spacing="5" style="-fx-border-color: #f0f0f0; -fx-border-width: 1; -fx-padding: 10;">
+                <Label text="1. Create Wallet" style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
+                <Button fx:id="createWalletBtn" text="Create New Wallet (ENTERPRISE type)" onAction="#handleCreateWallet" style="-fx-font-size: 11px; -fx-padding: 8;"/>
+            </VBox>
+
+            <!-- Issue Batch -->
+            <VBox spacing="5" style="-fx-border-color: #f0f0f0; -fx-border-width: 1; -fx-padding: 10;">
+                <Label text="2. Issue Batch (Simulate Project Evaluation)" style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
+                <GridPane hgap="10" vgap="5">
+                    <Label text="Wallet ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="walletIdField" promptText="e.g., 1" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                    <Label text="Project ID:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="projectIdField" promptText="e.g., 101" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                    <Label text="Credits Amount:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <TextField fx:id="amountField" promptText="e.g., 500" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                </GridPane>
+                <Button fx:id="issueBatchBtn" text="Issue Credits to Wallet" onAction="#handleIssueBatch" style="-fx-font-size: 11px; -fx-padding: 8;"/>
+            </VBox>
+
+            <!-- Transfer Credits -->
+            <VBox spacing="5" style="-fx-border-color: #f0f0f0; -fx-border-width: 1; -fx-padding: 10;">
+                <Label text="3. Transfer Credits (Atomic Operation)" style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
+                <GridPane hgap="10" vgap="5">
+                    <Label text="From Wallet ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="fromWalletIdField" promptText="e.g., 1" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+                    <Label text="To Wallet ID:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                    <TextField fx:id="toWalletIdField" promptText="e.g., 2" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+                    <Label text="Amount:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                    <TextField fx:id="transferAmountField" promptText="e.g., 100" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                </GridPane>
+                <Button fx:id="transferBtn" text="Transfer Credits (Atomic)" onAction="#handleTransferCredits" style="-fx-font-size: 11px; -fx-padding: 8;"/>
+            </VBox>
+
+            <!-- View Wallet -->
+            <VBox spacing="5" style="-fx-border-color: #f0f0f0; -fx-border-width: 1; -fx-padding: 10;">
+                <Label text="4. View Wallet Details" style="-fx-font-size: 12px; -fx-font-weight: bold;"/>
+                <GridPane hgap="10" vgap="5">
+                    <Label text="Wallet ID:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                    <TextField fx:id="viewWalletIdField" promptText="e.g., 1" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                </GridPane>
+                <Button fx:id="viewBtn" text="View Wallet & Batch History" onAction="#handleViewWallet" style="-fx-font-size: 11px; -fx-padding: 8;"/>
+            </VBox>
+
+            <!-- Status and Log Section -->
+            <Label text="Status & Output Log" style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #1976d2;"/>
+
+            <Label fx:id="statusLabel" text="Ready" style="-fx-text-fill: #4caf50; -fx-font-weight: bold;"/>
+
+            <TextArea fx:id="testLog" wrapText="true" prefRowCount="15" editable="false" style="-fx-font-family: 'Courier New'; -fx-font-size: 10px; -fx-control-inner-background: #f5f5f5;"/>
+
+            <VBox spacing="5" style="-fx-alignment: center;">
+                <Button fx:id="clearLogBtn" text="Clear Log" onAction="#handleClearLog" style="-fx-font-size: 11px; -fx-padding: 8; -fx-min-width: 150;"/>
+            </VBox>
+
+            <!-- Info Section -->
+            <Label text="Integration Notes" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #666;"/>
+            <Label text="• Wallet creation generates a new ENTERPRISE wallet with a unique wallet_number&#10;• Issue Batch simulates a project evaluation (creates PRIMARY batch type)&#10;• Transfer Credits performs atomic operations (FOR UPDATE locks prevent conflicts)&#10;• All operations are fully traced in batch_events table (blockchain-ready)&#10;• Test data is generated automatically; observe logs for operation details" 
+                   style="-fx-font-size: 10px; -fx-text-fill: #666; -fx-wrap-text: true;"/>
+
+        </VBox>
+    </center>
+</BorderPane>
