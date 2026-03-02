@@ -30,6 +30,7 @@ public class CarbonCreditBatch {
     private Integer vintageYear;          // Year credits were issued/verified
     private String projectCertificationUrl; // Link to verification documentation
     private String calculationAuditId;    // Link to EmissionCalculationAudit
+    private BatchType batchType;          // PRIMARY (issued) or SECONDARY (marketplace/split)
     
     // Batch lineage (for splits/subdivisions)
     private Integer parentBatchId;        // If split from larger batch
@@ -43,6 +44,7 @@ public class CarbonCreditBatch {
     public CarbonCreditBatch() {
         this.status = "AVAILABLE";
         this.vintageYear = LocalDateTime.now().getYear();
+        this.batchType = BatchType.PRIMARY; // Default to PRIMARY
     }
 
     public CarbonCreditBatch(int projectId, int walletId, BigDecimal totalAmount) {
@@ -51,6 +53,11 @@ public class CarbonCreditBatch {
         this.walletId = walletId;
         this.totalAmount = totalAmount;
         this.remainingAmount = totalAmount;
+    }
+    
+    public CarbonCreditBatch(int projectId, int walletId, BigDecimal totalAmount, BatchType batchType) {
+        this(projectId, walletId, totalAmount);
+        this.batchType = batchType;
     }
 
     /**
@@ -81,6 +88,39 @@ public class CarbonCreditBatch {
      */
     public boolean hasLineage() {
         return parentBatchId != null || (lineageJson != null && !lineageJson.isEmpty());
+    }
+    
+    /**
+     * Check if this is a PRIMARY batch (issued from emission calculation).
+     */
+    public boolean isPrimary() {
+        return batchType == BatchType.PRIMARY;
+    }
+    
+    /**
+     * Check if this is a SECONDARY batch (marketplace/split derivative).
+     */
+    public boolean isSecondary() {
+        return batchType == BatchType.SECONDARY;
+    }
+    
+    /**
+     * Get lineage depth (0 = root, 1 = first generation child, etc.).
+     * Requires recursive query to calculate fully, returns 0 or 1 here based on parent.
+     */
+    public int getLineageDepth() {
+        return parentBatchId != null ? 1 : 0;
+    }
+    
+    /**
+     * Get batch type badge for UI display.
+     */
+    public String getBatchTypeBadge() {
+        if (batchType == null) return "";
+        return switch (batchType) {
+            case PRIMARY -> "🟢 PRIMARY";
+            case SECONDARY -> "🔵 SECONDARY";
+        };
     }
     
     /**
@@ -189,6 +229,14 @@ public class CarbonCreditBatch {
     
     public void setCalculationAuditId(String calculationAuditId) {
         this.calculationAuditId = calculationAuditId;
+    }
+    
+    public BatchType getBatchType() {
+        return batchType;
+    }
+    
+    public void setBatchType(BatchType batchType) {
+        this.batchType = batchType;
     }
     
     public Integer getParentBatchId() {

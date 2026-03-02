@@ -149,6 +149,59 @@ public class MarketplaceController extends BaseController {
         pricePerUnitColumn.setCellValueFactory(new PropertyValueFactory<>("pricePerUnit"));
         totalPriceColumn.setCellValueFactory(new PropertyValueFactory<>("totalPriceUsd"));
 
+        // Add custom cell factory for listing details with batch info
+        assetTypeColumn.setCellFactory(column -> new TableCell<MarketplaceListing, String>() {
+            @Override
+            protected void updateItem(String assetType, boolean empty) {
+                super.updateItem(assetType, empty);
+                if (empty || getTableRow().getItem() == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    MarketplaceListing listing = getTableRow().getItem();
+                    try {
+                        // Get seller's batches for this listing
+                        WalletService walletService = new WalletService();
+                        List<CarbonCreditBatch> sellerBatches = walletService.getWalletBatches(
+                            listing.getSellerId()
+                        );
+                        
+                        String batchSerials = sellerBatches.isEmpty() ? "No batches" :
+                            sellerBatches.stream()
+                                .filter(b -> b.getStatus() != null && !b.getStatus().contains("RETIRED"))
+                                .limit(3)
+                                .map(b -> b.getSerialNumber() != null ? b.getSerialNumber() : "B" + b.getId())
+                                .collect(Collectors.joining(", "));
+                        
+                        String displayText = assetType + "\n📦 Batches: " + batchSerials;
+                        setText(displayText);
+                        setStyle("-fx-text-alignment: left;");
+                    } catch (Exception e) {
+                        setText(assetType);
+                    }
+                }
+            }
+        });
+
+        // Add transfer mode indicator to price column
+        pricePerUnitColumn.setCellFactory(column -> new TableCell<MarketplaceListing, Double>() {
+            @Override
+            protected void updateItem(Double price, boolean empty) {
+                super.updateItem(price, empty);
+                if (empty || getTableRow().getItem() == null) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    MarketplaceListing listing = getTableRow().getItem();
+                    double totalPrice = listing.getTotalPriceUsd();
+                    String transferMode = totalPrice >= 10000 ? "🔒 Escrow" : "⚡ Instant";
+                    String displayText = String.format("$%.2f\n%s", price, transferMode);
+                    setText(displayText);
+                    setStyle("-fx-text-alignment: center;");
+                }
+            }
+        });
+
         listingsTable.setItems(listingsData);
         listingsTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY_FLEX_LAST_COLUMN);
     }
@@ -635,6 +688,67 @@ public class MarketplaceController extends BaseController {
                 System.err.println(LOG_TAG + " ERROR in buy flow: " + e.getMessage());
                 showAlert("Error processing purchase: " + e.getMessage());
             }
+        }
+    }
+
+    /**
+     * View batch provenance for a selected listing.
+     * Shows the complete audit trail and batch lineage for carbon credits in the listing.
+     */
+    private void viewListingProvenance() {
+        MarketplaceListing selected = listingsTable.getSelectionModel().getSelectedItem();
+        if (selected == null) {
+            showAlert("Please select a listing to view provenance");
+            return;
+        }
+
+        try {
+            // Get seller's batches
+            WalletService walletService = new WalletService();
+            List<CarbonCreditBatch> sellerBatches = walletService.getWalletBatches(
+                selected.getSellerId()
+            );
+
+            if (sellerBatches.isEmpty()) {
+                showAlert("No batches found for this listing");
+                return;
+            }
+
+            // Show provenance for the first batch
+            CarbonCreditBatch firstBatch = sellerBatches.get(0);
+            openBatchProvenanceViewer(firstBatch.getId(), selected);
+
+        } catch (Exception e) {
+            showAlert("Error viewing provenance: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Open batch lineage and provenance viewer in a new window.
+     */
+    private void openBatchProvenanceViewer(int batchId, MarketplaceListing listing) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/batchLineage.fxml"));
+            VBox batchLineageView = loader.load();
+
+            Stage window = new Stage();
+            window.setTitle("🔍 Batch Provenance - Listing #" + listing.getId());
+            window.setWidth(1400);
+            window.setHeight(900);
+            window.setScene(new Scene(batchLineageView));
+            window.show();
+
+            // Pre-load batch ID in the controller
+            BatchLineageController controller = loader.getController();
+            javafx.application.Platform.runLater(() -> {
+                controller.setBatchId(batchId);
+                controller.loadBatchDetails();
+            });
+
+        } catch (IOException e) {
+            showAlert("Error opening provenance viewer: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -1450,7 +1564,7 @@ public class MarketplaceController extends BaseController {
             // Create test order
             int buyerId = getCurrentUserId();
             int sellerId = 1;  // Simulated seller
-            int listingId = 1;  // Find first listing or use sample
+            // int listingId = 1;  // Find first listing or use sample
             double amountUsd = 25.00;  // Test amount
             
             System.out.println("[MarketplaceController] Starting test payment: $" + amountUsd);

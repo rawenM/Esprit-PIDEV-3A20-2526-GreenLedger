@@ -217,6 +217,54 @@ public class MarketplaceOrderService {
                     return false;
                 }
 
+                // Get listing details to access seller wallet
+                Models.MarketplaceListing listing = listingService.getListingById(order.getListingId());
+                if (listing == null) {
+                    System.err.println(LOG_TAG + " ERROR: Listing not found for order " + orderId);
+                    conn.rollback();
+                    return false;
+                }
+
+                // Determine transfer mode based on order amount
+                // < $10k = DIRECT (instant, transfers batches directly)
+                // >= $10k = SPLIT_CHILD (escrow, creates child batches for auditability)
+                WalletService walletService = new WalletService();
+                WalletService.TransferMode transferMode = order.getTotalAmountUsd() >= ESCROW_THRESHOLD_USD 
+                    ? WalletService.TransferMode.SPLIT_CHILD 
+                    : WalletService.TransferMode.DIRECT;
+
+                // Get buyer wallet
+                List<Models.Wallet> buyerWallets = walletService.getWalletsByOwnerId(order.getBuyerId());
+                if (buyerWallets.isEmpty()) {
+                    System.err.println(LOG_TAG + " ERROR: Buyer wallet not found");
+                    conn.rollback();
+                    return false;
+                }
+                int buyerWalletId = buyerWallets.get(0).getId();
+
+                // Transfer credits from seller to buyer with batch traceability
+                String transferNote = String.format("Marketplace Order #%s - %.2f tCO2", 
+                    order.getId(), order.getQuantity());
+                String actor = "MARKETPLACE_ORDER_" + order.getId();
+
+                boolean transferSuccess = walletService.transferCreditsWithMode(
+                    listing.getWalletId(), 
+                    buyerWalletId, 
+                    order.getQuantity(), 
+                    transferNote, 
+                    transferMode,
+                    actor
+                );
+
+                if (!transferSuccess) {
+                    System.err.println(LOG_TAG + " ERROR: Credit transfer failed for order " + orderId);
+                    conn.rollback();
+                    return false;
+                }
+
+                // Record marketplace_order_batches linkage
+                recordOrderBatches(orderId, buyerWalletId, order.getQuantity());
+
                 // Create escrow record
                 int escrowId = createEscrow(orderId, null, order.getBuyerId(), 
                     order.getSellerId(), order.getTotalAmountUsd());
@@ -226,12 +274,8 @@ public class MarketplaceOrderService {
                     return false;
                 }
 
-                // Transfer credits from listing wallet to buyer wallet
-                // (This would need to be implemented based on your wallet transfer logic)
-
-                // Mark listing as sold
-                if (order.getQuantity() >= 
-                    listingService.getListingById(order.getListingId()).getQuantityOrTokens()) {
+                // Mark listing as sold if quantity depleted
+                if (order.getQuantity() >= listing.getQuantityOrTokens()) {
                     listingService.markAsSold(order.getListingId());
                 }
 
@@ -253,18 +297,69 @@ public class MarketplaceOrderService {
                     stripeService.calculatePlatformFee(order.getTotalAmountUsd()));
 
                 conn.commit();
-                System.out.println(LOG_TAG + " Order completed: ID " + orderId);
+                System.out.println(LOG_TAG + " Order completed: ID " + orderId + 
+                    " (Transfer mode: " + transferMode + ")");
                 return true;
 
             } catch (Exception e) {
                 conn.rollback();
                 System.err.println(LOG_TAG + " ERROR completing order: " + e.getMessage());
+                e.printStackTrace();
             }
         } catch (SQLException e) {
             System.err.println(LOG_TAG + " ERROR: Database connection failed");
+            e.printStackTrace();
         }
 
         return false;
+    }
+
+    /**
+     * Record which batches were purchased in this marketplace order.
+     * Links marketplace_orders to carbon_credit_batches for provenance tracking.
+     */
+    private void recordOrderBatches(int orderId, int buyerWalletId, double quantity) {
+        try {
+            WalletService walletService = new WalletService();
+            List<Models.CarbonCreditBatch> buyerBatches = walletService.getWalletBatches(buyerWalletId);
+            
+            // Find recently created batches (within last minute, up to quantity amount)
+            double trackedAmount = 0;
+            for (Models.CarbonCreditBatch batch : buyerBatches) {
+                if (trackedAmount >= quantity) break;
+                
+                // Check if batch was recently created (within last minute)
+                if (batch.getIssuedAt() != null && 
+                    java.time.Duration.between(batch.getIssuedAt(), java.time.LocalDateTime.now()).getSeconds() < 60) {
+                    
+                    double batchAmount = Math.min(
+                        batch.getTotalAmount().doubleValue(), 
+                        quantity - trackedAmount
+                    );
+                    
+                    String sql = "INSERT INTO marketplace_order_batches (order_id, batch_id, quantity) " +
+                                "VALUES (?, ?, ?)";
+                    
+                    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+                        ps.setInt(1, orderId);
+                        ps.setInt(2, batch.getId());
+                        ps.setDouble(3, batchAmount);
+                        ps.executeUpdate();
+                        
+                        trackedAmount += batchAmount;
+                    } catch (SQLException ex) {
+                        // Table might not exist yet, log and continue
+                        System.err.println(LOG_TAG + " Warning: Could not record order batch linkage: " + ex.getMessage());
+                    }
+                }
+            }
+            
+            System.out.println(LOG_TAG + " Tracked " + trackedAmount + " tCO2 in batches for order " + orderId);
+            
+        } catch (Exception e) {
+            // Non-critical failure, log and continue
+            System.err.println(LOG_TAG + " Warning: Error recording order batches: " + e.getMessage());
+        }
     }
 
     /**

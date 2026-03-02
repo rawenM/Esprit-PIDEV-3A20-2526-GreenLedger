@@ -4,7 +4,9 @@ import Models.Wallet;
 import Models.OperationWallet;
 import Models.TypeUtilisateur;
 import Models.User;
+import Models.CarbonCreditBatch;
 import Services.WalletService;
+import Services.BatchEventService;
 import Services.ExternalCarbonApiService;
 import Services.ClimatiqApiService;
 import Services.AirQualityService;
@@ -18,6 +20,8 @@ import javafx.event.ActionEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
@@ -29,6 +33,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.web.WebView;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.stage.Stage;
 import org.GreenLedger.MainFX;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -43,6 +48,7 @@ import java.util.stream.Collectors;
 /**
  * Controller for Green Wallet - Carbon Credit Management System.
  */
+@SuppressWarnings("unchecked")
 public class GreenWalletController extends BaseController {
     
     static {
@@ -2014,7 +2020,232 @@ public class GreenWalletController extends BaseController {
     }
 
     private void showBatches() {
-        showInfo("Bientôt disponible", "La vue des batches sera implémentée prochainement");
+        if (currentWallet == null) {
+            showWarning("Aucun wallet", "Veuillez sélectionner un wallet");
+            return;
+        }
+
+        try {
+            // Create batch explorer window
+            Stage batchWindow = new Stage();
+            batchWindow.setTitle("📊 Carbon Credit Batch Traceability - " + currentWallet.getName());
+            batchWindow.setWidth(1200);
+            batchWindow.setHeight(800);
+
+            // Main container
+            VBox mainContainer = new VBox(15);
+            mainContainer.setPadding(new Insets(20));
+            mainContainer.setStyle("-fx-background-color: #f9fafb;");
+
+            // Header
+            HBox header = new HBox(10);
+            header.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #1f2937;");
+            Label headerLabel = new Label("🔍 Batch Traceability Explorer");
+            headerLabel.setStyle("-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #1f2937;");
+            header.getChildren().add(headerLabel);
+            header.setPadding(new Insets(0, 0, 10, 0));
+
+            // Search bar
+            HBox searchBox = new HBox(10);
+            searchBox.setStyle("-fx-border-color: #e5e7eb; -fx-border-radius: 8; -fx-padding: 10; -fx-background-color: white;");
+            TextField searchBatchId = new TextField();
+            searchBatchId.setPromptText("Enter Batch ID...");
+            searchBatchId.setPrefWidth(200);
+            Button btnSearchBatch = new Button("Search");
+            searchBox.getChildren().addAll(new Label("Batch ID:"), searchBatchId, btnSearchBatch);
+
+            // Batches table
+            TableView<CarbonCreditBatch> batchesTable = new TableView<>();
+            batchesTable.setStyle("-fx-font-size: 11;");
+
+            TableColumn<CarbonCreditBatch, Integer> colBatchId = new TableColumn<>("ID");
+            colBatchId.setCellValueFactory(new PropertyValueFactory<>("id"));
+            colBatchId.setPrefWidth(60);
+
+            TableColumn<CarbonCreditBatch, String> colSerial = new TableColumn<>("Serial #");
+            colSerial.setCellValueFactory(new PropertyValueFactory<>("serialNumber"));
+            colSerial.setPrefWidth(150);
+
+            TableColumn<CarbonCreditBatch, String> colType = new TableColumn<>("Type");
+            colType.setCellValueFactory(cellData -> {
+                String badge = cellData.getValue().getBatchTypeBadge();
+                return new javafx.beans.property.SimpleStringProperty(badge);
+            });
+            colType.setPrefWidth(120);
+
+            TableColumn<CarbonCreditBatch, Double> colAmount = new TableColumn<>("Total (tCO2)");
+            colAmount.setCellValueFactory(cellData -> {
+                Double amount = cellData.getValue().getTotalAmount() != null ? cellData.getValue().getTotalAmount().doubleValue() : 0.0;
+                if (amount == null) amount = 0.0;
+                final Double finalAmount = amount;
+                return new javafx.beans.property.SimpleObjectProperty<>(finalAmount);
+            });
+            colAmount.setPrefWidth(120);
+
+            TableColumn<CarbonCreditBatch, Double> colRemaining = new TableColumn<>("Remaining (tCO2)");
+            colRemaining.setCellValueFactory(cellData -> {
+                Double amount = cellData.getValue().getRemainingAmount() != null ? cellData.getValue().getRemainingAmount().doubleValue() : 0.0;
+                if (amount == null) amount = 0.0;
+                final Double finalAmount = amount;
+                return new javafx.beans.property.SimpleObjectProperty<>(finalAmount);
+            });
+            colRemaining.setPrefWidth(130);
+
+            TableColumn<CarbonCreditBatch, String> colStatus = new TableColumn<>("Status");
+            colStatus.setCellValueFactory(new PropertyValueFactory<>("status"));
+            colStatus.setPrefWidth(100);
+
+            TableColumn<CarbonCreditBatch, Integer> colEvents = new TableColumn<>("Events");
+            colEvents.setCellValueFactory(cellData -> {
+                try {
+                    BatchEventService eventService = new BatchEventService();
+                    int count = eventService.getEventCount(cellData.getValue().getId());
+                    return new javafx.beans.property.SimpleObjectProperty<>(count);
+                } catch (Exception e) {
+                    return new javafx.beans.property.SimpleObjectProperty<>(0);
+                }
+            });
+            colEvents.setPrefWidth(80);
+
+            TableColumn<CarbonCreditBatch, Void> colActions = new TableColumn<>("Actions");
+            colActions.setPrefWidth(200);
+            colActions.setCellFactory(param -> new TableCell<CarbonCreditBatch, Void>() {
+                @Override
+                protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty || getTableRow().getItem() == null) {
+                        setGraphic(null);
+                    } else {
+                        CarbonCreditBatch batch = getTableRow().getItem();
+                        HBox actionBox = new HBox(5);
+                        
+                        Button btnViewLineage = new Button("📊 Lineage");
+                        btnViewLineage.setStyle("-fx-font-size: 10;");
+                        btnViewLineage.setOnAction(e -> openBatchLineageViewer(batch.getId()));
+
+                        Button btnSplit = new Button("✂️ Split");
+                        btnSplit.setStyle("-fx-font-size: 10;");
+                        btnSplit.setDisable(batch.getRemainingAmount() == null || batch.getRemainingAmount().doubleValue() <= 0);
+                        btnSplit.setOnAction(e -> showSplitBatchDialog(batch));
+
+                        actionBox.getChildren().addAll(btnViewLineage, btnSplit);
+                        setGraphic(actionBox);
+                    }
+                }
+            });
+
+            batchesTable.getColumns().addAll(colBatchId, colSerial, colType, colAmount, colRemaining, colStatus, colEvents, colActions);
+
+            // Load batches for current wallet
+            List<CarbonCreditBatch> walletBatches = walletService.getWalletBatches(currentWallet.getId());
+            batchesTable.setItems(FXCollections.observableArrayList(walletBatches));
+
+            // Search action
+            btnSearchBatch.setOnAction(e -> {
+                try {
+                    int batchId = Integer.parseInt(searchBatchId.getText());
+                    openBatchLineageViewer(batchId);
+                } catch (NumberFormatException ex) {
+                    showError("Invalid Batch ID", "Please enter a valid batch ID");
+                }
+            });
+
+            // Add components to main container
+            mainContainer.getChildren().addAll(header, searchBox, batchesTable);
+
+            ScrollPane scrollPane = new ScrollPane(mainContainer);
+            scrollPane.setFitToWidth(true);
+            scrollPane.setStyle("-fx-background-color: #f9fafb;");
+
+            Scene scene = new Scene(scrollPane);
+            batchWindow.setScene(scene);
+            batchWindow.show();
+
+        } catch (Exception e) {
+            showError("Error opening batch explorer", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Open batch lineage viewer for a specific batch.
+     */
+    private void openBatchLineageViewer(int batchId) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/batchLineage.fxml"));
+            VBox batchLineageView = loader.load();
+
+            Stage window = new Stage();
+            window.setTitle("🔍 Batch Traceability - ID: " + batchId);
+            window.setWidth(1400);
+            window.setHeight(900);
+            window.setScene(new Scene(batchLineageView));
+            window.show();
+
+            // Pre-load batch ID in the controller
+            BatchLineageController controller = loader.getController();
+            // We need to invoke the search after a brief delay to ensure UI is ready
+            javafx.application.Platform.runLater(() -> {
+                controller.setBatchId(batchId);
+                controller.loadBatchDetails();
+            });
+
+        } catch (IOException e) {
+            showError("Error", "Could not open batch lineage viewer: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * Show split batch dialog.
+     */
+    private void showSplitBatchDialog(CarbonCreditBatch batch) {
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Split Batch");
+        dialog.setHeaderText("Split Batch #" + batch.getId() + " (" + batch.getSerialNumber() + ")");
+
+        VBox content = new VBox(10);
+        content.setPadding(new Insets(15));
+
+        Label amountLabel = new Label("Amount to split (tCO2):");
+        TextField amountInput = new TextField();
+        amountInput.setPromptText("Enter amount...");
+
+        Label walletLabel = new Label("Target wallet ID:");
+        TextField walletInput = new TextField();
+        walletInput.setPromptText("Enter wallet ID...");
+
+        content.getChildren().addAll(
+            amountLabel, amountInput,
+            walletLabel, walletInput
+        );
+
+        dialog.getDialogPane().setContent(content);
+        dialog.getDialogPane().getButtonTypes().addAll(ButtonType.OK, ButtonType.CANCEL);
+
+        Optional<ButtonType> result = dialog.showAndWait();
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                double amountToSplit = Double.parseDouble(amountInput.getText());
+                int targetWalletId = Integer.parseInt(walletInput.getText());
+
+                if (amountToSplit <= 0 || amountToSplit > (batch.getRemainingAmount() != null ? batch.getRemainingAmount().doubleValue() : 0)) {
+                    showError("Invalid amount", "Amount must be between 0 and " + batch.getRemainingAmount());
+                    return;
+                }
+
+                int childBatchId = walletService.splitBatch(batch.getId(), amountToSplit, targetWalletId, "UI_SPLIT");
+                if (childBatchId > 0) {
+                    showInfo("Success", "Batch split successfully! New batch ID: " + childBatchId);
+                    refreshData();
+                } else {
+                    showError("Error", "Failed to split batch");
+                }
+
+            } catch (NumberFormatException e) {
+                showError("Invalid input", "Please enter valid numbers");
+            }
+        }
     }
 
     private void exportData() {
