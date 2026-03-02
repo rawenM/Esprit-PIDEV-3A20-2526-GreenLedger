@@ -8,6 +8,8 @@ import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import Utils.ThemeManager;
 import Utils.NavigationContext;
+import Utils.DotEnvLoader;
+import Utils.ApiConfig;
 
 import java.io.IOException;
 
@@ -20,7 +22,11 @@ public class MainFX extends Application {
 
     @Override
     public void start(Stage stage) throws IOException {
+        // Load environment variables from .env file
+        DotEnvLoader.load();
 
+        // Initialize API configuration
+        ApiConfig.printConfiguration();
 
         Parent root = loadFXML(START_SCREEN);
 
