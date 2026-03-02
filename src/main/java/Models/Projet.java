@@ -1,151 +1,95 @@
 package Models;
 
 public class Projet {
+
     private int id;
-    private int entrepriseId;
+    private int idUser;
     private String titre;
     private String description;
-    private double budget;
-
-    // null khater mehdi bech yaamel score bel evaluation
     private Integer scoreEsg;
-    private String statut;
+    private String statutEvaluation;
     private String companyAddress;
     private String companyEmail;
     private String companyPhone;
-    
-    // Location fields for API integration (air quality, carbon estimates)
+    // Relation 1-1 (table budget)
+    private Budget budget;
+
+    private String activityType;
     private Double latitude;
     private Double longitude;
-    private String activityType; // e.g., "electricity", "fuel", "shipping", "manufacturing"
 
     public Projet() {}
 
-    public Projet(int id, int entrepriseId, String titre, String description, double budget, Integer scoreEsg, String statut,
+    public Projet(int id, int idUser, String titre, String description,
+                  Integer scoreEsg, String statutEvaluation,
                   String companyAddress, String companyEmail, String companyPhone) {
         this.id = id;
-        this.entrepriseId = entrepriseId;
+        this.idUser = idUser;
         this.titre = titre;
         this.description = description;
-        this.budget = budget;
         this.scoreEsg = scoreEsg;
-        this.statut = statut;
+        this.statutEvaluation = statutEvaluation;
         this.companyAddress = companyAddress;
         this.companyEmail = companyEmail;
         this.companyPhone = companyPhone;
     }
 
-    public int getId() {
-        return id;
-    }
-    public void setId(int id) {
-        this.id = id;
-    }
+    public int getId() { return id; }
+    public void setId(int id) { this.id = id; }
 
-    public int getEntrepriseId() {
-        return entrepriseId;
-    }
-    public void setEntrepriseId(int entrepriseId) {
-        this.entrepriseId = entrepriseId;
-    }
+    public int getIdUser() { return idUser; }
+    public void setIdUser(int idUser) { this.idUser = idUser; }
 
-    public String getTitre() {
-        return titre;
-    }
-    public void setTitre(String titre) {
-        this.titre = titre;
-    }
+    public String getTitre() { return titre; }
+    public void setTitre(String titre) { this.titre = titre; }
 
-    public String getDescription() {
-        return description;
-    }
-    public void setDescription(String description) {
-        this.description = description;
-    }
+    public String getDescription() { return description; }
+    public void setDescription(String description) { this.description = description; }
+
+    public Integer getScoreEsg() { return scoreEsg; }
+    public void setScoreEsg(Integer scoreEsg) { this.scoreEsg = scoreEsg; }
+
+    public String getStatutEvaluation() { return statutEvaluation; }
+    public void setStatutEvaluation(String statutEvaluation) { this.statutEvaluation = statutEvaluation; }
+
+    public String getCompanyAddress() { return companyAddress; }
+    public void setCompanyAddress(String companyAddress) { this.companyAddress = companyAddress; }
+
+    public String getCompanyEmail() { return companyEmail; }
+    public void setCompanyEmail(String companyEmail) { this.companyEmail = companyEmail; }
+
+    public String getCompanyPhone() { return companyPhone; }
+    public void setCompanyPhone(String companyPhone) { this.companyPhone = companyPhone; }
+
 
     public double getBudget() {
-        return budget;
-    }
-    public void setBudget(double budget) {
-        this.budget = budget;
+        return (budget != null) ? budget.getMontant() : 0.0;
     }
 
-    public Integer getScoreEsg() {
-        return scoreEsg;
-    }
-    public void setScoreEsg(Integer scoreEsg) {
-        this.scoreEsg = scoreEsg;
+    public void setBudget(double montant) {
+        if (this.budget == null) this.budget = new Budget();
+        this.budget.setMontant(montant);
     }
 
-    public String getStatut() {
-        return statut;
-    }
-    public void setStatut(String statut) {
-        this.statut = statut;
-    }
+    public Budget getBudgetObj() { return budget; }
+    public void setBudget(Budget budget) { this.budget = budget; }
 
-    public String getCompanyAddress() {
-        return companyAddress;
-    }
-    public void setCompanyAddress(String companyAddress) {
-        this.companyAddress = companyAddress;
-    }
+    public int getEntrepriseId() { return idUser; }
+    public void setEntrepriseId(int entrepriseId) { this.idUser = entrepriseId; }
 
-    public String getCompanyEmail() {
-        return companyEmail;
-    }
-    public void setCompanyEmail(String companyEmail) {
-        this.companyEmail = companyEmail;
-    }
+    public String getStatut() { return statutEvaluation; }
+    public void setStatut(String statut) { this.statutEvaluation = statut; }
 
-    public String getCompanyPhone() {
-        return companyPhone;
-    }
-    public void setCompanyPhone(String companyPhone) {
-        this.companyPhone = companyPhone;
-    }
+    public String getActivityType() { return activityType; }
+    public void setActivityType(String activityType) { this.activityType = activityType; }
 
-    public String getStatutEvaluation() {
-        return this.statut;
-    }
+    public Double getLatitude() { return latitude; }
+    public void setLatitude(Double latitude) { this.latitude = latitude; }
 
-    public void setStatutEvaluation(String statutEvaluation) {
-        this.statut = statutEvaluation;
-    }
+    public Double getLongitude() { return longitude; }
+    public void setLongitude(Double longitude) { this.longitude = longitude; }
 
-    // Location getters and setters for API integration
-    
-    public Double getLatitude() {
-        return latitude;
-    }
-    
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
-    
-    public Double getLongitude() {
-        return longitude;
-    }
-    
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
-    }
-    
-    public String getActivityType() {
-        return activityType;
-    }
-    
-    public void setActivityType(String activityType) {
-        this.activityType = activityType;
-    }
-    
-    /**
-     * Check if project has valid location coordinates for API calls
-     */
     public boolean hasValidLocation() {
-        return latitude != null && longitude != null 
-            && latitude >= -90 && latitude <= 90 
-            && longitude >= -180 && longitude <= 180;
+        return latitude != null && longitude != null;
     }
-
 }

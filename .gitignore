@@ -40,3 +40,6 @@ src/main/resources/config.properties
 
 ### Mac OS ###
 .DS_Store
+
+### fichiers zeydin ###
+/uploads/
