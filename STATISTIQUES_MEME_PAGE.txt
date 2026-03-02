@@ -1,0 +1,140 @@
+========================================
+✅ STATISTIQUES DANS LA MÊME PAGE
+========================================
+
+MODIFICATION APPLIQUÉE:
+Les statistiques s'affichent maintenant dans le 
+contentPane du dashboard admin, au lieu d'ouvrir 
+une nouvelle fenêtre.
+
+========================================
+CE QUI A CHANGÉ
+========================================
+
+AVANT:
+- Clic sur "📊 Statistiques"
+- Nouvelle fenêtre s'ouvre
+- Menu de gauche disparaît
+- Besoin du bouton "Retour"
+
+APRÈS:
+- Clic sur "📊 Statistiques"
+- Contenu change dans la même page
+- Menu de gauche reste visible
+- Navigation facile avec le menu
+
+========================================
+AVANTAGES
+========================================
+
+✅ Navigation plus fluide
+✅ Menu toujours accessible
+✅ Pas de changement de fenêtre
+✅ Retour facile (clic sur "👤 Utilisateurs")
+✅ Interface cohérente
+
+========================================
+COMMENT UTILISER
+========================================
+
+1. Lancez l'application:
+   ./run.bat
+
+2. Connectez-vous en ADMIN
+
+3. Dans le menu de gauche:
+   - Cliquez "📊 Statistiques" → Voir les graphiques
+   - Cliquez "👤 Utilisateurs" → Retour à la liste
+   - Cliquez "📁 Projets" → Voir les projets
+   - etc.
+
+4. Le menu reste toujours visible!
+
+========================================
+NAVIGATION
+========================================
+
+MENU DE GAUCHE (toujours visible):
+- 👤 Utilisateurs → Liste des utilisateurs
+- 📊 Statistiques → Graphiques Chart.js
+- 📁 Projets → Gestion des projets
+- 📊 Evaluations → Gestion carbone
+- ⚙ Settings → Paramètres
+
+DANS LES STATISTIQUES:
+- 🔄 Actualiser → Recharge les données
+- Scroll avec molette → Voir tous les graphiques
+- Menu gauche → Navigation rapide
+
+========================================
+STRUCTURE
+========================================
+
+LAYOUT:
+┌─────────────────────────────────────┐
+│  Menu    │  Contenu (StackPane)     │
+│  Gauche  │                           │
+│          │  [Utilisateurs]           │
+│  👤      │  ou                       │
+│  📊      │  [Statistiques]           │
+│  📁      │  ou                       │
+│  📊      │  [Projets]                │
+│  ⚙       │  etc.                     │
+└─────────────────────────────────────┘
+
+Le menu reste fixe, seul le contenu change!
+
+========================================
+FICHIERS MODIFIÉS
+========================================
+
+1. AdminUsersController.java
+   - handleNavStatistics() modifié
+   - Charge dans contentPane au lieu de nouvelle scène
+
+2. user_statistics.fxml
+   - Changé de BorderPane à VBox
+   - Supprimé le bouton "Retour"
+   - Adapté pour s'intégrer dans contentPane
+
+========================================
+COMPILATION
+========================================
+
+DÉJÀ FAIT:
+✅ Code Java compilé
+✅ Ressources FXML copiées
+✅ Prêt à tester
+
+POUR TESTER:
+./run.bat
+
+========================================
+VÉRIFICATION
+========================================
+
+[ ] Application lancée
+[ ] Connexion admin
+[ ] Menu de gauche visible
+[ ] Clic sur "📊 Statistiques"
+[ ] Graphiques s'affichent dans la même page
+[ ] Menu de gauche toujours visible
+[ ] Clic sur "👤 Utilisateurs" pour revenir
+[ ] Retour à la liste des utilisateurs
+
+========================================
+POUR LE JURY
+========================================
+
+POINTS À MONTRER:
+1. "Navigation fluide dans le dashboard"
+2. Cliquer sur "📊 Statistiques"
+3. "Le menu reste accessible"
+4. Montrer les graphiques
+5. "Retour facile" → Clic sur "👤 Utilisateurs"
+6. "Interface cohérente et professionnelle"
+
+========================================
+Date: 2 mars 2026
+Statut: ✅ INTÉGRÉ DANS LA MÊME PAGE
+========================================

@@ -7,7 +7,6 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
@@ -46,7 +45,6 @@ public class AdminUsersController {
     @FXML private TableColumn<User, StatutUtilisateur> statutColumn;
     @FXML private TableColumn<User, LocalDateTime> dateInscriptionColumn;
     @FXML private TableColumn<User, Void> actionsColumn;
-    @FXML private TableColumn<User, Void> fraudScoreColumn; // NOUVELLE COLONNE
 
     @FXML private TextField searchField;
     @FXML private ComboBox<String> filterStatutCombo;
@@ -217,89 +215,24 @@ public class AdminUsersController {
             }
         });
 
-        // NOUVELLE COLONNE: Score de Fraude avec badge coloré et bouton détails
-        fraudScoreColumn.setCellFactory(column -> new TableCell<User, Void>() {
-            private final Label scoreLabel = new Label();
-            private final Button detailsBtn = new Button("Détails");
-            private final HBox container = new HBox(10, scoreLabel, detailsBtn);
-
-            {
-                container.setAlignment(Pos.CENTER_LEFT);
-                detailsBtn.setStyle("-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-font-size: 10px;");
-                detailsBtn.setTooltip(new Tooltip("Voir l'analyse complète"));
-                
-                detailsBtn.setOnAction(e -> {
-                    User user = getTableView().getItems().get(getIndex());
-                    showFraudDetails(user);
-                });
-            }
-
-            @Override
-            protected void updateItem(Void item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setGraphic(null);
-                } else {
-                    User user = getTableView().getItems().get(getIndex());
-                    if (user != null && user.isFraudChecked()) {
-                        double score = user.getFraudScore();
-                        String level;
-                        String color;
-                        String emoji;
-                        
-                        if (score < 25) {
-                            level = "Faible";
-                            color = "#10B981";
-                            emoji = "🟢";
-                        } else if (score < 50) {
-                            level = "Moyen";
-                            color = "#F59E0B";
-                            emoji = "🟡";
-                        } else if (score < 75) {
-                            level = "Élevé";
-                            color = "#FB923C";
-                            emoji = "🟠";
-                        } else {
-                            level = "Critique";
-                            color = "#EF4444";
-                            emoji = "🔴";
-                        }
-                        
-                        scoreLabel.setText(String.format("%.0f/100 - %s %s", score, level, emoji));
-                        scoreLabel.setStyle("-fx-background-color: " + color + "; " +
-                                "-fx-background-radius: 12px; " +
-                                "-fx-padding: 5px 10px; " +
-                                "-fx-text-fill: white; " +
-                                "-fx-font-weight: bold; " +
-                                "-fx-font-size: 11px;");
-                        setGraphic(container);
-                    } else {
-                        scoreLabel.setText("Non analysé");
-                        scoreLabel.setStyle("-fx-text-fill: #6B7280; -fx-font-style: italic;");
-                        setGraphic(scoreLabel);
-                    }
-                }
-            }
-        });
-
         // Colonne Actions avec boutons
         actionsColumn.setCellFactory(column -> new TableCell<User, Void>() {
             private final Button validateBtn = new Button("✓");
             private final Button blockBtn = new Button("⛔");
             private final Button deleteBtn = new Button("🗑");
-            private final Button editBtn = new Button("✏️");
-            private final HBox container = new HBox(5, validateBtn, blockBtn, deleteBtn, editBtn);
+            private final Button detailsBtn = new Button("📊");
+            private final HBox container = new HBox(5, validateBtn, blockBtn, deleteBtn, detailsBtn);
 
             {
                 validateBtn.setStyle("-fx-background-color: #10B981; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
                 blockBtn.setStyle("-fx-background-color: #EF4444; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
                 deleteBtn.setStyle("-fx-background-color: #6B7280; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
-                editBtn.setStyle("-fx-background-color: #F59E0B; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
+                detailsBtn.setStyle("-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
 
                 validateBtn.setTooltip(new Tooltip("Valider"));
                 blockBtn.setTooltip(new Tooltip("Bloquer"));
                 deleteBtn.setTooltip(new Tooltip("Supprimer"));
-                editBtn.setTooltip(new Tooltip("Éditer"));
+                detailsBtn.setTooltip(new Tooltip("Détails Fraude"));
 
                 validateBtn.setOnAction(e -> {
                     User user = getTableView().getItems().get(getIndex());
@@ -316,9 +249,9 @@ public class AdminUsersController {
                     handleDeleteUser(user);
                 });
 
-                editBtn.setOnAction(e -> {
+                detailsBtn.setOnAction(e -> {
                     User user = getTableView().getItems().get(getIndex());
-                    handleEditUser(user);
+                    showFraudDetails(user);
                 });
             }
 
@@ -503,28 +436,7 @@ public class AdminUsersController {
         }
     }
 
-    private void handleEditUser(User user) {
-        if (user == null) return;
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/edit_user.fxml"));
-            Parent root = loader.load();
 
-            EditUserController controller = loader.getController();
-            controller.setUser(user);
-            controller.setOnSaved(this::handleRefresh);
-
-            Stage modal = new Stage();
-            modal.setTitle("Éditer utilisateur");
-            modal.initOwner(usersTable.getScene().getWindow());
-            modal.setScene(new Scene(root));
-            modal.setResizable(false);
-            modal.showAndWait();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            showWarning("Impossible d'ouvrir le formulaire d'édition");
-        }
-    }
 
     @FXML
     private void handleLogout(ActionEvent event) {
@@ -601,6 +513,25 @@ public class AdminUsersController {
     @FXML
     private void handleNavUsers() {
         showUsersContent();
+    }
+
+    @FXML
+    private void handleNavStatistics() {
+        try {
+            System.out.println("[ADMIN] Navigation vers les statistiques Chart.js");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/user_statistics.fxml"));
+            Parent root = loader.load();
+            
+            // Charger dans le contentPane au lieu de changer la scène
+            if (contentPane != null) {
+                contentPane.getChildren().setAll(root);
+                System.out.println("[ADMIN] Statistiques chargées dans le contentPane");
+            }
+        } catch (IOException e) {
+            System.err.println("[ADMIN] Erreur lors du chargement des statistiques: " + e.getMessage());
+            e.printStackTrace();
+            showError("Erreur", "Impossible de charger les statistiques");
+        }
     }
 
     @FXML

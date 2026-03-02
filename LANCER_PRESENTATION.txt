@@ -1,0 +1,158 @@
+═══════════════════════════════════════════════════════════════
+🚀 LANCER LA PRÉSENTATION - GUIDE ULTRA-RAPIDE
+═══════════════════════════════════════════════════════════════
+
+📋 AVANT DE COMMENCER (2 MINUTES)
+═══════════════════════════════════════════════════════════════
+
+1. Démarrer MySQL
+   ✓ Vérifier que le service MySQL est actif
+
+2. Fermer tous les navigateurs
+   ✓ Chrome, Firefox, Edge, etc.
+   ✓ Évite les conflits avec WebView
+
+3. Lancer l'application
+   ✓ Double-cliquer sur: run.bat
+   ✓ Attendre que la fenêtre s'ouvre
+
+4. Préparer l'email de test
+   ✓ Ouvrir Gmail dans un onglet
+   ✓ Prêt à montrer le code reçu
+
+
+═══════════════════════════════════════════════════════════════
+🎬 SCÉNARIO DE DÉMONSTRATION (5 MINUTES)
+═══════════════════════════════════════════════════════════════
+
+⏱️ 30s | 1. CONNEXION
+───────────────────────────────────────────────────────────────
+✓ Montrer reCAPTCHA "Je ne suis pas un robot"
+✓ Se connecter avec compte admin
+💬 "Protection anti-bot avec Google reCAPTCHA"
+
+
+⏱️ 45s | 2. DASHBOARD
+───────────────────────────────────────────────────────────────
+✓ Montrer statistiques (Total, Actifs, En Attente, Bloqués)
+✓ Montrer statistiques de fraude (🔴 🟢 🟡)
+💬 "Statistiques en temps réel depuis MySQL"
+
+
+⏱️ 90s | 3. DÉTECTION DE FRAUDE IA ⭐⭐⭐⭐⭐
+───────────────────────────────────────────────────────────────
+✓ Cliquer sur 📊 "Détails" d'un utilisateur
+✓ Montrer le score (ex: 85/100)
+✓ Montrer les indicateurs détectés
+✓ Montrer la recommandation
+💬 "10 indicateurs analysés automatiquement par IA"
+💬 "Email jetable, VPN, patterns suspects..."
+
+
+⏱️ 60s | 4. STATISTIQUES CHART.JS
+───────────────────────────────────────────────────────────────
+✓ Cliquer sur "📊 Statistiques" dans le menu
+✓ Montrer les 4 graphiques
+✓ Passer la souris pour montrer l'interactivité
+💬 "Graphiques interactifs générés depuis MySQL"
+
+
+⏱️ 90s | 5. MOT DE PASSE OUBLIÉ
+───────────────────────────────────────────────────────────────
+✓ Se déconnecter
+✓ Cliquer "Mot de passe oublié"
+✓ Entrer email et envoyer
+✓ Montrer l'email avec le code à 6 chiffres
+✓ Entrer le code et changer le mot de passe
+✓ Montrer le timer de 10 minutes
+💬 "Code à 6 chiffres comme Google et Facebook"
+💬 "Envoyé par Gmail API avec OAuth2"
+
+
+⏱️ 30s | 6. GESTION UTILISATEURS
+───────────────────────────────────────────────────────────────
+✓ Montrer les filtres
+✓ Montrer les actions (✓ ⛔ 🗑 📊)
+💬 "Gestion complète avec filtres avancés"
+
+
+═══════════════════════════════════════════════════════════════
+🎤 3 PHRASES CLÉS À DIRE
+═══════════════════════════════════════════════════════════════
+
+1️⃣ "J'ai intégré 5 APIs modernes: Gmail API avec OAuth2, 
+    Google reCAPTCHA, Chart.js, détection de fraude IA, 
+    et MySQL."
+
+2️⃣ "Le point fort est la détection de fraude par IA qui 
+    analyse automatiquement 10 indicateurs lors de chaque 
+    inscription."
+
+3️⃣ "Le système combine sécurité moderne, intelligence 
+    artificielle, et expérience utilisateur fluide comme 
+    les grandes plateformes."
+
+
+═══════════════════════════════════════════════════════════════
+📚 DOCUMENTS À LIRE
+═══════════════════════════════════════════════════════════════
+
+📄 GUIDE_PRESENTATION_JURY.md
+   → Guide complet avec tous les détails
+
+📄 PHRASES_JURY_EXACTES.txt
+   → Phrases exactes à dire + réponses aux questions
+
+📄 RETOUCHES_FINALES_COMPLETEES.md
+   → Récapitulatif de toutes les fonctionnalités
+
+
+═══════════════════════════════════════════════════════════════
+⚠️ CHECKLIST FINALE
+═══════════════════════════════════════════════════════════════
+
+Avant de commencer la présentation:
+
+□ MySQL démarré
+□ Navigateurs fermés
+□ Application lancée (run.bat)
+□ Email de test ouvert
+□ Au moins 5 utilisateurs en base
+□ Au moins 2 avec fraude détectée
+□ Documents lus (GUIDE_PRESENTATION_JURY.md)
+
+
+═══════════════════════════════════════════════════════════════
+🎯 POINTS FORTS À METTRE EN AVANT
+═══════════════════════════════════════════════════════════════
+
+⭐⭐⭐⭐⭐ Détection de fraude IA (10 indicateurs)
+⭐⭐⭐⭐⭐ Gmail API avec OAuth2 (sécurité)
+⭐⭐⭐⭐⭐ Chart.js interactif (visualisation)
+⭐⭐⭐⭐⭐ Code à 6 chiffres (UX moderne)
+⭐⭐⭐⭐⭐ Google reCAPTCHA (anti-bot)
+
+
+═══════════════════════════════════════════════════════════════
+💡 CONSEILS RAPIDES
+═══════════════════════════════════════════════════════════════
+
+✅ Parlez avec confiance
+✅ Montrez l'interactivité (clics, hover)
+✅ Insistez sur la détection de fraude
+✅ Mentionnez la sécurité
+
+❌ Ne dites pas "c'est simple"
+❌ Ne vous excusez pas
+❌ Ne parlez pas trop vite
+
+
+═══════════════════════════════════════════════════════════════
+🚀 VOUS ÊTES PRÊT!
+═══════════════════════════════════════════════════════════════
+
+Tout est en place. Votre application est professionnelle et 
+impressionnante. Vous avez intégré 5 APIs modernes avec un 
+système de détection de fraude unique.
+
+BONNE CHANCE! 🍀

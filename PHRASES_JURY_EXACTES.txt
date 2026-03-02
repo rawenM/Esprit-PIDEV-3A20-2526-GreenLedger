@@ -1,0 +1,253 @@
+═══════════════════════════════════════════════════════════════
+🎤 PHRASES EXACTES POUR LE JURY - GREENLEDGER
+═══════════════════════════════════════════════════════════════
+
+📌 OUVERTURE (10 secondes)
+═══════════════════════════════════════════════════════════════
+"Bonjour, je vais vous présenter GreenLedger, une plateforme de 
+financement participatif pour l'énergie verte. Je vais me concentrer 
+sur la gestion utilisateur qui intègre 5 APIs modernes et un système 
+de détection de fraude par intelligence artificielle."
+
+
+📌 CONNEXION - reCAPTCHA (30 secondes)
+═══════════════════════════════════════════════════════════════
+[Action: Montrer la page de connexion]
+
+"La première couche de sécurité est Google reCAPTCHA v2. C'est la 
+même technologie utilisée par Google, Facebook et les grandes 
+plateformes pour bloquer les bots et les attaques automatisées."
+
+[Action: Cocher "Je ne suis pas un robot" et se connecter]
+
+
+📌 DASHBOARD (45 secondes)
+═══════════════════════════════════════════════════════════════
+[Action: Montrer le dashboard admin]
+
+"Le dashboard affiche les statistiques en temps réel depuis MySQL. 
+On voit ici le nombre total d'utilisateurs, les actifs, ceux en 
+attente de validation, et les bloqués."
+
+[Action: Pointer les statistiques de fraude]
+
+"Et ici, les statistiques de fraude: utilisateurs détectés comme 
+frauduleux, utilisateurs sûrs, et ceux à examiner. Ces données 
+viennent du système d'IA que je vais vous montrer maintenant."
+
+
+📌 DÉTECTION DE FRAUDE IA ⭐ (90 secondes) - LE PLUS IMPORTANT
+═══════════════════════════════════════════════════════════════
+[Action: Cliquer sur le bouton 📊 "Détails" d'un utilisateur]
+
+"Voici le point fort de ma gestion utilisateur: la détection de 
+fraude par intelligence artificielle."
+
+[Action: Montrer la popup]
+
+"Le système analyse automatiquement 10 indicateurs lors de chaque 
+inscription:
+- Emails jetables comme temp-mail ou guerrilla mail
+- Utilisation de VPN ou proxy pour masquer l'identité
+- Patterns suspects dans les données
+- Vitesse de saisie anormale
+- Adresses IP à risque
+- Et 5 autres indicateurs"
+
+[Action: Pointer le score]
+
+"Chaque indicateur a un poids, et le système calcule un score de 
+risque sur 100. Ici, on voit un score de [X]/100 avec un niveau 
+[Élevé/Critique]."
+
+[Action: Pointer les indicateurs détectés]
+
+"On peut voir exactement quels indicateurs ont été détectés. Par 
+exemple: email jetable détecté, utilisation de VPN, etc."
+
+[Action: Pointer la recommandation]
+
+"Et le système donne automatiquement une recommandation: bloquer 
+le compte, demander une vérification supplémentaire, ou accepter 
+l'utilisateur. Tout ça sans intervention manuelle."
+
+
+📌 STATISTIQUES CHART.JS (60 secondes)
+═══════════════════════════════════════════════════════════════
+[Action: Cliquer sur "📊 Statistiques" dans le menu]
+
+"Pour la visualisation des données, j'ai intégré Chart.js avec 
+4 graphiques interactifs."
+
+[Action: Montrer les graphiques]
+
+"Le premier montre la répartition par statut, le deuxième par type 
+d'utilisateur. En bas, l'évolution des inscriptions sur 6 mois, et 
+la distribution des scores de fraude."
+
+[Action: Passer la souris sur un graphique]
+
+"Les graphiques sont entièrement interactifs. Les données sont 
+générées dynamiquement depuis MySQL en temps réel."
+
+
+📌 RÉINITIALISATION MOT DE PASSE (90 secondes)
+═══════════════════════════════════════════════════════════════
+[Action: Se déconnecter et cliquer "Mot de passe oublié"]
+
+"Pour la réinitialisation de mot de passe, j'ai implémenté un 
+système moderne avec code à 6 chiffres, comme Google, Facebook 
+et WhatsApp."
+
+[Action: Entrer un email et cliquer "Envoyer le code"]
+
+"L'utilisateur entre son email, et le système envoie un code à 
+6 chiffres par Gmail API avec OAuth2."
+
+[Action: Montrer l'email reçu]
+
+"Voici l'email reçu avec le code. Pas de lien cliquable, juste 
+le code à entrer manuellement. C'est plus sécurisé."
+
+[Action: Entrer le code]
+
+"Le code est généré avec SecureRandom, qui est cryptographiquement 
+sûr. Il expire après 10 minutes, et on peut voir le compte à rebours 
+ici."
+
+[Action: Changer le mot de passe]
+
+"Une fois le code validé, l'utilisateur peut changer son mot de 
+passe avec validation forte: minimum 8 caractères, une majuscule, 
+un chiffre."
+
+
+📌 GMAIL API (20 secondes)
+═══════════════════════════════════════════════════════════════
+"Pour l'envoi d'emails, j'utilise Gmail API avec OAuth2, pas de 
+SMTP basique. C'est beaucoup plus sécurisé car il n'y a pas de 
+mot de passe en clair dans le code. C'est la même méthode utilisée 
+par les applications professionnelles."
+
+
+📌 GESTION UTILISATEURS (30 secondes)
+═══════════════════════════════════════════════════════════════
+[Action: Retourner au dashboard]
+
+"L'interface admin permet de gérer tous les utilisateurs avec des 
+filtres par statut, par type, et une recherche par nom ou email."
+
+[Action: Montrer les boutons d'action]
+
+"Les actions disponibles: valider un compte, bloquer un utilisateur, 
+supprimer, et voir les détails de fraude."
+
+
+📌 CONCLUSION (20 secondes)
+═══════════════════════════════════════════════════════════════
+"En résumé, ma gestion utilisateur combine:
+- Sécurité moderne avec OAuth2 et reCAPTCHA
+- Intelligence artificielle pour la détection de fraude
+- Visualisation professionnelle avec Chart.js
+- Expérience utilisateur fluide comme les grandes plateformes
+- Le tout avec une architecture MVC propre et 5 APIs intégrées."
+
+
+═══════════════════════════════════════════════════════════════
+🎯 RÉPONSES AUX QUESTIONS FRÉQUENTES
+═══════════════════════════════════════════════════════════════
+
+Q: "Pourquoi Gmail API et pas SMTP?"
+───────────────────────────────────────────────────────────────
+"Gmail API utilise OAuth2, ce qui est beaucoup plus sécurisé que 
+SMTP qui nécessite un mot de passe en clair dans le code. De plus, 
+Gmail API offre de meilleures garanties de délivrabilité et est 
+utilisé par les applications professionnelles. C'est la méthode 
+recommandée par Google."
+
+
+Q: "Comment fonctionne exactement la détection de fraude?"
+───────────────────────────────────────────────────────────────
+"Le système analyse 10 indicateurs en temps réel lors de chaque 
+inscription. Chaque indicateur a un poids spécifique. Par exemple:
+- Email jetable: +30 points
+- VPN détecté: +25 points
+- Pattern suspect: +20 points
+
+Le score final détermine le niveau de risque. Si le score dépasse 
+75, le système recommande de bloquer. Entre 50 et 75, une vérification 
+manuelle. En dessous de 50, l'utilisateur est considéré comme sûr. 
+Tout ça est automatique et ne nécessite aucune intervention manuelle."
+
+
+Q: "Pourquoi Chart.js?"
+───────────────────────────────────────────────────────────────
+"Chart.js est léger, gratuit, open-source, et offre des graphiques 
+interactifs professionnels. Il est utilisé par des millions de sites 
+web et s'intègre facilement avec JavaFX via WebView. Les alternatives 
+comme D3.js sont plus complexes, et les bibliothèques Java natives 
+sont moins modernes visuellement."
+
+
+Q: "Le code à 6 chiffres est-il vraiment sécurisé?"
+───────────────────────────────────────────────────────────────
+"Oui, pour plusieurs raisons:
+1. Généré avec SecureRandom qui est cryptographiquement sûr
+2. Expire après 10 minutes seulement
+3. Stocké uniquement en mémoire, jamais en base de données
+4. Un seul essai possible avant expiration
+5. C'est le même système utilisé par Google, Facebook, et WhatsApp
+
+Avec 1 million de combinaisons possibles (000000 à 999999) et 
+10 minutes d'expiration, c'est statistiquement très sécurisé."
+
+
+Q: "Combien de temps pour développer tout ça?"
+───────────────────────────────────────────────────────────────
+"[Adaptez selon votre situation]
+J'ai travaillé sur ce projet pendant [X semaines/mois]. La partie 
+la plus complexe était l'intégration de la détection de fraude et 
+Gmail API avec OAuth2. Chart.js était relativement rapide à intégrer."
+
+
+Q: "Quelles sont les technologies utilisées?"
+───────────────────────────────────────────────────────────────
+"Frontend: JavaFX avec FXML pour l'interface
+Backend: Java 17 avec architecture MVC
+Base de données: MySQL avec JDBC
+APIs: Gmail API, Google reCAPTCHA, Chart.js
+Sécurité: Bcrypt pour les mots de passe, OAuth2 pour Gmail
+Outils: Maven pour la gestion des dépendances"
+
+
+Q: "Pourquoi JavaFX et pas une application web?"
+───────────────────────────────────────────────────────────────
+"JavaFX offre plusieurs avantages pour ce projet:
+1. Performance native (pas de navigateur requis)
+2. Intégration facile avec MySQL
+3. Sécurité: pas d'exposition directe sur internet
+4. WebView permet d'intégrer Chart.js et reCAPTCHA
+5. Expérience utilisateur fluide et réactive
+
+Pour une plateforme financière, la sécurité d'une application 
+desktop est un avantage."
+
+
+═══════════════════════════════════════════════════════════════
+💡 CONSEILS FINAUX
+═══════════════════════════════════════════════════════════════
+
+✅ Parlez avec confiance et clarté
+✅ Montrez l'interactivité (hover, clics)
+✅ Insistez sur la détection de fraude (c'est unique)
+✅ Mentionnez la sécurité à chaque étape
+✅ Regardez le jury, pas seulement l'écran
+
+❌ Ne dites pas "c'est simple" ou "c'est basique"
+❌ Ne vous excusez pas pour les bugs potentiels
+❌ Ne parlez pas trop vite
+❌ Ne lisez pas vos notes mot à mot
+
+═══════════════════════════════════════════════════════════════
+🚀 VOUS ÊTES PRÊT! BONNE CHANCE!
+═══════════════════════════════════════════════════════════════
