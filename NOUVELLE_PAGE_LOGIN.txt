@@ -1,0 +1,41 @@
+✅ NOUVELLE PAGE DE LOGIN ACTIVÉE
+
+CHANGEMENT:
+-----------
+L'application utilise maintenant la page de login avec
+3 choix de CAPTCHA (reCAPTCHA par défaut).
+
+AVANT:
+------
+Page simple → Équation mathématique uniquement
+"Combien fait 3 + 1 ?"
+
+APRÈS:
+------
+Page avec choix → reCAPTCHA sélectionné par défaut
+"☑ Je ne suis pas un robot"
+
+FICHIER MODIFIÉ:
+----------------
+src/main/java/org/GreenLedger/MainFX.java
+- Ligne 35: login.fxml → login_with_captcha_choice.fxml
+
+TESTER:
+-------
+1. Fermez l'application
+2. Lancez: run.bat
+3. Vérifiez: reCAPTCHA visible par défaut
+
+OPTIONS:
+--------
+○ Équation (simple)
+⦿ reCAPTCHA (professionnel) ← PAR DÉFAUT
+○ Puzzle (interactif)
+
+RÉSULTAT:
+---------
+Interface plus professionnelle avec le Google reCAPTCHA
+reconnu mondialement!
+
+✅ Compilation réussie
+✅ Prêt à utiliser

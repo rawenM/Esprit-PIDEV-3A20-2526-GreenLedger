@@ -29,6 +29,16 @@ public class UnifiedEmailService {
     }
 
     /**
+     * Envoie un email générique avec sujet et contenu HTML personnalisés
+     */
+    public boolean sendEmail(String toEmail, String subject, String htmlContent) {
+        if (useGmailApi) {
+            return gmailService.sendEmail(toEmail, subject, htmlContent);
+        }
+        return smtpService.sendCustomEmail(toEmail, subject, htmlContent);
+    }
+
+    /**
      * Envoie un email de bienvenue
      */
     public boolean sendWelcomeEmail(String toEmail, String fullName) {

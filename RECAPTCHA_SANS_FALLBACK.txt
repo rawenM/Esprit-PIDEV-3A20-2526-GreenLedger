@@ -1,0 +1,59 @@
+✅ reCAPTCHA SANS FALLBACK AUTOMATIQUE
+
+MODIFICATION APPLIQUÉE:
+-----------------------
+Le LoginController ne bascule plus automatiquement vers
+l'équation mathématique après 5 secondes.
+
+AVANT:
+------
+- reCAPTCHA essaie de se charger
+- Après 5 secondes → bascule automatiquement vers équation
+- Résultat: Vous voyez toujours l'équation
+
+APRÈS:
+------
+- reCAPTCHA essaie de se charger
+- Attend indéfiniment (pas de bascule automatique)
+- Bouton "Utiliser captcha simple" apparaît après 10 secondes
+- L'utilisateur choisit s'il veut le fallback
+
+FICHIER MODIFIÉ:
+----------------
+✅ src/main/java/Controllers/LoginController.java
+✅ Compilé avec succès
+
+TESTER MAINTENANT:
+------------------
+1. Lancez: run.bat
+2. Attendez que la page se charge
+3. Le reCAPTCHA devrait apparaître (WebView)
+
+SI LE reCAPTCHA NE S'AFFICHE PAS:
+---------------------------------
+Cela signifie que le serveur HTTP local (CaptchaHttpServer)
+ne démarre pas correctement. Causes possibles:
+
+1. Port 8080 déjà utilisé
+2. Problème de démarrage du serveur
+3. Clés reCAPTCHA invalides
+
+VÉRIFIER LES LOGS:
+------------------
+Regardez dans la console au démarrage:
+- "[CLEAN] reCAPTCHA configured with site key..."
+- "[CLEAN] Loaded captcha from local server..."
+- "[CLEAN] WebView state: SUCCEEDED"
+
+Si vous voyez des erreurs, le reCAPTCHA ne peut pas se charger.
+
+SOLUTION ALTERNATIVE:
+---------------------
+Si le reCAPTCHA ne fonctionne toujours pas, vous pouvez:
+1. Cliquer sur "Utiliser captcha simple" (après 10 secondes)
+2. Ou cliquer sur "Bypass (temp)" pour ignorer le CAPTCHA
+
+RÉSULTAT ATTENDU:
+-----------------
+Le reCAPTCHA Google devrait maintenant rester visible
+au lieu de basculer automatiquement vers l'équation.

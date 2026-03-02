@@ -1,0 +1,49 @@
+═══════════════════════════════════════════════════════════════
+  ✅ GOOGLE reCAPTCHA ACTIVÉ PAR DÉFAUT
+═══════════════════════════════════════════════════════════════
+
+MODIFICATIONS TERMINÉES:
+-------------------------
+✅ reCAPTCHA sélectionné par défaut
+✅ FXML mis à jour
+✅ Contrôleur Java modifié
+
+AVANT:
+------
+┌─────────────────────────────┐
+│ ⦿ Équation                  │
+│ Combien fait 5 + 3 ?        │
+│ [_____]                     │
+└─────────────────────────────┘
+
+APRÈS:
+------
+┌─────────────────────────────┐
+│ ⦿ reCAPTCHA                 │
+│ ☑ Je ne suis pas un robot   │
+│                             │
+└─────────────────────────────┘
+
+TESTER MAINTENANT:
+------------------
+1. Fermez l'application si elle est ouverte
+2. Lancez: run.bat
+3. Vérifiez: reCAPTCHA doit être sélectionné
+4. Cochez "Je ne suis pas un robot"
+5. Connectez-vous
+
+OPTIONS DISPONIBLES:
+--------------------
+L'utilisateur peut toujours choisir:
+- Équation (simple)
+- reCAPTCHA (professionnel) ← PAR DÉFAUT
+- Puzzle (interactif)
+
+AVANTAGES:
+----------
+✅ Interface reconnue mondialement
+✅ Plus professionnel
+✅ Meilleure sécurité anti-bot
+✅ Maintenu par Google
+
+═══════════════════════════════════════════════════════════════

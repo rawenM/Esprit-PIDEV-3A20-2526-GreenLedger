@@ -1,0 +1,36 @@
+✅ reCAPTCHA PAR DÉFAUT - INSTRUCTIONS
+
+SITUATION:
+----------
+Le fichier FXML a été mis à jour avec reCAPTCHA par défaut.
+Le contrôleur Java a été modifié mais pas encore recompilé.
+
+SOLUTION SIMPLE:
+----------------
+1. Fermez l'application complètement
+2. Lancez: run.bat
+3. Sur la page de login, SÉLECTIONNEZ MANUELLEMENT "reCAPTCHA"
+4. La case "Je ne suis pas un robot" apparaîtra
+
+POURQUOI MANUEL?
+----------------
+Le contrôleur Java nécessite une recompilation complète du projet
+avec toutes les dépendances. Pour l'instant, sélectionnez
+manuellement reCAPTCHA.
+
+ALTERNATIVE:
+------------
+Si vous voulez que reCAPTCHA soit automatiquement sélectionné,
+vous devez recompiler le projet complet avec Maven:
+
+mvn clean compile
+
+Ou utilisez votre IDE (IntelliJ, Eclipse, etc.) pour recompiler.
+
+RÉSULTAT:
+---------
+Une fois reCAPTCHA sélectionné (manuellement ou automatiquement),
+vous verrez la case "Je ne suis pas un robot" au lieu de
+l'équation mathématique.
+
+C'est plus professionnel et reconnu par tous les utilisateurs!

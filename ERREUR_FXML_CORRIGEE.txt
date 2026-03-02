@@ -1,0 +1,55 @@
+✅ ERREUR FXML CORRIGÉE!
+
+PROBLÈME:
+---------
+Erreur à la ligne 71 du fichier login_with_captcha_choice.fxml:
+"Unable to coerce javafx.scene.control.ToggleGroup to class javafx.scene.Node"
+
+CAUSE:
+------
+Le ToggleGroup était mal placé dans le FXML. Il était un enfant
+direct du HBox, ce qui n'est pas permis en JavaFX.
+
+SOLUTION APPLIQUÉE:
+-------------------
+Le ToggleGroup a été déplacé à l'intérieur du premier RadioButton
+dans une balise <toggleGroup>.
+
+AVANT (INCORRECT):
+------------------
+<HBox>
+    <Label text="Méthode:"/>
+    <ToggleGroup fx:id="captchaMethodGroup"/>  ← ERREUR
+    <RadioButton text="Équation"/>
+    ...
+</HBox>
+
+APRÈS (CORRECT):
+----------------
+<HBox>
+    <Label text="Méthode:"/>
+    <RadioButton text="Équation">
+        <toggleGroup>
+            <ToggleGroup fx:id="captchaMethodGroup"/>  ← CORRECT
+        </toggleGroup>
+    </RadioButton>
+    ...
+</HBox>
+
+FICHIER CORRIGÉ:
+----------------
+✅ src/main/resources/fxml/login_with_captcha_choice.fxml
+✅ Copié dans target/classes/fxml/
+
+RELANCER MAINTENANT:
+--------------------
+run.bat
+
+RÉSULTAT ATTENDU:
+-----------------
+✅ Application démarre sans erreur
+✅ Page de login s'affiche
+✅ reCAPTCHA sélectionné par défaut
+✅ Case "Je ne suis pas un robot" visible
+
+TESTEZ MAINTENANT!

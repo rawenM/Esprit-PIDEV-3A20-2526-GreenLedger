@@ -1,0 +1,41 @@
+========================================
+✅ COMPILATION REUSSIE - LoginController
+========================================
+
+PROBLEME RESOLU:
+- Le LoginController affichait l'équation mathématique au lieu du reCAPTCHA
+- L'ancienne version compilée était encore en cours d'exécution
+
+SOLUTION APPLIQUEE:
+1. Supprimé les caractères spéciaux (✓ et ❌) qui causaient des erreurs d'encodage
+2. Créé un script de compilation correct avec --module-path pour JavaFX
+3. Compilé avec succès le LoginController mis à jour
+
+CHANGEMENTS DANS LE CODE:
+- Le WebView error "User data directory already in use" ne déclenche PLUS le fallback automatique
+- Le reCAPTCHA reste affiché même si cette erreur apparaît
+- L'utilisateur peut choisir manuellement le captcha simple avec le bouton "Utiliser captcha simple"
+- Timeout de 10 secondes avant d'afficher le bouton de fallback (au lieu de 5 secondes)
+
+PROCHAINE ETAPE:
+Lancez l'application avec:
+  ./run.bat
+
+RESULTAT ATTENDU:
+- Au démarrage, vous verrez le reCAPTCHA "Je ne suis pas un robot"
+- PAS d'équation mathématique automatique
+- Le reCAPTCHA devrait fonctionner même avec l'erreur "User data directory already in use"
+
+LOGS A SURVEILLER:
+[CLEAN] reCAPTCHA configured with site key: 6LdGL3ssAA...
+[CLEAN] Loading reCAPTCHA v2 from local server
+[CLEAN] WebView state: SUCCEEDED
+[CLEAN] reCAPTCHA WebView loaded and captchaBridge connected
+
+Si vous voyez ces logs, le reCAPTCHA est chargé correctement!
+
+FICHIERS MODIFIES:
+- src/main/java/Controllers/LoginController.java (recompilé)
+- compile-login-only.bat (créé pour compilation rapide)
+
+DATE: 2 mars 2026

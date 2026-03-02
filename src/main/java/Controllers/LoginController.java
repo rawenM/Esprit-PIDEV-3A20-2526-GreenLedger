@@ -98,23 +98,17 @@ public class LoginController {
             
             new Thread(() -> {
                 try {
-                    // Show fallback button after 3 seconds if token not received
-                    Thread.sleep(3000);
+                    // Show fallback button after 10 seconds if token not received
+                    Thread.sleep(10000);
                     javafx.application.Platform.runLater(() -> {
                         if (!captchaLoaded[0] && fallbackCaptchaBtn != null && !usingSimpleCaptcha) {
                             fallbackCaptchaBtn.setVisible(true);
-                            System.out.println("[CLEAN] Showing fallback captcha button after 3s");
+                            System.out.println("[CLEAN] Showing fallback captcha button after 10s");
                         }
                     });
                     
-                    // Auto-switch to simple captcha after 5 seconds total
-                    Thread.sleep(2000);
-                    if (!captchaLoaded[0]) {
-                        javafx.application.Platform.runLater(() -> {
-                            System.out.println("[CLEAN] reCAPTCHA timeout - Using simple math captcha fallback");
-                            showSimpleCaptcha();
-                        });
-                    }
+                    // NE PAS basculer automatiquement - laisser l'utilisateur choisir
+                    // L'utilisateur peut cliquer sur "Utiliser captcha simple" s'il le souhaite
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
@@ -122,9 +116,9 @@ public class LoginController {
             
             engine.setOnError(event -> {
                 System.err.println("[CLEAN] WebView error: " + event.getMessage());
-                if (!captchaLoaded[0]) {
-                    showSimpleCaptcha();
-                }
+                // NE PAS basculer automatiquement vers le fallback
+                // L'erreur "User data directory already in use" est normale
+                // Le reCAPTCHA peut quand même fonctionner
             });
             
             engine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
@@ -264,7 +258,7 @@ public class LoginController {
     private class CaptchaBridge {
         public void onCaptchaSuccess(String token) {
             captchaToken = token;
-            System.out.println("[CLEAN] ✓ reCAPTCHA token received (length: " + (token != null ? token.length() : 0) + ")");
+            System.out.println("[CLEAN] reCAPTCHA token received (length: " + (token != null ? token.length() : 0) + ")");
             // Hide fallback button since reCAPTCHA is working
             javafx.application.Platform.runLater(() -> {
                 if (fallbackCaptchaBtn != null) {
@@ -275,7 +269,7 @@ public class LoginController {
         }
         
         public void onCaptchaFailed(String reason) {
-            System.err.println("[CLEAN] ❌ reCAPTCHA failed: " + reason);
+            System.err.println("[CLEAN] reCAPTCHA failed: " + reason);
             javafx.application.Platform.runLater(() -> {
                 showSimpleCaptcha();
             });
@@ -425,56 +419,22 @@ public class LoginController {
 
     @FXML
     private void handleForgotPassword(ActionEvent event) {
-        // Boîte de dialogue pour entrer l'email ou le téléphone
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Mot de passe oublié");
-        dialog.setHeaderText("Réinitialisation du mot de passe");
-        dialog.setContentText("Entrez votre email ou numéro de téléphone:");
+        try {
+            // Charger la nouvelle page de réinitialisation avec code à 6 chiffres
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/forgot_password.fxml"));
+            Parent root = loader.load();
 
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(input -> {
-            String trimmed = input == null ? "" : input.trim();
-            if (trimmed.isEmpty()) {
-                showError("Veuillez entrer un email ou un numéro de téléphone");
-                return;
-            }
-
-            String token = userService.initiatePasswordReset(trimmed);
-            if (token != null) {
-                // Afficher une alerte informative contenant le token (utile en local/dev) et option d'ouvrir le formulaire de reset
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Réinitialisation envoyée");
-                alert.setHeaderText(null);
-                String body = "Si cet email/numéro existe, vous recevrez les instructions pour réinitialiser votre mot de passe.\n" +
-                        "(En test local, le token est affiché ci-dessous)\n\nToken: " + token;
-                alert.setContentText(body);
-                ButtonType openReset = new ButtonType("Ouvrir formulaire de reset", ButtonBar.ButtonData.OTHER);
-                alert.getButtonTypes().add(openReset);
-                Optional<ButtonType> choice = alert.showAndWait();
-                if (choice.isPresent() && choice.get() == openReset) {
-                    try {
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/reset_password.fxml"));
-                        Parent root = loader.load();
-                        // Passer le token au contrôleur pour pré-remplir le champ
-                        Controllers.ResetPasswordController controller = loader.getController();
-                        if (controller != null) {
-                            controller.setToken(token);
-                        }
-                        Stage modal = new Stage();
-                        modal.setTitle("Réinitialisation du mot de passe");
-                        modal.initOwner(((Node) event.getSource()).getScene().getWindow());
-                        modal.setScene(new Scene(root));
-                        modal.setResizable(false);
-                        modal.showAndWait();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                showError("Aucun utilisateur trouvé pour cet email/numéro");
-            }
-        });
+            Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            stage.setTitle("Mot de passe oublié");
+            stage.show();
+        } catch (IOException e) {
+            showError("Erreur lors du chargement de la page: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
+
 
     @FXML
     private void handleRegister(ActionEvent event) {

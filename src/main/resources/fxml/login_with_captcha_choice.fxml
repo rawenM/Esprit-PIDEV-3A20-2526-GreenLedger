@@ -68,12 +68,14 @@
                     <!-- Choix de la méthode CAPTCHA -->
                     <HBox spacing="10" alignment="CENTER_LEFT">
                         <Label text="Méthode:" style="-fx-font-size: 12px;"/>
-                        <ToggleGroup fx:id="captchaMethodGroup"/>
-                        <RadioButton fx:id="mathCaptchaRadio" text="Équation" 
-                                     toggleGroup="$captchaMethodGroup" selected="true"
-                                     onAction="#switchCaptchaMethod"/>
+                        <RadioButton fx:id="mathCaptchaRadio" text="Équation"
+                                     onAction="#switchCaptchaMethod">
+                            <toggleGroup>
+                                <ToggleGroup fx:id="captchaMethodGroup"/>
+                            </toggleGroup>
+                        </RadioButton>
                         <RadioButton fx:id="recaptchaRadio" text="reCAPTCHA" 
-                                     toggleGroup="$captchaMethodGroup"
+                                     toggleGroup="$captchaMethodGroup" selected="true"
                                      onAction="#switchCaptchaMethod"/>
                         <RadioButton fx:id="puzzleCaptchaRadio" text="Puzzle" 
                                      toggleGroup="$captchaMethodGroup"

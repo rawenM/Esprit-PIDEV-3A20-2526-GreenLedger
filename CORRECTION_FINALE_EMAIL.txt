@@ -1,0 +1,45 @@
+═══════════════════════════════════════════════════════════════
+  CORRECTION: Email avec LIEN au lieu de CODE
+═══════════════════════════════════════════════════════════════
+
+PROBLÈME:
+---------
+Vous avez reçu un email avec un LIEN "Réinitialiser mon mot de passe"
+au lieu d'un CODE à 6 chiffres.
+
+CAUSE:
+------
+Il y avait 2 systèmes de réinitialisation dans le code:
+- Ancien système: Email avec lien (celui que vous avez reçu)
+- Nouveau système: Email avec code à 6 chiffres (celui que vous voulez)
+
+SOLUTION APPLIQUÉE:
+-------------------
+✅ LoginController.java modifié pour utiliser le nouveau système
+✅ Maintenant utilise forgot_password.fxml (code à 6 chiffres)
+✅ Plus d'email avec lien
+
+COMMENT TESTER:
+---------------
+1. Exécutez: recompile-login.bat
+2. Lancez: run.bat
+3. Cliquez sur "Mot de passe oublié ?"
+4. Entrez votre email
+5. Vérifiez l'email reçu
+
+RÉSULTAT ATTENDU:
+-----------------
+L'email doit contenir:
+  ┌─────────────────┐
+  │   123456        │  ← CODE à 6 chiffres
+  └─────────────────┘
+
+PAS de bouton "Réinitialiser mon mot de passe"
+PAS de lien cliquable
+
+COMMANDES RAPIDES:
+------------------
+recompile-login.bat    → Nettoyer et recompiler
+run.bat                → Lancer l'application
+
+═══════════════════════════════════════════════════════════════

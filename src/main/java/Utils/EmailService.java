@@ -88,6 +88,13 @@ public class EmailService {
         StatusEmail statusEmail = buildStatusEmail(fullName, status);
         return sendEmail(to, statusEmail.subject, statusEmail.htmlBody, true);
     }
+    /**
+     * Envoie un email personnalisé avec sujet et contenu HTML
+     */
+    public boolean sendCustomEmail(String to, String subject, String htmlContent) {
+        return sendEmail(to, subject, htmlContent, true);
+    }
+
 
     private boolean sendEmail(String to, String subject, String body, boolean isHtml) {
         if (!configured) {
