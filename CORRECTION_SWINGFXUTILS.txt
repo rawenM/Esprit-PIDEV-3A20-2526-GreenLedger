@@ -1,0 +1,69 @@
+═══════════════════════════════════════════════════════════
+  ✅ CORRECTION: ClassNotFoundException SwingFXUtils
+═══════════════════════════════════════════════════════════
+
+🎯 ERREUR
+
+java.lang.ClassNotFoundException: javafx.embed.swing.SwingFXUtils
+
+═══════════════════════════════════════════════════════════
+
+🔍 CAUSE
+
+Le module javafx.swing n'est pas disponible dans votre 
+configuration JavaFX. SwingFXUtils est utilisé pour convertir 
+BufferedImage (AWT) en Image (JavaFX).
+
+═══════════════════════════════════════════════════════════
+
+✅ SOLUTION APPLIQUÉE
+
+Modification de PuzzleCaptchaService.base64ToImage():
+
+AVANT:
+```java
+byte[] bytes = Base64.getDecoder().decode(base64);
+ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+BufferedImage bufferedImage = ImageIO.read(bais);
+return SwingFXUtils.toFXImage(bufferedImage, null);
+```
+
+APRÈS:
+```java
+byte[] bytes = Base64.getDecoder().decode(base64);
+ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
+return new Image(bais);
+```
+
+✅ Suppression de l'import javafx.embed.swing.SwingFXUtils
+
+═══════════════════════════════════════════════════════════
+
+📁 FICHIER MODIFIÉ
+
+✅ src/main/java/Utils/PuzzleCaptchaService.java
+   → Méthode base64ToImage() simplifiée
+   → Import SwingFXUtils supprimé
+   → Conversion directe Base64 → JavaFX Image
+
+═══════════════════════════════════════════════════════════
+
+🚀 POUR TESTER
+
+1. Compiler avec votre IDE (Build Project)
+
+2. Lancer l'application
+
+3. Cliquer "🧩 Captcha Puzzle"
+
+4. Vérifier:
+   ✅ Pas d'erreur ClassNotFoundException
+   ✅ Image de fond s'affiche
+   ✅ Pièce du puzzle s'affiche
+   ✅ Slider déplace la pièce
+
+═══════════════════════════════════════════════════════════
+
+✅ COMPILEZ ET TESTEZ MAINTENANT!
+
+═══════════════════════════════════════════════════════════

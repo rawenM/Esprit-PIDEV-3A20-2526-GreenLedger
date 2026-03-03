@@ -1,6 +1,5 @@
 package Utils;
 
-import javafx.embed.swing.SwingFXUtils;
 import javafx.scene.image.Image;
 
 import javax.imageio.ImageIO;
@@ -258,10 +257,10 @@ public class PuzzleCaptchaService {
         try {
             byte[] bytes = Base64.getDecoder().decode(base64);
             ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
-            BufferedImage bufferedImage = ImageIO.read(bais);
-            return SwingFXUtils.toFXImage(bufferedImage, null);
+            return new Image(bais);
         } catch (Exception e) {
             System.err.println("[PuzzleCaptcha] Erreur conversion Base64 -> Image: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }

@@ -5,6 +5,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.web.WebView?>
+<?import javafx.scene.image.ImageView?>
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -12,12 +13,14 @@
             prefHeight="750" prefWidth="850"
             styleClass="page">
 
-    <!-- CENTRE: Formulaire de connexion -->
+    <!-- CENTRE: Formulaire de connexion avec ScrollPane -->
     <center>
-        <VBox alignment="CENTER" spacing="20" styleClass="content-area">
-            <padding>
-                <Insets top="50" right="50" bottom="50" left="50"/>
-            </padding>
+        <ScrollPane fitToWidth="true" fitToHeight="true" 
+                    style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox alignment="CENTER" spacing="20" styleClass="content-area">
+                <padding>
+                    <Insets top="50" right="50" bottom="50" left="50"/>
+                </padding>
 
             <!-- Card de connexion -->
             <VBox spacing="20" styleClass="card" maxWidth="450" minWidth="420">
@@ -55,18 +58,83 @@
                 <!-- Se souvenir de moi -->
                 <CheckBox fx:id="rememberMeCheckbox" text="Se souvenir de moi"/>
 
-                <!-- Captcha -->
-                <VBox spacing="5" fx:id="captchaContainer">
-                    <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Vérification de sécurité" styleClass="form-label"/>
-                        <Button fx:id="fallbackCaptchaBtn" text="Utiliser captcha simple" visible="false" 
-                                style="-fx-font-size: 10px; -fx-padding: 2 8 2 8;" onAction="#useFallbackCaptcha"/>
+                <!-- Choix de méthode de vérification -->
+                <VBox spacing="10">
+                    <Label text="Méthode de vérification" styleClass="form-label"/>
+                    
+                    <!-- Boutons de choix -->
+                    <HBox spacing="15" alignment="CENTER">
+                        <Button fx:id="recaptchaChoiceBtn" 
+                                text="🔒 Google reCAPTCHA" 
+                                onAction="#chooseRecaptcha"
+                                prefWidth="180" prefHeight="40"
+                                style="-fx-background-color: #4285F4; -fx-text-fill: white; -fx-font-size: 12px; -fx-background-radius: 5;"/>
+                        <Button fx:id="puzzleChoiceBtn" 
+                                text="🧩 Captcha Puzzle" 
+                                onAction="#choosePuzzle"
+                                prefWidth="180" prefHeight="40"
+                                style="-fx-background-color: #34A853; -fx-text-fill: white; -fx-font-size: 12px; -fx-background-radius: 5;"/>
                     </HBox>
-                    <WebView fx:id="captchaWebView" prefHeight="120" minHeight="120" maxHeight="300" prefWidth="380" maxWidth="400"/>
-                    <HBox spacing="10" alignment="CENTER_LEFT" fx:id="simpleCaptchaBox" visible="false" managed="false">
-                        <Label fx:id="captchaQuestion" styleClass="form-label"/>
-                        <TextField fx:id="captchaAnswer" promptText="Votre réponse" prefWidth="100" styleClass="field"/>
-                    </HBox>
+                </VBox>
+
+                <!-- Container pour les captchas -->
+                <VBox spacing="5" fx:id="captchaContainer" visible="false" managed="false">
+                    <!-- reCAPTCHA -->
+                    <VBox fx:id="recaptchaBox" spacing="5" visible="false" managed="false">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Google reCAPTCHA" styleClass="form-label"/>
+                            <Button fx:id="bypassCaptchaBtn" text="Bypass (démo)" 
+                                    style="-fx-font-size: 10px; -fx-padding: 2 8 2 8;" 
+                                    onAction="#bypassCaptcha"/>
+                        </HBox>
+                        <WebView fx:id="captchaWebView" prefHeight="120" minHeight="120" maxHeight="300" prefWidth="380" maxWidth="400"/>
+                    </VBox>
+                    
+                    <!-- Puzzle Captcha -->
+                    <VBox fx:id="puzzleBox" spacing="5" visible="false" managed="false">
+                        <Label text="Captcha Puzzle" styleClass="form-label"/>
+                        <Label text="Glissez la pièce pour compléter l'image" 
+                               style="-fx-font-size: 11px; -fx-text-fill: #666;"/>
+                        
+                        <!-- Image de fond avec le trou -->
+                        <StackPane fx:id="puzzleBackgroundPane" 
+                                   style="-fx-border-color: #ccc; -fx-border-width: 1;">
+                            <ImageView fx:id="puzzleBackgroundImage" 
+                                       fitWidth="300" fitHeight="150" 
+                                       preserveRatio="false"/>
+                        </StackPane>
+                        
+                        <!-- Slider pour déplacer la pièce -->
+                        <HBox spacing="10" alignment="CENTER">
+                            <Label text="Position:" style="-fx-font-size: 11px;"/>
+                            <Slider fx:id="puzzleSlider" min="0" max="250" 
+                                    value="0" prefWidth="200" 
+                                    showTickMarks="false" showTickLabels="false"/>
+                            <Button text="Vérifier" onAction="#verifyPuzzle" 
+                                    styleClass="btn-primary" 
+                                    style="-fx-font-size: 11px; -fx-padding: 5 15 5 15;"/>
+                        </HBox>
+                        
+                        <!-- Pièce du puzzle (se déplace avec le slider) -->
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Pièce:" style="-fx-font-size: 11px;"/>
+                            <StackPane fx:id="puzzlePiecePane">
+                                <ImageView fx:id="puzzlePieceImage" 
+                                           fitWidth="70" fitHeight="70" 
+                                           preserveRatio="true"/>
+                            </StackPane>
+                        </HBox>
+                        
+                        <!-- Bouton pour régénérer -->
+                        <Button fx:id="regeneratePuzzleBtn" text="🔄 Nouveau puzzle" 
+                                onAction="#regeneratePuzzle"
+                                style="-fx-font-size: 10px; -fx-padding: 3 10 3 10;"/>
+                        
+                        <!-- Message de résultat -->
+                        <Label fx:id="puzzleResultLabel" 
+                               style="-fx-font-size: 11px;" 
+                               visible="false"/>
+                    </VBox>
                 </VBox>
 
                 <!-- Bouton de connexion -->
@@ -88,7 +156,8 @@
                                onAction="#handleRegister"/>
                 </HBox>
             </VBox>
-        </VBox>
+            </VBox>
+        </ScrollPane>
     </center>
 
     <!-- BOTTOM: Footer -->

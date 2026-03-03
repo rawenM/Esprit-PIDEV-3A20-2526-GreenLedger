@@ -1,0 +1,93 @@
+═══════════════════════════════════════════════════════════
+  TESTER LA PAGE DE LOGIN AVEC 2 CHOIX DE CAPTCHA
+═══════════════════════════════════════════════════════════
+
+📋 ÉTAPES DE TEST
+
+1. COMPILER
+   ─────────
+   ./compile-login-2-choix.bat
+   
+   ✅ Vérifier: "COMPILATION TERMINEE AVEC SUCCES"
+
+2. LANCER L'APPLICATION
+   ────────────────────
+   ./run.bat
+   
+   ✅ Vérifier: Application démarre sans erreur
+
+3. TESTER GOOGLE reCAPTCHA
+   ────────────────────────
+   a) Entrer email: admin@plateforme.com
+   b) Entrer mot de passe: admin123
+   c) Cliquer sur: "🔒 Google reCAPTCHA"
+   d) Attendre le chargement du captcha
+   e) Si lent → cliquer "Bypass (démo)"
+   f) Cliquer "Se connecter"
+   
+   ✅ Vérifier: Connexion réussie
+
+4. TESTER CAPTCHA PUZZLE
+   ──────────────────────
+   a) Se déconnecter
+   b) Entrer email: admin@plateforme.com
+   c) Entrer mot de passe: admin123
+   d) Cliquer sur: "🧩 Captcha Puzzle"
+   e) Déplacer le slider pour positionner la pièce
+   f) Cliquer "Vérifier"
+   g) Si correct → cliquer "Se connecter"
+   
+   ✅ Vérifier: Connexion réussie
+
+5. TESTER SANS CAPTCHA
+   ────────────────────
+   a) Se déconnecter
+   b) Entrer email et mot de passe
+   c) NE PAS choisir de captcha
+   d) Cliquer "Se connecter"
+   
+   ✅ Vérifier: Message "Veuillez choisir une methode de verification"
+
+═══════════════════════════════════════════════════════════
+
+🎯 RÉSULTAT ATTENDU
+
+┌─────────────────────────────────────────────────────────┐
+│                      Connexion                          │
+│                                                         │
+│  Email: [admin@plateforme.com]                          │
+│  Mot de passe: [••••••••]                               │
+│                                                         │
+│  Méthode de vérification                                │
+│  ┌────────────────────┐  ┌────────────────────┐        │
+│  │  🔒 Google         │  │  🧩 Captcha        │        │
+│  │    reCAPTCHA       │  │     Puzzle         │        │
+│  └────────────────────┘  └────────────────────┘        │
+│                                                         │
+│  [Le captcha choisi s'affiche ici]                      │
+│                                                         │
+│  [Se connecter]                                         │
+└─────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════
+
+📝 NOTES IMPORTANTES
+
+✅ Les 2 méthodes fonctionnent indépendamment
+✅ L'utilisateur DOIT choisir une méthode avant de se connecter
+✅ Le bypass reCAPTCHA est visible uniquement pour démo
+✅ Le puzzle est rapide et ne nécessite pas d'API externe
+
+═══════════════════════════════════════════════════════════
+
+🎤 PRÉSENTATION JURY
+
+"Notre plateforme propose 2 méthodes de vérification CAPTCHA:
+
+1. Google reCAPTCHA - pour la sécurité maximale reconnue
+2. Captcha Puzzle - développé en interne pour une expérience 
+   utilisateur optimale sans dépendance externe
+
+L'utilisateur choisit la méthode qui lui convient le mieux."
+
+═══════════════════════════════════════════════════════════

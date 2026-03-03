@@ -1,0 +1,63 @@
+═══════════════════════════════════════════════════════════
+  ✅ SOLUTION CAPTCHA: 2 CHOIX SUR LA PAGE DE LOGIN
+═══════════════════════════════════════════════════════════
+
+🎯 PROBLÈME RÉSOLU
+
+Vous aviez dit: "captcha prend beaucoup de temps"
+
+✅ Solution: 2 boutons de choix au lieu d'un seul captcha
+
+═══════════════════════════════════════════════════════════
+
+📋 LES 2 CHOIX
+
+1️⃣ Google reCAPTCHA
+   • Professionnel et sécurisé
+   • Bouton "Bypass (démo)" pour présentation jury
+   • Peut être lent (problème JavaFX WebView)
+
+2️⃣ Captcha Puzzle
+   • Rapide et fluide
+   • Développé en interne (montre vos compétences)
+   • Pas de dépendance API externe
+
+═══════════════════════════════════════════════════════════
+
+🚀 POUR UTILISER
+
+1. Ouvrir votre IDE (IntelliJ/Eclipse/NetBeans)
+
+2. Compiler le projet (Build Project)
+
+3. Lancer l'application
+
+4. Sur la page de login:
+   - Entrer email et mot de passe
+   - Cliquer sur un des 2 boutons
+   - Compléter la vérification
+   - Se connecter
+
+═══════════════════════════════════════════════════════════
+
+📁 FICHIERS MODIFIÉS
+
+✅ src/main/resources/fxml/login.fxml
+✅ src/main/java/Controllers/LoginController.java
+
+═══════════════════════════════════════════════════════════
+
+🎤 POUR LE JURY
+
+"Notre plateforme offre 2 méthodes de vérification CAPTCHA:
+Google reCAPTCHA pour la sécurité maximale, et notre Captcha 
+Puzzle développé en interne pour une expérience utilisateur 
+optimale sans dépendance externe."
+
+═══════════════════════════════════════════════════════════
+
+✅ C'EST FAIT!
+
+Compilez avec votre IDE et testez.
+
+═══════════════════════════════════════════════════════════

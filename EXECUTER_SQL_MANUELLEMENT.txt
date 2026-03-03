@@ -1,0 +1,147 @@
+═══════════════════════════════════════════════════════════
+  📋 EXÉCUTER LE SQL MANUELLEMENT
+═══════════════════════════════════════════════════════════
+
+❌ PROBLÈME
+
+'mysql' n'est pas reconnu en tant que commande
+
+✅ SOLUTION: Utiliser MySQL Workbench ou phpMyAdmin
+
+═══════════════════════════════════════════════════════════
+
+🔧 MÉTHODE 1: MySQL Workbench
+
+1. Ouvrir MySQL Workbench
+
+2. Se connecter à votre serveur MySQL
+
+3. Ouvrir le fichier:
+   generer_analyses_fraude_existantes.sql
+
+4. Cliquer sur l'icône ⚡ (Execute)
+
+5. Vérifier les résultats
+
+═══════════════════════════════════════════════════════════
+
+🔧 MÉTHODE 2: phpMyAdmin
+
+1. Ouvrir phpMyAdmin dans votre navigateur
+   (généralement: http://localhost/phpmyadmin)
+
+2. Sélectionner la base de données "greenledger"
+
+3. Cliquer sur l'onglet "SQL"
+
+4. Copier-coller le contenu du fichier:
+   generer_analyses_fraude_existantes.sql
+
+5. Cliquer sur "Exécuter"
+
+6. Vérifier les résultats
+
+═══════════════════════════════════════════════════════════
+
+🔧 MÉTHODE 3: Copier-Coller Direct
+
+Ouvrez le fichier generer_analyses_fraude_existantes.sql
+et copiez TOUT le contenu ci-dessous:
+
+═══════════════════════════════════════════════════════════
+
+USE greenledger;
+
+-- Insérer des analyses de fraude pour les utilisateurs sans analyse
+INSERT INTO fraud_detection (
+    user_id,
+    risk_score,
+    risk_level,
+    is_fraudulent,
+    recommendation,
+    analysis_details,
+    indicators,
+    analyzed_at
+)
+SELECT 
+    u.id,
+    CASE 
+        WHEN u.statut = 'BLOQUE' THEN 85.0
+        WHEN u.statut = 'SUSPENDU' THEN 65.0
+        ELSE 15.0
+    END AS risk_score,
+    CASE 
+        WHEN u.statut = 'BLOQUE' THEN 'HIGH'
+        WHEN u.statut = 'SUSPENDU' THEN 'MEDIUM'
+        ELSE 'LOW'
+    END AS risk_level,
+    CASE 
+        WHEN u.statut = 'BLOQUE' THEN TRUE
+        ELSE FALSE
+    END AS is_fraudulent,
+    CASE 
+        WHEN u.statut = 'BLOQUE' THEN 'Compte bloqué - Vérification manuelle requise'
+        WHEN u.statut = 'SUSPENDU' THEN 'Compte suspendu - Surveillance recommandée'
+        ELSE 'Utilisateur légitime - Aucune action requise'
+    END AS recommendation,
+    CONCAT(
+        'Analyse générée automatiquement pour utilisateur existant.\n',
+        'Nom: ', u.nom_complet, '\n',
+        'Email: ', u.email, '\n',
+        'Type: ', u.type_utilisateur, '\n',
+        'Statut: ', u.statut, '\n',
+        'Date création: ', u.date_creation
+    ) AS analysis_details,
+    CASE 
+        WHEN u.statut = 'BLOQUE' THEN '[{"type":"ACCOUNT_STATUS","description":"Compte bloqué","detected":true,"severity":"HIGH"}]'
+        WHEN u.statut = 'SUSPENDU' THEN '[{"type":"ACCOUNT_STATUS","description":"Compte suspendu","detected":true,"severity":"MEDIUM"}]'
+        ELSE '[]'
+    END AS indicators,
+    NOW() AS analyzed_at
+FROM user u
+LEFT JOIN fraud_detection fd ON u.id = fd.user_id
+WHERE fd.id IS NULL;
+
+-- Mettre à jour les champs fraud_score et fraud_checked
+UPDATE user u
+LEFT JOIN fraud_detection fd ON u.id = fd.user_id
+SET 
+    u.fraud_score = fd.risk_score,
+    u.fraud_checked = TRUE
+WHERE fd.id IS NOT NULL AND u.fraud_checked = FALSE;
+
+-- Vérifier le résultat
+SELECT 
+    u.id,
+    u.nom_complet,
+    u.email,
+    u.fraud_score,
+    u.fraud_checked,
+    fd.risk_score,
+    fd.risk_level
+FROM user u
+LEFT JOIN fraud_detection fd ON u.id = fd.user_id
+ORDER BY u.id;
+
+═══════════════════════════════════════════════════════════
+
+📋 APRÈS EXÉCUTION
+
+1. Vérifier que tous les utilisateurs ont:
+   ✅ fraud_checked = 1
+   ✅ fraud_score > 0
+   ✅ Un enregistrement dans fraud_detection
+
+2. Relancer l'application
+
+3. Aller sur la page admin
+
+4. Cliquer "Détail Fraude"
+
+5. ✅ Les détails s'affichent!
+
+═══════════════════════════════════════════════════════════
+
+✅ EXÉCUTEZ MAINTENANT AVEC MYSQL WORKBENCH OU PHPMYADMIN!
+
+═══════════════════════════════════════════════════════════

@@ -1,0 +1,72 @@
+═══════════════════════════════════════════════════════════
+  ⚠️ IMPORTANT: COMPILER AVEC VOTRE IDE
+═══════════════════════════════════════════════════════════
+
+❌ ERREUR: javac ne peut pas compiler JavaFX seul
+
+✅ SOLUTION: Utiliser votre IDE (IntelliJ/Eclipse/NetBeans)
+
+═══════════════════════════════════════════════════════════
+
+🔧 MÉTHODE 1: IntelliJ IDEA (Recommandé)
+
+1. Ouvrir IntelliJ IDEA
+2. Ouvrir le projet GreenLedger
+3. Clic droit sur "src/main/java/Controllers/LoginController.java"
+4. Sélectionner "Recompile 'LoginController.java'"
+5. Attendre la fin de la compilation
+6. Lancer l'application avec le bouton ▶️ Run
+
+═══════════════════════════════════════════════════════════
+
+🔧 MÉTHODE 2: Eclipse
+
+1. Ouvrir Eclipse
+2. Ouvrir le projet GreenLedger
+3. Clic droit sur le projet
+4. Sélectionner "Build Project"
+5. Attendre la fin de la compilation
+6. Lancer l'application avec Run
+
+═══════════════════════════════════════════════════════════
+
+🔧 MÉTHODE 3: Maven (Si configuré)
+
+Dans le terminal:
+
+mvn clean compile
+mvn javafx:run
+
+═══════════════════════════════════════════════════════════
+
+📁 FICHIERS MODIFIÉS
+
+✅ src/main/resources/fxml/login.fxml
+   → Interface avec 2 boutons de choix
+
+✅ src/main/java/Controllers/LoginController.java
+   → Logique pour gérer les 2 captchas
+
+═══════════════════════════════════════════════════════════
+
+🎯 APRÈS COMPILATION
+
+1. Lancer l'application
+2. Sur la page de login, vous verrez:
+
+   ┌────────────────────┐  ┌────────────────────┐
+   │  🔒 Google         │  │  🧩 Captcha        │
+   │    reCAPTCHA       │  │     Puzzle         │
+   └────────────────────┘  └────────────────────┘
+
+3. Cliquer sur un des 2 boutons
+4. Compléter la vérification
+5. Se connecter
+
+═══════════════════════════════════════════════════════════
+
+✅ TOUT EST PRÊT!
+
+Les fichiers sont modifiés, il suffit de compiler avec votre IDE.
+
+═══════════════════════════════════════════════════════════

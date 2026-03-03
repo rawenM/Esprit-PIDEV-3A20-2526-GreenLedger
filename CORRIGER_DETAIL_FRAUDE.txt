@@ -1,0 +1,42 @@
+═══════════════════════════════════════════════════════════
+  ✅ CORRIGER "Aucune analyse de fraude"
+═══════════════════════════════════════════════════════════
+
+🎯 PROBLÈME
+
+Bouton "Détail Fraude" → "Aucune analyse de fraude disponible"
+
+═══════════════════════════════════════════════════════════
+
+🔍 CAUSE
+
+Les utilisateurs existants n'ont pas d'analyse de fraude.
+L'analyse est créée uniquement lors de l'inscription.
+
+═══════════════════════════════════════════════════════════
+
+✅ SOLUTION RAPIDE
+
+Exécuter ce script:
+
+./executer-analyses-fraude.bat
+
+Ce script génère des analyses pour tous les utilisateurs 
+existants.
+
+═══════════════════════════════════════════════════════════
+
+📋 APRÈS EXÉCUTION
+
+1. Relancer l'application
+2. Aller sur la page admin
+3. Cliquer "Détail Fraude"
+4. ✅ Les détails s'affichent!
+
+═══════════════════════════════════════════════════════════
+
+✅ EXÉCUTEZ MAINTENANT!
+
+./executer-analyses-fraude.bat
+
+═══════════════════════════════════════════════════════════

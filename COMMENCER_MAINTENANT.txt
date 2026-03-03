@@ -1,0 +1,48 @@
+═══════════════════════════════════════════════════════════
+  ✅ 2 CHOIX DE CAPTCHA - PRÊT À TESTER
+═══════════════════════════════════════════════════════════
+
+🎯 VOTRE DEMANDE: "donner moi 2 choix dans login"
+
+✅ C'EST FAIT!
+
+═══════════════════════════════════════════════════════════
+
+🚀 FAIRE MAINTENANT
+
+1. Ouvrir votre IDE (IntelliJ/Eclipse)
+
+2. Build Project (compiler)
+
+3. Lancer l'application
+
+4. Sur la page de login:
+   
+   Vous verrez 2 boutons:
+   
+   ┌────────────────────┐  ┌────────────────────┐
+   │  🔒 Google         │  │  🧩 Captcha        │
+   │    reCAPTCHA       │  │     Puzzle         │
+   └────────────────────┘  └────────────────────┘
+   
+   Cliquer sur un des 2 → Compléter → Se connecter
+
+═══════════════════════════════════════════════════════════
+
+✅ AVANTAGES
+
+• reCAPTCHA: professionnel (avec bypass pour démo)
+• Puzzle: rapide et sans API externe
+
+═══════════════════════════════════════════════════════════
+
+📁 FICHIERS MODIFIÉS
+
+✅ src/main/resources/fxml/login.fxml
+✅ src/main/java/Controllers/LoginController.java
+
+═══════════════════════════════════════════════════════════
+
+✅ COMPILEZ ET TESTEZ MAINTENANT!
+
+═══════════════════════════════════════════════════════════

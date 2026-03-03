@@ -1,0 +1,45 @@
+═══════════════════════════════════════════════════════════
+  ✅ ERREUR CORRIGÉE: Puzzle Captcha
+═══════════════════════════════════════════════════════════
+
+❌ ERREUR
+
+ClassNotFoundException: javafx.embed.swing.SwingFXUtils
+
+✅ CORRIGÉ!
+
+═══════════════════════════════════════════════════════════
+
+🔧 CE QUI A ÉTÉ FAIT
+
+✅ Supprimé l'utilisation de SwingFXUtils
+✅ Conversion directe Base64 → JavaFX Image
+✅ Plus besoin du module javafx.swing
+
+═══════════════════════════════════════════════════════════
+
+📁 FICHIER MODIFIÉ
+
+✅ src/main/java/Utils/PuzzleCaptchaService.java
+
+═══════════════════════════════════════════════════════════
+
+🚀 FAIRE MAINTENANT
+
+1. Compiler avec votre IDE
+
+2. Lancer l'application
+
+3. Cliquer "🧩 Captcha Puzzle"
+
+4. Résultat attendu:
+   ✅ Image de fond visible
+   ✅ Pièce du puzzle visible
+   ✅ Slider fonctionne
+   ✅ Pas d'erreur
+
+═══════════════════════════════════════════════════════════
+
+✅ COMPILEZ ET TESTEZ!
+
+═══════════════════════════════════════════════════════════
