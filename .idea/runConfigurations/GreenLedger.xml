@@ -3,10 +3,13 @@
     <envs>
       <env name="APP_RESET_URL_PREFIX" value="http://127.0.0.1:8088/reset?token=" />
       <env name="CARBON_API_KEY" value="KvqC3GpVpdYkn3yHgtFCvw" />
+      <env name="CLIMATIQ_API" value="YBJ0KM2NQX7M12C8AMMZHQZ9KM" />
       <env name="OPENWEATHERMAP_API_KEY" value="25965674e6fcf0194e2bc6cc2e426fca" />
+      <env name="PK_TEST" value="pk_test_51T5E4wRt6o5W8zE6TFCElJ2L6bQzG1mLRhywBHQc3mmXQyzkeHzNjlOzGTWNoxVYN3vwEepGi7COk9s1U8w5uzgh00R1wFLEIT" />
       <env name="RECAPTCHA_SECRET_KEY" value="6LcRkXcsAAAAAGdrsxult80-4YJIDq3uW77HxgCX" />
       <env name="RECAPTCHA_SITE_KEY" value="6LcRkXcsAAAAAMccKpZStxJSSAUjG1NPsMS6LAw2" />
       <env name="RECAPTCHA_VERIFY_URL" value="https://www.google.com/recaptcha/api/siteverify" />
+      <env name="SK_TEST" value="sk_test_51T5E4wRt6o5W8zE6rj9Yuu8Fm7hZAklEsiZ5au2EmJG0IBCRsr9EXCdznGSe3lQyMUOaKa9wNXxSvs6dGE5arXZC00uHvGY77W" />
       <env name="SMTP_AUTH" value="true" />
       <env name="SMTP_FROM" value="GreenLedger Team &lt;ibrahimimajid058@gmail.com&gt;" />
       <env name="SMTP_HOST" value="smtp.gmail.com" />

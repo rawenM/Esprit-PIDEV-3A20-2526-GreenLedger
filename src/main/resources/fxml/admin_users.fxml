@@ -28,6 +28,7 @@
 >>>>>>> yassine_antar
             <Button text="📁 Projets" styleClass="nav-btn" onAction="#handleNavProjets"/>
             <Button text="📊 Evaluations" styleClass="nav-btn" onAction="#handleNavEvaluations"/>
+            <Button text="🔒 Escrow" styleClass="nav-btn" onAction="#handleNavEscrow"/>
 
             <Separator styleClass="sidebar-sep"/>
 

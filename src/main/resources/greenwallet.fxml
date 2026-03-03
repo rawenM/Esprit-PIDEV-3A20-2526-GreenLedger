@@ -2,293 +2,830 @@
 
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.web.WebView?>
 <?import javafx.geometry.Insets?>
+<?import java.lang.String?>
 
-<HBox xmlns="http://javafx.com/javafx/20.0.2"
-      xmlns:fx="http://javafx.com/fxml/1"
-    fx:controller="Controllers.GreenWalletController"
-<<<<<<< HEAD
-        spacing="0" styleClass="page">
-=======
-<<<<<<< HEAD
-    spacing="0" styleClass="app-container">
-=======
-        spacing="0" styleClass="page">
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
+<!--
+    ELITE GREEN WALLET UI - Production Ready v2.0
+    
+    Design Philosophy:
+    - Single-window architecture with slide-in panels (no popups)
+    - Loss aversion framing at top ("X tCO₂e above baseline")
+    - Mental accounting with Scope 1/2/3 waterfall breakdown
+    - Status signaling with verification badges and tier indicators
+    - Interactive pollution map replacing text-based API results
+    - Behavioral psychology triggers throughout (social proof, scarcity, commitment)
+    
+    Architecture:
+    - StackPane root for layered panels
+    - Main layer: HBox with sidebar + BorderPane content
+    - Overlay panels: Slide in from right with TranslateTransition
+    - WebView for Leaflet.js map in bottom section
+    - Real-time metrics with Reactor subscriptions
+-->
 
-    <!-- LEFT SIDEBAR -->
-    <VBox prefWidth="220" styleClass="sidebar" style="-fx-min-width: 220; -fx-max-width: 220;">
+<StackPane xmlns="http://javafx.com/javafx/20.0.2"
+           xmlns:fx="http://javafx.com/fxml/1"
+           fx:controller="Controllers.GreenWalletController"
+           styleClass="root-pane">
 
-<<<<<<< HEAD
-        <HBox alignment="CENTER_LEFT" spacing="8">
-            <Label text="🌿" style="-fx-font-size: 20px;"/>
-            <Label text="GreenLedger" styleClass="sidebar-title"/>
-        </HBox>
-=======
-<<<<<<< HEAD
-        <!-- Logo/Brand Section -->
-        <VBox spacing="2" style="-fx-padding: 0 0 12 0;" alignment="CENTER_LEFT">
-            <HBox spacing="8" alignment="CENTER_LEFT">
-                <Label text="🍃" style="-fx-font-size: 24; -fx-padding: 0;"/>
-                <VBox spacing="0">
-                    <Label text="GreenLedger" styleClass="brand-title" style="-fx-font-size: 16; -fx-padding: 0;"/>
-                    <Label text="Wallet" styleClass="brand-subtitle" style="-fx-padding: 0;"/>
-                </VBox>
+    <!-- MAIN LAYER: Fixed Layout -->
+    <HBox fx:id="mainLayer" spacing="0" styleClass="page">
+
+        <!-- LEFT SIDEBAR -->
+        <VBox prefWidth="220" styleClass="sidebar" style="-fx-min-width: 220; -fx-max-width: 220;">
+
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="🌿" style="-fx-font-size: 20px;"/>
+                <Label text="GreenLedger" styleClass="sidebar-title"/>
             </HBox>
-        </VBox>
->>>>>>> yassine_antar
 
-        <Separator styleClass="sidebar-sep"/>
+            <Separator styleClass="sidebar-sep"/>
 
-        <Button text="← Retour" styleClass="btn btn-secondary" onAction="#onBack"/>
+            <Button text="← Retour" styleClass="btn btn-secondary" onAction="#onBack"/>
 
-        <Button fx:id="btnGestionProjets" text="📁 Gestion Projets" styleClass="nav-btn" onAction="#onGestionProjets"/>
-        <Button fx:id="btnWalletOverview" text="💳 GreenWallet" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
-        <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
+            <Button fx:id="btnGestionProjets" text="📁 Gestion Projets" styleClass="nav-btn" onAction="#onGestionProjets"/>
+            <Button fx:id="btnWalletOverview" text="💳 GreenWallet" styleClass="nav-btn active"/>
+            <Button fx:id="btnMarketplace" text="🛒 Marketplace" styleClass="nav-btn" onAction="#onMarketplace"/>
+            <Button fx:id="btnBatches" text="📦 Carbon Batches" styleClass="nav-btn"/>
+            <Button fx:id="btnBatchCarbonTests" text="🧪 Tests Batch + Carbon" styleClass="nav-btn" onAction="#onBatchCarbonTests"/>
+            <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn"/>
 
-        <Region VBox.vgrow="ALWAYS"/>
-    </VBox>
-
-
-    <!-- MAIN CONTENT -->
-<<<<<<< HEAD
-=======
-    <VBox fx:id="contentPane" spacing="16" alignment="TOP_LEFT" styleClass="page" HBox.hgrow="ALWAYS">
-=======
-        <HBox alignment="CENTER_LEFT" spacing="8">
-            <Label text="🌿" style="-fx-font-size: 20px;"/>
-            <Label text="GreenLedger" styleClass="sidebar-title"/>
-        </HBox>
-
-        <Separator styleClass="sidebar-sep"/>
-
-        <Button text="← Retour" styleClass="btn btn-secondary" onAction="#onBack"/>
-
-        <Button fx:id="btnGestionProjets" text="📁 Gestion Projets" styleClass="nav-btn" onAction="#onGestionProjets"/>
-        <Button fx:id="btnWalletOverview" text="💳 GreenWallet" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
-        <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
-
-        <Region VBox.vgrow="ALWAYS"/>
-    </VBox>
-
-
-    <!-- MAIN CONTENT -->
->>>>>>> yassine_antar
-    <ScrollPane fitToWidth="true" fitToHeight="false" HBox.hgrow="ALWAYS"
-                style="-fx-background-color: transparent; -fx-background: transparent;">
-        <content>
-    <VBox fx:id="contentPane" spacing="16" alignment="TOP_LEFT" styleClass="content-area">
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-        <padding>
-            <Insets top="20" right="20" bottom="20" left="20"/>
-        </padding>
-
-        <!-- PAGE HEADER -->
-        <VBox spacing="4">
-            <HBox spacing="12" alignment="CENTER_LEFT">
-                <Label text="🌱 Portefeuille Carbone" styleClass="page-title"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <ComboBox fx:id="cmbWalletSelector" promptText="Sélectionner Wallet" prefWidth="200" styleClass="field"/>
-            </HBox>
-            <Label text="Gestion des crédits carbone et traçabilité complète" styleClass="page-subtitle"/>
-        </VBox>
-
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> yassine_antar
-        <!-- WALLET TOOLS -->
-        <VBox spacing="10" styleClass="card" style="-fx-padding: 16;">
-            <HBox spacing="8" alignment="CENTER_LEFT">
-                <Label text="🧰" style="-fx-font-size: 14;"/>
-                <Label text="Outils GreenWallet" styleClass="section-title" style="-fx-font-size: 14; -fx-padding: 0;"/>
-            </HBox>
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Button fx:id="btnTransactions" text="📜 Transactions" styleClass="btn btn-secondary" prefHeight="34"/>
-                <Button fx:id="btnBatches" text="📦 Batches" styleClass="btn btn-secondary" prefHeight="34"/>
-                <Button fx:id="btnCreateWallet" text="💼 Nouveau Wallet" styleClass="btn btn-secondary" prefHeight="34"/>
-                <Region HBox.hgrow="ALWAYS"/>
-            </HBox>
-        </VBox>
-
-        <!-- CARBON API INSIGHTS -->
-        <VBox spacing="12" styleClass="card" style="-fx-padding: 18; -fx-background-color: linear-gradient(to bottom right, #f0fdf4, #dcfce7);">
-            <HBox spacing="8" alignment="CENTER_LEFT">
-                <Label text="🌍" style="-fx-font-size: 16;"/>
-                <Label text="Carbon API Insights" styleClass="section-title" style="-fx-font-size: 15;"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Label text="Powered by Carbon Interface &amp; OpenWeatherMap" style="-fx-font-size: 9; -fx-opacity: 0.6;"/>
-            </HBox>
+            <Separator styleClass="sidebar-sep" style="-fx-margin: 12 0;"/>
             
-            <HBox spacing="12">
-                <VBox spacing="8" HBox.hgrow="ALWAYS">
-                    <Label text="Calcul d'Émissions en Temps Réel" style="-fx-font-weight: 600; -fx-font-size: 12;"/>
-                    <HBox spacing="8">
-                        <Button fx:id="btnCalculateElectricity" text="⚡ Électricité" styleClass="btn btn-primary" prefHeight="32" prefWidth="120"/>
-                        <Button fx:id="btnCalculateFuel" text="⛽ Carburant" styleClass="btn btn-primary" prefHeight="32" prefWidth="120"/>
-                        <Button fx:id="btnCalculateShipping" text="🚢 Transport" styleClass="btn btn-primary" prefHeight="32" prefWidth="120"/>
+            <!-- Quick Stats in Sidebar -->
+            <VBox spacing="8" style="-fx-padding: 12 8;">
+                <Label text="Aperçu Rapide" style="-fx-font-size: 10px; -fx-opacity: 0.6; -fx-font-weight: 600;"/>
+                <HBox spacing="6" alignment="CENTER_LEFT">
+                    <Label text="💰" style="-fx-font-size: 12px;"/>
+                    <Label fx:id="lblSidebarAvailable" text="0.00 tCO₂" style="-fx-font-size: 11px; -fx-font-weight: 600; -fx-text-fill: #10b981;"/>
+                </HBox>
+                <HBox spacing="6" alignment="CENTER_LEFT">
+                    <Label text="❌" style="-fx-font-size: 12px;"/>
+                    <Label fx:id="lblSidebarRetired" text="0.00 tCO₂" style="-fx-font-size: 11px; -fx-font-weight: 600; -fx-text-fill: #f59e0b;"/>
+                </HBox>
+                <HBox spacing="6" alignment="CENTER_LEFT">
+                    <Label text="🎯" style="-fx-font-size: 12px;"/>
+                    <Label fx:id="lblSidebarGoal" text="Goal: 100 tCO₂" style="-fx-font-size: 11px; -fx-opacity: 0.8;"/>
+                </HBox>
+            </VBox>
+
+            <Separator styleClass="sidebar-sep" style="-fx-margin: 12 0;"/>
+            
+            <!-- Wallet Selector -->
+            <VBox spacing="6" style="-fx-padding: 8;">
+                <Label text="Wallet Actif" style="-fx-font-size: 10px; -fx-opacity: 0.6; -fx-font-weight: 600;"/>
+                <ComboBox fx:id="cmbWalletSelector" promptText="Sélectionner Wallet" prefWidth="204" styleClass="field"/>
+            </VBox>
+
+            <Region VBox.vgrow="ALWAYS"/>
+            
+            <!-- User Context Footer -->
+            <VBox spacing="4" style="-fx-padding: 12 8; -fx-background-color: rgba(0,0,0,0.05); -fx-border-radius: 8; -fx-background-radius: 8; -fx-margin: 8;">
+                <Label fx:id="lblProfileName" text="User Name" style="-fx-font-size: 11px; -fx-font-weight: 600;"/>
+                <Label fx:id="lblProfileType" text="Account Type" style="-fx-font-size: 9px; -fx-opacity: 0.7;"/>
+            </VBox>
+        </VBox>
+
+
+        <!-- MAIN CONTENT AREA -->
+        <BorderPane HBox.hgrow="ALWAYS" styleClass="content-wrapper">
+            
+            <!-- TOP: IMPACT BAR (Loss Framed) -->
+            <top>
+                <VBox spacing="0">
+                    <!-- Real-time Impact Bar -->
+                    <HBox fx:id="impactBar" alignment="CENTER_LEFT" spacing="12" 
+                          style="-fx-padding: 16 24; -fx-background-color: linear-gradient(to right, #fee2e2, #fef3c7); -fx-border-color: #fbbf24; -fx-border-width: 0 0 2 0;">
+                        <Label text="⚠" style="-fx-font-size: 24px;"/>
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label text="Impact Alert" style="-fx-font-size: 11px; -fx-font-weight: 600; -fx-opacity: 0.8;"/>
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <Label fx:id="lblImpactAmount" text="+125.5 tCO₂e" 
+                                       style="-fx-font-size: 22px; -fx-font-weight: 700; -fx-text-fill: #dc2626;"/>
+                                <Label text="au-dessus de la baseline industrie" style="-fx-font-size: 13px; -fx-opacity: 0.9;"/>
+                            </HBox>
+                        </VBox>
+                        <VBox spacing="2" alignment="CENTER_RIGHT">
+                            <Label text="Objectif" style="-fx-font-size: 10px; -fx-opacity: 0.7;"/>
+                            <Label fx:id="lblImpactGoal" text="72% complété" style="-fx-font-size: 14px; -fx-font-weight: 600;"/>
+                        </VBox>
+                        <ProgressBar fx:id="progressImpact" progress="0.72" prefWidth="160" prefHeight="12" 
+                                     style="-fx-accent: #f59e0b;"/>
+                    </HBox>
+                    
+                    <!-- Page Header -->
+                    <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 16 24 12 24;">
+                        <Label text="🌱 Portefeuille Carbone" styleClass="page-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        
+                        <!-- Wallet Info Display -->
+                        <VBox spacing="2" style="-fx-padding: 8 12; -fx-background-color: #f3f4f6; -fx-background-radius: 8;">
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <Label fx:id="lblHolderName" text="—" style="-fx-font-size: 11px; -fx-font-weight: 600;"/>
+                                <Label fx:id="lblWalletNumber" text="—" managed="false" visible="false"/>
+                            </HBox>
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <Label fx:id="lblOwnerType" text="—" style="-fx-font-size: 10px; -fx-opacity: 0.7;"/>
+                                <Label text="•" style="-fx-font-size: 10px; -fx-opacity: 0.3;"/>
+                                <Label fx:id="lblStatus" text="—" style="-fx-font-size: 10px; -fx-text-fill: #10b981;"/>
+                            </HBox>
+                        </VBox>
                     </HBox>
                 </VBox>
-                <VBox spacing="8">
-                    <Label text="Qualité de l'Air" style="-fx-font-weight: 600; -fx-font-size: 12;"/>
-                    <Button fx:id="btnCheckAirQuality" text="🌫️ Vérifier Air Quality" styleClass="btn btn-secondary" prefHeight="32" prefWidth="180"/>
-                </VBox>
-            </HBox>
+            </top>
             
-            <TextArea fx:id="txtApiResults" 
-                      promptText="Les résultats des APIs s'afficheront ici..."
-                      editable="false"
-                      wrapText="true"
-                      prefHeight="180"
-                      style="-fx-font-family: 'Consolas', 'Monaco', monospace; -fx-font-size: 11; -fx-background-color: white; -fx-border-color: #d1d5db; -fx-border-radius: 4;"/>
-        </VBox>
+            <!-- CENTER: MAIN DASHBOARD -->
+            <center>
+                <ScrollPane fitToWidth="true" fitToHeight="false" style="-fx-background-color: transparent; -fx-background: transparent;">
+                    <VBox spacing="16" style="-fx-padding: 0 24 20 24;">
 
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-        <!-- WALLET INFO CARD -->
-        <VBox spacing="12" styleClass="card" style="-fx-padding: 20;">
-            <HBox spacing="8" alignment="CENTER_LEFT">
-                <Label text="💼" style="-fx-font-size: 16;"/>
-                <Label text="Informations du Wallet" styleClass="section-title" style="-fx-font-size: 15;"/>
-            </HBox>
-            
-            <GridPane hgap="20" vgap="12">
-                <Label text="Numéro Wallet:" GridPane.columnIndex="0" GridPane.rowIndex="0" style="-fx-font-weight: 600;"/>
-                <Label fx:id="lblWalletNumber" text="—" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
-                
-                <Label text="Propriétaire:" GridPane.columnIndex="0" GridPane.rowIndex="1" style="-fx-font-weight: 600;"/>
-                <Label fx:id="lblHolderName" text="—" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
-                
-                <Label text="Type:" GridPane.columnIndex="0" GridPane.rowIndex="2" style="-fx-font-weight: 600;"/>
-                <Label fx:id="lblOwnerType" text="—" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
-                
-                <Label text="Statut:" GridPane.columnIndex="0" GridPane.rowIndex="3" style="-fx-font-weight: 600;"/>
-                <Label fx:id="lblStatus" text="—" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
-            </GridPane>
-        </VBox>
+                        <!-- SCOPE + CLIMATIQ ON SAME LINE -->
+                        <HBox spacing="16" alignment="TOP_LEFT">
+                            <!-- SCOPE BREAKDOWN WATERFALL -->
+                            <VBox spacing="12" styleClass="card" style="-fx-padding: 20;" HBox.hgrow="ALWAYS">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Label text="📊" style="-fx-font-size: 15;"/>
+                                    <Label text="Décomposition par Scope GHG" styleClass="section-title"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label fx:id="lblScopeDataQuality" text="🥇 Tier 2 Data Quality"
+                                           style="-fx-font-size: 10px; -fx-padding: 3 8; -fx-background-color: #d1fae5; -fx-background-radius: 12; -fx-text-fill: #065f46; -fx-font-weight: 600;"/>
+                                </HBox>
 
-        <!-- STAT CARDS ROW -->
-        <HBox spacing="12" style="-fx-min-height: 100;">
-            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="TOP_LEFT" spacing="4">
-                <Label text="💰 CRÉDITS DISPONIBLES" styleClass="stat-title"/>
-                <Label fx:id="lblAvailableCredits" text="0.00 tCO₂" styleClass="stat-value accent-green" style="-fx-font-size: 28;"/>
-                <Label text="Prêts à utiliser" style="-fx-font-size: 11; -fx-opacity: 0.7;"/>
-            </VBox>
-            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="TOP_LEFT" spacing="4">
-                <Label text="❌ CRÉDITS RETIRÉS" styleClass="stat-title"/>
-                <Label fx:id="lblRetiredCredits" text="0.00 tCO₂" styleClass="stat-value accent-amber" style="-fx-font-size: 28;"/>
-                <Label text="Compensés définitivement" style="-fx-font-size: 11; -fx-opacity: 0.7;"/>
-            </VBox>
-            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="TOP_LEFT" spacing="4">
-                <Label text="📊 CRÉDITS TOTAUX" styleClass="stat-title"/>
-                <Label fx:id="lblTotalCredits" text="0.00 tCO₂" styleClass="stat-value" style="-fx-font-size: 28;"/>
-                <Label text="Cumulé historique" style="-fx-font-size: 11; -fx-opacity: 0.7;"/>
-            </VBox>
-        </HBox>
+                                <Pane fx:id="waterfallChartPane" prefHeight="158"
+                                      style="-fx-background-color: #f8fafc; -fx-border-color: #e2e8f0; -fx-border-radius: 10; -fx-background-radius: 10;"/>
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> yassine_antar
-        <!-- TEST LAB -->
-        <VBox spacing="10" styleClass="card" style="-fx-padding: 16;">
-            <HBox spacing="8" alignment="CENTER_LEFT">
-                <Label text="🧪" style="-fx-font-size: 14;"/>
-                <Label text="Test Lab • Crédit Rapide" styleClass="section-title" style="-fx-font-size: 14; -fx-padding: 0;"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Label text="Mode dev" style="-fx-font-size: 11; -fx-opacity: 0.65;"/>
-            </HBox>
-            <HBox spacing="10" alignment="CENTER_LEFT">
-                <Button fx:id="btnTestAdd25" text="+25 tCO₂" styleClass="btn btn-secondary" prefHeight="34"/>
-                <Button fx:id="btnTestAdd100" text="+100 tCO₂" styleClass="btn btn-secondary" prefHeight="34"/>
-                <Button fx:id="btnTestAdd500" text="+500 tCO₂" styleClass="btn btn-primary" prefHeight="34"/>
-                <Button fx:id="btnTestAdd1000" text="+1000 tCO₂" styleClass="btn btn-primary" prefHeight="34"/>
-                <Region HBox.hgrow="ALWAYS"/>
-            </HBox>
-        </VBox>
+                                <GridPane hgap="10" vgap="8" style="-fx-padding: 4 0 0 0;">
+                                    <VBox spacing="3" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                        <Label text="Scope 1: Direct" style="-fx-font-size: 10px; -fx-opacity: 0.7; -fx-font-weight: 600;"/>
+                                        <HBox spacing="5" alignment="CENTER_LEFT">
+                                            <Label fx:id="lblScope1Amount" text="32.5 tCO₂e"
+                                                   style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #ef4444;"/>
+                                            <Label text="(26%)" style="-fx-font-size: 11px; -fx-opacity: 0.6;"/>
+                                        </HBox>
+                                    </VBox>
 
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-        <!-- TRANSACTIONS TABLE SECTION -->
-        <VBox spacing="10" styleClass="card" style="-fx-padding: 18;" VBox.vgrow="ALWAYS">
-            <HBox spacing="8" alignment="CENTER_LEFT">
-                <Label text="📜" style="-fx-font-size: 14;"/>
-                <Label text="Historique des Transactions" styleClass="section-title" style="-fx-font-size: 14; -fx-padding: 0;"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button fx:id="btnRefresh" text="🔄 Actualiser" styleClass="btn btn-secondary" prefHeight="32"/>
-            </HBox>
+                                    <VBox spacing="3" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                        <Label text="Scope 2: Énergie" style="-fx-font-size: 10px; -fx-opacity: 0.7; -fx-font-weight: 600;"/>
+                                        <HBox spacing="5" alignment="CENTER_LEFT">
+                                            <Label fx:id="lblScope2Amount" text="45.3 tCO₂e"
+                                                   style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #f97316;"/>
+                                            <Label text="(36%)" style="-fx-font-size: 11px; -fx-opacity: 0.6;"/>
+                                        </HBox>
+                                    </VBox>
 
-            <TableView fx:id="tableTransactions" prefHeight="240" styleClass="table-card" VBox.vgrow="ALWAYS">
-                <placeholder>
-                    <VBox spacing="8" alignment="CENTER">
-                        <Label text="📋" style="-fx-font-size: 32; -fx-opacity: 0.3;"/>
-                        <Label text="Aucune transaction" styleClass="placeholder-label" style="-fx-font-size: 13;"/>
-                        <Label text="Les transactions de crédits apparaîtront ici" styleClass="placeholder-label" style="-fx-font-size: 11;"/>
+                                    <VBox spacing="3" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                                        <Label text="Scope 3: Chaîne" style="-fx-font-size: 10px; -fx-opacity: 0.7; -fx-font-weight: 600;"/>
+                                        <HBox spacing="5" alignment="CENTER_LEFT">
+                                            <Label fx:id="lblScope3Amount" text="47.7 tCO₂e"
+                                                   style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #d97706;"/>
+                                            <Label text="(38%)" style="-fx-font-size: 11px; -fx-opacity: 0.6;"/>
+                                        </HBox>
+                                    </VBox>
+                                </GridPane>
+                            </VBox>
+
+                            <!-- CLIMATIQ EMISSIONS STUDIO -->
+                            <VBox spacing="12" prefWidth="454" styleClass="card" style="-fx-padding: 20;">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Label text="🌍 Climatiq Emissions Studio" styleClass="section-title"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Label text="API Live" styleClass="status-badge-success"/>
+                                </HBox>
+
+                                <Label text="Calcul intelligent des émissions par scénario opérationnel." style="-fx-font-size: 13px; -fx-text-fill: #6B7F77;"/>
+
+                                <TabPane tabClosingPolicy="UNAVAILABLE" prefHeight="172">
+                                    <tabs>
+                                        <Tab text="⚡ Electricité">
+                                            <content>
+                                                <GridPane hgap="8" vgap="8" style="-fx-padding: 10;">
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="24"/>
+                                                        <ColumnConstraints percentWidth="36"/>
+                                                        <ColumnConstraints percentWidth="40"/>
+                                                    </columnConstraints>
+
+                                                    <Label text="Conso" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                                    <TextField fx:id="txtApiElectricityValue" text="100" promptText="kWh" styleClass="field" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                                    <ComboBox fx:id="cmbApiElectricityUnit" styleClass="field" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+
+                                                    <Label text="Pays" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                                    <TextField fx:id="txtApiCountry" text="FR" promptText="FR, US, TN..." styleClass="field" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                    <TextField fx:id="txtApiState" promptText="State (opt)" styleClass="field" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+
+                                                    <Button fx:id="btnRunElectricityInline" text="Calculer" onAction="#onCalculateElectricityInline" styleClass="btn btn-primary" prefHeight="36" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                                                </GridPane>
+                                            </content>
+                                        </Tab>
+
+                                        <Tab text="⛽ Carburant">
+                                            <content>
+                                                <GridPane hgap="8" vgap="8" style="-fx-padding: 10;">
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="24"/>
+                                                        <ColumnConstraints percentWidth="36"/>
+                                                        <ColumnConstraints percentWidth="40"/>
+                                                    </columnConstraints>
+
+                                                    <Label text="Type" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                                    <ComboBox fx:id="cmbApiFuelType" styleClass="field" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                                    <Label text="dfo/rfo/lng" style="-fx-font-size: 10px; -fx-opacity: 0.65;" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+
+                                                    <Label text="Quantité" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                                    <TextField fx:id="txtApiFuelValue" text="100" styleClass="field" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                    <ComboBox fx:id="cmbApiFuelUnit" styleClass="field" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+
+                                                    <Button fx:id="btnRunFuelInline" text="Calculer" onAction="#onCalculateFuelInline" styleClass="btn btn-primary" prefHeight="36" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                                                </GridPane>
+                                            </content>
+                                        </Tab>
+
+                                        <Tab text="🚢 Transport">
+                                            <content>
+                                                <GridPane hgap="8" vgap="8" style="-fx-padding: 10;">
+                                                    <columnConstraints>
+                                                        <ColumnConstraints percentWidth="24"/>
+                                                        <ColumnConstraints percentWidth="36"/>
+                                                        <ColumnConstraints percentWidth="40"/>
+                                                    </columnConstraints>
+
+                                                    <Label text="Poids" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                                                    <TextField fx:id="txtApiShipWeight" text="1000" styleClass="field" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+                                                    <ComboBox fx:id="cmbApiShipWeightUnit" styleClass="field" GridPane.columnIndex="2" GridPane.rowIndex="0"/>
+
+                                                    <Label text="Distance" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                                                    <TextField fx:id="txtApiShipDistance" text="1000" styleClass="field" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+                                                    <ComboBox fx:id="cmbApiShipDistanceUnit" styleClass="field" GridPane.columnIndex="2" GridPane.rowIndex="1"/>
+
+                                                    <Label text="Mode" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                                                    <ComboBox fx:id="cmbApiShipMethod" styleClass="field" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                                                    <Button fx:id="btnRunShippingInline" text="Calculer" onAction="#onCalculateShippingInline" styleClass="btn btn-primary" prefHeight="36" GridPane.columnIndex="2" GridPane.rowIndex="2"/>
+                                                </GridPane>
+                                            </content>
+                                        </Tab>
+                                    </tabs>
+                                </TabPane>
+
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Label text="Résultats API" style="-fx-font-size: 12px; -fx-text-fill: #6B7F77; -fx-font-weight: 600;"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button text="Effacer" onAction="#onClearApiResults" styleClass="btn btn-secondary" prefHeight="36"/>
+                                </HBox>
+                                <TextArea fx:id="txtApiResults" prefHeight="140" wrapText="true" styleClass="field"
+                                          promptText="Résultats Climatiq ici..."
+                                          style="-fx-font-family: 'Courier New'; -fx-font-size: 10px; -fx-padding: 12; -fx-background-color: #1e293b; -fx-text-fill: #10b981; -fx-border-color: #10b981; -fx-border-width: 1;"/>
+                            </VBox>
+
+                        </HBox>
+                        
+                        <!-- ESCROW PROTECTION INFO -->
+                        <VBox spacing="12" style="-fx-padding: 16 20; -fx-background-color: #eff6ff; -fx-border-color: #3b82f6; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-margin: 12 0 12 0;">
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <Label text="🔒" style="-fx-font-size: 18px;"/>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Escrow Protection Active" style="-fx-font-size: 14px; -fx-font-weight: 700; -fx-text-fill: #1e40af;"/>
+                                    <Label text="Large orders (≥ $10,000 USD) are secured with 24-hour escrow. Buyer receives credits immediately while payment is verified by admin." style="-fx-font-size: 11px; -fx-text-fill: #1e40af; -fx-wrap-text: true;"/>
+                                </VBox>
+                                <Button text="View Escrows" styleClass="btn btn-primary" style="-fx-padding: 8 16; -fx-font-size: 11px;" prefWidth="120"/>
+                            </HBox>
+                        </VBox>
+                        
+                        <!-- INTERACTIVE MAP + BATCH EXPLORER (SPLIT VIEW) -->
+                        <HBox spacing="16" prefHeight="400">
+                            
+                            <!-- MAP SECTION (60%) -->
+                            <VBox spacing="12" styleClass="card" style="-fx-padding: 20;" HBox.hgrow="ALWAYS" prefWidth="600">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Label text="🗺️" style="-fx-font-size: 16;"/>
+                                    <Label text="Carte de Pollution Interactive" styleClass="section-title"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="btnMapFullscreen" text="⛶ Plein Écran" styleClass="btn btn-icon" prefHeight="28"/>
+                                </HBox>
+                                
+                                <WebView fx:id="mapWebView" prefHeight="320" style="-fx-border-color: #e5e7eb; -fx-border-radius: 8;"/>
+                                
+                                <HBox spacing="10" alignment="CENTER_LEFT">
+                                    <VBox spacing="2" style="-fx-padding: 6 12; -fx-background-color: #f0fdf4; -fx-background-radius: 6;">
+                                        <Label text="🟢 Bon (0-50 AQI)" style="-fx-font-size: 10px;"/>
+                                    </VBox>
+                                    <VBox spacing="2" style="-fx-padding: 6 12; -fx-background-color: #fef3c7; -fx-background-radius: 6;">
+                                        <Label text="🟡 Modéré (51-100)" style="-fx-font-size: 10px;"/>
+                                    </VBox>
+                                    <VBox spacing="2" style="-fx-padding: 6 12; -fx-background-color: #fed7aa; -fx-background-radius: 6;">
+                                        <Label text="🟠 Mauvais (101-150)" style="-fx-font-size: 10px;"/>
+                                    </VBox>
+                                    <VBox spacing="2" style="-fx-padding: 6 12; -fx-background-color: #fecaca; -fx-background-radius: 6;">
+                                        <Label text="🔴 Très Mauvais (151+)" style="-fx-font-size: 10px;"/>
+                                    </VBox>
+                                </HBox>
+                            </VBox>
+                            
+                            <!-- BATCH EXPLORER (40%) -->
+                            <VBox spacing="12" styleClass="card" style="-fx-padding: 20;" prefWidth="400">
+                                <HBox spacing="8" alignment="CENTER_LEFT">
+                                    <Label text="📦" style="-fx-font-size: 16;"/>
+                                    <Label text="Batches Récents" styleClass="section-title"/>
+                                    <Region HBox.hgrow="ALWAYS"/>
+                                    <Button fx:id="btnViewAllBatches" text="Voir Tous" styleClass="btn btn-link" prefHeight="28"/>
+                                </HBox>
+                                
+                                <ListView fx:id="listBatches" prefHeight="280" style="-fx-border-color: #e5e7eb; -fx-border-radius: 8; -fx-background-radius: 8;">
+                                    <placeholder>
+                                        <VBox spacing="8" alignment="CENTER" style="-fx-padding: 40;">
+                                            <Label text="📦" style="-fx-font-size: 32; -fx-opacity: 0.3;"/>
+                                            <Label text="Aucun batch" style="-fx-font-size: 12; -fx-opacity: 0.6;"/>
+                                        </VBox>
+                                    </placeholder>
+                                </ListView>
+                                
+                                <Button fx:id="btnIssueBatch" text="+ Nouveau Batch" styleClass="btn btn-primary" prefHeight="36"/>
+                            </VBox>
+                        </HBox>
+                        
+                        <!-- STAT CARDS + PEER BENCHMARK -->
+                        <HBox spacing="12">
+                            <!-- Available Credits -->
+                            <VBox styleClass="stat-card gradient-green" HBox.hgrow="ALWAYS" alignment="TOP_LEFT" spacing="6">
+                                <Label text="💰 CRÉDITS DISPONIBLES" styleClass="stat-title"/>
+                                <Label fx:id="lblAvailableCredits" text="0.00 tCO₂" styleClass="stat-value" 
+                                       style="-fx-font-size: 32; -fx-text-fill: #059669;"/>
+                                <HBox spacing="6" alignment="CENTER_LEFT">
+                                    <Label text="↑ +12.5" style="-fx-font-size: 12px; -fx-text-fill: #10b981; -fx-font-weight: 600;"/>
+                                    <Label text="cette semaine" style="-fx-font-size: 11px; -fx-opacity: 0.7;"/>
+                                </HBox>
+                            </VBox>
+                            
+                            <!-- Retired Credits -->
+                            <VBox styleClass="stat-card gradient-amber" HBox.hgrow="ALWAYS" alignment="TOP_LEFT" spacing="6">
+                                <Label text="❌ CRÉDITS RETIRÉS" styleClass="stat-title"/>
+                                <Label fx:id="lblRetiredCredits" text="0.00 tCO₂" styleClass="stat-value" 
+                                       style="-fx-font-size: 32; -fx-text-fill: #d97706;"/>
+                                <HBox spacing="6" alignment="CENTER_LEFT">
+                                    <Label text="🎯 87%" style="-fx-font-size: 12px; -fx-font-weight: 600;"/>
+                                    <Label text="objectif annuel" style="-fx-font-size: 11px; -fx-opacity: 0.7;"/>
+                                </HBox>
+                            </VBox>
+                            
+                            <!-- Peer Benchmark (Social Proof) -->
+                            <VBox styleClass="stat-card gradient-blue" HBox.hgrow="ALWAYS" alignment="TOP_LEFT" spacing="6">
+                                <Label text="📊 CLASSEMENT PAIR" styleClass="stat-title"/>
+                                <Label fx:id="lblPeerRank" text="Top 23%" styleClass="stat-value" 
+                                       style="-fx-font-size: 32; -fx-text-fill: #2563eb;"/>
+                                <HBox spacing="6" alignment="CENTER_LEFT">
+                                    <Label text="⭐" style="-fx-font-size: 12px;"/>
+                                    <Label text="Meilleur que 77% du secteur" style="-fx-font-size: 11px; -fx-opacity: 0.8;"/>
+                                </HBox>
+                            </VBox>
+                        </HBox>
+                        
+                        <!-- TRANSACTIONS TABLE -->
+                        <VBox spacing="12" styleClass="card" style="-fx-padding: 20;">
+                            <HBox spacing="8" alignment="CENTER_LEFT">
+                                <Label text="📜" style="-fx-font-size: 16;"/>
+                                <Label text="Historique des Transactions" styleClass="section-title"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Button fx:id="btnRefresh" text="🔄" styleClass="btn btn-icon" prefHeight="32"/>
+                                <Button fx:id="btnFilterTransactions" text="⚙ Filtrer" styleClass="btn btn-secondary" prefHeight="32"/>
+                            </HBox>
+
+                            <TableView fx:id="tableTransactions" prefHeight="280" styleClass="elite-table">
+                                <placeholder>
+                                    <VBox spacing="8" alignment="CENTER" style="-fx-padding: 60;">
+                                        <Label text="📋" style="-fx-font-size: 42; -fx-opacity: 0.25;"/>
+                                        <Label text="Aucune transaction enregistrée" style="-fx-font-size: 14; -fx-font-weight: 600; -fx-opacity: 0.5;"/>
+                                        <Label text="Les opérations apparaîtront automatiquement" style="-fx-font-size: 12; -fx-opacity: 0.4;"/>
+                                    </VBox>
+                                </placeholder>
+                                <columns>
+                                    <TableColumn fx:id="colTransactionId" text="ID" prefWidth="60"/>
+                                    <TableColumn fx:id="colTransactionType" text="Type" prefWidth="120"/>
+                                    <TableColumn fx:id="colTransactionAmount" text="Montant (tCO₂)" prefWidth="130"/>
+                                    <TableColumn fx:id="colTransactionDate" text="Date" prefWidth="150"/>
+                                    <TableColumn fx:id="colTransactionReference" text="Référence" prefWidth="200"/>
+                                    <TableColumn fx:id="colTransactionStatus" text="Statut" prefWidth="100"/>
+                                </columns>
+                            </TableView>
+                        </VBox>
+                        
+                        <!-- ACTION BUTTONS -->
+                        <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 8 0;">
+                            <Button fx:id="btnIssueCreditsMain" text="➕  Émettre Crédits" styleClass="btn btn-primary" 
+                                    prefHeight="42" prefWidth="180" onAction="#onShowIssuePanel"/>
+                            <Button fx:id="btnRetireCreditsMain" text="❌  Retirer Crédits" styleClass="btn btn-secondary" 
+                                    prefHeight="42" prefWidth="170" onAction="#onShowRetirePanel"/>
+                            <Button fx:id="btnTransferCredits" text="🔄  Transférer" styleClass="btn btn-secondary" 
+                                    prefHeight="42" prefWidth="140" onAction="#onShowTransferPanel"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button fx:id="btnCalculateEmissions" text="⚡ Calculer Émissions" styleClass="btn btn-accent" 
+                                    prefHeight="42" prefWidth="180" onAction="#onShowEmissionsPanel"/>
+                            <Button fx:id="btnExport" text="📥  Exporter CSV" styleClass="btn btn-secondary" 
+                                    prefHeight="42" prefWidth="140" onAction="#onExportCsv"/>
+                        </HBox>
+                        
                     </VBox>
-                </placeholder>
-                <columns>
-                    <TableColumn fx:id="colTransactionId" text="ID" prefWidth="60"/>
-                    <TableColumn fx:id="colTransactionType" text="Type" prefWidth="100"/>
-                    <TableColumn fx:id="colTransactionAmount" text="Montant (tCO₂)" prefWidth="130"/>
-                    <TableColumn fx:id="colTransactionDate" text="Date" prefWidth="150"/>
-                    <TableColumn fx:id="colTransactionReference" text="Référence" prefWidth="250"/>
-                </columns>
-            </TableView>
-        </VBox>
+                </ScrollPane>
+            </center>
+            
+        </BorderPane>
 
-        <!-- ACTION BUTTONS -->
-        <HBox spacing="12" alignment="BOTTOM_LEFT" style="-fx-padding: 4 0 0 0;">
-            <Button fx:id="btnIssueCreditsMain" 
-                    text="➕  Émettre Crédits" 
-                    styleClass="btn btn-primary"
-                    prefHeight="38"
-                    prefWidth="160"/>
-            <Button fx:id="btnRetireCreditsMain" 
-                    text="❌  Retirer Crédits" 
-                    styleClass="btn btn-secondary"
-                    prefHeight="38"
-                    prefWidth="150"/>
-            <Button fx:id="btnTransferCredits" 
-                    text="🔄  Transférer" 
-                    styleClass="btn btn-secondary"
-                    prefHeight="38"
-                    prefWidth="130"/>
-            <Button fx:id="btnEditWallet" 
-                    text="✏️  Modifier" 
-                    styleClass="btn btn-secondary"
-                    prefHeight="38"
-                    prefWidth="120"/>
+    </HBox>
+
+    <!-- SLIDE-IN PANEL OVERLAY: Issue Credits -->
+    <VBox fx:id="issueCreditPanel" translateX="1200" managed="false" 
+          styleClass="slide-panel" style="-fx-min-width: 520; -fx-max-width: 520;">
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="slide-panel-header">
+            <Label text="➕" style="-fx-font-size: 24px;"/>
+            <Label text="Émettre Nouveaux Crédits" styleClass="slide-panel-title"/>
             <Region HBox.hgrow="ALWAYS"/>
-            <Button fx:id="btnDeleteWallet" 
-                    text="🗑️  Supprimer" 
-                    styleClass="btn btn-danger"
-                    prefHeight="38"
-                    prefWidth="130"/>
-            <Button fx:id="btnExport" 
-                    text="📥  Exporter" 
-                    styleClass="btn btn-secondary"
-                    prefHeight="38"
-                    prefWidth="120"/>
+            <Button text="✕" styleClass="btn btn-icon" onAction="#onCloseIssuePanel" prefWidth="32" prefHeight="32"/>
         </HBox>
+        
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+            <VBox spacing="16" style="-fx-padding: 24;">
+                
+                <VBox spacing="8">
+                    <Label text="Montant de Crédits (tCO₂)" styleClass="form-label"/>
+                    <TextField fx:id="txtIssueAmount" promptText="Ex: 100.50" styleClass="field"/>
+                    <Label text="Minimum: 1 tCO₂ • Maximum: 10,000 tCO₂" style="-fx-font-size: 10px; -fx-opacity: 0.6;"/>
+                </VBox>
+                
+                <VBox spacing="8">
+                    <Label text="Standard de Vérification" styleClass="form-label"/>
+                    <ComboBox fx:id="cmbVerificationStandard" promptText="Sélectionner standard" prefWidth="1000" styleClass="field">
+                        <items>
+                            <javafx.collections.FXCollections fx:factory="observableArrayList">
+                                <String fx:value="VCS (Verified Carbon Standard)"/>
+                                <String fx:value="Gold Standard"/>
+                                <String fx:value="CDM (Clean Development Mechanism)"/>
+                                <String fx:value="CAR (Climate Action Reserve)"/>
+                            </javafx.collections.FXCollections>
+                        </items>
+                    </ComboBox>
+                </VBox>
+                
+                <VBox spacing="8">
+                    <Label text="Année Millésime (Vintage)" styleClass="form-label"/>
+                    <TextField fx:id="txtVintageYear" promptText="2024" styleClass="field"/>
+                </VBox>
+                
+                <VBox spacing="8">
+                    <Label text="ID Audit de Calcul (optionnel)" styleClass="form-label"/>
+                    <TextField fx:id="txtCalculationAuditId" promptText="Audit #..." styleClass="field"/>
+                </VBox>
+                
+                <VBox spacing="8">
+                    <Label text="Référence / Notes" styleClass="form-label"/>
+                    <TextArea fx:id="txtIssueReference" promptText="Référence du projet source..." wrapText="true" 
+                              prefRowCount="3" styleClass="field"/>
+                </VBox>
+                
+                <Separator/>
+                
+                <VBox spacing="8" style="-fx-padding: 12; -fx-background-color: #f0fdf4; -fx-border-color: #86efac; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <Label text="✓ Aperçu" style="-fx-font-weight: 600; -fx-font-size: 13px;"/>
+                    <HBox spacing="8">
+                        <Label text="Montant:" style="-fx-font-weight: 600; -fx-min-width: 100;"/>
+                        <Label fx:id="lblIssuePreviewAmount" text="—" style="-fx-text-fill: #059669; -fx-font-weight: 700;"/>
+                    </HBox>
+                    <HBox spacing="8">
+                        <Label text="Série:" style="-fx-font-weight: 600; -fx-min-width: 100;"/>
+                        <Label fx:id="lblIssuePreviewSerial" text="CC-2024-XXXXXX" style="-fx-font-family: monospace;"/>
+                    </HBox>
+                    <HBox spacing="8">
+                        <Label text="Standard:" style="-fx-font-weight: 600; -fx-min-width: 100;"/>
+                        <Label fx:id="lblIssuePreviewStandard" text="—"/>
+                    </HBox>
+                </VBox>
+                
+                <HBox spacing="12" style="-fx-padding: 12 0 0 0;">
+                    <Button fx:id="btnConfirmIssue" text="✓ Confirmer Émission" styleClass="btn btn-primary" 
+                            prefHeight="42" HBox.hgrow="ALWAYS" onAction="#onConfirmIssue"/>
+                    <Button text="Annuler" styleClass="btn btn-secondary" prefHeight="42" prefWidth="120" 
+                            onAction="#onCloseIssuePanel"/>
+                </HBox>
+            </VBox>
+        </ScrollPane>
     </VBox>
-<<<<<<< HEAD
-        </content>
-    </ScrollPane>
-=======
-<<<<<<< HEAD
-=======
-        </content>
-    </ScrollPane>
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-</HBox>
+
+    <!-- SLIDE-IN PANEL OVERLAY: Retire Credits -->
+    <VBox fx:id="retireCreditPanel" translateX="1200" managed="false" 
+          styleClass="slide-panel" style="-fx-min-width: 520; -fx-max-width: 520;">
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="slide-panel-header">
+            <Label text="❌" style="-fx-font-size: 24px;"/>
+            <Label text="Retirer Crédits (Offset Permanent)" styleClass="slide-panel-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="✕" styleClass="btn btn-icon" onAction="#onCloseRetirePanel" prefWidth="32" prefHeight="32"/>
+        </HBox>
+        
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+            <VBox spacing="16" style="-fx-padding: 24;">
+                
+                <VBox spacing="8" style="-fx-padding: 12; -fx-background-color: #fef3c7; -fx-border-color: #fbbf24; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Label text="⚠️" style="-fx-font-size: 18px;"/>
+                        <Label text="Action Irréversible" style="-fx-font-weight: 700; -fx-font-size: 14px;"/>
+                    </HBox>
+                    <Label text="Les crédits retirés ne peuvent pas être réutilisés. Cette action compense définitivement vos émissions." 
+                           wrapText="true" style="-fx-font-size: 12px;"/>
+                </VBox>
+                
+                <VBox spacing="8">
+                    <Label text="Montant à Retirer (tCO₂)" styleClass="form-label"/>
+                    <TextField fx:id="txtRetireAmount" promptText="Ex: 25.00" styleClass="field"/>
+                    <HBox spacing="6" alignment="CENTER_LEFT">
+                        <Label text="Disponible:" style="-fx-font-size: 11px; -fx-opacity: 0.7;"/>
+                        <Label fx:id="lblRetireAvailable" text="0.00 tCO₂" style="-fx-font-size: 11px; -fx-font-weight: 600; -fx-text-fill: #10b981;"/>
+                    </HBox>
+                </VBox>
+                
+                <VBox spacing="8">
+                    <Label text="Raison du Retrait" styleClass="form-label"/>
+                    <ComboBox fx:id="cmbRetireReason" promptText="Sélectionner raison" prefWidth="1000" styleClass="field">
+                        <items>
+                            <javafx.collections.FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Offsetting Scope 1 Emissions"/>
+                                <String fx:value="Offsetting Scope 2 Emissions"/>
+                                <String fx:value="Offsetting Scope 3 Emissions"/>
+                                <String fx:value="Event/Product Carbon Neutral"/>
+                                <String fx:value="Voluntary Retirement"/>
+                                <String fx:value="Regulatory Compliance"/>
+                            </javafx.collections.FXCollections>
+                        </items>
+                    </ComboBox>
+                </VBox>
+                
+                <VBox spacing="8">
+                    <Label text="Notes / Justification" styleClass="form-label"/>
+                    <TextArea fx:id="txtRetireReason" promptText="Décrivez l'utilisation..." wrapText="true" 
+                              prefRowCount="4" styleClass="field"/>
+                </VBox>
+                
+                <Separator/>
+                
+                <VBox spacing="8" style="-fx-padding: 12; -fx-background-color: #fef2f2; -fx-border-color: #fca5a5; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <Label text="⚡ Impact Immédiat" style="-fx-font-weight: 600; -fx-font-size: 13px;"/>
+                    <HBox spacing="8">
+                        <Label text="Réduction CO₂:" style="-fx-font-weight: 600; -fx-min-width: 120;"/>
+                        <Label fx:id="lblRetirePreviewAmount" text="-25.00 tCO₂e" style="-fx-text-fill: #dc2626; -fx-font-weight: 700;"/>
+                    </HBox>
+                    <HBox spacing="8">
+                        <Label text="Nouveau Solde:" style="-fx-font-weight: 600; -fx-min-width: 120;"/>
+                        <Label fx:id="lblRetirePreviewBalance" text="—"/>
+                    </HBox>
+                </VBox>
+                
+                <HBox spacing="12" style="-fx-padding: 12 0 0 0;">
+                    <Button fx:id="btnConfirmRetire" text="✓ Confirmer Retrait Définitif" styleClass="btn btn-danger" 
+                            prefHeight="42" HBox.hgrow="ALWAYS" onAction="#onConfirmRetire"/>
+                    <Button text="Annuler" styleClass="btn btn-secondary" prefHeight="42" prefWidth="120" 
+                            onAction="#onCloseRetirePanel"/>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </VBox>
+
+    <!-- SLIDE-IN PANEL OVERLAY: Transfer Credits -->
+    <VBox fx:id="transferCreditPanel" translateX="1200" managed="false" 
+          styleClass="slide-panel" style="-fx-min-width: 520; -fx-max-width: 520;">
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="slide-panel-header">
+            <Label text="🔄" style="-fx-font-size: 24px;"/>
+            <Label text="Transférer Crédits" styleClass="slide-panel-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="✕" styleClass="btn btn-icon" onAction="#onCloseTransferPanel" prefWidth="32" prefHeight="32"/>
+        </HBox>
+        
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+            <VBox spacing="16" style="-fx-padding: 24;">
+                
+                <VBox spacing="8">
+                    <Label text="Wallet Destinataire" styleClass="form-label"/>
+                    <ComboBox fx:id="cmbTransferTargetWallet" promptText="Sélectionner wallet cible" prefWidth="1000" styleClass="field"/>
+                    <Label text="Ou entrer le numéro de wallet manuellement" style="-fx-font-size: 10px; -fx-opacity: 0.6;"/>
+                    <TextField fx:id="txtTransferWalletNumber" promptText="WLT-XXXXXXXX" styleClass="field"/>
+                </VBox>
+                
+                <VBox spacing="8">
+                    <Label text="Montant à Transférer (tCO₂)" styleClass="form-label"/>
+                    <TextField fx:id="txtTransferAmount" promptText="Ex: 50.00" styleClass="field"/>
+                    <HBox spacing="6" alignment="CENTER_LEFT">
+                        <Label text="Disponible:" style="-fx-font-size: 11px; -fx-opacity: 0.7;"/>
+                        <Label fx:id="lblTransferAvailable" text="0.00 tCO₂" style="-fx-font-size: 11px; -fx-font-weight: 600; -fx-text-fill: #10b981;"/>
+                    </HBox>
+                </VBox>
+                
+                <VBox spacing="8">
+                    <Label text="Référence / Message" styleClass="form-label"/>
+                    <TextArea fx:id="txtTransferReference" promptText="Motif du transfert..." wrapText="true" 
+                              prefRowCount="3" styleClass="field"/>
+                </VBox>
+                
+                <Separator/>
+                
+                <VBox spacing="8" style="-fx-padding: 12; -fx-background-color: #eff6ff; -fx-border-color: #93c5fd; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <Label text="📋 Résumé du Transfert" style="-fx-font-weight: 600; -fx-font-size: 13px;"/>
+                    <HBox spacing="8">
+                        <Label text="De:" style="-fx-font-weight: 600; -fx-min-width: 80;"/>
+                        <Label fx:id="lblTransferFromWallet" text="—"/>
+                    </HBox>
+                    <HBox spacing="8">
+                        <Label text="Vers:" style="-fx-font-weight: 600; -fx-min-width: 80;"/>
+                        <Label fx:id="lblTransferToWallet" text="—"/>
+                    </HBox>
+                    <HBox spacing="8">
+                        <Label text="Montant:" style="-fx-font-weight: 600; -fx-min-width: 80;"/>
+                        <Label fx:id="lblTransferPreviewAmount" text="—" style="-fx-text-fill: #2563eb; -fx-font-weight: 700;"/>
+                    </HBox>
+                </VBox>
+                
+                <HBox spacing="12" style="-fx-padding: 12 0 0 0;">
+                    <Button fx:id="btnConfirmTransfer" text="✓ Confirmer Transfert" styleClass="btn btn-primary" 
+                            prefHeight="42" HBox.hgrow="ALWAYS" onAction="#onConfirmTransfer"/>
+                    <Button text="Annuler" styleClass="btn btn-secondary" prefHeight="42" prefWidth="120" 
+                            onAction="#onCloseTransferPanel"/>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </VBox>
+
+    <!-- SLIDE-IN PANEL OVERLAY: Calculate Emissions -->
+    <VBox fx:id="emissionsCalculatorPanel" translateX="1200" managed="false" 
+          styleClass="slide-panel" style="-fx-min-width: 620; -fx-max-width: 620;">
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="slide-panel-header">
+            <Label text="⚡" style="-fx-font-size: 24px;"/>
+            <Label text="Calculateur d'Émissions GHG" styleClass="slide-panel-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="✕" styleClass="btn btn-icon" onAction="#onCloseEmissionsPanel" prefWidth="32" prefHeight="32"/>
+        </HBox>
+        
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+            <VBox spacing="20" style="-fx-padding: 24;">
+                
+                <!-- Scope Selector -->
+                <VBox spacing="10">
+                    <Label text="Sélectionner Scope GHG" styleClass="form-label"/>
+                    <HBox spacing="10">
+                        <ToggleButton fx:id="btnScope1" text="Scope 1: Direct" styleClass="scope-toggle" prefHeight="44" HBox.hgrow="ALWAYS"/>
+                        <ToggleButton fx:id="btnScope2" text="Scope 2: Énergie" styleClass="scope-toggle" prefHeight="44" HBox.hgrow="ALWAYS"/>
+                        <ToggleButton fx:id="btnScope3" text="Scope 3: Chaîne" styleClass="scope-toggle" prefHeight="44" HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                </VBox>
+                
+                <!-- Dynamic Form (Content changes based on scope selection) -->
+                <VBox fx:id="emissionsFormContainer" spacing="16">
+                    <!-- Controller will inject Scope-specific fields here -->
+                </VBox>
+                
+                <Separator/>
+                
+                <!-- Calculation Result Preview -->
+                <VBox fx:id="emissionsResultPane" spacing="12" style="-fx-padding: 16; -fx-background-color: #f9fafb; -fx-border-color: #e5e7eb; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8;" 
+                      managed="false" visible="false">
+                    <Label text="📊 Résultat du Calcul" style="-fx-font-weight: 700; -fx-font-size: 14px;"/>
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <Label text="Émissions:" style="-fx-font-weight: 600; -fx-min-width: 120;"/>
+                        <Label fx:id="lblCalcResultAmount" text="—" style="-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #dc2626;"/>
+                    </HBox>
+                    <HBox spacing="12">
+                        <Label text="Tier Qualité:" style="-fx-font-weight: 600; -fx-min-width: 120;"/>
+                        <Label fx:id="lblCalcResultTier" text="—"/>
+                    </HBox>
+                    <HBox spacing="12">
+                        <Label text="Incertitude:" style="-fx-font-weight: 600; -fx-min-width: 120;"/>
+                        <Label fx:id="lblCalcResultUncertainty" text="—"/>
+                    </HBox>
+                    <HBox spacing="12">
+                        <Label text="Méthodologie:" style="-fx-font-weight: 600; -fx-min-width: 120;"/>
+                        <Label fx:id="lblCalcResultMethodology" text="—" wrapText="true" style="-fx-max-width: 400;"/>
+                    </HBox>
+                </VBox>
+                
+                <HBox spacing="12" style="-fx-padding: 12 0 0 0;">
+                    <Button fx:id="btnCalculateNow" text="⚡ Calculer Maintenant" styleClass="btn btn-accent" 
+                            prefHeight="42" HBox.hgrow="ALWAYS" onAction="#onCalculateEmissions"/>
+                    <Button text="Fermer" styleClass="btn btn-secondary" prefHeight="42" prefWidth="120" 
+                            onAction="#onCloseEmissionsPanel"/>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </VBox>
+
+    <!-- SLIDE-IN PANEL: Create Wallet -->
+    <VBox fx:id="createWalletPanel" translateX="1200" managed="false" 
+          styleClass="slide-panel" style="-fx-min-width: 520; -fx-max-width: 520;">
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="slide-panel-header">
+            <Label text="🌱" style="-fx-font-size: 24px;"/>
+            <Label text="Créer Nouveau Wallet" styleClass="slide-panel-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="✕" styleClass="btn btn-icon" onAction="#onCloseCreateWalletPanel" prefWidth="32" prefHeight="32"/>
+        </HBox>
+        
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+            <VBox spacing="16" style="-fx-padding: 24;">
+                
+                <VBox spacing="8">
+                    <Label text="📛 Nom du Wallet" styleClass="form-label"/>
+                    <TextField fx:id="txtCreateWalletName" promptText="Ex: Wallet Projet Solaire 2026" styleClass="field"/>
+                </VBox>
+                
+                <VBox spacing="8">
+                    <Label text="🔢 Numéro (optionnel)" styleClass="form-label"/>
+                    <TextField fx:id="txtCreateWalletNumber" promptText="Laissez vide pour génération automatique" styleClass="field"/>
+                    <Label text="Laissez vide pour génération automatique" style="-fx-font-size: 10px; -fx-opacity: 0.6;"/>
+                </VBox>
+                
+                <VBox spacing="8">
+                    <Label text="💰 Crédits Initiaux (tCO₂)" styleClass="form-label"/>
+                    <TextField fx:id="txtCreateWalletCredits" promptText="0.00" text="0" styleClass="field"/>
+                </VBox>
+                
+                <Separator/>
+                
+                <HBox spacing="12" style="-fx-padding: 12 0 0 0;">
+                    <Button fx:id="btnConfirmCreateWallet" text="✓ Créer Wallet" styleClass="btn btn-primary" 
+                            prefHeight="42" HBox.hgrow="ALWAYS" onAction="#onConfirmCreateWallet"/>
+                    <Button text="Annuler" styleClass="btn btn-secondary" prefHeight="42" prefWidth="120" 
+                            onAction="#onCloseCreateWalletPanel"/>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </VBox>
+
+    <!-- SLIDE-IN PANEL: Edit Wallet -->
+    <VBox fx:id="editWalletPanel" translateX="1200" managed="false" 
+          styleClass="slide-panel" style="-fx-min-width: 520; -fx-max-width: 520;">
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="slide-panel-header">
+            <Label text="✏️" style="-fx-font-size: 24px;"/>
+            <Label text="Modifier Wallet" styleClass="slide-panel-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="✕" styleClass="btn btn-icon" onAction="#onCloseEditWalletPanel" prefWidth="32" prefHeight="32"/>
+        </HBox>
+        
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+            <VBox spacing="16" style="-fx-padding: 24;">
+                
+                <VBox spacing="8">
+                    <Label text="📛 Nom du Wallet" styleClass="form-label"/>
+                    <TextField fx:id="txtEditWalletName" styleClass="field"/>
+                </VBox>
+                
+                <VBox spacing="8">
+                    <Label text="🔢 Numéro Wallet" styleClass="form-label"/>
+                    <TextField fx:id="txtEditWalletNumber" editable="false" styleClass="field"/>
+                    <Label text="Le numéro ne peut pas être modifié" style="-fx-font-size: 10px; -fx-opacity: 0.6;"/>
+                </VBox>
+                
+                <Separator/>
+                
+                <HBox spacing="12" style="-fx-padding: 12 0 0 0;">
+                    <Button fx:id="btnConfirmEditWallet" text="✓ Sauvegarder" styleClass="btn btn-primary" 
+                            prefHeight="42" HBox.hgrow="ALWAYS" onAction="#onConfirmEditWallet"/>
+                    <Button text="Annuler" styleClass="btn btn-secondary" prefHeight="42" prefWidth="120" 
+                            onAction="#onCloseEditWalletPanel"/>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </VBox>
+
+    <!-- SLIDE-IN PANEL: Delete Wallet -->
+    <VBox fx:id="deleteWalletPanel" translateX="1200" managed="false" 
+          styleClass="slide-panel" style="-fx-min-width: 520; -fx-max-width: 520;">
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="slide-panel-header">
+            <Label text="⚠️" style="-fx-font-size: 24px;"/>
+            <Label text="Supprimer Wallet" styleClass="slide-panel-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="✕" styleClass="btn btn-icon" onAction="#onCloseDeleteWalletPanel" prefWidth="32" prefHeight="32"/>
+        </HBox>
+        
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" style="-fx-background-color: transparent;">
+            <VBox spacing="16" style="-fx-padding: 24;">
+                
+                <Label text="Êtes-vous sûr de vouloir supprimer ce wallet ?" style="-fx-font-size: 16px; -fx-font-weight: 600;"/>
+                
+                <VBox spacing="8" style="-fx-padding: 16; -fx-background-color: #fef2f2; -fx-border-color: #fecaca; -fx-border-width: 2; -fx-background-radius: 8; -fx-border-radius: 8;">
+                    <Label text="⚠️ Attention" style="-fx-font-weight: 600; -fx-font-size: 13px; -fx-text-fill: #dc2626;"/>
+                    <Label text="Cette action est irréversible. Toutes les données du wallet seront supprimées définitivement." 
+                           wrapText="true" style="-fx-font-size: 12px;"/>
+                    <Label text="Wallet à supprimer:" style="-fx-font-weight: 600; -fx-margin: 12 0 0 0;"/>
+                    <Label fx:id="lblDeleteWalletName" text="—" style="-fx-font-weight: 600; -fx-font-size: 14px; -fx-text-fill: #dc2626;"/>
+                </VBox>
+                
+                <Separator/>
+                
+                <VBox spacing="8">
+                    <Label text="📝 Confirmation" styleClass="form-label"/>
+                    <CheckBox fx:id="chkDeleteWalletConfirm" text="Je confirme la suppression de ce wallet"/>
+                </VBox>
+                
+                <HBox spacing="12" style="-fx-padding: 12 0 0 0;">
+                    <Button fx:id="btnConfirmDeleteWallet" text="❌ Supprimer Définitivement" styleClass="btn btn-danger" 
+                            prefHeight="42" HBox.hgrow="ALWAYS" onAction="#onConfirmDeleteWallet" disable="true"/>
+                    <Button text="Annuler" styleClass="btn btn-secondary" prefHeight="42" prefWidth="120" 
+                            onAction="#onCloseDeleteWalletPanel"/>
+                </HBox>
+            </VBox>
+        </ScrollPane>
+    </VBox>
+
+</StackPane>

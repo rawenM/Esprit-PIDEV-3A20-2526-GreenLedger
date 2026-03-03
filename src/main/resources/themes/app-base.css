@@ -968,6 +968,190 @@
     -fx-background-color: rgba(16, 185, 129, 0.2);
 }
 
+/* ===== MARKETPLACE-SPECIFIC STYLES ===== */
+
+.page-header {
+    -fx-padding: 20 24;
+    -fx-border-width: 0 0 2 0;
+}
+
+.page-header-icon {
+    -fx-font-size: 24px;
+}
+
+.section-subtitle {
+    -fx-font-size: 13px;
+    -fx-font-weight: 400;
+    -fx-letter-spacing: 0.1px;
+}
+
+.sidebar-icon {
+    -fx-font-size: 20px;
+}
+
+.sidebar-info-label {
+    -fx-font-size: 10px;
+    -fx-opacity: 0.6;
+    -fx-font-weight: 600;
+}
+
+.sidebar-action-label {
+    -fx-font-size: 10px;
+    -fx-opacity: 0.6;
+    -fx-font-weight: 600;
+}
+
+.sidebar-footer {
+    -fx-padding: 12 8;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+}
+
+.sidebar-footer-title {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+}
+
+.sidebar-footer-subtitle {
+    -fx-font-size: 9px;
+    -fx-opacity: 0.7;
+}
+
+.sidebar-section-padding {
+    -fx-padding: 12 8;
+}
+
+.sidebar-margin {
+    -fx-margin: 8 0;
+}
+
+.content-padding {
+    -fx-padding: 20;
+}
+
+.content-spacing {
+    -fx-padding: 24;
+}
+
+.scroll-pane-light {
+    -fx-background: #f9fafb;
+    -fx-background-color: #f9fafb;
+}
+
+/* Card variations - extend base .card class */
+.card.filter-card {
+    -fx-padding: 20;
+}
+
+.card.market-panel {
+    -fx-padding: 20;
+}
+
+.card.market-stat-card {
+    -fx-alignment: CENTER;
+}
+
+/* Price display variants */
+.price-accent {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+}
+
+.price-range-display {
+    -fx-font-size: 14px;
+    -fx-font-weight: 600;
+}
+
+.market-price-large {
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+}
+
+/* Market statistics boxes */
+.market-stat-box {
+    -fx-padding: 12;
+    -fx-background-radius: 8;
+}
+
+.market-stat-box.blue {
+}
+
+.market-stat-box.orange {
+}
+
+.market-stat-label {
+    -fx-font-size: 10px;
+    -fx-font-weight: 400;
+}
+
+.market-stat-value {
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+}
+
+.market-stat-value.blue {
+}
+
+.market-stat-value.orange {
+}
+
+.market-stat-value.dark {
+}
+
+/* Order history statistics */
+.order-stat-icon {
+    -fx-font-size: 24px;
+}
+
+.order-stat-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 400;
+}
+
+.order-stat-value {
+    -fx-font-size: 22px;
+    -fx-font-weight: 700;
+}
+
+.order-stat-value.accent {
+}
+
+.order-stat-value.dark {
+}
+
+/* Market chart styling */
+.market-chart {
+    -fx-background-color: transparent;
+    -fx-padding: 16;
+}
+
+.market-chart .chart-plot-background {
+}
+
+.market-chart .chart-vertical-grid-lines {
+    -fx-stroke-width: 1;
+}
+
+.market-chart .chart-horizontal-grid-lines {
+    -fx-stroke-width: 1;
+}
+
+.market-chart .chart-series-line {
+    -fx-stroke-width: 3;
+    -fx-effect: dropshadow(gaussian, rgba(16, 185, 129, 0.3), 4, 0, 0, 2);
+}
+
+.market-chart .chart-line-symbol {
+    -fx-background-radius: 6;
+    -fx-padding: 6;
+}
+
+.market-chart .axis-label {
+}
+
+.market-chart .axis-tick-label {
+}
+
 /* =====================================
    🎨 END OF GREENLEDGER DESIGN SYSTEM
    Modern. Vibrant. Smooth. Animated.
