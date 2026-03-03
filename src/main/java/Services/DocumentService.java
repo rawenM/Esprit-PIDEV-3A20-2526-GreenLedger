@@ -13,8 +13,6 @@ import java.util.UUID;
 
 public class DocumentService {
 
-    private final Connection cnx = MyConnection.getConnection();
-
     public String ensureProjectFolder(int projectId) throws IOException {
         Path base = Paths.get("uploads", "projects", String.valueOf(projectId));
         Files.createDirectories(base);
@@ -48,11 +46,13 @@ public class DocumentService {
         doc.setFileSize(size);
         doc.setImage(isImage);
 
-        insertMeta(doc);
+        try (Connection cnx = MyConnection.getConnection()) {
+            insertMeta(cnx, doc);
+        }
         return doc;
     }
 
-    private void insertMeta(ProjectDocument doc) throws SQLException {
+    private void insertMeta(Connection cnx, ProjectDocument doc) throws SQLException {
         String sql =
                 "INSERT INTO project_document (id_projet, file_name, stored_name, file_path, mime_type, file_size, is_image) " +
                         "VALUES (?,?,?,?,?,?,?)";
@@ -77,7 +77,8 @@ public class DocumentService {
         List<ProjectDocument> list = new ArrayList<>();
         String sql = "SELECT * FROM project_document WHERE id_projet=? ORDER BY uploaded_at DESC";
 
-        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+        try (Connection cnx = MyConnection.getConnection();
+             PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, projectId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
