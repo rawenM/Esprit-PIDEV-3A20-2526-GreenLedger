@@ -1,0 +1,77 @@
+═══════════════════════════════════════════════════════════
+  ✅ SOLUTION: 2 CHOIX DE CAPTCHA SUR LA PAGE DE LOGIN
+═══════════════════════════════════════════════════════════
+
+🎯 PROBLÈME RÉSOLU
+
+❌ Avant: reCAPTCHA lent dans JavaFX WebView
+✅ Maintenant: 2 choix au lieu d'un seul
+
+═══════════════════════════════════════════════════════════
+
+📋 LES 2 CHOIX
+
+┌─────────────────────────────────────────────────────────┐
+│                                                         │
+│  Méthode de vérification                                │
+│                                                         │
+│  ┌────────────────────┐  ┌────────────────────┐        │
+│  │  🔒 Google         │  │  🧩 Captcha        │        │
+│  │    reCAPTCHA       │  │     Puzzle         │        │
+│  │                    │  │                    │        │
+│  │  • Professionnel   │  │  • Rapide          │        │
+│  │  • Sécurisé        │  │  • Local           │        │
+│  │  • Bypass démo     │  │  • Sans API        │        │
+│  └────────────────────┘  └────────────────────┘        │
+│                                                         │
+└─────────────────────────────────────────────────────────┘
+
+═══════════════════════════════════════════════════════════
+
+🚀 POUR UTILISER
+
+1. Compiler:
+   ./compile-login-2-choix.bat
+
+2. Lancer:
+   ./run.bat
+
+3. Sur la page de login:
+   - Entrer email et mot de passe
+   - Cliquer sur un des 2 boutons
+   - Compléter la vérification
+   - Se connecter
+
+═══════════════════════════════════════════════════════════
+
+✨ AVANTAGES
+
+✅ Utilisateur choisit la méthode qui lui convient
+✅ reCAPTCHA avec bypass pour démo jury
+✅ Puzzle rapide et fluide (pas d'attente)
+✅ Montre vos compétences de développement
+
+═══════════════════════════════════════════════════════════
+
+📁 FICHIERS MODIFIÉS
+
+✅ src/main/resources/fxml/login.fxml
+✅ src/main/java/Controllers/LoginController.java
+✅ compile-login-2-choix.bat (nouveau)
+
+═══════════════════════════════════════════════════════════
+
+🎤 PHRASE POUR LE JURY
+
+"Notre plateforme offre 2 méthodes de vérification CAPTCHA 
+au choix: Google reCAPTCHA pour la sécurité maximale, et 
+notre Captcha Puzzle développé en interne pour une 
+expérience utilisateur optimale."
+
+═══════════════════════════════════════════════════════════
+
+✅ TOUT EST PRÊT!
+
+Compilez et testez maintenant.
+
+═══════════════════════════════════════════════════════════

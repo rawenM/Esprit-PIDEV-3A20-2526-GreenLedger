@@ -30,23 +30,33 @@ public class LoginController {
     @FXML private CheckBox rememberMeCheckbox;
     @FXML private Label errorLabel;
     @FXML private Button loginButton;
-    @FXML private Button fallbackCaptchaBtn;
+    @FXML private Button recaptchaChoiceBtn;
+    @FXML private Button puzzleChoiceBtn;
     @FXML private Button bypassCaptchaBtn;
+    @FXML private Button regeneratePuzzleBtn;
     @FXML private Hyperlink forgotPasswordLink;
     @FXML private Hyperlink registerLink;
     @FXML private WebView captchaWebView;
     @FXML private javafx.scene.layout.VBox captchaContainer;
-    @FXML private javafx.scene.layout.HBox simpleCaptchaBox;
-    @FXML private Label captchaQuestion;
-    @FXML private TextField captchaAnswer;
+    @FXML private javafx.scene.layout.VBox recaptchaBox;
+    @FXML private javafx.scene.layout.VBox puzzleBox;
+    @FXML private javafx.scene.layout.StackPane puzzleBackgroundPane;
+    @FXML private javafx.scene.image.ImageView puzzleBackgroundImage;
+    @FXML private javafx.scene.layout.StackPane puzzlePiecePane;
+    @FXML private javafx.scene.image.ImageView puzzlePieceImage;
+    @FXML private Slider puzzleSlider;
+    @FXML private Label puzzleResultLabel;
 
     private final IUserService userService = new UserServiceImpl();
     private final CaptchaService captchaService = new CaptchaService();
+    private final Utils.PuzzleCaptchaService puzzleCaptchaService = new Utils.PuzzleCaptchaService();
     private CaptchaHttpServer captchaHttpServer;
     private String captchaToken;
-    private int captchaExpectedAnswer = 0;
-    private boolean usingSimpleCaptcha = false;
+    private Utils.PuzzleCaptchaService.PuzzleCaptchaResult currentPuzzle;
     private boolean captchaBypassed = false;
+    private boolean puzzleVerified = false;
+    private boolean usingRecaptcha = false;
+    private boolean usingPuzzle = false;
     private javafx.animation.Timeline captchaResizeTimeline;
 
     @FXML
@@ -66,219 +76,195 @@ public class LoginController {
             }
         } catch (Exception ignored) {}
 
-        setupCaptcha();
+        // Afficher les 2 choix de captcha
+        System.out.println("[CLEAN] Page de login avec 2 choix de captcha");
     }
 
-    private void setupCaptcha() {
+    /**
+     * L'utilisateur choisit Google reCAPTCHA
+     */
+    @FXML
+    private void chooseRecaptcha(ActionEvent event) {
+        System.out.println("[CLEAN] Utilisateur a choisi: Google reCAPTCHA");
+        usingRecaptcha = true;
+        usingPuzzle = false;
+        puzzleVerified = false;
         captchaBypassed = false;
-        // Try reCAPTCHA first if configured
-        if (captchaService.isConfigured() && captchaWebView != null) {
-            String siteKey = captchaService.getSiteKey();
-            System.out.println("[CLEAN] reCAPTCHA configured with site key: " + siteKey.substring(0, Math.min(10, siteKey.length())) + "...");
-            System.out.println("[CLEAN] Loading reCAPTCHA v2 from local server");
-            
-            WebEngine engine = captchaWebView.getEngine();
-            engine.setJavaScriptEnabled(true);
-            
-            // Enable user agent to avoid blocking
-            engine.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-            
-            // Log load worker exceptions
-            try {
-                engine.getLoadWorker().exceptionProperty().addListener((o, old, ex) -> {
-                    if (ex != null) {
-                        System.err.println("[WEBVIEW] Exception: " + ex.getMessage());
-                    }
-                });
-            } catch (Exception ignored) {}
-            
-            // Set timeout to fallback to simple captcha
-            final boolean[] captchaLoaded = {false};
-            
-            // WebView is already visible by default in FXML
-            
-            new Thread(() -> {
+        
+        // Afficher le container
+        captchaContainer.setVisible(true);
+        captchaContainer.setManaged(true);
+        
+        // Afficher reCAPTCHA, cacher puzzle
+        recaptchaBox.setVisible(true);
+        recaptchaBox.setManaged(true);
+        puzzleBox.setVisible(false);
+        puzzleBox.setManaged(false);
+        
+        setupRecaptcha();
+    }
+
+    /**
+     * L'utilisateur choisit Captcha Puzzle
+     */
+    @FXML
+    private void choosePuzzle(ActionEvent event) {
+        System.out.println("[CLEAN] Utilisateur a choisi: Captcha Puzzle");
+        usingRecaptcha = false;
+        usingPuzzle = true;
+        puzzleVerified = false;
+        captchaBypassed = false;
+        
+        // Afficher le container
+        captchaContainer.setVisible(true);
+        captchaContainer.setManaged(true);
+        
+        // Afficher puzzle, cacher reCAPTCHA
+        puzzleBox.setVisible(true);
+        puzzleBox.setManaged(true);
+        recaptchaBox.setVisible(false);
+        recaptchaBox.setManaged(false);
+        
+        setupPuzzleCaptcha();
+    }
+
+    /**
+     * Configure Google reCAPTCHA
+     */
+    private void setupRecaptcha() {
+        if (!captchaService.isConfigured()) {
+            showError("reCAPTCHA n'est pas configuré");
+            return;
+        }
+
+        String siteKey = captchaService.getSiteKey();
+        System.out.println("[CLEAN] reCAPTCHA configured with site key: " + siteKey.substring(0, Math.min(10, siteKey.length())) + "...");
+        
+        WebEngine engine = captchaWebView.getEngine();
+        engine.setJavaScriptEnabled(true);
+        engine.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+        
+        engine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
+            System.out.println("[CLEAN] WebView state: " + newState);
+            if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
                 try {
-                    // Show fallback button after 10 seconds if token not received
-                    Thread.sleep(10000);
-                    javafx.application.Platform.runLater(() -> {
-                        if (!captchaLoaded[0] && fallbackCaptchaBtn != null && !usingSimpleCaptcha) {
-                            fallbackCaptchaBtn.setVisible(true);
-                            System.out.println("[CLEAN] Showing fallback captcha button after 10s");
-                        }
-                    });
-                    
-                    // NE PAS basculer automatiquement - laisser l'utilisateur choisir
-                    // L'utilisateur peut cliquer sur "Utiliser captcha simple" s'il le souhaite
-                } catch (InterruptedException e) {
+                    netscape.javascript.JSObject window =
+                            (netscape.javascript.JSObject) engine.executeScript("window");
+                    window.setMember("captchaBridge", new CaptchaBridge());
+                    startCaptchaAutoResize(engine);
+                    System.out.println("[CLEAN] reCAPTCHA WebView loaded and captchaBridge connected");
+                } catch (Exception e) {
+                    System.err.println("[CLEAN] Failed to initialize reCAPTCHA bridge: " + e.getMessage());
                     e.printStackTrace();
                 }
-            }).start();
-            
-            engine.setOnError(event -> {
-                System.err.println("[CLEAN] WebView error: " + event.getMessage());
-                // NE PAS basculer automatiquement vers le fallback
-                // L'erreur "User data directory already in use" est normale
-                // Le reCAPTCHA peut quand même fonctionner
-            });
-            
-            engine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
-                System.out.println("[CLEAN] WebView state: " + newState);
-                if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
-                    try {
-                        netscape.javascript.JSObject window =
-                                (netscape.javascript.JSObject) engine.executeScript("window");
-                        window.setMember("captchaBridge", new CaptchaBridge());
-                        captchaLoaded[0] = true;
-                        startCaptchaAutoResize(engine);
-                        System.out.println("[CLEAN] reCAPTCHA WebView loaded and captchaBridge connected");
-                    } catch (Exception e) {
-                        System.err.println("[CLEAN] Failed to initialize reCAPTCHA bridge: " + e.getMessage());
-                        e.printStackTrace();
-                        showSimpleCaptcha();
-                    }
-                } else if (newState == javafx.concurrent.Worker.State.FAILED) {
-                    System.err.println("[CLEAN] WebView failed to load");
-                    showSimpleCaptcha();
-                }
-            });
-            
-            try {
-                if (captchaHttpServer == null) {
-                    captchaHttpServer = new CaptchaHttpServer(siteKey);
-                    captchaHttpServer.start();
-                }
-                String url = captchaHttpServer.getCaptchaUrl();
-                engine.load(url);
-                System.out.println("[CLEAN] Loaded captcha from local server: " + url);
-            } catch (Exception e) {
-                System.err.println("[CLEAN] Failed to start local captcha server: " + e.getMessage());
-                e.printStackTrace();
-                showSimpleCaptcha();
+            } else if (newState == javafx.concurrent.Worker.State.FAILED) {
+                System.err.println("[CLEAN] WebView failed to load");
             }
-        } else {
-            // No reCAPTCHA configured, use simple captcha
-            System.out.println("[CLEAN] reCAPTCHA not configured - Using simple math captcha");
-            showSimpleCaptcha();
+        });
+        
+        try {
+            if (captchaHttpServer == null) {
+                captchaHttpServer = new CaptchaHttpServer(siteKey);
+                captchaHttpServer.start();
+            }
+            String url = captchaHttpServer.getCaptchaUrl();
+            engine.load(url);
+            System.out.println("[CLEAN] Loaded captcha from local server: " + url);
+        } catch (Exception e) {
+            System.err.println("[CLEAN] Failed to start local captcha server: " + e.getMessage());
+            e.printStackTrace();
         }
     }
-    
-    @FXML
-    private void useFallbackCaptcha(ActionEvent event) {
-        System.out.println("[CLEAN] User manually requested simple captcha");
-        showSimpleCaptcha();
+
+    /**
+     * Configure le Puzzle CAPTCHA
+     */
+    private void setupPuzzleCaptcha() {
+        currentPuzzle = puzzleCaptchaService.generatePuzzle();
+        if (currentPuzzle == null) {
+            showError("Erreur de génération du puzzle");
+            return;
+        }
+
+        // Charger les images
+        puzzleBackgroundImage.setImage(
+            Utils.PuzzleCaptchaService.base64ToImage(currentPuzzle.getBackgroundImageBase64())
+        );
+        puzzlePieceImage.setImage(
+            Utils.PuzzleCaptchaService.base64ToImage(currentPuzzle.getPuzzlePieceBase64())
+        );
+
+        // Réinitialiser le slider
+        puzzleSlider.setValue(0);
+        puzzleResultLabel.setVisible(false);
+        puzzleVerified = false;
+        
+        // Ajouter un listener pour déplacer visuellement la pièce avec le slider
+        puzzleSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            // Déplacer la pièce horizontalement selon la valeur du slider
+            double translateX = newVal.doubleValue();
+            puzzlePiecePane.setTranslateX(translateX);
+        });
+
+        System.out.println("[CLEAN] Puzzle généré, position correcte: " + currentPuzzle.getCorrectPosition());
+        System.out.println("[CLEAN] Images chargées - Background: " + (puzzleBackgroundImage.getImage() != null) + 
+                          ", Piece: " + (puzzlePieceImage.getImage() != null));
     }
 
+    /**
+     * Régénère un nouveau puzzle
+     */
+    @FXML
+    private void regeneratePuzzle(ActionEvent event) {
+        System.out.println("[CLEAN] Régénération du puzzle");
+        setupPuzzleCaptcha();
+    }
+
+    /**
+     * Vérifie la position du puzzle
+     */
+    @FXML
+    private void verifyPuzzle(ActionEvent event) {
+        if (currentPuzzle == null) {
+            showError("Aucun puzzle généré");
+            return;
+        }
+
+        int userPosition = (int) puzzleSlider.getValue();
+        boolean isValid = puzzleCaptchaService.verifyPosition(userPosition, currentPuzzle.getCorrectPosition());
+
+        if (isValid) {
+            puzzleVerified = true;
+            puzzleResultLabel.setText("✅ Correct!");
+            puzzleResultLabel.setStyle("-fx-text-fill: green; -fx-font-weight: bold;");
+            puzzleResultLabel.setVisible(true);
+            System.out.println("[CLEAN] Puzzle vérifié avec succès");
+        } else {
+            puzzleVerified = false;
+            puzzleResultLabel.setText("❌ Position incorrecte, réessayez");
+            puzzleResultLabel.setStyle("-fx-text-fill: red;");
+            puzzleResultLabel.setVisible(true);
+            System.out.println("[CLEAN] Puzzle vérification échouée");
+        }
+    }
+
+    /**
+     * Bypass temporaire du CAPTCHA (pour démo)
+     */
     @FXML
     private void bypassCaptcha(ActionEvent event) {
         captchaBypassed = true;
         System.out.println("[CLEAN] Captcha bypass enabled (temporary)");
-        if (captchaContainer != null) {
-            captchaContainer.setVisible(false);
-            captchaContainer.setManaged(false);
-        }
-    }
-    
-    private void showSimpleCaptcha() {
-        usingSimpleCaptcha = true;
-        if (simpleCaptchaBox != null && captchaQuestion != null) {
-            // Hide reCAPTCHA and fallback button
-            if (captchaWebView != null) {
-                captchaWebView.setVisible(false);
-                captchaWebView.setManaged(false);
-            }
-            if (fallbackCaptchaBtn != null) {
-                fallbackCaptchaBtn.setVisible(false);
-                fallbackCaptchaBtn.setManaged(false);
-            }
-            
-            // Generate simple math problem
-            int num1 = (int)(Math.random() * 10) + 1;
-            int num2 = (int)(Math.random() * 10) + 1;
-            captchaExpectedAnswer = num1 + num2;
-            captchaQuestion.setText("Combien fait " + num1 + " + " + num2 + " ?");
-            
-            // Show simple captcha
-            simpleCaptchaBox.setVisible(true);
-            simpleCaptchaBox.setManaged(true);
-            
-            System.out.println("[CLEAN] Simple math captcha shown: " + num1 + " + " + num2 + " = " + captchaExpectedAnswer);
-        }
-    }
-
-    private String buildCaptchaHtml(String siteKey) {
-        String safeKey = siteKey == null ? "" : siteKey;
-        return "<!DOCTYPE html>" +
-                "<html><head>" +
-                "<meta charset='UTF-8'/>" +
-                "<meta name='viewport' content='width=device-width, initial-scale=1'/>" +
-                "<script>" +
-                "  console.log('[reCAPTCHA] Loading script for key: " + safeKey.substring(0, Math.min(10, safeKey.length())) + "...');" +
-                "  window.onerror = function(msg, url, lineNo, columnNo, error) {" +
-                "    console.error('[reCAPTCHA Error] ' + msg + ' at ' + url + ':' + lineNo);" +
-                "    return false;" +
-                "  };" +
-                "</script>" +
-                "<script src='https://www.google.com/recaptcha/api.js?render=" + safeKey + "' " +
-                "        onerror=\"console.error('[reCAPTCHA] Failed to load script from Google')\" " +
-                "        onload=\"console.log('[reCAPTCHA] Script loaded successfully')\"></script>" +
-                "</head><body style='margin:0; padding:0; background:#f5f5f5; display:flex; align-items:center; justify-content:center; min-height:100px;'>" +
-                "<div style='text-align:center; color:#666; padding:20px;'>" +
-                "<div style='font-size:14px; font-weight:500;'>🔒 Chargement de la verification...</div>" +
-                "<div id='status' style='font-size:11px; margin-top:8px; color:#999;'>Patientez...</div>" +
-                "</div>" +
-                "<script>" +
-                "document.getElementById('status').textContent = 'Initialisation...';" +
-                "console.log('[reCAPTCHA] Starting grecaptcha.ready()');" +
-                "if (typeof grecaptcha !== 'undefined') {" +
-                "  grecaptcha.ready(function() {" +
-                "    console.log('[reCAPTCHA] grecaptcha ready, executing...');" +
-                "    document.getElementById('status').textContent = 'Execution...';" +
-                "    grecaptcha.execute('" + safeKey + "', {action: 'login'}).then(function(token) {" +
-                "      console.log('[reCAPTCHA] Token received: ' + token.substring(0, 20) + '...');" +
-                "      document.getElementById('status').textContent = '✓ Verifie';" +
-                "      if (window.javafxConnector && window.javafxConnector.setToken) {" +
-                "        window.javafxConnector.setToken(token);" +
-                "        console.log('[reCAPTCHA] Token sent to JavaFX');" +
-                "      } else {" +
-                "        console.error('[reCAPTCHA] JavaFX connector not found!');" +
-                "      }" +
-                "    }).catch(function(error) {" +
-                "      console.error('[reCAPTCHA] Execute error:', error);" +
-                "      document.getElementById('status').textContent = '✗ Erreur';" +
-                "    });" +
-                "  });" +
-                "} else {" +
-                "  console.error('[reCAPTCHA] grecaptcha object not found - script failed to load');" +
-                "  document.getElementById('status').textContent = 'Utilisation de la verification alternative...';" +
-                "}" +
-                "</script>" +
-                "</body></html>";
+        showError("Mode démo: captcha bypassé");
     }
 
     private class CaptchaBridge {
         public void onCaptchaSuccess(String token) {
             captchaToken = token;
             System.out.println("[CLEAN] reCAPTCHA token received (length: " + (token != null ? token.length() : 0) + ")");
-            // Hide fallback button since reCAPTCHA is working
             javafx.application.Platform.runLater(() -> {
-                if (fallbackCaptchaBtn != null) {
-                    fallbackCaptchaBtn.setVisible(false);
-                }
                 System.out.println("[CLEAN] Captcha validated successfully");
             });
-        }
-        
-        public void onCaptchaFailed(String reason) {
-            System.err.println("[CLEAN] reCAPTCHA failed: " + reason);
-            javafx.application.Platform.runLater(() -> {
-                showSimpleCaptcha();
-            });
-        }
-        
-        // Legacy compatibility
-        public void setToken(String token) {
-            onCaptchaSuccess(token);
         }
     }
 
@@ -294,30 +280,10 @@ public class LoginController {
         }
 
         // Verify captcha
-        if (usingSimpleCaptcha) {
-            // Verify simple math captcha
-            if (captchaAnswer == null || captchaAnswer.getText().trim().isEmpty()) {
-                showError("Veuillez repondre a la question de verification");
-                return;
-            }
-            try {
-                int userAnswer = Integer.parseInt(captchaAnswer.getText().trim());
-                if (userAnswer != captchaExpectedAnswer) {
-                    showError("Reponse incorrecte. Reessayez.");
-                    showSimpleCaptcha(); // Generate new question
-                    captchaAnswer.clear();
-                    return;
-                }
-                System.out.println("[CLEAN] Simple captcha verified");
-            } catch (NumberFormatException e) {
-                showError("Veuillez entrer un nombre valide");
-                return;
-            }
-        } else if (captchaService.isConfigured()) {
-            if (captchaBypassed) {
-                System.out.println("[CLEAN] Captcha bypassed for this login");
-            } else {
-            // Verify reCAPTCHA (v2 checkbox)
+        if (captchaBypassed) {
+            System.out.println("[CLEAN] Captcha bypassed for this login");
+        } else if (usingRecaptcha) {
+            // Verify reCAPTCHA
             if ((captchaToken == null || captchaToken.trim().isEmpty()) && captchaWebView != null) {
                 try {
                     Object response = captchaWebView.getEngine().executeScript(
@@ -341,7 +307,17 @@ public class LoginController {
                 return;
             }
             System.out.println("[CLEAN] reCAPTCHA verified");
+        } else if (usingPuzzle) {
+            // Verify Puzzle
+            if (!puzzleVerified) {
+                showError("Veuillez completer et verifier le puzzle");
+                return;
             }
+            System.out.println("[CLEAN] Puzzle verified");
+        } else {
+            // Aucun captcha sélectionné
+            showError("Veuillez choisir une methode de verification");
+            return;
         }
 
         try {
@@ -383,12 +359,7 @@ public class LoginController {
     }
 
     private void resetCaptcha() {
-        if (usingSimpleCaptcha) {
-            showSimpleCaptcha();
-            if (captchaAnswer != null) {
-                captchaAnswer.clear();
-            }
-        } else {
+        if (usingRecaptcha) {
             captchaToken = null;
             captchaBypassed = false;
             if (captchaWebView != null && captchaService.isConfigured()) {
@@ -402,6 +373,8 @@ public class LoginController {
                     "}"
                 );
             }
+        } else if (usingPuzzle) {
+            setupPuzzleCaptcha();
         }
     }
 

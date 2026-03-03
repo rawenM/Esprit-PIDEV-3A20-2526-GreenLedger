@@ -1,0 +1,70 @@
+═══════════════════════════════════════════════════════════
+  ✅ CORRIGER "Aucune analyse de fraude"
+═══════════════════════════════════════════════════════════
+
+🎯 PROBLÈME
+
+Bouton "Détail Fraude" → Message d'erreur
+
+═══════════════════════════════════════════════════════════
+
+✅ SOLUTION EN 3 ÉTAPES
+
+1️⃣ OUVRIR MYSQL WORKBENCH
+   (ou phpMyAdmin si vous préférez)
+
+2️⃣ EXÉCUTER CE SQL
+
+   Copier-coller dans MySQL Workbench:
+
+   ┌─────────────────────────────────────────────────────┐
+   │ USE greenledger;                                    │
+   │                                                     │
+   │ INSERT INTO fraud_detection (...)                  │
+   │ SELECT ... FROM user u ...                         │
+   │ WHERE fd.id IS NULL;                               │
+   │                                                     │
+   │ UPDATE user u ...                                  │
+   │ SET u.fraud_score = fd.risk_score ...              │
+   └─────────────────────────────────────────────────────┘
+
+   Le SQL complet est dans:
+   → generer_analyses_fraude_existantes.sql
+   → EXECUTER_SQL_MANUELLEMENT.txt
+
+3️⃣ TESTER
+
+   - Relancer l'application
+   - Aller sur la page admin
+   - Cliquer "Détail Fraude"
+   - ✅ Ça marche!
+
+═══════════════════════════════════════════════════════════
+
+📋 MÉTHODE RAPIDE: MySQL Workbench
+
+1. Ouvrir MySQL Workbench
+2. Se connecter
+3. File → Open SQL Script
+4. Sélectionner: generer_analyses_fraude_existantes.sql
+5. Cliquer ⚡ Execute
+6. ✅ Terminé!
+
+═══════════════════════════════════════════════════════════
+
+📋 MÉTHODE ALTERNATIVE: phpMyAdmin
+
+1. Ouvrir http://localhost/phpmyadmin
+2. Sélectionner base "greenledger"
+3. Onglet "SQL"
+4. Copier-coller le SQL
+5. Cliquer "Exécuter"
+6. ✅ Terminé!
+
+═══════════════════════════════════════════════════════════
+
+✅ FAITES-LE MAINTENANT!
+
+Ouvrez MySQL Workbench et exécutez le SQL.
+
+═══════════════════════════════════════════════════════════
