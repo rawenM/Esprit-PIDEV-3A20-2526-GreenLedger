@@ -1,12 +1,5 @@
 package tools;
 
-<<<<<<< HEAD
-public class PdfRestTestMain {
-    public static void main(String[] args) {
-        System.out.println("PdfRest integration removed.");
-    }
-}
-=======
 import Services.PdfRestService;
 
 public class PdfRestTestMain {
@@ -21,5 +14,3 @@ public class PdfRestTestMain {
         }
     }
 }
-
->>>>>>> yassine_antar

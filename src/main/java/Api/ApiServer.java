@@ -8,35 +8,23 @@ import Services.AdvancedEvaluationFacade;
 import Services.CritereImpactService;
 import Services.EvaluationService;
 import Services.PdfService;
-<<<<<<< HEAD
-=======
 import Services.PdfRestService;
->>>>>>> yassine_antar
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
-<<<<<<< HEAD
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-=======
-import java.io.File;
-import java.io.IOException;
->>>>>>> yassine_antar
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-<<<<<<< HEAD
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-=======
-import java.util.*;
->>>>>>> yassine_antar
 import java.util.stream.Collectors;
 
 /**
@@ -66,15 +54,12 @@ public class ApiServer {
         server.createContext("/api/ai/evaluations/suggest-decision", this::handleSuggestDecision);
         server.createContext("/api/evaluations/pdf", this::handleEvaluationPdf);
         server.createContext("/api/ai/doccat", this::handleDoccat); // ML debug endpoint
-<<<<<<< HEAD
         server.createContext("/api/ai/evaluations/predict", this::handlePredictDecision);
         server.createContext("/predict", this::handlePredictDecision);
-=======
         // New endpoint: extract text from a PDF file using external pdfrest API with local fallback
         server.createContext("/api/pdf/extract", this::handlePdfExtract);
         // New endpoint: upload PDF bytes (POST) and extract text
         server.createContext("/api/pdf/upload-extract", this::handlePdfUploadExtract);
->>>>>>> yassine_antar
         server.createContext("/webhooks/stripe", this::handleStripeWebhook); // Stripe webhook endpoint
 
         server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
@@ -82,8 +67,6 @@ public class ApiServer {
         server.start();
     }
 
-<<<<<<< HEAD
-=======
     /**
      * GET /api/pdf/extract?path={localPath}
      * Responds with JSON: { success: bool, text: string|null, error: string|null }
@@ -156,7 +139,6 @@ public class ApiServer {
         }
     }
 
->>>>>>> yassine_antar
     private void handleListReferences(HttpExchange exchange) throws IOException {
         if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
             send(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
@@ -350,7 +332,6 @@ public class ApiServer {
         }
     }
 
-<<<<<<< HEAD
     private void handlePredictDecision(HttpExchange exchange) throws IOException {
         if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
             send(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
@@ -505,9 +486,6 @@ public class ApiServer {
         }
         return new File(System.getProperty("user.dir"));
     }
-
-=======
->>>>>>> yassine_antar
     // Helpers
 
     private void send(HttpExchange exchange, int status, String body) throws IOException {

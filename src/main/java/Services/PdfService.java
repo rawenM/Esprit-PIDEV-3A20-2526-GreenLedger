@@ -15,15 +15,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-<<<<<<< HEAD
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-import java.util.Locale;
-=======
 import java.security.MessageDigest;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
->>>>>>> yassine_antar
+import java.util.stream.Collectors;
 import java.util.stream.Collectors;
 
 /**
@@ -102,60 +97,7 @@ public class PdfService {
                 y = writeParagraph(cs, safe(evaluation.getObservations()), margin, y, 480, 11, 14);
 
                 y -= 4;
-<<<<<<< HEAD
-                // Criteria summary (no detailed list)
-                cs.beginText();
-                cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
-                cs.newLineAtOffset(margin, y);
-                cs.showText("Synthese des criteres");
-                cs.endText();
-                y -= 16;
-
-                y = writeWrapped(cs, "Nombre de criteres evalues: " + criteres.size(), margin, y, 12);
-                y -= 2;
-
-                // ESG summary
-                ProjectEsgService.EsgBreakdown b = new ProjectEsgService().breakdown(criteres);
-                int esg100 = (int) Math.round(b.esg10 * 10.0);
-                y = writeWrapped(cs, "Score ESG: " + esg100 + "/100", margin, y, 12);
-                y = writeWrapped(cs, "Formule: ESG = 50%*E + 30%*S + 20%*G (0-10) puis x10 -> 0-100", margin, y, 12);
-                y = writeWrapped(cs, String.format(java.util.Locale.ROOT, "E=%.2f, S=%.2f, G=%.2f, ESG(0-10)=%.2f", b.e, b.s, b.g, b.esg10), margin, y, 12);
-
-                // Penalties (simplified)
-                y -= 4;
-                cs.beginText();
-                cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
-                cs.newLineAtOffset(margin, y);
-                cs.showText("Penalites appliquees");
-                cs.endText();
-                y -= 16;
-                y = writeWrapped(cs, "- Critere non respecte: note x 0.6", margin, y, 12);
-                y = writeWrapped(cs, "- CO2 < 4: penalite forte sur l'impact", margin, y, 12);
-                y = writeWrapped(cs, "- Echec environnemental (<4): impact reduit", margin, y, 14);
-
-                // IA
-                if (suggestion != null) {
-                    y -= 6;
-                    cs.beginText();
-                    cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
-                    cs.newLineAtOffset(margin, y);
-                    cs.showText("Facteurs cles");
-                    cs.endText();
-                    y -= 16;
-
-                    if (suggestion.getTopFactors() != null && !suggestion.getTopFactors().isEmpty()) {
-                        for (String f : suggestion.getTopFactors()) {
-                            y = writeWrapped(cs, "- " + f, margin, y, 12);
-                            if (y < 100) y = newPage(doc, cs);
-                        }
-                    } else {
-                        y = writeWrapped(cs, "Facteurs cles non disponibles.", margin, y, 12);
-                    }
-                }
-
-                // Recommendations
-=======
-                // Criteria header
+                // Criteria header AND summary
                 cs.beginText();
                 cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 cs.newLineAtOffset(margin, y);
@@ -163,7 +105,7 @@ public class PdfService {
                 cs.endText();
                 y -= 16;
 
-                // Criteria rows
+                // Criteria rows with details
                 for (EvaluationResult r : criteres) {
                     String line = String.format(Locale.ROOT, "- [%s] Note: %d | Respecté: %s",
                             safe(r.getNomCritere() == null ? ("#" + r.getIdCritere()) : r.getNomCritere()),
@@ -179,9 +121,35 @@ public class PdfService {
                     }
                 }
 
-                // AI suggestion
+                // ESG summary
+                y -= 4;
+                cs.beginText();
+                cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                cs.newLineAtOffset(margin, y);
+                cs.showText("Synthese ESG");
+                cs.endText();
+                y -= 16;
+
+                ProjectEsgService.EsgBreakdown b = new ProjectEsgService().breakdown(criteres);
+                int esg100 = (int) Math.round(b.esg10 * 10.0);
+                y = writeWrapped(cs, "Score ESG: " + esg100 + "/100", margin, y, 12);
+                y = writeWrapped(cs, String.format(java.util.Locale.ROOT, "E=%.2f, S=%.2f, G=%.2f, ESG(0-10)=%.2f", b.e, b.s, b.g, b.esg10), margin, y, 12);
+
+                // Penalties
+                y -= 4;
+                cs.beginText();
+                cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                cs.newLineAtOffset(margin, y);
+                cs.showText("Penalites appliquees");
+                cs.endText();
+                y -= 16;
+                y = writeWrapped(cs, "- Critere non respecte: note x 0.6", margin, y, 12);
+                y = writeWrapped(cs, "- CO2 < 4: penalite forte sur l'impact", margin, y, 12);
+                y = writeWrapped(cs, "- Echec environnemental (<4): impact reduit", margin, y, 14);
+
+                // IA - Analyse et Facteurs
                 if (suggestion != null) {
-                    y -= 8;
+                    y -= 6;
                     cs.beginText();
                     cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
                     cs.newLineAtOffset(margin, y);
@@ -201,33 +169,15 @@ public class PdfService {
                         }
                     }
                 }
-
-                // Recommendations (actionables only)
->>>>>>> yassine_antar
                 y -= 8;
                 cs.beginText();
                 cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 cs.newLineAtOffset(margin, y);
-<<<<<<< HEAD
-                cs.showText("Recommandations");
-=======
                 cs.showText("Actions recommandées");
->>>>>>> yassine_antar
                 cs.endText();
                 y -= 16;
 
                 Services.AdvancedEvaluationFacade facade = new Services.AdvancedEvaluationFacade();
-<<<<<<< HEAD
-                java.util.List<String> recs = facade.criterionRecommendations(criteres);
-                java.util.List<String> actionable = recs.stream()
-                        .filter(r -> !r.contains("OK – Maintenir"))
-                        .collect(java.util.stream.Collectors.toList());
-                if (actionable.isEmpty()) {
-                    y = writeWrapped(cs, "Aucune action prioritaire identifiee. Les bonnes pratiques sont a maintenir.", margin, y, 12);
-                } else {
-                    for (String r : actionable) {
-                        y = writeParagraph(cs, "- " + r, margin, y, 480, 11, 12);
-=======
                 List<String> recs = facade.criterionRecommendations(criteres);
                 List<String> actionable = recs.stream()
                         .filter(r -> !r.contains("OK – Maintenir"))
@@ -237,16 +187,9 @@ public class PdfService {
                 } else {
                     for (String r : actionable) {
                         y = writeParagraph(cs, " - " + r, margin, y, 480, 11, 12);
->>>>>>> yassine_antar
                         if (y < 80) y = newPage(doc, cs);
                     }
                 }
-
-<<<<<<< HEAD
-                // (No signature in base PDF)
-=======
-                // (No electronic hash/fingerprint in base PDF)
->>>>>>> yassine_antar
             }
 
             doc.save(outputFile);
@@ -324,56 +267,7 @@ public class PdfService {
                 y = writeParagraph(cs, safe(evaluation.getObservations()), margin, y, 480, 11, 14);
 
                 y -= 4;
-<<<<<<< HEAD
-                // Criteria summary (no detailed list)
-                cs.beginText();
-                cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
-                cs.newLineAtOffset(margin, y);
-                cs.showText("Synthese des criteres");
-                cs.endText();
-                y -= 16;
-
-                y = writeWrapped(cs, "Nombre de criteres evalues: " + criteres.size(), margin, y, 12);
-                y -= 2;
-
-                // ESG summary
-                ProjectEsgService.EsgBreakdown b = new ProjectEsgService().breakdown(criteres);
-                int esg100 = (int) Math.round(b.esg10 * 10.0);
-                y = writeWrapped(cs, "Score ESG: " + esg100 + "/100", margin, y, 12);
-                y = writeWrapped(cs, "Formule: ESG = 50%*E + 30%*S + 20%*G (0-10) puis x10 -> 0-100", margin, y, 12);
-                y = writeWrapped(cs, String.format(java.util.Locale.ROOT, "E=%.2f, S=%.2f, G=%.2f, ESG(0-10)=%.2f", b.e, b.s, b.g, b.esg10), margin, y, 12);
-
-                // Penalties (simplified)
-                y -= 4;
-                cs.beginText();
-                cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
-                cs.newLineAtOffset(margin, y);
-                cs.showText("Penalites appliquees");
-                cs.endText();
-                y -= 16;
-                y = writeWrapped(cs, "- Critere non respecte: note x 0.6", margin, y, 12);
-                y = writeWrapped(cs, "- CO2 < 4: penalite forte sur l'impact", margin, y, 12);
-                y = writeWrapped(cs, "- Echec environnemental (<4): impact reduit", margin, y, 14);
-
-                // IA
-                if (suggestion != null) {
-                    y -= 6;
-                    cs.beginText();
-                    cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
-                    cs.newLineAtOffset(margin, y);
-                    cs.showText("Facteurs cles");
-                    cs.endText();
-                    y -= 16;
-
-                    if (suggestion.getTopFactors() != null && !suggestion.getTopFactors().isEmpty()) {
-                        for (String f : suggestion.getTopFactors()) {
-                            y = writeWrapped(cs, "- " + f, margin, y, 12);
-                            if (y < 100) y = newPage(doc, cs);
-                        }
-                    } else {
-                        y = writeWrapped(cs, "Facteurs cles non disponibles.", margin, y, 12);
-=======
-                // Criteria header
+                // Criteria header AND summary
                 cs.beginText();
                 cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 cs.newLineAtOffset(margin, y);
@@ -381,6 +275,7 @@ public class PdfService {
                 cs.endText();
                 y -= 16;
 
+                // Criteria rows with details
                 for (EvaluationResult r : criteres) {
                     String line = String.format(java.util.Locale.ROOT, "- [%s] Note: %d | Respecté: %s",
                             safe(r.getNomCritere() == null ? ("#" + r.getIdCritere()) : r.getNomCritere()),
@@ -395,6 +290,32 @@ public class PdfService {
                         y = newPage(doc, cs);
                     }
                 }
+
+                // ESG summary
+                y -= 4;
+                cs.beginText();
+                cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                cs.newLineAtOffset(margin, y);
+                cs.showText("Synthese ESG");
+                cs.endText();
+                y -= 16;
+
+                ProjectEsgService.EsgBreakdown b = new ProjectEsgService().breakdown(criteres);
+                int esg100 = (int) Math.round(b.esg10 * 10.0);
+                y = writeWrapped(cs, "Score ESG: " + esg100 + "/100", margin, y, 12);
+                y = writeWrapped(cs, String.format(java.util.Locale.ROOT, "E=%.2f, S=%.2f, G=%.2f, ESG(0-10)=%.2f", b.e, b.s, b.g, b.esg10), margin, y, 12);
+
+                // Penalties
+                y -= 4;
+                cs.beginText();
+                cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
+                cs.newLineAtOffset(margin, y);
+                cs.showText("Penalites appliquees");
+                cs.endText();
+                y -= 16;
+                y = writeWrapped(cs, "- Critere non respecte: note x 0.6", margin, y, 12);
+                y = writeWrapped(cs, "- CO2 < 4: penalite forte sur l'impact", margin, y, 12);
+                y = writeWrapped(cs, "- Echec environnemental (<4): impact reduit", margin, y, 14);
 
                 // IA
                 if (suggestion != null) {
@@ -416,7 +337,6 @@ public class PdfService {
                             y = writeWrapped(cs, " - " + f, margin + 10, y, 12);
                             if (y < 100) y = newPage(doc, cs);
                         }
->>>>>>> yassine_antar
                     }
                 }
 
@@ -425,11 +345,7 @@ public class PdfService {
                 cs.beginText();
                 cs.setFont(PDType1Font.HELVETICA_BOLD, 12);
                 cs.newLineAtOffset(margin, y);
-<<<<<<< HEAD
-                cs.showText("Recommandations");
-=======
                 cs.showText("Actions recommandées");
->>>>>>> yassine_antar
                 cs.endText();
                 y -= 16;
 
@@ -439,17 +355,10 @@ public class PdfService {
                         .filter(r -> !r.contains("OK – Maintenir"))
                         .collect(java.util.stream.Collectors.toList());
                 if (actionable.isEmpty()) {
-<<<<<<< HEAD
-                    y = writeWrapped(cs, "Aucune action prioritaire identifiee. Les bonnes pratiques sont a maintenir.", margin, y, 12);
-                } else {
-                    for (String r : actionable) {
-                        y = writeParagraph(cs, "- " + r, margin, y, 480, 11, 12);
-=======
                     y = writeWrapped(cs, "Aucune action prioritaire identifiée. Les bonnes pratiques sont à maintenir.", margin, y, 12);
                 } else {
                     for (String r : actionable) {
                         y = writeParagraph(cs, " - " + r, margin, y, 480, 11, 12);
->>>>>>> yassine_antar
                         if (y < 80) y = newPage(doc, cs);
                     }
                 }
@@ -480,8 +389,6 @@ public class PdfService {
         return outputFile;
     }
 
-<<<<<<< HEAD
-=======
     private String buildSignaturePayload(Evaluation e, List<EvaluationResult> criteres) {
         StringBuilder sb = new StringBuilder();
         sb.append(e.getIdEvaluation()).append('|')
@@ -512,7 +419,6 @@ public class PdfService {
         }
     }
 
->>>>>>> yassine_antar
     private byte[] loadResourceBytes(String path) {
         try (InputStream is = PdfService.class.getResourceAsStream(path);
              ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
@@ -622,9 +528,4 @@ public class PdfService {
 
         return t;
     }
-<<<<<<< HEAD
 }
-
-=======
-}
->>>>>>> yassine_antar

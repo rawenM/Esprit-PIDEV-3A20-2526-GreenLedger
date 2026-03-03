@@ -63,15 +63,7 @@ public class WalletService {
                 wallet.setWalletNumber(generateUniqueWalletNumber());
             }
             
-<<<<<<< HEAD
             ps.setString(1, String.valueOf(wallet.getWalletNumber()));
-=======
-<<<<<<< HEAD
-            ps.setInt(1, wallet.getWalletNumber());
-=======
-            ps.setString(1, String.valueOf(wallet.getWalletNumber()));
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
             ps.setString(2, wallet.getName());
             ps.setString(3, wallet.getOwnerType());
             ps.setInt(4, wallet.getOwnerId());
@@ -84,28 +76,14 @@ public class WalletService {
                 return rs.getInt(1);
             }
         } catch (SQLException ex) {
-<<<<<<< HEAD
             if (isUnknownColumnError(ex, "name")) {
                 return createWalletWithoutName(wallet);
             }
-=======
-<<<<<<< HEAD
-=======
-            if (isUnknownColumnError(ex, "name")) {
-                return createWalletWithoutName(wallet);
-            }
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
             System.out.println("Error creating wallet: " + ex.getMessage());
         }
         return -1;
     }
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> yassine_antar
     private int createWalletWithoutName(Wallet wallet) {
         String sql = "INSERT INTO wallet (wallet_number, owner_type, owner_id, available_credits, retired_credits) " +
                      "VALUES (?, ?, ?, ?, ?)";
@@ -131,11 +109,6 @@ public class WalletService {
         }
         return -1;
     }
-
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
     /**
      * Read all wallets.
      */
@@ -224,28 +197,14 @@ public class WalletService {
             
             return ps.executeUpdate() > 0;
         } catch (SQLException ex) {
-<<<<<<< HEAD
             if (isUnknownColumnError(ex, "name")) {
                 return updateWalletWithoutName(wallet);
             }
-=======
-<<<<<<< HEAD
-=======
-            if (isUnknownColumnError(ex, "name")) {
-                return updateWalletWithoutName(wallet);
-            }
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
             System.out.println("Error updating wallet: " + ex.getMessage());
         }
         return false;
     }
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> yassine_antar
     private boolean updateWalletWithoutName(Wallet wallet) {
         String sql = "UPDATE wallet SET owner_type = ? WHERE id = ?";
 
@@ -258,11 +217,6 @@ public class WalletService {
         }
         return false;
     }
-
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
     /**
      * Delete wallet (only if zero credits).
      */
@@ -665,34 +619,12 @@ public class WalletService {
                 ps.executeUpdate();
             }
             
-<<<<<<< HEAD
-            // 3. Record transactions
-<<<<<<< HEAD
-=======
             // Record linked transactions with transfer_pair_id
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
             String note = String.format("%s (Transfer to Wallet #%s)", referenceNote, safeWalletNumber(toWallet.getWalletNumber()));
             recordTransferTransaction(fromWalletId, null, "TRANSFER_OUT", amount, note, transferPairId);
             
             String noteIn = String.format("%s (Transfer from Wallet #%s)", referenceNote, safeWalletNumber(fromWallet.getWalletNumber()));
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-            String note = String.format("%s (Transfer to Wallet #%d)", referenceNote, toWallet.getWalletNumber());
-            recordTransaction(fromWalletId, null, "TRANSFER_OUT", amount, note);
-            
-            String noteIn = String.format("%s (Transfer from Wallet #%d)", referenceNote, fromWallet.getWalletNumber());
-=======
-            String note = String.format("%s (Transfer to Wallet #%s)", referenceNote, safeWalletNumber(toWallet.getWalletNumber()));
-            recordTransaction(fromWalletId, null, "TRANSFER_OUT", amount, note);
-            
-            String noteIn = String.format("%s (Transfer from Wallet #%s)", referenceNote, safeWalletNumber(fromWallet.getWalletNumber()));
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-            recordTransaction(toWalletId, null, "TRANSFER_IN", amount, noteIn);
-=======
             recordTransferTransaction(toWalletId, null, "TRANSFER_IN", amount, noteIn, transferPairId);
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
             
             // Only commit if we started the transaction
             if (!wasInTransaction) {
@@ -1427,7 +1359,6 @@ public class WalletService {
     private void recordTransaction(int walletId, Integer batchId, String type, double amount, String note) throws SQLException {
         String sql = "INSERT INTO wallet_transactions (wallet_id, batch_id, type, amount, reference_note, created_at) " +
                      "VALUES (?, ?, ?, ?, ?, ?)";
-<<<<<<< HEAD
         Integer effectiveBatchId = batchId != null ? batchId : 0;
         String effectiveType = normalizeTransactionType(type);
         
@@ -1435,32 +1366,10 @@ public class WalletService {
             ps.setInt(1, walletId);
             ps.setInt(2, effectiveBatchId);
             ps.setString(3, effectiveType);
-=======
-<<<<<<< HEAD
-        
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, walletId);
-            ps.setObject(2, batchId);
-            ps.setString(3, type);
-=======
-        Integer effectiveBatchId = batchId != null ? batchId : 0;
-        String effectiveType = normalizeTransactionType(type);
-        
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, walletId);
-            ps.setInt(2, effectiveBatchId);
-            ps.setString(3, effectiveType);
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
             ps.setDouble(4, amount);
             ps.setString(5, note);
             ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
             ps.executeUpdate();
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> yassine_antar
         } catch (SQLException ex) {
             if (isUnknownColumnError(ex, "created_at")) {
                 recordTransactionWithoutCreatedAt(walletId, effectiveBatchId, effectiveType, amount, note);
@@ -1479,10 +1388,7 @@ public class WalletService {
             ps.setDouble(4, amount);
             ps.setString(5, note);
             ps.executeUpdate();
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
+        }
         }
     }
 
@@ -1578,24 +1484,6 @@ public class WalletService {
     private Wallet mapResultSetToWallet(ResultSet rs) throws SQLException {
         Wallet wallet = new Wallet();
         wallet.setId(rs.getInt("id"));
-<<<<<<< HEAD
-        wallet.setWalletNumber(readInteger(rs, "wallet_number"));
-        wallet.setName(readString(rs, "name"));
-=======
-<<<<<<< HEAD
-        wallet.setWalletNumber((Integer) rs.getObject("wallet_number"));
-        wallet.setName(rs.getString("name"));
->>>>>>> yassine_antar
-        wallet.setOwnerType(rs.getString("owner_type"));
-        Integer ownerId = readInteger(rs, "owner_id");
-        wallet.setOwnerId(ownerId != null ? ownerId : 0);
-        wallet.setAvailableCredits(rs.getDouble("available_credits"));
-        wallet.setRetiredCredits(rs.getDouble("retired_credits"));
-<<<<<<< HEAD
-        wallet.setCreatedAt(readLocalDateTime(rs, "created_at"));
-=======
-        wallet.setCreatedAt(rs.getTimestamp("created_at").toLocalDateTime());
-=======
         wallet.setWalletNumber(readInteger(rs, "wallet_number"));
         wallet.setName(readString(rs, "name"));
         wallet.setOwnerType(rs.getString("owner_type"));
@@ -1604,8 +1492,6 @@ public class WalletService {
         wallet.setAvailableCredits(rs.getDouble("available_credits"));
         wallet.setRetiredCredits(rs.getDouble("retired_credits"));
         wallet.setCreatedAt(readLocalDateTime(rs, "created_at"));
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
         return wallet;
     }
 
@@ -1617,15 +1503,7 @@ public class WalletService {
         batch.setTotalAmount(rs.getBigDecimal("total_amount"));
         batch.setRemainingAmount(rs.getBigDecimal("remaining_amount"));
         batch.setStatus(rs.getString("status"));
-<<<<<<< HEAD
         batch.setIssuedAt(readLocalDateTime(rs, "issued_at"));
-=======
-<<<<<<< HEAD
-        batch.setIssuedAt(rs.getTimestamp("issued_at").toLocalDateTime());
-=======
-        batch.setIssuedAt(readLocalDateTime(rs, "issued_at"));
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
         return batch;
     }
 
@@ -1633,21 +1511,6 @@ public class WalletService {
         OperationWallet transaction = new OperationWallet();
         transaction.setId(rs.getInt("id"));
         transaction.setWalletId(rs.getInt("wallet_id"));
-<<<<<<< HEAD
-        transaction.setBatchId(readInteger(rs, "batch_id"));
-=======
-<<<<<<< HEAD
-        transaction.setBatchId((Integer) rs.getObject("batch_id"));
->>>>>>> yassine_antar
-        transaction.setType(rs.getString("type"));
-        transaction.setAmount(rs.getBigDecimal("amount"));
-        transaction.setReferenceNote(rs.getString("reference_note"));
-        transaction.setCreatedAt(readLocalDateTime(rs, "created_at"));
-        return transaction;
-    }
-<<<<<<< HEAD
-=======
-=======
         transaction.setBatchId(readInteger(rs, "batch_id"));
         transaction.setType(rs.getString("type"));
         transaction.setAmount(rs.getBigDecimal("amount"));
@@ -1655,7 +1518,6 @@ public class WalletService {
         transaction.setCreatedAt(readLocalDateTime(rs, "created_at"));
         return transaction;
     }
->>>>>>> yassine_antar
 
     private Integer readInteger(ResultSet rs, String columnName) throws SQLException {
         Object value = rs.getObject(columnName);
@@ -1717,8 +1579,4 @@ public class WalletService {
     private String safeWalletNumber(Integer walletNumber) {
         return walletNumber == null ? "—" : String.valueOf(walletNumber);
     }
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
 }

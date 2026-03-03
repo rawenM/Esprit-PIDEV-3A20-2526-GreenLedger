@@ -8,10 +8,7 @@ target/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
-<<<<<<< HEAD
-=======
 .idea/runConfigurations/
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 *.iws
 *.iml
 *.ipr

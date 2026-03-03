@@ -2,7 +2,6 @@ package Services;
 
 import dao.IUserDAO;
 import dao.UserDAOImpl;
-<<<<<<< HEAD
 import dao.IFraudDetectionDAO;
 import dao.FraudDetectionDAOImpl;
 import Models.StatutUtilisateur;
@@ -10,12 +9,6 @@ import Models.TypeUtilisateur;
 import Models.User;
 import Models.FraudDetectionResult;
 import Utils.UnifiedEmailService;
-=======
-import Models.StatutUtilisateur;
-import Models.TypeUtilisateur;
-import Models.User;
-import Utils.EmailService;
->>>>>>> yassine_antar
 import Utils.PasswordUtil;
 import Utils.SessionManager;
 
@@ -29,24 +22,16 @@ public class UserServiceImpl implements IUserService {
 
     private final IUserDAO userDAO;
     private final ValidationService validationService;
-<<<<<<< HEAD
     private final UnifiedEmailService emailService;
     private final FraudDetectionService fraudDetectionService;
     private final IFraudDetectionDAO fraudDetectionDAO;
-=======
-    private final EmailService emailService;
->>>>>>> yassine_antar
 
     public UserServiceImpl() {
         this.userDAO = new UserDAOImpl();
         this.validationService = new ValidationService();
-<<<<<<< HEAD
         this.emailService = new UnifiedEmailService();
         this.fraudDetectionService = new FraudDetectionService();
         this.fraudDetectionDAO = new FraudDetectionDAOImpl();
-=======
-        this.emailService = new EmailService();
->>>>>>> yassine_antar
     }
 
     @Override
@@ -98,7 +83,6 @@ public class UserServiceImpl implements IUserService {
 
         if (savedUser != null) {
             System.out.println("[OK] Utilisateur inscrit: " + savedUser.getEmail());
-<<<<<<< HEAD
             
             // 7. Détection de fraude avec IA
             try {
@@ -134,8 +118,6 @@ public class UserServiceImpl implements IUserService {
                 // Ne pas bloquer l'inscription si l'analyse échoue
             }
             
-=======
->>>>>>> yassine_antar
             trySendWelcomeEmail(savedUser);
             return savedUser;
         }
@@ -321,7 +303,6 @@ public class UserServiceImpl implements IUserService {
             String tokenHash = PasswordUtil.hashPassword(resetToken);
             user.setTokenVerification(resetToken);
             user.setTokenHash(tokenHash);
-<<<<<<< HEAD
             user.setTokenExpiry(LocalDateTime.now().plusHours(1)); // 1 heure d'expiration
             userDAO.update(user);
 
@@ -345,18 +326,6 @@ public class UserServiceImpl implements IUserService {
                 System.out.println("[OK] Email de reinitialisation envoye a: " + user.getEmail());
                 return resetToken;
             }
-=======
-            user.setTokenExpiry(LocalDateTime.now().plusMinutes(30));
-            userDAO.update(user);
-
-            Utils.EmailService emailService = new Utils.EmailService();
-            boolean sent = false;
-            try {
-                if (emailService.isConfigured()) sent = emailService.sendResetEmail(user.getEmail(), resetToken);
-            } catch (Exception ignored) {}
-
-            if (sent) return resetToken;
->>>>>>> yassine_antar
             System.out.println("[INFO] Email de reinitialisation (fallback) a: " + user.getEmail());
             System.out.println("[INFO] Token: " + resetToken);
             return resetToken;
@@ -617,9 +586,4 @@ public class UserServiceImpl implements IUserService {
                 )
                 .collect(Collectors.toList());
     }
-<<<<<<< HEAD
 }
-=======
-}
-
->>>>>>> yassine_antar
