@@ -29,11 +29,6 @@ public class UserDAOImpl implements IUserDAO {
     }
 
     public UserDAOImpl() {
-        try {
-            this.connection = MyConnection.getConnection();
-        } catch (SQLException e) {
-            throw new IllegalStateException("Impossible d'ouvrir la connexion DB", e);
-        }
         boolean hasTokenExpiry = false;
         boolean hasTokenHash = false;
         boolean hasFraudScore = false;
@@ -41,10 +36,11 @@ public class UserDAOImpl implements IUserDAO {
         
         // Tentative d'ajout de la colonne token_expiry si elle n'existe pas (migration légère)
         try {
-            DatabaseMetaData md = connection.getMetaData();
+            Connection conn = getConnection();
+            DatabaseMetaData md = conn.getMetaData();
             try (ResultSet rs = md.getColumns(null, null, "user", "token_expiry")) {
                 if (!rs.next()) {
-                    try (Statement st = connection.createStatement()) {
+                    try (Statement st = conn.createStatement()) {
                         st.executeUpdate("ALTER TABLE `user` ADD COLUMN token_expiry DATETIME NULL");
                         System.out.println("[CLEAN] Colonne token_expiry ajoutée à la table user (migration automatique)");
                         hasTokenExpiry = true;
@@ -61,7 +57,7 @@ public class UserDAOImpl implements IUserDAO {
             // Idem pour token_hash
             try (ResultSet rs = md.getColumns(null, null, "user", "token_hash")) {
                 if (!rs.next()) {
-                    try (Statement st = connection.createStatement()) {
+                    try (Statement st = conn.createStatement()) {
                         st.executeUpdate("ALTER TABLE `user` ADD COLUMN token_hash VARCHAR(255) NULL");
                         System.out.println("[CLEAN] Colonne token_hash ajoutée à la table user (migration automatique)");
                         hasTokenHash = true;

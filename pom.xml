@@ -101,7 +101,7 @@
             <version>2.10.1</version>
         </dependency>
 
-<<<<<<< HEAD
+
         <!-- DynamicPDF API for PDF generation -->
         <dependency>
             <groupId>com.dynamicpdf.api</groupId>
@@ -121,7 +121,7 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20231013</version>
-=======
+        </dependency>
         <!-- Google Gmail API for sending emails -->
         <dependency>
             <groupId>com.google.api-client</groupId>
@@ -137,7 +137,6 @@
             <groupId>com.google.apis</groupId>
             <artifactId>google-api-services-gmail</artifactId>
             <version>v1-rev20220404-2.0.0</version>
->>>>>>> abdelmajid_ibrahimi_gestion_utilisateur
         </dependency>
     </dependencies>
 

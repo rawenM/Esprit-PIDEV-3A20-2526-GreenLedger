@@ -1,0 +1,42 @@
+═══════════════════════════════════════════════════════════════
+   ✅ CORRECTION APPLIQUÉE - UserDAOImpl
+═══════════════════════════════════════════════════════════════
+
+PROBLÈME RÉSOLU :
+❌ Erreur: "connection cannot be resolved or is not a field"
+
+CAUSE :
+Le constructeur de UserDAOImpl utilisait encore la variable
+d'instance "connection" que j'avais supprimée.
+
+CORRECTION :
+✓ Remplacé "connection" par "conn" (variable locale) dans le constructeur
+✓ Le constructeur utilise maintenant getConnection() correctement
+
+═══════════════════════════════════════════════════════════════
+   🚀 RELANCER L'APPLICATION
+═══════════════════════════════════════════════════════════════
+
+1. RECOMPILER
+
+   Dans votre IDE : Build → Rebuild Project
+
+2. LANCER
+
+   Double-cliquez sur : run.bat
+
+3. SE CONNECTER
+
+   Email    : admin@plateforme.com
+   Password : admin123
+
+═══════════════════════════════════════════════════════════════
+   ✅ RÉSULTAT ATTENDU
+═══════════════════════════════════════════════════════════════
+
+L'application devrait démarrer sans erreur maintenant.
+
+Si vous voyez encore "table user vide" :
+→ Exécutez : ajouter-utilisateurs.bat
+
+═══════════════════════════════════════════════════════════════

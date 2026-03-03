@@ -29,11 +29,8 @@ public class MyConnection {
         return instance;
     }
 
-<<<<<<< HEAD
-    public static Connection getConnection() throws SQLException {
-        MyConnection inst = MyConnection.getInstance();
-        return DriverManager.getConnection(inst.url, inst.user, inst.pwd);
-=======
+
+
     public static Connection getConnection() {
         MyConnection instance = MyConnection.getInstance();
         try {
@@ -52,7 +49,7 @@ public class MyConnection {
             }
         }
         return instance.conn;
->>>>>>> abdelmajid_ibrahimi_gestion_utilisateur
+
     }
 
     // Fermer la connexion (déconseillé pour le singleton)
@@ -64,12 +61,12 @@ public class MyConnection {
                 // Réinitialiser l'instance pour forcer une reconnexion
                 conn = null;
             } catch (SQLException e) {
-<<<<<<< HEAD
+
                 System.err.println("[CLEAN] Erreur lors de la fermeture de la connexion: " + e.getMessage());
-=======
+
                 System.err.println("[DB] Erreur lors de la fermeture de la connexion");
                 e.printStackTrace();
->>>>>>> abdelmajid_ibrahimi_gestion_utilisateur
+
             }
         }
     }
