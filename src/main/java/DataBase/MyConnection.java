@@ -29,8 +29,6 @@ public class MyConnection {
         return instance;
     }
 
-
-
     public static Connection getConnection() {
         MyConnection instance = MyConnection.getInstance();
         try {
@@ -49,7 +47,6 @@ public class MyConnection {
             }
         }
         return instance.conn;
-
     }
 
     // Fermer la connexion (déconseillé pour le singleton)
@@ -61,12 +58,8 @@ public class MyConnection {
                 // Réinitialiser l'instance pour forcer une reconnexion
                 conn = null;
             } catch (SQLException e) {
-
-                System.err.println("[CLEAN] Erreur lors de la fermeture de la connexion: " + e.getMessage());
-
                 System.err.println("[DB] Erreur lors de la fermeture de la connexion");
                 e.printStackTrace();
-
             }
         }
     }
