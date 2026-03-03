@@ -19,12 +19,12 @@ set CP=%CP%;%M2%\com\google\http-client\google-http-client-gson\1.42.3\google-ht
 set CP=%CP%;%M2%\com\google\code\gson\gson\2.10.1\gson-2.10.1.jar
 set CP=%CP%;%M2%\mysql\mysql-connector-java\8.0.26\mysql-connector-java-8.0.26.jar
 set CP=%CP%;%M2%\org\mindrot\jbcrypt\0.4\jbcrypt-0.4.jar
-set CP=%CP%;%JAVAFXDIR%\javafx-controls\20.0.2\javafx-controls-20.0.2.jar
-set CP=%CP%;%JAVAFXDIR%\javafx-fxml\20.0.2\javafx-fxml-20.0.2.jar
-set CP=%CP%;%JAVAFXDIR%\javafx-graphics\20.0.2\javafx-graphics-20.0.2.jar
-set CP=%CP%;%JAVAFXDIR%\javafx-base\20.0.2\javafx-base-20.0.2.jar
-set CP=%CP%;%JAVAFXDIR%\javafx-swing\20.0.2\javafx-swing-20.0.2.jar
-set CP=%CP%;%JAVAFXDIR%\javafx-web\20.0.2\javafx-web-20.0.2.jar
+set CP=%CP%;%JAVAFXDIR%\javafx-controls\20.0.2\javafx-controls-20.0.2-win.jar
+set CP=%CP%;%JAVAFXDIR%\javafx-fxml\20.0.2\javafx-fxml-20.0.2-win.jar
+set CP=%CP%;%JAVAFXDIR%\javafx-graphics\20.0.2\javafx-graphics-20.0.2-win.jar
+set CP=%CP%;%JAVAFXDIR%\javafx-base\20.0.2\javafx-base-20.0.2-win.jar
+set CP=%CP%;%JAVAFXDIR%\javafx-swing\20.0.2\javafx-swing-20.0.2-win.jar
+set CP=%CP%;%JAVAFXDIR%\javafx-web\20.0.2\javafx-web-20.0.2-win.jar
 
 echo [1/3] Compilation de PuzzleCaptchaService.java...
 javac -encoding UTF-8 -cp "%CP%" -d target/classes src/main/java/Utils/PuzzleCaptchaService.java

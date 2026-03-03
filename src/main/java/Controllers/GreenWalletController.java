@@ -28,10 +28,13 @@ import javafx.scene.layout.VBox;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.geometry.Pos;
+import javafx.geometry.Insets;
+import javafx.scene.layout.Pane;
+import javafx.scene.paint.Color;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import org.GreenLedger.MainFX;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
@@ -964,7 +967,7 @@ public class GreenWalletController extends BaseController {
                 "    var globalZones = [\n" +
                 "      // North America (12 zones)\n" +
                 "      { bounds: [[47, -125], [51, -121]], lat: 49.3, lon: -123.1, aqi: " + getCachedAirQuality(49.3, -123.1, 75) + ", label: 'Vancouver' },\n" +
-                "      { bounds: [[45.5, -124], [49.5, -120]], lat: 47.6, lon: -122.3, aqi: " + getCachedAirQuality(47.6, -122.3, 82) + ", label: 'Seattle' },\n" +
+                "      { bounds: [[45.5, -124.5], [47.5, -120.5]], lat: 47.6, lon: -122.3, aqi: " + getCachedAirQuality(47.6, -122.3, 82) + ", label: 'Seattle' },\n" +
                 "      { bounds: [[43.5, -124.5], [47.5, -120.5]], lat: 45.5, lon: -122.7, aqi: " + getCachedAirQuality(45.5, -122.7, 78) + ", label: 'Portland' },\n" +
                 "      { bounds: [[35.5, -124.5], [39.5, -120.5]], lat: 37.8, lon: -122.4, aqi: " + getCachedAirQuality(37.8, -122.4, 95) + ", label: 'San Francisco' },\n" +
                 "      { bounds: [[32, -120], [36, -116]], lat: 34.1, lon: -118.2, aqi: " + getCachedAirQuality(34.1, -118.2, 118) + ", label: 'Los Angeles' },\n" +
@@ -1149,12 +1152,13 @@ public class GreenWalletController extends BaseController {
         }
     }
 
-    // ====== WALLET LOADING ======    private void loadWallets() {
+    // ====== WALLET LOADING ======
+    private void loadWallets() {
         System.out.println("[LOAD WALLETS] Loading wallets...");
         try {
             List<Wallet> wallets = getScopedWallets();
-            cmbWalletSelector.setItems(walletList);
-            
+            cmbWalletSelector.setItems(FXCollections.observableArrayList(wallets));
+
             // Select first wallet if available
             if (!wallets.isEmpty()) {
                 System.out.println("[LOAD WALLETS] Selecting first wallet: " + wallets.get(0).getId());
@@ -1162,7 +1166,8 @@ public class GreenWalletController extends BaseController {
             } else {
                 System.err.println("[LOAD WALLETS] No wallets found!");
                 currentWallet = null;
-                clearWalletDisplay();            }
+                clearWalletDisplay();
+            }
         } catch (Exception e) {
             System.err.println("[LOAD WALLETS] Error: " + e.getMessage());
             e.printStackTrace();
@@ -1199,7 +1204,7 @@ public class GreenWalletController extends BaseController {
         }
         
         lblWalletNumber.setText(formatWalletNumber(currentWallet.getWalletNumber()));
-        lblWalletNumber.setText(String.valueOf(currentWallet.getWalletNumber()));        lblHolderName.setText(currentWallet.getName() != null ? currentWallet.getName() : "Unnamed Wallet");
+        lblHolderName.setText(currentWallet.getName() != null ? currentWallet.getName() : "Unnamed Wallet");
         lblOwnerType.setText(currentWallet.getOwnerType());
         lblStatus.setText("Active");
         
@@ -1443,7 +1448,8 @@ public class GreenWalletController extends BaseController {
         }
     }
 
-    // ====== ACTIONS ======    private void showCreateWalletDialog() {
+    // ====== ACTIONS ======
+    private void showCreateWalletDialog() {
         User user = SessionManager.getInstance().getCurrentUser();
         Integer userId = getCurrentUserIdAsInt(user);
         if (user == null || userId == null) {
@@ -1453,7 +1459,8 @@ public class GreenWalletController extends BaseController {
 
         Dialog<Wallet> dialog = new Dialog<>();
         dialog.setTitle("🌱 Créer un Nouveau Wallet Carbone");
-        dialog.setHeaderText("Créez un wallet lié à votre compte");        // Show slide-in panel
+        dialog.setHeaderText("Créez un wallet lié à votre compte");
+        // Show slide-in panel
         showSlidePanel(createWalletPanel);
     }
 
@@ -1462,132 +1469,23 @@ public class GreenWalletController extends BaseController {
         hideSlidePanel(createWalletPanel);
     }
 
-        TextField walletName = new TextField();
-        walletName.setPromptText("Ex: Wallet Projet Solaire 2026");        walletName.setPrefWidth(300);
-        
-        TextField walletNumber = new TextField();
-        walletNumber.setPromptText("Laissez vide pour génération automatique");
-                grid.add(new Label("📛 Nom du Wallet:"), 0, 0);
-        grid.add(walletName, 1, 0);
-        grid.add(new Label("🔢 Numéro (optionnel):"), 0, 1);
-        grid.add(walletNumber, 1, 1);
-        grid.add(new Label("👤 Propriétaire:"), 0, 2);
-        grid.add(ownerLabel, 1, 2);
-        grid.add(new Label("💰 Crédits initiaux (tCO₂):"), 0, 3);
-        grid.add(initialCredits, 1, 3);
-        dialog.getDialogPane().setContent(grid);
-
-        Button createButton = (Button) dialog.getDialogPane().lookupButton(createButtonType);
-        createButton.addEventFilter(ActionEvent.ACTION, event -> {
-            String name = walletName.getText() == null ? "" : walletName.getText().trim();
-            String walletNumberText = walletNumber.getText() == null ? "" : walletNumber.getText().trim();
-            String creditsText = initialCredits.getText() == null ? "" : initialCredits.getText().trim();
-
-            if (name.isEmpty()) {
-                event.consume();
-                showWarning("Nom requis", "Veuillez saisir un nom de wallet.");
-                return;
-            }
-
-            if (!walletNumberText.isEmpty()) {
-                try {
-                    int number = Integer.parseInt(walletNumberText);
-                    if (number <= 0) {
-                        event.consume();
-                        showWarning("Numéro invalide", "Le numéro du wallet doit être un entier positif.");
-                        return;
-                    }
-                } catch (NumberFormatException ex) {
-                    event.consume();
-                    showWarning("Numéro invalide", "Le numéro du wallet doit être numérique.");
-                    return;
-                }
-            }
-
-            try {
-                double credits = Double.parseDouble((creditsText.isEmpty() ? "0" : creditsText).replace(',', '.'));
-                if (credits < 0) {
-                    event.consume();
-                    showWarning("Crédits invalides", "Les crédits initiaux ne peuvent pas être négatifs.");
-                }
-            } catch (NumberFormatException ex) {
-                event.consume();
-                showWarning("Crédits invalides", "Veuillez saisir une valeur numérique valide.");
-            }
-        });
-
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == createButtonType) {
-                Wallet wallet = new Wallet();
-                wallet.setName(walletName.getText().trim());
-
-                String walletNumberText = walletNumber.getText() == null ? "" : walletNumber.getText().trim();
-                if (!walletNumberText.isEmpty()) {
-                    wallet.setWalletNumber(parseIntegerOrNull(walletNumberText));
-                }
-                    return;
-                }
-            } catch (NumberFormatException ex) {
-                showWarning("Numéro invalide", "Le numéro du wallet doit être numérique.");
-                return;
-            }
-        }
-
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == createButtonType) {
-                Wallet wallet = new Wallet();
-                wallet.setName(walletName.getText().trim());
-
-                String walletNumberText = walletNumber.getText() == null ? "" : walletNumber.getText().trim();
-                if (!walletNumberText.isEmpty()) {
-                    wallet.setWalletNumber(parseIntegerOrNull(walletNumberText));
-                }
-
-                String creditsText = initialCredits.getText() == null ? "0" : initialCredits.getText().trim();
-                double credits = Double.parseDouble((creditsText.isEmpty() ? "0" : creditsText).replace(',', '.'));
-
-                wallet.setOwnerType(resolveOwnerTypeForUser(user));
-                wallet.setOwnerId(userId);
-                wallet.setAvailableCredits(Math.max(0, credits));
-                wallet.setRetiredCredits(0.0);
-
-                return wallet;
-        String creditsText = txtCreateWalletCredits.getText() == null ? "0" : txtCreateWalletCredits.getText().trim();
-        double credits = 0;
-        try {
-            credits = Double.parseDouble((creditsText.isEmpty() ? "0" : creditsText).replace(',', '.'));
-            if (credits < 0) {
-                showWarning("Crédits invalides", "Les crédits initiaux ne peuvent pas être négatifs.");
-                return;
-            }
-        } catch (NumberFormatException ex) {
-            showWarning("Crédits invalides", "Veuillez saisir une valeur numérique valide.");
+    // Edit Wallet Dialog
+    private void showEditWalletDialog() {
+        if (currentWallet == null) {
+            showWarning("Aucun wallet sélectionné", "Veuillez sélectionner un wallet");
             return;
         }
 
-        // Create and save wallet
-        Wallet wallet = new Wallet();
-        wallet.setName(name);
-        if (walletNumber != null) {
-            wallet.setWalletNumber(walletNumber);
-        }
-        wallet.setOwnerType(resolveOwnerTypeForUser(user));
-        wallet.setOwnerId(userId);
-        wallet.setAvailableCredits(credits);
-        wallet.setRetiredCredits(0.0);
+        Dialog<Wallet> dialog = new Dialog<>();
+        dialog.setTitle("✏️ Modifier le Wallet");
+        dialog.setHeaderText("Modification du Wallet #" + formatWalletNumber(currentWallet.getWalletNumber()));
+        // Show slide-in panel
+        showSlidePanel(editWalletPanel);
+    }
 
-        try {
-            int id = walletService.createWallet(wallet);
-            if (id > 0) {
-                showInfo("Succès", "Wallet créé avec succès!");
-                onCloseCreateWalletPanel();
-                loadWallets();
-            } else {
-                showError("Erreur", "Impossible de créer le wallet");
-            }
-        } catch (Exception e) {
-            showError("Erreur lors de la création", e.getMessage());
-        }
+    @FXML
+    private void onCloseEditWalletPanel() {
+        hideSlidePanel(editWalletPanel);
     }
 
     private void showQuickIssueDialog() {
@@ -1681,57 +1579,6 @@ public class GreenWalletController extends BaseController {
         });
     }
 
-    private void showEditWalletDialog() {
-        if (currentWallet == null) {
-            showWarning("Aucun wallet sélectionné", "Veuillez sélectionner un wallet");
-            return;
-        }
-
-        Dialog<Wallet> dialog = new Dialog<>();
-        dialog.setTitle("✏️ Modifier le Wallet");
-        dialog.setHeaderText("Modification du Wallet #" + formatWalletNumber(currentWallet.getWalletNumber()));        // Show slide-in panel
-        showSlidePanel(editWalletPanel);
-    }
-
-    @FXML
-    private void onCloseEditWalletPanel() {
-        hideSlidePanel(editWalletPanel);
-    }
-
-        TextField walletName = new TextField(currentWallet.getName());
-        walletName.setPrefWidth(300);
-        
-        ComboBox<String> ownerType = new ComboBox<>();
-        ownerType.getItems().addAll("ENTERPRISE", "BANK", "NGO", "GOVERNMENT");
-        ownerType.setValue(currentWallet.getOwnerType());
-        
-        Label walletNumberLabel = new Label("#" + formatWalletNumber(currentWallet.getWalletNumber()));        walletNumberLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
-        
-        Label creditsLabel = new Label(String.format("%.2f tCO₂ disponibles", currentWallet.getAvailableCredits()));
-        creditsLabel.setStyle("-fx-text-fill: #2B6A4A;");
-        String name = txtEditWalletName.getText() == null ? "" : txtEditWalletName.getText().trim();
-        if (name.isEmpty()) {
-            showWarning("Nom requis", "Veuillez saisir un nom de wallet.");
-            return;
-        }
-
-        // Update wallet
-        currentWallet.setName(name);
-
-        try {
-            boolean success = walletService.updateWallet(currentWallet);
-            if (success) {
-                showInfo("✔ Succès", "Wallet modifié avec succès!");
-                onCloseEditWalletPanel();
-                refreshData();
-            } else {
-                showError("Erreur", "Impossible de modifier le wallet");
-            }
-        } catch (Exception e) {
-            showError("Erreur lors de la modification", e.getMessage());
-        }
-    }
-
     private void showTransferDialog() {
         if (currentWallet == null) {
             showWarning("Aucun wallet sélectionné", "Veuillez sélectionner un wallet source");
@@ -1823,7 +1670,9 @@ public class GreenWalletController extends BaseController {
                 
                 boolean success = walletService.transferCredits(currentWallet.getId(), destId, amt, ref);
                 if (success) {
-                    showInfo("✔ Transfert Réussi", String.format("%.2f tCO₂ transférés avec succès!", amt));
+                    showInfo("✔ Succès", String.format("%.2f tCO₂ transférés avec succès!", amt));
+                    clearTransferForm();
+                    hideSlidePanel(transferCreditPanel);
                     refreshData();
                 } else {
                     showError("Erreur", "Impossible de transférer les crédits");
@@ -2051,16 +1900,16 @@ public class GreenWalletController extends BaseController {
             try {
                 boolean success = walletService.deleteWallet(currentWallet.getId());
                 if (success) {
-                    showInfo("Wallet supprimé", "Le wallet a été supprimé avec succès!");                    currentWallet = null;
+                    showInfo("Wallet supprimé", "Le wallet a été supprimé avec succès!");
+                    currentWallet = null;
                     loadWallets();
                     clearWalletDisplay();
                 } else {
                     showError("Erreur", "Impossible de supprimer le wallet");
                 }
             } catch (Exception e) {
-                showError("Erreur lors de la suppression", e.getMessage());            }
-        } catch (Exception e) {
-            showError("Erreur lors de la suppression", e.getMessage());
+                showError("Erreur lors de la suppression", e.getMessage());
+            }
         }
     }
 
@@ -2602,7 +2451,8 @@ public class GreenWalletController extends BaseController {
         exportData();
     }
 
-    // ====== SLIDE PANEL ANIMATION ======    private void showSlidePanel(VBox panel) {
+    // ====== SLIDE PANEL ANIMATION ======
+    private void showSlidePanel(VBox panel) {
         if (panel == null) return;
         
         panel.setManaged(true);
@@ -2652,7 +2502,185 @@ public class GreenWalletController extends BaseController {
         if (txtTransferReference != null) txtTransferReference.clear();
     }
 
-    // ====== UTILITY METHODS ======    private String formatCredits(double credits) {
+    // ====== UTILITY METHODS ======
+    private String formatWalletNumber(Integer walletNumber) {
+        if (walletNumber == null) return "—";
+        return String.format("%06d", walletNumber);
+    }
+
+    private String formatWalletDisplay(Wallet wallet) {
+        if (wallet == null) return "";
+        String name = wallet.getName() != null ? wallet.getName() : "Unnamed Wallet";
+        String ownerType = wallet.getOwnerType() != null ? wallet.getOwnerType() : "Unknown";
+        return String.format("#%s - %s (%s) • %.2f tCO₂", formatWalletNumber(wallet.getWalletNumber()), name, ownerType, wallet.getAvailableCredits());
+    }
+
+    private Integer getCurrentUserIdAsInt(User user) {
+        if (user == null || user.getId() == null) return null;
+        long id = user.getId();
+        if (id > Integer.MAX_VALUE || id < Integer.MIN_VALUE) return null;
+        return (int) id;
+    }
+
+    private List<Wallet> getScopedWallets() {
+        User user = SessionManager.getInstance().getCurrentUser();
+        if (user == null) return java.util.Collections.emptyList();
+        if (user.getTypeUtilisateur() == TypeUtilisateur.ADMIN) {
+            return walletService.getAllWallets();
+        }
+        return walletService.getWalletsByOwnerId(user.getId().intValue());
+    }
+
+    private void addTestCredits(double amount) {
+        if (currentWallet == null) {
+            showWarning("Aucun wallet sélectionné", "Veuillez sélectionner un wallet");
+            return;
+        }
+        try {
+            boolean success = walletService.quickIssueCredits(currentWallet.getId(), amount, "Test credits");
+            if (success) {
+                showInfo("✔ Succès", String.format("%.2f tCO₂ ajoutés (test)", amount));
+                refreshData();
+            } else {
+                showError("Erreur", "Impossible d'ajouter des crédits de test");
+            }
+        } catch (Exception e) {
+            showError("Erreur", e.getMessage());
+        }
+    }
+
+    private void calculateElectricityEmissions() {
+        onCalculateElectricityInline();
+    }
+
+    private void calculateFuelEmissions() {
+        onCalculateFuelInline();
+    }
+
+    private void calculateShippingEmissions() {
+        onCalculateShippingInline();
+    }
+
+    private void checkAirQuality() {
+        if (airQualityService == null || !airQualityService.isEnabled()) {
+            appendToApiResults("⚠️ API Air Quality désactivée.\n");
+            return;
+        }
+        final double lat = 48.8566;
+        final double lon = 2.3522;
+        appendToApiResults("🌤️ Vérification qualité de l'air (Paris)...\n");
+        new Thread(() -> {
+            try {
+                AirPollutionResponse response = airQualityService.getCurrentAirQuality(lat, lon);
+                if (response != null && response.getList() != null && !response.getList().isEmpty()) {
+                    AirQualityData data = response.getList().get(0);
+                    int usEpaAqi = convertOwmAqiToUsEpa(data.getMain().getAqi(), data);
+                    Platform.runLater(() -> appendToApiResults("AQI (US EPA) Paris: " + usEpaAqi + "\n"));
+                } else {
+                    Platform.runLater(() -> appendToApiResults("⚠️ Données qualité de l'air indisponibles.\n"));
+                }
+            } catch (Exception e) {
+                Platform.runLater(() -> appendToApiResults("❌ Erreur Air Quality: " + e.getMessage() + "\n"));
+            }
+        }).start();
+    }
+
+    private boolean ensureClimatiqApiAvailable() {
+        if (climatiqApiService == null || !climatiqApiService.isEnabled()) {
+            appendToApiResults("❌ Climatiq API non configurée. Vérifiez CLIMATIQ_API_KEY.\n");
+            return false;
+        }
+        return true;
+    }
+
+    private void appendToApiResults(String message) {
+        if (txtApiResults == null) return;
+        if (Platform.isFxApplicationThread()) {
+            txtApiResults.appendText(message);
+        } else {
+            Platform.runLater(() -> txtApiResults.appendText(message));
+        }
+    }
+
+    private String formatClimatiqResult(EmissionResult response, String label) {
+        double kg = response.getCo2eAmount().doubleValue();
+        double tonnes = kg / 1000.0;
+        String tier = response.getTier() != null ? "Tier " + response.getTier() : "Tier N/A";
+        return String.format("✅ %s: %.3f tCO₂e (%.1f kg) | %s\n", label, tonnes, kg, tier);
+    }
+
+    private String buildClimatiqApiErrorMessage() {
+        String lastError = climatiqApiService != null ? climatiqApiService.getLastError() : null;
+        if (lastError == null || lastError.isBlank()) {
+            return "❌ Erreur Climatiq API. Vérifiez la configuration.\n";
+        }
+        return "❌ Erreur Climatiq API: " + lastError + "\n";
+    }
+
+    private String mapFuelActivityId(String fuelType) {
+        if (fuelType == null) return "diesel-fuel_type_diesel";
+        switch (fuelType.toLowerCase()) {
+            case "dfo":
+            case "rfo":
+                return "fuel_oil-fuel_type_heavy_fuel_oil";
+            case "lng":
+            case "cng":
+                return "natural_gas-fuel_type_natural_gas";
+            case "lpg":
+                return "propane-fuel_type_propane";
+            case "coal":
+                return "coal-fuel_type_coal";
+            case "petcoke":
+                return "petroleum_coke-fuel_type_petroleum_coke";
+            default:
+                return "diesel-fuel_type_diesel";
+        }
+    }
+
+    private String mapShippingActivityId(String method) {
+        if (method == null) return "freight_trucking-vehicle_type_truck";
+        switch (method.toLowerCase()) {
+            case "ship":
+                return "freight_ship-shipping_method_container_ship";
+            case "train":
+                return "freight_train-rail_type_freight";
+            case "plane":
+                return "freight_air-vehicle_type_aircraft";
+            case "truck":
+            default:
+                return "freight_trucking-vehicle_type_truck";
+        }
+    }
+
+    private double convertWeightToKg(double value, String unit) {
+        if (unit == null) return value;
+        switch (unit.toLowerCase()) {
+            case "kg":
+                return value;
+            case "g":
+                return value / 1000.0;
+            case "lb":
+                return value * 0.45359237;
+            case "mt":
+                return value * 1000.0;
+            default:
+                return value;
+        }
+    }
+
+    private double convertDistanceToKm(double value, String unit) {
+        if (unit == null) return value;
+        switch (unit.toLowerCase()) {
+            case "km":
+                return value;
+            case "mi":
+                return value * 1.60934;
+            default:
+                return value;
+        }
+    }
+
+    private String formatCredits(double credits) {
         return String.format("%.2f tCO₂", credits);
     }
 

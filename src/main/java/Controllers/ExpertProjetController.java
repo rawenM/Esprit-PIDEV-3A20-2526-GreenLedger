@@ -267,6 +267,29 @@ public class ExpertProjetController extends BaseController {
         };
     }
 
+    private Callback<TableColumn<Projet, Void>, TableCell<Projet, Void>> createDecisionCell() {
+        return column -> new TableCell<>() {
+            private final Button btn = new Button("Décision");
+            {
+                btn.getStyleClass().addAll("btn", "btn-secondary");
+                btn.setOnAction(event -> {
+                    Projet projet = getTableView().getItems().get(getIndex());
+                    CarbonAuditController.setSelectedProjet(projet);
+                    try {
+                        MainFX.setRoot("mlDecision");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                });
+            }
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                setGraphic(empty ? null : btn);
+            }
+        };
+    }
+
     private void refreshTable() {
         java.util.List<Projet> projets = projetService.afficher();
         java.util.List<Projet> submitted = new java.util.ArrayList<>();

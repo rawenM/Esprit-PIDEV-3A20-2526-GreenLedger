@@ -9,6 +9,12 @@ import java.util.List;
 
 public class ProjetService {
 
+    private final Connection cnx;
+
+    public ProjetService() {
+        this.cnx = MyConnection.getConnection();
+    }
+
     public List<Projet> afficher() {
         try (Connection cnx = MyConnection.getConnection()) {
             String sql = "SELECT p.id, p.entreprise_id, p.titre, p.description, p.statut, p.score_esg, " +
@@ -73,6 +79,33 @@ public class ProjetService {
     public List<Projet> getByEntreprise(Integer entrepriseId) {
         if (entrepriseId == null) return new ArrayList<>();
         return getByEntreprise(entrepriseId.intValue());
+    }
+
+    public Projet getById(int idProjet) {
+        String sql = "SELECT p.id, p.entreprise_id, p.titre, p.description, p.statut, p.score_esg, " +
+                "       p.company_address, p.company_email, p.company_phone, " +
+                "       b.id_budget, b.montant, b.raison, b.devise " +
+                "FROM projet p " +
+                "LEFT JOIN budget b ON b.id_projet = p.id " +
+                "WHERE p.id=?";
+
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, idProjet);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapProjetWithBudget(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Erreur getById: " + e.getMessage());
+        }
+        return null;
+    }
+
+    public Projet getById(Integer idProjet) {
+        if (idProjet == null) return null;
+        return getById(idProjet.intValue());
     }
 
     public void insert(Projet p) {
