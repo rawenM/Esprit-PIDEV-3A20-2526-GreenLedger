@@ -256,89 +256,10 @@ public class LoginController {
         captchaBypassed = true;
         System.out.println("[CLEAN] Captcha bypass enabled (temporary)");
         showError("Mode démo: captcha bypassé");
-=======
         if (captchaContainer != null) {
             captchaContainer.setVisible(false);
             captchaContainer.setManaged(false);
         }
-    }
-    
-    private void showSimpleCaptcha() {
-        usingSimpleCaptcha = true;
-        if (simpleCaptchaBox != null && captchaQuestion != null) {
-            // Hide reCAPTCHA and fallback button
-            if (captchaWebView != null) {
-                captchaWebView.setVisible(false);
-                captchaWebView.setManaged(false);
-            }
-            if (fallbackCaptchaBtn != null) {
-                fallbackCaptchaBtn.setVisible(false);
-                fallbackCaptchaBtn.setManaged(false);
-            }
-            
-            // Generate simple math problem
-            int num1 = (int)(Math.random() * 10) + 1;
-            int num2 = (int)(Math.random() * 10) + 1;
-            captchaExpectedAnswer = num1 + num2;
-            captchaQuestion.setText("Combien fait " + num1 + " + " + num2 + " ?");
-            
-            // Show simple captcha
-            simpleCaptchaBox.setVisible(true);
-            simpleCaptchaBox.setManaged(true);
-            
-            System.out.println("[CLEAN] Simple math captcha shown: " + num1 + " + " + num2 + " = " + captchaExpectedAnswer);
-        }
-    }
-
-    private String buildCaptchaHtml(String siteKey) {
-        String safeKey = siteKey == null ? "" : siteKey;
-        return "<!DOCTYPE html>" +
-                "<html><head>" +
-                "<meta charset='UTF-8'/>" +
-                "<meta name='viewport' content='width=device-width, initial-scale=1'/>" +
-                "<script>" +
-                "  console.log('[reCAPTCHA] Loading script for key: " + safeKey.substring(0, Math.min(10, safeKey.length())) + "...');" +
-                "  window.onerror = function(msg, url, lineNo, columnNo, error) {" +
-                "    console.error('[reCAPTCHA Error] ' + msg + ' at ' + url + ':' + lineNo);" +
-                "    return false;" +
-                "  };" +
-                "</script>" +
-                "<script src='https://www.google.com/recaptcha/api.js?render=" + safeKey + "' " +
-                "        onerror=\"console.error('[reCAPTCHA] Failed to load script from Google')\" " +
-                "        onload=\"console.log('[reCAPTCHA] Script loaded successfully')\"></script>" +
-                "</head><body style='margin:0; padding:0; background:#f5f5f5; display:flex; align-items:center; justify-content:center; min-height:100px;'>" +
-                "<div style='text-align:center; color:#666; padding:20px;'>" +
-                "<div style='font-size:14px; font-weight:500;'>🔒 Chargement de la verification...</div>" +
-                "<div id='status' style='font-size:11px; margin-top:8px; color:#999;'>Patientez...</div>" +
-                "</div>" +
-                "<script>" +
-                "document.getElementById('status').textContent = 'Initialisation...';" +
-                "console.log('[reCAPTCHA] Starting grecaptcha.ready()');" +
-                "if (typeof grecaptcha !== 'undefined') {" +
-                "  grecaptcha.ready(function() {" +
-                "    console.log('[reCAPTCHA] grecaptcha ready, executing...');" +
-                "    document.getElementById('status').textContent = 'Execution...';" +
-                "    grecaptcha.execute('" + safeKey + "', {action: 'login'}).then(function(token) {" +
-                "      console.log('[reCAPTCHA] Token received: ' + token.substring(0, 20) + '...');" +
-                "      document.getElementById('status').textContent = '✓ Verifie';" +
-                "      if (window.javafxConnector && window.javafxConnector.setToken) {" +
-                "        window.javafxConnector.setToken(token);" +
-                "        console.log('[reCAPTCHA] Token sent to JavaFX');" +
-                "      } else {" +
-                "        console.error('[reCAPTCHA] JavaFX connector not found!');" +
-                "      }" +
-                "    }).catch(function(error) {" +
-                "      console.error('[reCAPTCHA] Execute error:', error);" +
-                "      document.getElementById('status').textContent = '✗ Erreur';" +
-                "    });" +
-                "  });" +
-                "} else {" +
-                "  console.error('[reCAPTCHA] grecaptcha object not found - script failed to load');" +
-                "  document.getElementById('status').textContent = 'Utilisation de la verification alternative...';" +
-                "}" +
-                "</script>" +
-                "</body></html>";
->>>>>>> yassine_antar
     }
 
     private class CaptchaBridge {

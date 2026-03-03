@@ -1,4 +1,4 @@
-﻿package Controllers;
+package Controllers;
 import Services.ExchangeRateService;
 import javafx.application.Platform;
 import javafx.scene.layout.VBox;import Models.Financement;

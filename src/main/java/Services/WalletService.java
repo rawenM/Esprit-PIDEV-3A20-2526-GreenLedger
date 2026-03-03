@@ -1389,7 +1389,6 @@ public class WalletService {
             ps.setString(5, note);
             ps.executeUpdate();
         }
-        }
     }
 
     /**

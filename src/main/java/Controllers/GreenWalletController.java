@@ -1,4 +1,4 @@
-﻿package Controllers;
+package Controllers;
 
 import Models.Wallet;
 import Models.OperationWallet;
@@ -325,6 +325,7 @@ public class GreenWalletController extends BaseController {
                 if (wallet == null) return null;
                 String name = wallet.getName() != null ? wallet.getName() : "Unnamed Wallet";
                 return String.format("#%s - %s (%s)", formatWalletNumber(wallet.getWalletNumber()), name, wallet.getOwnerType());
+            }
             @Override
             public Wallet fromString(String string) {
                 return null;

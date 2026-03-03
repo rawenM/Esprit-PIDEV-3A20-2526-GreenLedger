@@ -114,6 +114,7 @@ public class CarbonAuditController extends BaseController {
 
     @FXML private Label lblAISuggestion;
     @FXML private Button btnAISuggest;
+    @FXML private Button btnScorePreview;
     @FXML private Button btnWhatIf;
     @FXML private TextArea txtAIInsights;
     @FXML private Button btnExportPdf;
@@ -177,6 +178,7 @@ public class CarbonAuditController extends BaseController {
     private static String getStoredMlDecision(int projectId) {
         return mlDecisionByProject.get(projectId);
     }
+
     @FXML
     public void initialize() {
         super.initialize(); // Enable theme switching
@@ -191,6 +193,7 @@ public class CarbonAuditController extends BaseController {
         critereImpactService.ensureDefaultReferences();
         enforceSingleDecision();
         setupStaticInputConstraints();
+
         // Initialiser les gestionnaires des boutons de navigation
         if (btnGestionProjets != null) {
             btnGestionProjets.setOnAction(event -> showGestionProjets());
@@ -202,7 +205,7 @@ public class CarbonAuditController extends BaseController {
             btnSettings.setOnAction(event -> showSettings());
         }
 
-        // Appliquer formatters / contrôles de saisie pour les champs statiques du formulaire de critères
+        // Appliquer formatters / contrﾃｴles de saisie pour les champs statiques du formulaire de critﾃｨres
         setupStaticInputConstraints();
 
         if (tableAudits != null) {
@@ -327,9 +330,6 @@ public class CarbonAuditController extends BaseController {
                     if (lblSelectedProjectName != null) {
                         lblSelectedProjectName.setText(selected.getTitre());
                     }
-                    if (selectedEvaluationId == null) {
-                        rebuildCriteriaFields(null);
-                    }
                 }
             });
         }
@@ -364,7 +364,7 @@ public class CarbonAuditController extends BaseController {
         }
 
         if (lblDecisionValue != null) {
-            lblDecisionValue.setText("Décision ML:  E);
+            lblDecisionValue.setText("Decision ML:");
         }
     }
 
@@ -393,50 +393,10 @@ public class CarbonAuditController extends BaseController {
         Services.CritereImpactService critService = new Services.CritereImpactService();
         for (Evaluation ev : evaluations) {
             List<EvaluationResult> res = critService.afficherParEvaluation(ev.getIdEvaluation());
-            if (res != null && !res.isEm pty()) {
+            if (res != null && !res.isEmpty()) {
                 double computed = calculateScore(res);
                 ev.setScoreGlobal(computed);
                 // Optionally update DB score if different
-                // evaluationService.modifier(ev); // commented to avoid unintended writes
-            }
-        }
-        if (tableAudits == null) {
-            return;
-        }
-        tableAudits.setItems(evaluations);
-        tableAudits.refresh();
-
-        if (selectedProjet != null) {
-            Evaluation match = null;
-            for (Evaluation evaluation : evaluations) {
-                if (evaluation != null && evaluation.getIdProjet() == selectedProjet.getId()) {
-                    match = evaluation;
-                    break;
-                }
-            }
-            if (match != null) {
-                tableAudits.getSelectionModel().select(match);
-                return;
-            }
-        }
-
-        if (lastSelectedEvaluationId != null) {
-            for (Evaluation evaluation : evaluations) {
-                if (evaluation != null && evaluation.getIdEvaluation() == lastSelectedEvaluationId) {
-                    tableAudits.getSelectionModel().select(evaluation);
-                    return;
-                }
-            }
-        }
-
-        if (!evaluations.isEmpty()) {
-            tableAudits.getSelectionModel().selectFirst();
-        }
-        // Force refresh to show updated scores
-        if (tableAudits != null) {
-            tableAudits.refresh();
-        }
-    }
                 // evaluationService.modifier(ev); // commented to avoid unintended writes
             }
         }
@@ -505,7 +465,6 @@ public class CarbonAuditController extends BaseController {
 
     private void selectProjetIfSet() {
         if (selectedProjet == null) {
-        if (selectedProjet == null || comboProjet == null) {
             return;
         }
         if (txtIdProjet != null) {
@@ -544,7 +503,7 @@ public class CarbonAuditController extends BaseController {
     private void updateAISuggestion(List<EvaluationResult> criteres) {
         if (criteres == null || criteres.isEmpty()) {
             if (lblAISuggestion != null) {
-                lblAISuggestion.setText("Ajoutez des critères pour obtenir une suggestion IA.");
+                lblAISuggestion.setText("Ajoutez des critﾃｨres pour obtenir une suggestion IA.");
             }
             if (txtAIInsights != null) {
                 txtAIInsights.clear();
@@ -555,31 +514,31 @@ public class CarbonAuditController extends BaseController {
         if (lblAISuggestion != null) {
             lblAISuggestion.setText(
                     "Suggestion: " + s.getSuggestionDecision() +
-                            " • Confiance: " + String.format(java.util.Locale.ROOT, "%.2f", s.getConfiance()) +
-                            " • Score: " + String.format(java.util.Locale.ROOT, "%.2f", s.getScore())
+                            " 窶｢ Confiance: " + String.format(java.util.Locale.ROOT, "%.2f", s.getConfiance()) +
+                            " 窶｢ Score: " + String.format(java.util.Locale.ROOT, "%.2f", s.getScore())
             );
         }
         if (txtAIInsights != null) {
             StringBuilder sb = new StringBuilder();
             if (!s.getTopFactors().isEmpty()) {
-                sb.append("Facteurs clés:\n");
+                sb.append("Facteurs clﾃｩs:\n");
                 for (String f : s.getTopFactors()) {
-                    sb.append(" • ").append(f).append("\n");
+                    sb.append(" 窶｢ ").append(f).append("\n");
                 }
             }
             if (!s.getWarnings().isEmpty()) {
                 sb.append("\nAvertissements:\n");
                 for (String w : s.getWarnings()) {
-                    sb.append(" • ").append(w).append("\n");
+                    sb.append(" 窶｢ ").append(w).append("\n");
                 }
             }
             if (s.getConclusion() != null && !s.getConclusion().isEmpty()) {
-                sb.append("\nConclusion:\n • ").append(s.getConclusion()).append("\n");
+                sb.append("\nConclusion:\n 窶｢ ").append(s.getConclusion()).append("\n");
             }
             if (s.getRecommendations() != null && !s.getRecommendations().isEmpty()) {
                 sb.append("\nRecommandations:\n");
                 for (String r : s.getRecommendations()) {
-                    sb.append(" • ").append(r).append("\n");
+                    sb.append(" 窶｢ ").append(r).append("\n");
                 }
             }
             txtAIInsights.setText(sb.toString().trim());
@@ -590,7 +549,7 @@ public class CarbonAuditController extends BaseController {
     void handleAISuggest() {
         List<EvaluationResult> resultats = collectResultatsFromFields();
         if (resultats == null || resultats.isEmpty()) {
-            showError("Complétez au moins un critère (note et commentaire) pour lancer la suggestion IA.");
+            showError("Complﾃｩtez au moins un critﾃｨre (note et commentaire) pour lancer la suggestion IA.");
             return;
         }
         updateAISuggestion(resultats);
@@ -600,15 +559,15 @@ public class CarbonAuditController extends BaseController {
     void handleScorePreview() {
         double score = calculateScoreFromFieldsLenient();
         if (lblAISuggestion != null) {
-            lblAISuggestion.setText("Score prévisionnel: " + formatScore(score));
+            lblAISuggestion.setText("Score prﾃｩvisionnel: " + formatScore(score));
         }
     }
 
     @FXML
     void handleWhatIf() {
-        // Scénario simple: +1 point sur chaque note (max 10)
+        // Scﾃｩnario simple: +1 point sur chaque note (max 10)
         if (criteriaFieldsBox == null || criteriaFieldsBox.getChildren().isEmpty()) {
-            showError("Aucun critère à simuler.");
+            showError("Aucun critﾃｨre ﾃ simuler.");
             return;
         }
         java.util.List<EvaluationResult> list = new java.util.ArrayList<>();
@@ -631,17 +590,17 @@ public class CarbonAuditController extends BaseController {
             } catch (NumberFormatException ignore) { }
         }
         if (list.isEmpty()) {
-            showError("Entrez des notes numériques pour simuler un scénario.");
+            showError("Entrez des notes numﾃｩriques pour simuler un scﾃｩnario.");
             return;
         }
         double newScore = calculateScore(list);
         if (txtAIInsights != null) {
             String previous = txtAIInsights.getText() == null ? "" : txtAIInsights.getText();
             String add = (previous.isEmpty() ? "" : (previous + "\n\n")) +
-                    "What-if (+1 sur chaque note) ↁEScore: " + formatScore(newScore);
+                    "What-if (+1 sur chaque note) 竊・Score: " + formatScore(newScore);
             txtAIInsights.setText(add);
         } else if (lblAISuggestion != null) {
-            lblAISuggestion.setText("What-if (+1) ↁEScore: " + formatScore(newScore));
+            lblAISuggestion.setText("What-if (+1) 竊・Score: " + formatScore(newScore));
         }
     }
 
@@ -693,7 +652,7 @@ public class CarbonAuditController extends BaseController {
             try {
                 java.util.List<String> recs = advancedFacade.criterionRecommendations(resultats);
                 if (lblAISuggestion != null) {
-                    String compact = recs.stream().limit(3).collect(Collectors.joining(" • "));
+                    String compact = recs.stream().limit(3).collect(Collectors.joining(" 窶｢ "));
                     lblAISuggestion.setText(compact);
                 }
             } catch (Exception ignore) { }
@@ -707,11 +666,11 @@ public class CarbonAuditController extends BaseController {
 
             persistMlPrediction(createdId, evaluation.getIdProjet(), resultats);
 
-            // Calculer et persister le score ESG du projet suite à la nouvelle évaluation
+            // Calculer et persister le score ESG du projet suite ﾃ la nouvelle ﾃｩvaluation
             try {
                 Integer esg = projectEsgService.calculateEsgForProject(evaluation.getIdProjet());
                 if (esg != null) {
-                    // Récupérer le projet et mettre à jour scoreEsg
+                    // Rﾃｩcupﾃｩrer le projet et mettre ﾃ jour scoreEsg
                     java.util.List<Projet> all = projetService.afficher();
                     if (all != null) {
                         for (Projet p : all) {
@@ -724,7 +683,7 @@ public class CarbonAuditController extends BaseController {
                     }
                 }
             } catch (Exception ex) {
-                // On ne bloque pas l'UX si l'ESG ne peut pas être calculé
+                // On ne bloque pas l'UX si l'ESG ne peut pas ﾃｪtre calculﾃｩ
                 System.err.println("ESG update failed: " + ex.getMessage());
             }
 
@@ -755,7 +714,7 @@ public class CarbonAuditController extends BaseController {
                                                         String currentText = txtAIInsights.getText();
                                                         txtAIInsights.setText(currentText + "\n\n" + carbonReport.getEvaluationDetails());
                                                     }
-                                                    System.out.println("[AUDIT CONTROLLER] ✁EExternal API data integrated for evaluation " + evalIdFinal);
+                                                    System.out.println("[AUDIT CONTROLLER] 笨・External API data integrated for evaluation " + evalIdFinal);
                                                 });
                                             }
                                         } catch (Exception apiEx) {
@@ -763,7 +722,7 @@ public class CarbonAuditController extends BaseController {
                                                 System.err.println("[AUDIT CONTROLLER] External API enrichment failed: " + apiEx.getMessage());
                                                 if (txtAIInsights != null) {
                                                     String currentText = txtAIInsights.getText();
-                                                    txtAIInsights.setText(currentText + "\n\n⚠�E�EExternal API data unavailable");
+                                                    txtAIInsights.setText(currentText + "\n\n笞・・External API data unavailable");
                                                 }
                                             });
                                         }
@@ -774,7 +733,7 @@ public class CarbonAuditController extends BaseController {
                                             System.err.println("[AUDIT CONTROLLER] External API timeout: " + ex.getMessage());
                                             if (txtAIInsights != null) {
                                                 String currentText = txtAIInsights.getText();
-                                                txtAIInsights.setText(currentText + "\n\n⚠�E�EExternal API timeout");
+                                                txtAIInsights.setText(currentText + "\n\n笞・・External API timeout");
                                             }
                                         });
                                         return null;
@@ -788,7 +747,7 @@ public class CarbonAuditController extends BaseController {
                 System.err.println("[AUDIT CONTROLLER] External API enrichment failed: " + apiEx.getMessage());
                 if (txtAIInsights != null) {
                     String currentText = txtAIInsights.getText();
-                    txtAIInsights.setText(currentText + "\n\n⚠�E�EExternal API data unavailable");
+                    txtAIInsights.setText(currentText + "\n\n笞・・External API data unavailable");
                 }
             }
             // ==================================================
@@ -824,10 +783,6 @@ public class CarbonAuditController extends BaseController {
             handleOpenMlDashboard();
         });
         delay.play();
-        evaluationService.ajouter(evaluation);
-        refreshEvaluations();
-        refreshProjets();
-        clearEvaluationForm();
     }
 
     @FXML
@@ -850,10 +805,9 @@ public class CarbonAuditController extends BaseController {
         }
         updateAISuggestion(resultats);
         evaluationService.modifier(evaluation);
-        evaluationService.modifier(evaluation);
         critereImpactService.modifierResultats(evaluation.getIdEvaluation(), resultats);
 
-        // Recalcul ESG projet après modification
+        // Recalcul ESG projet aprﾃｨs modification
         try {
             Integer esg = projectEsgService.calculateEsgForProject(evaluation.getIdProjet());
             java.util.List<Projet> all = projetService.afficher();
@@ -897,7 +851,7 @@ public class CarbonAuditController extends BaseController {
         evaluationService.supprimer(id);
         selectedEvaluationId = null;
 
-        // Recalculer l'ESG après suppression
+        // Recalculer l'ESG aprﾃｨs suppression
         if (projetIdForEsg != null) {
             try {
                 Integer esg = projectEsgService.calculateEsgForProject(projetIdForEsg);
@@ -905,7 +859,7 @@ public class CarbonAuditController extends BaseController {
                 if (all != null) {
                     for (Projet p : all) {
                         if (p != null && p.getId() == projetIdForEsg) {
-                            p.setScoreEsg(esg); // peut être null si plus d'évaluations
+                            p.setScoreEsg(esg); // peut ﾃｪtre null si plus d'ﾃｩvaluations
                             try { projetService.update(p); } catch (Exception ignore) {}
                             break;
                         }
@@ -932,8 +886,6 @@ public class CarbonAuditController extends BaseController {
         // Poids : entier entre 1 et 10
         Integer poids = requireNote(txtNote.getText());
         if (nom == null || description == null || poids == null) {
-        if (selectedEvaluationId == null) {
-            showError("Selectionnez une evaluation.");
             return;
         }
         CritereReference critere = new CritereReference(nom, description, poids);
@@ -946,7 +898,6 @@ public class CarbonAuditController extends BaseController {
     @FXML
     void modifierCritere() {
         CritereReference selected = tableCriteres != null ? tableCriteres.getSelectionModel().getSelectedItem() : null;
-        CritereImpact selected = tableCriteres != null ? tableCriteres.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             showError("Selectionnez un critere.");
             return;
@@ -955,10 +906,6 @@ public class CarbonAuditController extends BaseController {
         String description = requireLength(txtCommentaireCritere, "Description", 8, 250);
         Integer poids = requireNote(txtNote.getText());
         if (nom == null || description == null || poids == null) {
-        String nom = requireLength(txtNomCritere, "Nom du critere", 10, 50);
-        String commentaire = requireText(txtCommentaireCritere, "Commentaire technique");
-        Integer note = requireNote(txtNote.getText());
-        if (nom == null || commentaire == null || note == null) {
             return;
         }
         selected.setNomCritere(nom);
@@ -972,7 +919,6 @@ public class CarbonAuditController extends BaseController {
     @FXML
     void supprimerCritere() {
         CritereReference selected = tableCriteres != null ? tableCriteres.getSelectionModel().getSelectedItem() : null;
-        CritereImpact selected = tableCriteres != null ? tableCriteres.getSelectionModel().getSelectedItem() : null;
         if (selected == null) {
             showError("Selectionnez un critere.");
             return;
@@ -982,7 +928,6 @@ public class CarbonAuditController extends BaseController {
             showError("Suppression echouee.");
             return;
         }
-        critereImpactService.supprimer(selected.getIdCritere());
         refreshCriteres();
         rebuildCriteriaFields(selectedEvaluationId);
         clearCritereForm();
@@ -1006,7 +951,6 @@ public class CarbonAuditController extends BaseController {
             return null;
         }
         String observations = requireLength(txtObservations, "Observations", 10, 250);
-        String decision = requireText(txtDecision, "Decision");
         Integer idProjet = parseInt(txtIdProjet.getText(), "ID Projet");
 
         if (observations == null || idProjet == null) {
@@ -1104,9 +1048,6 @@ public class CarbonAuditController extends BaseController {
         if (txtObservations != null) {
             txtObservations.clear();
         }
-        if (txtDecision != null) {
-            txtDecision.clear();
-        }
         if (txtIdProjet != null) {
             txtIdProjet.clear();
         }
@@ -1117,10 +1058,10 @@ public class CarbonAuditController extends BaseController {
         lastMlConfidence = null;
         lastSelectedEvaluationId = null;
         if (lblDecisionValue != null) {
-            lblDecisionValue.setText("Décision ML:  E);
+            lblDecisionValue.setText("Decision ML:");
         }
         if (lblMlStatus != null) {
-            lblMlStatus.setText("ML: prêt");
+            lblMlStatus.setText("ML: prﾃｪt");
         }
         if (listMlFactors != null) {
             listMlFactors.getItems().clear();
@@ -1180,7 +1121,7 @@ public class CarbonAuditController extends BaseController {
             txtScoreFinal.setText(formatScore(selected.getScoreGlobal()));
         }
         if (lblDecisionValue != null) {
-            lblDecisionValue.setText("Décision ML: " + selected.getDecision());
+            lblDecisionValue.setText("Dﾃｩcision ML: " + selected.getDecision());
         }
         selectedEvaluationId = selected.getIdEvaluation();
         lastSelectedEvaluationId = selectedEvaluationId;
@@ -1282,7 +1223,7 @@ public class CarbonAuditController extends BaseController {
                     lastMlRecommendations = null;
                     storeMlDecision(projetId, localDecision);
                     if (lblDecisionValue != null) {
-                        lblDecisionValue.setText("Décision ML: " + mapMlDecision(localDecision));
+                        lblDecisionValue.setText("Dﾃｩcision ML: " + mapMlDecision(localDecision));
                     }
                 }
                 return;
@@ -1323,7 +1264,7 @@ public class CarbonAuditController extends BaseController {
                 txtMlRecommendation.setText(sb.toString().trim());
             }
             if (lblDecisionValue != null) {
-                lblDecisionValue.setText("Décision ML: " + mapMlDecision(decision));
+                lblDecisionValue.setText("Dﾃｩcision ML: " + mapMlDecision(decision));
             }
         } catch (Exception ignored) {
             // Silent fallback: keep local recommendations/decision.
@@ -1395,13 +1336,13 @@ public class CarbonAuditController extends BaseController {
         if (listMlFactors != null) {
             for (int i = 0; i < Math.min(5, explanations.size()); i++) {
                 Models.ScoreExplanation e = explanations.get(i);
-                listMlFactors.getItems().add(e.getNomCritere() + " • impact " + String.format(java.util.Locale.ROOT, "%.2f", e.getContribution()));
+                listMlFactors.getItems().add(e.getNomCritere() + " 窶｢ impact " + String.format(java.util.Locale.ROOT, "%.2f", e.getContribution()));
             }
         }
 
         if (mlFactorsChart != null) {
             javafx.scene.chart.XYChart.Series<Number, Number> series = new javafx.scene.chart.XYChart.Series<>();
-            series.setName("Impact par critère");
+            series.setName("Impact par critﾃｨre");
             int idx = 1;
             for (Models.ScoreExplanation e : explanations) {
                 if (idx > 8) break;
@@ -1443,12 +1384,12 @@ public class CarbonAuditController extends BaseController {
         try (Connection conn = MyConnection.getConnection()) {
             for (String[] req : required) {
                 if (!columnExists(conn, req[0], req[1])) {
-                    showError("Schéma incomplet: colonne manquante " + req[0] + "." + req[1]);
+                    showError("Schﾃｩma incomplet: colonne manquante " + req[0] + "." + req[1]);
                     return false;
                 }
             }
         } catch (SQLException ex) {
-            showError("Échec vérification base: " + ex.getMessage());
+            showError("ﾃ営hec vﾃｩrification base: " + ex.getMessage());
             return false;
         }
         return true;
@@ -1519,7 +1460,7 @@ public class CarbonAuditController extends BaseController {
 
     @FXML
     private void showGestionEvaluations() {
-        System.out.println("Affichage de la gestion des évaluations");
+        System.out.println("Affichage de la gestion des ﾃｩvaluations");
         try {
             MainFX.setRoot("gestionCarbone");
         } catch (IOException e) {
@@ -1575,8 +1516,6 @@ public class CarbonAuditController extends BaseController {
         }
         if (note < 1 || note > 10) {
             showError("Note doit etre entre 1 et 10.");
-        if (note != 0 && note != 1) {
-            showError("Note doit etre 0 ou 1.");
             return null;
         }
         return note;
@@ -1735,7 +1674,7 @@ public class CarbonAuditController extends BaseController {
         return results;
     }
 
-    // Construit des résultats tolérants (sans exiger les commentaires) et renseigne le nom du critère
+    // Construit des rﾃｩsultats tolﾃｩrants (sans exiger les commentaires) et renseigne le nom du critﾃｨre
     private java.util.List<Models.EvaluationResult> buildResultsLenientForEsg() {
         java.util.List<Models.EvaluationResult> list = new java.util.ArrayList<>();
         if (criteriaFieldsBox == null) return list;
@@ -1755,7 +1694,7 @@ public class CarbonAuditController extends BaseController {
             try {
                 int note = Integer.parseInt(text);
                 if (note < 1 || note > 10) continue;
-                String nom = nameIndex.getOrDefault(idCritere, "Critère #" + idCritere);
+                String nom = nameIndex.getOrDefault(idCritere, "Critﾃｨre #" + idCritere);
                 Models.EvaluationResult r = new Models.EvaluationResult();
                 r.setIdCritere(idCritere);
                 r.setNomCritere(nom);
@@ -1924,7 +1863,7 @@ public class CarbonAuditController extends BaseController {
     void handleCalculateESG() {
         java.util.List<Models.EvaluationResult> results = buildResultsLenientForEsg();
         if (results.isEmpty()) {
-            showError("Saisissez des notes pour au moins un critère afin de calculer le score ESG.");
+            showError("Saisissez des notes pour au moins un critﾃｨre afin de calculer le score ESG.");
             return;
         }
         Services.ProjectEsgService.EsgBreakdown b = new Services.ProjectEsgService().breakdown(results);
@@ -1934,9 +1873,9 @@ public class CarbonAuditController extends BaseController {
         }
         if (txtEsgDetails != null) {
             String details = String.format(java.util.Locale.ROOT,
-                    "Formule: ESG = 50%%*E + 30%%*S + 20%%*G (sur 0 E0), puis ÁE0 -> 0 E00\n" +
-                            "Pénalisation: note_effective = note ÁE0.6 si Non Respecté\n" +
-                            "E = %.2f, S = %.2f, G = %.2f, ESG(0 E0) = %.2f, ESG(0 E00) = %d",
+                    "Formule: ESG = 50%%*E + 30%%*S + 20%%*G (sur 0窶・0), puis ﾃ・0 -> 0窶・00\n" +
+                            "Pﾃｩnalisation: note_effective = note ﾃ・0.6 si Non Respectﾃｩ\n" +
+                            "E = %.2f, S = %.2f, G = %.2f, ESG(0窶・0) = %.2f, ESG(0窶・00) = %d",
                     b.e, b.s, b.g, b.esg10, esg100);
             txtEsgDetails.setText(details);
         }
@@ -1949,7 +1888,7 @@ public class CarbonAuditController extends BaseController {
 
         java.util.List<Models.EvaluationResult> results = buildResultsLenientForEsg();
         if (results.isEmpty()) {
-            showError("Saisissez des notes pour au moins un critère afin d'enregistrer le score ESG.");
+            showError("Saisissez des notes pour au moins un critﾃｨre afin d'enregistrer le score ESG.");
             return;
         }
         Services.ProjectEsgService.EsgBreakdown b = new Services.ProjectEsgService().breakdown(results);
@@ -1968,11 +1907,11 @@ public class CarbonAuditController extends BaseController {
             }
             if (lblEsgScore != null) lblEsgScore.setText(String.valueOf(esg100));
             if (txtEsgDetails != null && (txtEsgDetails.getText() == null || txtEsgDetails.getText().isEmpty())) {
-                txtEsgDetails.setText("Score ESG enregistré pour le projet #" + projetId + ": " + esg100);
+                txtEsgDetails.setText("Score ESG enregistrﾃｩ pour le projet #" + projetId + ": " + esg100);
             }
             refreshProjets();
         } catch (Exception ex) {
-            showError("Échec lors de l'enregistrement du score ESG: " + ex.getMessage());
+            showError("ﾃ営hec lors de l'enregistrement du score ESG: " + ex.getMessage());
         }
     }
 
@@ -1988,9 +1927,6 @@ public class CarbonAuditController extends BaseController {
     void handleExportPdf() {
         if (!requireExpertPermission("exporter un rapport")) {
             return;
-    private void setActiveNav(Button active) {
-        if (btnGestionProjets != null) {
-            btnGestionProjets.getStyleClass().remove("nav-btn-active");
         }
         try {
             Evaluation evaluation;
@@ -2006,7 +1942,7 @@ public class CarbonAuditController extends BaseController {
                     }
                 }
                 if (evaluation == null) {
-                    showError("Aucune évaluation sélectionnée.");
+                    showError("Aucune ﾃｩvaluation sﾃｩlectionnﾃｩe.");
                     return;
                 }
                 resultats = critereImpactService.afficherParEvaluation(selectedEvaluationId);
@@ -2014,12 +1950,12 @@ public class CarbonAuditController extends BaseController {
             } else {
                 evaluation = readEvaluationFromForm(false);
                 if (evaluation == null) {
-                    showError("Remplissez le formulaire ou sélectionnez une évaluation pour exporter.");
+                    showError("Remplissez le formulaire ou sﾃｩlectionnez une ﾃｩvaluation pour exporter.");
                     return;
                 }
                 resultats = collectResultatsFromFields();
                 if (resultats == null || resultats.isEmpty()) {
-                    showError("Ajoutez au moins un critère pour exporter.");
+                    showError("Ajoutez au moins un critﾃｨre pour exporter.");
                     return;
                 }
                 evaluation.setScoreGlobal(calculateScore(resultats));
@@ -2028,7 +1964,7 @@ public class CarbonAuditController extends BaseController {
             Models.AiSuggestion suggestion = advancedFacade.suggest(null, resultats);
 
             javafx.stage.FileChooser chooser = new javafx.stage.FileChooser();
-            chooser.setTitle("Exporter l'évaluation en PDF");
+            chooser.setTitle("Exporter l'ﾃｩvaluation en PDF");
             chooser.getExtensionFilters().add(new javafx.stage.FileChooser.ExtensionFilter("PDF", "*.pdf"));
             String baseName = "evaluation-" + (selectedEvaluationId != null ? selectedEvaluationId : evaluation.getIdProjet());
             chooser.setInitialFileName(baseName + ".pdf");
@@ -2170,21 +2106,21 @@ public class CarbonAuditController extends BaseController {
         StringBuilder factors = new StringBuilder();
         if (suggestion != null && suggestion.getTopFactors() != null) {
             for (String f : suggestion.getTopFactors()) {
-                factors.append("• ").append(f).append("<br/>");
+                factors.append("窶｢ ").append(f).append("<br/>");
             }
         }
         if (factors.length() == 0) {
-            factors.append("• Facteurs cles non disponibles.<br/>");
+            factors.append("窶｢ Facteurs cles non disponibles.<br/>");
         }
 
         StringBuilder recs = new StringBuilder();
         List<String> recList = suggestion != null ? suggestion.getRecommendations() : java.util.Collections.emptyList();
         if (recList != null && !recList.isEmpty()) {
             for (String r : recList) {
-                recs.append("• ").append(r).append("<br/>");
+                recs.append("窶｢ ").append(r).append("<br/>");
             }
         } else {
-            recs.append("• Aucune recommandation prioritaire.");
+            recs.append("窶｢ Aucune recommandation prioritaire.");
         }
 
         return "<!doctype html><html><head><meta charset='UTF-8'/></head>" +

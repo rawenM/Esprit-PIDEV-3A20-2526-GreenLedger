@@ -229,16 +229,6 @@ public class AdminUsersController {
                 blockBtn.setStyle("-fx-background-color: #EF4444; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
                 deleteBtn.setStyle("-fx-background-color: #6B7280; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
                 detailsBtn.setStyle("-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
-            private final Button editBtn = new Button("✏️");
-            private final HBox container = new HBox(5, validateBtn, blockBtn, deleteBtn, /*edit*/ editBtn);
-
-            {
-                validateBtn.setStyle("-fx-background-color: #10B981; -fx-text-fill: white;");
-                blockBtn.setStyle("-fx-background-color: #EF4444; -fx-text-fill: white;");
-                deleteBtn.setStyle("-fx-background-color: #6B7280; -fx-text-fill: white;");
-                editBtn.setStyle("-fx-background-color: #F59E0B; -fx-text-fill: white;");
-
-
                 validateBtn.setTooltip(new Tooltip("Valider"));
                 blockBtn.setTooltip(new Tooltip("Bloquer"));
                 deleteBtn.setTooltip(new Tooltip("Supprimer"));
