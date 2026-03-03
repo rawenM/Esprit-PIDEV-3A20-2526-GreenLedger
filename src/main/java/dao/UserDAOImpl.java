@@ -12,10 +12,15 @@ import java.util.Optional;
 
 public class UserDAOImpl implements IUserDAO {
 
+<<<<<<< HEAD
+=======
+    private final Connection connection;
+>>>>>>> yassine_antar
     // Indique si la colonne token_expiry est disponible dans la table
     private final boolean hasTokenExpiryColumn;
     // Indique si la colonne token_hash est disponible dans la table
     private final boolean hasTokenHashColumn;
+<<<<<<< HEAD
     // Indique si les colonnes de fraude sont disponibles
     private final boolean hasFraudScoreColumn;
     private final boolean hasFraudCheckedColumn;
@@ -41,6 +46,19 @@ public class UserDAOImpl implements IUserDAO {
             try (ResultSet rs = md.getColumns(null, null, "user", "token_expiry")) {
                 if (!rs.next()) {
                     try (Statement st = conn.createStatement()) {
+=======
+
+    public UserDAOImpl() {
+        this.connection = MyConnection.getInstance().getConnection();
+        boolean hasTokenExpiry = false;
+        boolean hasTokenHash = false;
+        // Tentative d'ajout de la colonne token_expiry si elle n'existe pas (migration légère)
+        try {
+            DatabaseMetaData md = connection.getMetaData();
+            try (ResultSet rs = md.getColumns(null, null, "user", "token_expiry")) {
+                if (!rs.next()) {
+                    try (Statement st = connection.createStatement()) {
+>>>>>>> yassine_antar
                         st.executeUpdate("ALTER TABLE `user` ADD COLUMN token_expiry DATETIME NULL");
                         System.out.println("[CLEAN] Colonne token_expiry ajoutée à la table user (migration automatique)");
                         hasTokenExpiry = true;
@@ -57,7 +75,11 @@ public class UserDAOImpl implements IUserDAO {
             // Idem pour token_hash
             try (ResultSet rs = md.getColumns(null, null, "user", "token_hash")) {
                 if (!rs.next()) {
+<<<<<<< HEAD
                     try (Statement st = conn.createStatement()) {
+=======
+                    try (Statement st = connection.createStatement()) {
+>>>>>>> yassine_antar
                         st.executeUpdate("ALTER TABLE `user` ADD COLUMN token_hash VARCHAR(255) NULL");
                         System.out.println("[CLEAN] Colonne token_hash ajoutée à la table user (migration automatique)");
                         hasTokenHash = true;
@@ -71,6 +93,7 @@ public class UserDAOImpl implements IUserDAO {
                     hasTokenHash = true;
                 }
             }
+<<<<<<< HEAD
             
             // Vérifier les colonnes de fraude
             try (ResultSet rs = md.getColumns(null, null, "user", "fraud_score")) {
@@ -91,6 +114,11 @@ public class UserDAOImpl implements IUserDAO {
         this.hasTokenHashColumn = hasTokenHash;
         this.hasFraudScoreColumn = hasFraudScore;
         this.hasFraudCheckedColumn = hasFraudChecked;
+=======
+        } catch (Exception ignored) {}
+        this.hasTokenExpiryColumn = hasTokenExpiry;
+        this.hasTokenHashColumn = hasTokenHash;
+>>>>>>> yassine_antar
     }
 
     @Override
@@ -115,7 +143,11 @@ public class UserDAOImpl implements IUserDAO {
         }
         sql += ")";
 
+<<<<<<< HEAD
         try (PreparedStatement ps = getConnection().prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+=======
+        try (PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+>>>>>>> yassine_antar
 
             ps.setString(1, user.getNom());
             ps.setString(2, user.getPrenom());
@@ -180,7 +212,11 @@ public class UserDAOImpl implements IUserDAO {
     public Optional<User> findById(Long id) {
         String sql = "SELECT * FROM `user` WHERE id = ?";
 
+<<<<<<< HEAD
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+=======
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+>>>>>>> yassine_antar
             ps.setLong(1, id);
             ResultSet rs = ps.executeQuery();
 
@@ -200,7 +236,11 @@ public class UserDAOImpl implements IUserDAO {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM `user` ORDER BY date_inscription DESC";
 
+<<<<<<< HEAD
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
+=======
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+>>>>>>> yassine_antar
              ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
@@ -229,6 +269,7 @@ public class UserDAOImpl implements IUserDAO {
         if (hasTokenHashColumn) {
             sql += ", token_hash = ?";
         }
+<<<<<<< HEAD
         if (hasFraudScoreColumn) {
             sql += ", fraud_score = ?";
         }
@@ -238,6 +279,11 @@ public class UserDAOImpl implements IUserDAO {
         sql += " WHERE id = ?";
 
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+=======
+        sql += " WHERE id = ?";
+
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+>>>>>>> yassine_antar
 
             ps.setString(1, user.getNom());
             ps.setString(2, user.getPrenom());
@@ -280,6 +326,7 @@ public class UserDAOImpl implements IUserDAO {
                 paramIndex++;
             }
 
+<<<<<<< HEAD
             // fraud_score si présent
             if (hasFraudScoreColumn) {
                 ps.setDouble(paramIndex, user.getFraudScore());
@@ -292,6 +339,8 @@ public class UserDAOImpl implements IUserDAO {
                 paramIndex++;
             }
 
+=======
+>>>>>>> yassine_antar
             // id
             ps.setLong(paramIndex, user.getId());
 
@@ -316,7 +365,11 @@ public class UserDAOImpl implements IUserDAO {
     public boolean delete(Long id) {
         String sql = "DELETE FROM `user` WHERE id = ?";
 
+<<<<<<< HEAD
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+=======
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+>>>>>>> yassine_antar
             ps.setLong(1, id);
             int affectedRows = ps.executeUpdate();
 
@@ -337,7 +390,11 @@ public class UserDAOImpl implements IUserDAO {
     public Optional<User> findByEmail(String email) {
         String sql = "SELECT * FROM `user` WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))";
 
+<<<<<<< HEAD
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+=======
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+>>>>>>> yassine_antar
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
 
@@ -361,7 +418,11 @@ public class UserDAOImpl implements IUserDAO {
         if (telephone == null) return Optional.empty();
         String sql = "SELECT * FROM `user` WHERE REPLACE(REPLACE(telephone, ' ', ''), '-', '') = REPLACE(REPLACE(?, ' ', ''), '-', '') LIMIT 1";
 
+<<<<<<< HEAD
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+=======
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+>>>>>>> yassine_antar
             ps.setString(1, telephone);
             ResultSet rs = ps.executeQuery();
 
@@ -385,7 +446,11 @@ public class UserDAOImpl implements IUserDAO {
         if (token == null) return Optional.empty();
         String sql = "SELECT * FROM `user` WHERE token_verification = ? LIMIT 1";
 
+<<<<<<< HEAD
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+=======
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+>>>>>>> yassine_antar
             ps.setString(1, token);
             ResultSet rs = ps.executeQuery();
 
@@ -405,7 +470,11 @@ public class UserDAOImpl implements IUserDAO {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM `user` WHERE type_utilisateur = ?";
 
+<<<<<<< HEAD
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+=======
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+>>>>>>> yassine_antar
             ps.setString(1, type.name());
             ResultSet rs = ps.executeQuery();
 
@@ -426,7 +495,11 @@ public class UserDAOImpl implements IUserDAO {
         List<User> users = new ArrayList<>();
         String sql = "SELECT * FROM `user` WHERE statut = ?";
 
+<<<<<<< HEAD
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+=======
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+>>>>>>> yassine_antar
             ps.setString(1, statut.name());
             ResultSet rs = ps.executeQuery();
 
@@ -446,7 +519,11 @@ public class UserDAOImpl implements IUserDAO {
     public boolean emailExists(String email) {
         String sql = "SELECT COUNT(*) FROM `user` WHERE LOWER(TRIM(email)) = LOWER(TRIM(?))";
 
+<<<<<<< HEAD
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+=======
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+>>>>>>> yassine_antar
             ps.setString(1, email);
             ResultSet rs = ps.executeQuery();
 
@@ -465,7 +542,11 @@ public class UserDAOImpl implements IUserDAO {
     public long count() {
         String sql = "SELECT COUNT(*) FROM `user`";
 
+<<<<<<< HEAD
         try (PreparedStatement ps = getConnection().prepareStatement(sql);
+=======
+        try (PreparedStatement ps = connection.prepareStatement(sql);
+>>>>>>> yassine_antar
              ResultSet rs = ps.executeQuery()) {
 
             if (rs.next()) {
@@ -483,7 +564,11 @@ public class UserDAOImpl implements IUserDAO {
     public long countByStatut(StatutUtilisateur statut) {
         String sql = "SELECT COUNT(*) FROM `user` WHERE statut = ?";
 
+<<<<<<< HEAD
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+=======
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+>>>>>>> yassine_antar
             ps.setString(1, statut.name());
             ResultSet rs = ps.executeQuery();
 
@@ -502,7 +587,11 @@ public class UserDAOImpl implements IUserDAO {
     public long countByType(TypeUtilisateur type) {
         String sql = "SELECT COUNT(*) FROM `user` WHERE type_utilisateur = ?";
 
+<<<<<<< HEAD
         try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+=======
+        try (PreparedStatement ps = connection.prepareStatement(sql)) {
+>>>>>>> yassine_antar
             ps.setString(1, type.name());
             ResultSet rs = ps.executeQuery();
 
@@ -579,6 +668,7 @@ public class UserDAOImpl implements IUserDAO {
             if (tokenHash != null) user.setTokenHash(tokenHash);
         } catch (SQLException ignored) {}
 
+<<<<<<< HEAD
         // Champs de détection de fraude
         try {
             user.setFraudScore(rs.getDouble("fraud_score"));
@@ -592,6 +682,8 @@ public class UserDAOImpl implements IUserDAO {
             user.setFraudChecked(false);
         }
 
+=======
+>>>>>>> yassine_antar
         return user;
     }
 
@@ -640,4 +732,7 @@ public class UserDAOImpl implements IUserDAO {
         }
     }
 }
+<<<<<<< HEAD
 
+=======
+>>>>>>> yassine_antar

@@ -22,9 +22,12 @@
             </HBox>
             <Separator styleClass="sidebar-sep"/>
             <Button fx:id="btnNavDashboard" text="📊 Tableau de bord" onAction="#handleGoDashboard" styleClass="nav-btn"/>
+<<<<<<< HEAD
             <Button text="📊 Tableau analytique"
                     onAction="#GoDashboard"
                     styleClass="nav-btn"/>
+=======
+>>>>>>> yassine_antar
             <Button fx:id="btnNavInvestments" text="💰 Investissements" onAction="#handleGoInvestments" styleClass="nav-btn nav-btn-active"/>
             <Button fx:id="btnNavFinancement" text="💳 Financement avancé" onAction="#handleGoFinancement" styleClass="nav-btn"/>
             <Button fx:id="btnNavSettings" text="⚙️ Paramètres" onAction="#handleGoSettings" styleClass="nav-btn"/>
@@ -119,11 +122,16 @@
                         </placeholder>
                         <columns>
                             <TableColumn fx:id="colInvProjetId" text="Projet ID" prefWidth="90"/>
+<<<<<<< HEAD
                             <TableColumn fx:id="colInvMontant" text="Montant" prefWidth="120"/>
+=======
+                            <TableColumn fx:id="colInvMontant" text="Montant (EUR)" prefWidth="120"/>
+>>>>>>> yassine_antar
                             <TableColumn fx:id="colInvDate" text="Date d'investissement" prefWidth="150"/>
                             <TableColumn fx:id="colInvStatut" text="Statut" prefWidth="100"/>
                         </columns>
                     </TableView>
+<<<<<<< HEAD
 
                     <VBox fx:id="conversionPanel" spacing="8"
                           style="-fx-background-color: #f0f4ff; -fx-background-radius: 8; -fx-padding: 12 16 12 16; -fx-border-color: #dce3f0; -fx-border-radius: 8;"
@@ -166,6 +174,8 @@
                             </VBox>
                         </HBox>
                     </VBox>
+=======
+>>>>>>> yassine_antar
                 </VBox>
 
                 <Separator/>
@@ -251,7 +261,10 @@
                                 prefWidth="200"
                                 prefHeight="45"
                         styleClass="btn btn-secondary"/>
+<<<<<<< HEAD
                         <!---->
+=======
+>>>>>>> yassine_antar
                         <Region HBox.hgrow="ALWAYS"/>
                     </HBox>
                 </VBox>

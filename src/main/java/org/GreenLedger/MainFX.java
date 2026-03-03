@@ -17,11 +17,23 @@ import java.net.URL;
 public class MainFX extends Application {
 
     private static Scene scene;
+<<<<<<< HEAD
     private ResetHttpServer resetServer;
+=======
+
+<<<<<<< HEAD
+    // ✅ Démarre uniquement sur ton écran Projet (change ici si besoin)
+    private static final String START_SCREEN = "GestionProjet"; // -> fichier: /projet_crud.fxml
+=======
+
+    private static final String START_SCREEN = "GestionProjet"; // -> fichier: /GestionProjet.fxml
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
 
     @Override
     public void start(Stage primaryStage) throws IOException {
 
+<<<<<<< HEAD
         // Test de la connexion a la base de donnees
         MyConnection db = MyConnection.getInstance();
         if (!db.testConnection()) {
@@ -29,6 +41,14 @@ public class MainFX extends Application {
             System.err.println("Verifiez que le serveur de base de donnees est demarr et que l'URL/les identifiants sont corrects.");
             return;
         }
+=======
+<<<<<<< HEAD
+        // Charger uniquement ton interface FXML (Projet)
+=======
+
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+        Parent root = loadFXML(START_SCREEN);
+>>>>>>> yassine_antar
 
         // Charger la page de connexion
         URL fxmlUrl = getClass().getResource("/fxml/login.fxml");
@@ -61,6 +81,7 @@ public class MainFX extends Application {
             primaryStage.getIcons().add(new Image(iconUrl.toExternalForm()));
         }
 
+<<<<<<< HEAD
         primaryStage.setTitle("Green Ledger - Connexion");
         primaryStage.setScene(scene);
         primaryStage.setMinWidth(850);
@@ -85,6 +106,17 @@ public class MainFX extends Application {
             System.err.println("[CLEAN] Erreur lors du demarrage de l'application");
             e.printStackTrace();
         }
+=======
+<<<<<<< HEAD
+        stage.setTitle("Green Ledger - Projet (Test)");
+=======
+        stage.setTitle("Green Ledger - Expert Carbone");
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+        stage.setScene(scene);
+        stage.setMinWidth(1000);
+        stage.setMinHeight(600);
+        stage.show();
+>>>>>>> yassine_antar
     }
 
     public static void setRoot(String fxml) throws IOException {

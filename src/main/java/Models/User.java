@@ -27,10 +27,13 @@ public class User {
     private String tokenVerification;
     private LocalDateTime tokenExpiry;
     private String tokenHash; // Hash sécurisé du token (BCrypt) — ne jamais stocker le token en clair
+<<<<<<< HEAD
     
     // Détection de fraude
     private double fraudScore;
     private boolean fraudChecked;
+=======
+>>>>>>> yassine_antar
 
     // Constructeur par défaut
     public User() {
@@ -185,6 +188,7 @@ public class User {
         this.tokenHash = tokenHash;
     }
 
+<<<<<<< HEAD
     public double getFraudScore() {
         return fraudScore;
     }
@@ -201,6 +205,8 @@ public class User {
         this.fraudChecked = fraudChecked;
     }
 
+=======
+>>>>>>> yassine_antar
     // Méthodes utilitaires
     public String getNomComplet() {
         return prenom + " " + nom;
@@ -246,4 +252,8 @@ public class User {
                 ", statut=" + statut +
                 '}';
     }
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> yassine_antar

@@ -84,4 +84,8 @@ public interface IUserDAO {
      * Compter les utilisateurs par type
      */
     long countByType(TypeUtilisateur type);
+<<<<<<< HEAD
 }
+=======
+}
+>>>>>>> yassine_antar

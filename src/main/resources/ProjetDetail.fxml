@@ -15,6 +15,13 @@
             <Insets top="20" right="24" bottom="20" left="24"/>
         </padding>
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        <!-- Card -->
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
         <VBox spacing="14" styleClass="card">
             <padding>
                 <Insets top="18" right="18" bottom="18" left="18"/>
@@ -40,6 +47,12 @@
             <HBox spacing="12">
                 <VBox spacing="6" HBox.hgrow="ALWAYS">
                     <Label text="Budget" styleClass="form-label"/>
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+                    <TextField fx:id="tfBudget" disable="true" styleClass="field"/>
+=======
+>>>>>>> yassine_antar
 
                     <HBox spacing="10">
                         <TextField fx:id="tfBudgetMontant" disable="true" styleClass="field" HBox.hgrow="ALWAYS"/>
@@ -48,6 +61,10 @@
 
                     <TextArea fx:id="taBudgetRaison" disable="true" wrapText="true"
                               styleClass="field textarea" style="-fx-pref-height: 80px;"/>
+<<<<<<< HEAD
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
                 </VBox>
 
                 <VBox spacing="6" prefWidth="160">
@@ -82,6 +99,11 @@
                           style="-fx-pref-height: 150px;"/>
             </VBox>
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> yassine_antar
             <!-- ✅ Pièces jointes (read-only) -->
             <VBox spacing="6">
                 <HBox spacing="10" alignment="CENTER_LEFT">
@@ -94,6 +116,10 @@
                 <ListView fx:id="lvDocs" prefHeight="140"/>
             </VBox>
 
+<<<<<<< HEAD
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
         </VBox>
 
         <HBox spacing="15"
@@ -124,4 +150,12 @@
 
     </VBox>
 
+<<<<<<< HEAD
 </VBox>
+=======
+<<<<<<< HEAD
+</VBox>
+=======
+</VBox>
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar

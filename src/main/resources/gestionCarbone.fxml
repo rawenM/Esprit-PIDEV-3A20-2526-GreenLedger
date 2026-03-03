@@ -5,6 +5,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<<<<<<< HEAD
 <?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.chart.LineChart?>
 <?import javafx.scene.chart.NumberAxis?>
@@ -13,6 +14,22 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.CarbonAuditController"
       spacing="0" styleClass="page">
+=======
+<<<<<<< HEAD
+
+<HBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+    fx:controller="Controllers.CarbonAuditController"
+    spacing="0" styleClass="page">
+=======
+<?import javafx.scene.canvas.Canvas?>
+
+<HBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.CarbonAuditController"
+      spacing="0" styleClass="page">
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
 
     <!-- Navigation Sidebar -->
     <VBox prefWidth="220" styleClass="sidebar">
@@ -24,6 +41,22 @@
 
         <Separator styleClass="sidebar-sep"/>
 
+<<<<<<< HEAD
+        <Button text="← Retour" styleClass="btn btn-secondary" onAction="#handleBack"/>
+
+        <Button fx:id="btnGestionProjets" text="📁 Voir Projets" styleClass="nav-btn"/>
+=======
+<<<<<<< HEAD
+        <Button fx:id="btnGestionProjets" text="📁 Gestion Projets" styleClass="nav-btn"/>
+>>>>>>> yassine_antar
+        <Button fx:id="btnGestionEvaluations" text="📊 Gestion Évaluations" styleClass="nav-btn"/>
+        <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn"/>
+
+        <!-- Spacer to push content to bottom -->
+        <Region VBox.vgrow="ALWAYS"/>
+<<<<<<< HEAD
+=======
+=======
         <Button text="← Retour" styleClass="btn btn-secondary" onAction="#handleBack"/>
 
         <Button fx:id="btnGestionProjets" text="📁 Voir Projets" styleClass="nav-btn"/>
@@ -32,12 +65,17 @@
 
         <!-- Spacer to push content to bottom -->
         <Region VBox.vgrow="ALWAYS"/>
+>>>>>>> yassine_antar
 
         <VBox spacing="2" alignment="TOP_LEFT" style="-fx-padding: 10 0 0 0;">
             <Label fx:id="lblProfileName" styleClass="page-title"/>
             <Label fx:id="lblProfileType" styleClass="page-subtitle"/>
             <Button text="✏️ Modifier profil" styleClass="btn-secondary" onAction="#handleEditProfile"/>
         </VBox>
+<<<<<<< HEAD
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
     </VBox>
 
     <!-- Content -->
@@ -45,6 +83,7 @@
 
         <HBox fx:id="evaluationBanner" visible="false" managed="false" styleClass="banner-success" alignment="CENTER_LEFT">
             <padding>
+<<<<<<< HEAD
                 <Insets top="10" right="16" bottom="10" left="16"/>
             </padding>
             <Label fx:id="lblEvaluationBanner" text="" styleClass="banner-text"/>
@@ -59,6 +98,13 @@
         <HBox spacing="16" alignment="CENTER_LEFT" styleClass="hero-stats">
             <padding>
                 <Insets top="0" right="32" bottom="12" left="32"/>
+=======
+<<<<<<< HEAD
+                <Insets top="28" right="32" bottom="20" left="32"/>
+=======
+                <Insets top="12" right="32" bottom="20" left="32"/>
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
             </padding>
 
             <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
@@ -87,6 +133,7 @@
                     <Insets top="6" right="20" bottom="20" left="20"/>
                 </padding>
 
+<<<<<<< HEAD
                 <!-- Evaluation + Criteria Section -->
                 <VBox spacing="10" styleClass="card card-focus compact-card">
                     <padding>
@@ -99,11 +146,36 @@
                             <Label text="Critères d'impact" styleClass="section-title"/>
                             <Label text="Definissez les criteres et pesez leur importance." styleClass="section-subtitle"/>
                         </VBox>
+=======
+<<<<<<< HEAD
+                <!-- Project Selection Section -->
+                <VBox spacing="12">
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="📁" style="-fx-font-size: 18px;"/>
+                        <Label text="Sélection Projet" styleClass="page-title"/>
+>>>>>>> yassine_antar
+                    </HBox>
+
+<<<<<<< HEAD
+                    <TableView fx:id="tableCriteres"
+                               styleClass="table-card selectable-table"
+                               prefHeight="240" minHeight="200">
+=======
+=======
+                <!-- Evaluation + Criteria Section -->
+                <VBox spacing="12" styleClass="card">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="⚖️" style="-fx-font-size: 18px;"/>
+                        <Label text="Critères d'Impact" styleClass="page-title"/>
                     </HBox>
 
                     <TableView fx:id="tableCriteres"
                                styleClass="table-card selectable-table"
-                               prefHeight="240" minHeight="200">
+                               prefHeight="280" minHeight="220">
                         <placeholder>
                             <VBox alignment="CENTER" spacing="8" style="-fx-padding: 40;">
                                 <Label text="⚖️" style="-fx-font-size: 32px; -fx-opacity: 0.3;"/>
@@ -175,6 +247,192 @@
                     </HBox>
 
                     <HBox spacing="12">
+                        <VBox spacing="8" prefWidth="220">
+                            <Label text="ID Projet" styleClass="form-label"/>
+                            <TextField fx:id="txtIdProjet" editable="false" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Decision" styleClass="form-label"/>
+                            <HBox spacing="16">
+                                <RadioButton fx:id="chkDecisionApproved" text="Approuver"/>
+                                <RadioButton fx:id="chkDecisionRejected" text="Rejeter"/>
+                            </HBox>
+                        </VBox>
+                    </HBox>
+
+                    <!-- ESG Project Score Section -->
+                    <VBox spacing="8" style="-fx-padding: 6 0 0 0;">
+                        <Label text="Score ESG Projet (0–100)" styleClass="form-label"/>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <Button fx:id="btnCalcEsg" text="🧮 Calculer ESG" onAction="#handleCalculateESG" styleClass="btn-secondary"/>
+                            <Button fx:id="btnSaveEsg" text="💾 Enregistrer dans Projet" onAction="#handleSaveESG" styleClass="btn"/>
+                            <Label fx:id="lblEsgScore" text="—" styleClass="stat-value accent-green" style="-fx-font-size: 16;"/>
+                        </HBox>
+                        <TextArea fx:id="txtEsgDetails"
+                                  promptText="La formule et les détails E/S/G apparaîtront ici…"
+                                  wrapText="true"
+                                  styleClass="field textarea"
+                                  style="-fx-pref-height: 90px;"/>
+                    </VBox>
+
+                    <VBox spacing="8">
+                        <Label text="Observations" styleClass="form-label"/>
+                        <TextArea fx:id="txtObservations"
+                                  promptText="Commentaires sur l'evaluation..."
+                                  wrapText="true"
+                                  styleClass="field textarea"
+                                  style="-fx-pref-height: 100px;"/>
+                    </VBox>
+
+                    <HBox spacing="12">
+                        <Button text="➕ Creer Evaluation" onAction="#ajouterEvaluation" styleClass="btn-primary"/>
+                        <Button text="✏️ Modifier" onAction="#modifierEvaluation" styleClass="btn-secondary"/>
+                        <Button text="🗑️ Supprimer" onAction="#supprimerEvaluation" styleClass="btn-danger"/>
+                    </HBox>
+
+                </VBox>
+
+                <!-- Signature section moved to the bottom -->
+
+                <!-- AI Analysis Section -->
+                <VBox spacing="12" styleClass="card">
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="🧠" style="-fx-font-size: 18px;"/>
+                        <Label text="Analyse avancée (IA)" styleClass="page-title"/>
+                    </HBox>
+
+                    <HBox spacing="8">
+                        <Button fx:id="btnScorePreview"
+                                text="🔎 Prévisualiser score"
+                                onAction="#handleScorePreview"
+                                styleClass="btn-secondary"/>
+                        <Button fx:id="btnAISuggest"
+                                text="🤖 Suggestion IA"
+                                onAction="#handleAISuggest"
+                                styleClass="btn-primary"/>
+                        <Button fx:id="btnWhatIf"
+                                text="🧪 What-if +1 note"
+                                onAction="#handleWhatIf"
+                                styleClass="btn"/>
+                    </HBox>
+
+                    <Label fx:id="lblAISuggestion"
+                           style="-fx-font-size: 14px; -fx-text-fill: #059669;"
+                           text=""/>
+
+                    <TextArea fx:id="txtAIInsights"
+                              promptText="Explications et facteurs clés apparaîtront ici..."
+                              wrapText="true"
+                              styleClass="field textarea"
+                              style="-fx-pref-height: 110px;"/>
+                </VBox>
+
+                <!-- Evaluations Table Section -->
+                <VBox spacing="12">
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+                    <Label text="Evaluations recentes"
+                           styleClass="section-title-sidebar"/>
+                    <Label text="Cliquez une évaluation pour la charger dans le formulaire" styleClass="select-hint"/>
+
+                    <TableView fx:id="tableAudits" prefHeight="220" minHeight="220"
+                               VBox.vgrow="ALWAYS"
+                               styleClass="table-card table-projects">
+>>>>>>> yassine_antar
+                        <placeholder>
+                            <VBox alignment="CENTER" spacing="8" style="-fx-padding: 40;">
+                                <Label text="⚖️" style="-fx-font-size: 32px; -fx-opacity: 0.3;"/>
+                                <Label text="Aucun critère défini" styleClass="placeholder-label"/>
+                                <Label text="Ajoutez vos critères (nom, poids, description) avant l'évaluation." styleClass="select-hint"/>
+                            </VBox>
+                        </placeholder>
+                        <columns>
+<<<<<<< HEAD
+                            <TableColumn fx:id="colCritereNom" text="Nom" prefWidth="220"/>
+                            <TableColumn fx:id="colCritereNote" text="Poids" prefWidth="120"/>
+                            <TableColumn fx:id="colCritereCommentaire" text="Description" prefWidth="520"/>
+=======
+                            <TableColumn fx:id="colDate" text="Date" prefWidth="140" styleClass="col-center"/>
+<<<<<<< HEAD
+                            <TableColumn fx:id="colDecision" text="Decision" prefWidth="120" styleClass="col-center"/>
+                            <TableColumn fx:id="colProjetNom" text="Titre projet" prefWidth="220" styleClass="col-left"/>
+                            <TableColumn fx:id="colObservations" text="Observations" prefWidth="360" styleClass="col-left"/>
+=======
+                            <TableColumn fx:id="colDecision" text="Validation" prefWidth="140" styleClass="col-center"/>
+                            <TableColumn fx:id="colProjetNom" text="Titre projet" prefWidth="220" styleClass="col-left"/>
+                            <TableColumn fx:id="colObservations" text="Observations" prefWidth="320" styleClass="col-left"/>
+                            <TableColumn fx:id="colScore" text="Score" prefWidth="100" styleClass="col-center"/>
+                            <TableColumn fx:id="colAction" text="Statut" prefWidth="140" styleClass="col-center"/>
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
+                        </columns>
+                    </TableView>
+
+<<<<<<< HEAD
+                    <Separator/>
+
+                    <VBox fx:id="boxAddCritere" spacing="12">
+                        <HBox spacing="12">
+                            <VBox spacing="8" HBox.hgrow="ALWAYS">
+                                <Label text="Nom du critère" styleClass="form-label"/>
+                                <TextField fx:id="txtNomCritere"
+                                           promptText="Ex: Émissions CO2"
+                                           styleClass="field"/>
+                            </VBox>
+                            <VBox spacing="8" prefWidth="150">
+                                <Label text="Poids" styleClass="form-label"/>
+                                <TextField fx:id="txtNote"
+                                           promptText="1-10"
+                                           styleClass="field"/>
+                            </VBox>
+                        </HBox>
+
+                        <VBox spacing="8">
+                            <Label text="Commentaire technique" styleClass="form-label"/>
+                            <TextArea fx:id="txtCommentaireCritere"
+                                      promptText="Détails sur le critère d'impact..."
+                                      wrapText="true"
+                                      styleClass="field textarea"
+                                      style="-fx-pref-height: 80px;"/>
+                        </VBox>
+
+                        <HBox spacing="12">
+                            <Button text="➕ Ajouter Critère"
+                                    onAction="#ajouterCritere"
+                                    styleClass="btn-primary"/>
+                            <Button text="✏️ Modifier Critère"
+                                    onAction="#modifierCritere"
+                                    styleClass="btn-secondary"/>
+                            <Button text="🗑️ Supprimer Critère"
+                                    onAction="#supprimerCritere"
+                                    styleClass="btn-danger"/>
+                        </HBox>
+                    </VBox>
+
+                    <Separator/>
+
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="📋" style="-fx-font-size: 18px;"/>
+                        <Label text="Critères de l'évaluation" styleClass="page-title"/>
+                    </HBox>
+
+                    <VBox fx:id="criteriaFieldsBox" spacing="10"/>
+
+                    <Separator/>
+=======
+<<<<<<< HEAD
+                <!-- Evaluation CRUD Section -->
+                <VBox spacing="12" styleClass="card">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+>>>>>>> yassine_antar
+
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="📝" style="-fx-font-size: 18px;"/>
+                        <Label text="Finaliser l'évaluation" styleClass="page-title"/>
+                    </HBox>
+
+                    <HBox spacing="12">
                         <VBox spacing="8" prefWidth="320">
                             <Label text="Projet sélectionné" styleClass="form-label"/>
                             <Label fx:id="lblSelectedProjectName" text="—" styleClass="field-readonly"/>
@@ -205,6 +463,7 @@
                         <Label text="✍️" style="-fx-font-size: 18px;"/>
                         <Label text="Signature électronique" styleClass="page-title"/>
                     </HBox>
+<<<<<<< HEAD
                     <Label text="Signez ci-dessous. La signature sera incluse dans le PDF." styleClass="select-hint"/>
                     <Canvas fx:id="signatureCanvas" width="1200.0" height="200.0" HBox.hgrow="ALWAYS"/>
                     <HBox spacing="8" alignment="CENTER_LEFT">
@@ -212,6 +471,75 @@
                         <Region HBox.hgrow="ALWAYS"/>
                         <Button text="✉️ Envoyer rapport" onAction="#handleSendReportEmail" styleClass="btn-secondary"/>
                         <Button fx:id="btnExportPdf" text="📄 Exporter PDF" onAction="#handleExportPdf" styleClass="btn-primary"/>
+=======
+
+                    <TableView fx:id="tableCriteres"
+                               styleClass="table-card selectable-table"
+                               style="-fx-pref-height: 200px;">
+                        <placeholder>
+                            <VBox alignment="CENTER" spacing="8" style="-fx-padding: 40;">
+                                <Label text="⚖️" style="-fx-font-size: 32px; -fx-opacity: 0.3;"/>
+                                <Label text="Aucun critère défini" styleClass="placeholder-label"/>
+                            </VBox>
+                        </placeholder>
+                        <columns>
+                            <TableColumn fx:id="colCritereNom" text="Nom" prefWidth="200"/>
+                            <TableColumn fx:id="colCritereNote" text="Note" prefWidth="100"/>
+                            <TableColumn fx:id="colCritereCommentaire" text="Commentaire" prefWidth="540"/>
+                        </columns>
+                    </TableView>
+
+                    <Separator/>
+
+                    <HBox spacing="12">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Nom du critère" styleClass="form-label"/>
+                            <TextField fx:id="txtNomCritere"
+                                       promptText="Ex: Émissions CO2"
+                                       styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" prefWidth="150">
+                            <Label text="Note" styleClass="form-label"/>
+                            <TextField fx:id="txtNote"
+                                       promptText="0-100"
+                                       styleClass="field"/>
+                        </VBox>
+                    </HBox>
+
+                    <VBox spacing="8">
+                        <Label text="Commentaire technique" styleClass="form-label"/>
+                        <TextArea fx:id="txtCommentaireCritere"
+                                  promptText="Détails sur le critère d'impact..."
+                                  wrapText="true"
+                                  styleClass="field textarea"
+                                  style="-fx-pref-height: 80px;"/>
+                    </VBox>
+
+                    <HBox spacing="12">
+                        <Button text="➕ Ajouter Critère"
+                                onAction="#ajouterCritere"
+                                styleClass="btn-primary"/>
+                        <Button text="✏️ Modifier Critère"
+                                onAction="#modifierCritere"
+                                styleClass="btn-secondary"/>
+                        <Button text="🗑️ Supprimer Critère"
+                                onAction="#supprimerCritere"
+                                styleClass="btn-danger"/>
+=======
+                <!-- Electronic Signature (last section) -->
+                <VBox spacing="12" styleClass="card">
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="✍️" style="-fx-font-size: 18px;"/>
+                        <Label text="Signature électronique" styleClass="page-title"/>
+                    </HBox>
+                    <Label text="Signez ci-dessous. La signature sera incluse dans le PDF." styleClass="select-hint"/>
+                    <Canvas fx:id="signatureCanvas" width="520.0" height="140.0"/>
+                    <HBox spacing="8" alignment="CENTER_LEFT">
+                        <Button text="Effacer" onAction="#handleClearSignature" styleClass="btn-secondary"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button fx:id="btnExportPdf" text="📄 Exporter PDF" onAction="#handleExportPdf" styleClass="btn-primary"/>
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
                     </HBox>
                 </VBox>
 
@@ -220,6 +548,13 @@
 
     </VBox>
 
+<<<<<<< HEAD
 </HBox>
+<<<<<<< HEAD
 
 
+=======
+=======
+</HBox>
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar

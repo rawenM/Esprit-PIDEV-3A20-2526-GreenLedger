@@ -12,6 +12,7 @@ Use your IDE run configuration for `org.GreenLedger.MainFX`.
 mvn -q test
 ```
 
+<<<<<<< HEAD
 ## DynamicPDF export
 
 PDF export uses DynamicPDF when `DPDF_API_KEY` is set; otherwise it falls back to local PDFBox.
@@ -39,3 +40,5 @@ Optional CLI (requires exec-maven-plugin):
 ```powershell
 mvn -q -DskipTests exec:java -Dexec.mainClass=tools.DynamicPdfTestMain
 ```
+=======
+>>>>>>> yassine_antar

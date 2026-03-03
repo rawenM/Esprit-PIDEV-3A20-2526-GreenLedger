@@ -13,6 +13,11 @@ import java.util.UUID;
 
 public class DocumentService {
 
+<<<<<<< HEAD
+=======
+    private final Connection cnx = MyConnection.getConnection();
+
+>>>>>>> yassine_antar
     public String ensureProjectFolder(int projectId) throws IOException {
         Path base = Paths.get("uploads", "projects", String.valueOf(projectId));
         Files.createDirectories(base);
@@ -46,6 +51,7 @@ public class DocumentService {
         doc.setFileSize(size);
         doc.setImage(isImage);
 
+<<<<<<< HEAD
         try (Connection cnx = MyConnection.getConnection()) {
             insertMeta(cnx, doc);
         }
@@ -53,6 +59,13 @@ public class DocumentService {
     }
 
     private void insertMeta(Connection cnx, ProjectDocument doc) throws SQLException {
+=======
+        insertMeta(doc);
+        return doc;
+    }
+
+    private void insertMeta(ProjectDocument doc) throws SQLException {
+>>>>>>> yassine_antar
         String sql =
                 "INSERT INTO project_document (id_projet, file_name, stored_name, file_path, mime_type, file_size, is_image) " +
                         "VALUES (?,?,?,?,?,?,?)";
@@ -77,8 +90,12 @@ public class DocumentService {
         List<ProjectDocument> list = new ArrayList<>();
         String sql = "SELECT * FROM project_document WHERE id_projet=? ORDER BY uploaded_at DESC";
 
+<<<<<<< HEAD
         try (Connection cnx = MyConnection.getConnection();
              PreparedStatement ps = cnx.prepareStatement(sql)) {
+=======
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+>>>>>>> yassine_antar
             ps.setInt(1, projectId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {

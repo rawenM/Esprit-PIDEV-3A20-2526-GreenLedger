@@ -1,7 +1,11 @@
 package Controllers;
 
+<<<<<<< HEAD
 import Models.Budget;
 import Models.ProjectDocument;
+=======
+<<<<<<< HEAD
+>>>>>>> yassine_antar
 import Models.Projet;
 import Services.DocumentService;
 import Services.ProjetService;
@@ -89,6 +93,97 @@ public class ProjetCreateController {
         selectedFiles.clear();
         refreshFilesUI();
     }
+<<<<<<< HEAD
+=======
+    private String safeNull(String s) {
+        String v = safe(s);
+        return v.isEmpty() ? null : v;
+=======
+import Models.Budget;
+import Models.ProjectDocument;
+import Models.Projet;
+import Services.DocumentService;
+import Services.ProjetService;
+import Utils.ProjetPdfGenerator;
+import javafx.collections.FXCollections;
+import javafx.fxml.FXML;
+import javafx.scene.control.*;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
+
+import java.awt.Desktop;
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+public class ProjetCreateController {
+
+    @FXML private TextField tfTitre;
+    @FXML private TextField tfBudgetMontant;
+    @FXML private ComboBox<String> cbBudgetDevise;
+    @FXML private TextArea taBudgetRaison;
+
+    @FXML private TextField tfCompanyAddress;
+    @FXML private TextField tfCompanyEmail;
+    @FXML private TextField tfCompanyPhone;
+
+    @FXML private TextArea taDescription;
+
+    @FXML private Label lblFilesCount;
+    @FXML private ListView<String> lvFiles;
+
+    private final ProjetService projetService = new ProjetService();
+    private final DocumentService documentService = new DocumentService();
+
+    private final List<File> selectedFiles = new ArrayList<>();
+
+    @FXML
+    public void initialize() {
+        cbBudgetDevise.getItems().addAll("TND", "EUR", "USD");
+        cbBudgetDevise.setValue("TND");
+        refreshFilesUI();
+    }
+
+    @FXML
+    private void onBack() {
+
+        try {
+            org.GreenLedger.MainFX.setRoot("GestionProjet");
+            return;
+        } catch (Exception ignored) {}
+
+
+        try {
+            Stage stage = (Stage) tfTitre.getScene().getWindow();
+            if (stage.getOwner() != null) stage.close();
+        } catch (Exception ignored) {}
+    }
+
+
+    @FXML
+    private void onAddFiles() {
+        FileChooser fc = new FileChooser();
+        fc.setTitle("Sélectionner des documents / images");
+        fc.getExtensionFilters().addAll(
+                new FileChooser.ExtensionFilter("Documents & Images", "*.pdf", "*.png", "*.jpg", "*.jpeg", "*.gif", "*.doc", "*.docx"),
+                new FileChooser.ExtensionFilter("PDF", "*.pdf"),
+                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg", "*.gif"),
+                new FileChooser.ExtensionFilter("Tous les fichiers", "*.*")
+        );
+
+        List<File> files = fc.showOpenMultipleDialog(tfTitre.getScene().getWindow());
+        if (files != null && !files.isEmpty()) {
+            selectedFiles.addAll(files);
+            refreshFilesUI();
+        }
+    }
+
+    @FXML
+    private void onClearFiles() {
+        selectedFiles.clear();
+        refreshFilesUI();
+    }
+>>>>>>> yassine_antar
 
     private void refreshFilesUI() {
         if (lblFilesCount != null) {
@@ -101,9 +196,13 @@ public class ProjetCreateController {
         }
     }
 
+<<<<<<< HEAD
     // ===============================
     // PDF PREVIEW + OPEN BROWSER
     // ===============================
+=======
+
+>>>>>>> yassine_antar
     @FXML
     private void onGeneratePdf() {
         try {
@@ -124,9 +223,13 @@ public class ProjetCreateController {
         }
     }
 
+<<<<<<< HEAD
     // ===============================
     // SAVE DRAFT
     // ===============================
+=======
+
+>>>>>>> yassine_antar
     @FXML
     private void onSaveDraft() {
         try {
@@ -149,9 +252,12 @@ public class ProjetCreateController {
         }
     }
 
+<<<<<<< HEAD
     // ===============================
     // SUBMIT + PDF FINAL
     // ===============================
+=======
+>>>>>>> yassine_antar
     @FXML
     private void onAdd() {
         try {
@@ -193,9 +299,13 @@ public class ProjetCreateController {
         }
     }
 
+<<<<<<< HEAD
     // ===============================
     // BUILD PROJET
     // ===============================
+=======
+
+>>>>>>> yassine_antar
     private Projet buildProjetFromForm() {
         Projet p = new Projet();
 
@@ -247,6 +357,10 @@ public class ProjetCreateController {
         Alert a = new Alert(Alert.AlertType.INFORMATION, msg, ButtonType.OK);
         a.setHeaderText(null);
         a.showAndWait();
+<<<<<<< HEAD
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
     }
 
     private void error(String msg) {
@@ -254,4 +368,12 @@ public class ProjetCreateController {
         a.setHeaderText(null);
         a.showAndWait();
     }
+<<<<<<< HEAD
 }
+=======
+<<<<<<< HEAD
+}
+=======
+}
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar

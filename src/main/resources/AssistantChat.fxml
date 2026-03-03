@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.AssistantChatController"
+      spacing="10"
+      style="-fx-background-color: #f7f9fb;">
+
+    <padding>
+        <Insets top="12" right="12" bottom="12" left="12"/>
+    </padding>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Assistant GreenLedger"
+               style="-fx-font-size: 16px; -fx-font-weight: bold;"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="🧹 Clear" onAction="#onClear"/>
+    </HBox>
+
+    <TextArea fx:id="taChat"
+              editable="false"
+              wrapText="true"
+              prefHeight="420"
+              style="-fx-font-size: 12px;"/>
+
+    <HBox spacing="10">
+        <TextField fx:id="tfInput"
+                   promptText="Pose ta question… (ex: comment préparer mon projet avant dépôt ?)"
+                   HBox.hgrow="ALWAYS"/>
+        <Button fx:id="btnSend" text="Envoyer" onAction="#onSend"/>
+    </HBox>
+
+    <Label fx:id="lblStatus"
+           text=""
+           style="-fx-text-fill: #666; -fx-font-size: 11px;"/>
+</VBox>
