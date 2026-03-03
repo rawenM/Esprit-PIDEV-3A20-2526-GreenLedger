@@ -8,17 +8,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FinancementOffreService {
-<<<<<<< HEAD
-    private String cachedOffreTable;
-
-    public FinancementOffreService() {
-    }
-
-=======
     private final Connection conn = MyConnection.getConnection();
     private String cachedOffreTable;
 
->>>>>>> yassine_antar
     public List<FinancementOffre> getAll() {
         List<FinancementOffre> list = new ArrayList<>();
         String offreTable = resolveOffreTable();
@@ -27,12 +19,7 @@ public class FinancementOffreService {
                 + "FROM financement f "
                 + "LEFT JOIN " + offreTable + " o ON o.id_financement = f.id "
                 + "ORDER BY f.id";
-<<<<<<< HEAD
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-=======
         try (PreparedStatement ps = conn.prepareStatement(sql);
->>>>>>> yassine_antar
              ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 FinancementOffre fo = new FinancementOffre();
@@ -57,11 +44,7 @@ public class FinancementOffreService {
         String finSql = "INSERT INTO financement (projet_id, banque_id, montant, date_financement) VALUES (?,?,?,?)";
         String offreTable = resolveOffreTable();
         String offSql = "INSERT INTO " + offreTable + " (type_offre, taux, duree, id_financement) VALUES (?,?,?,?)";
-<<<<<<< HEAD
-        try (Connection conn = MyConnection.getConnection()) {
-=======
         try {
->>>>>>> yassine_antar
             conn.setAutoCommit(false);
             int financementId;
             try (PreparedStatement ps = conn.prepareStatement(finSql, Statement.RETURN_GENERATED_KEYS)) {
@@ -88,14 +71,10 @@ public class FinancementOffreService {
             }
             conn.commit();
         } catch (SQLException e) {
-<<<<<<< HEAD
-            e.printStackTrace();
-=======
             rollbackQuietly();
             e.printStackTrace();
         } finally {
             restoreAutoCommit();
->>>>>>> yassine_antar
         }
     }
 
@@ -104,11 +83,7 @@ public class FinancementOffreService {
         String offreTable = resolveOffreTable();
         String offUpdateSql = "UPDATE " + offreTable + " SET type_offre=?, taux=?, duree=? WHERE id_offre=?";
         String offInsertSql = "INSERT INTO " + offreTable + " (type_offre, taux, duree, id_financement) VALUES (?,?,?,?)";
-<<<<<<< HEAD
-        try (Connection conn = MyConnection.getConnection()) {
-=======
         try {
->>>>>>> yassine_antar
             conn.setAutoCommit(false);
             try (PreparedStatement ps = conn.prepareStatement(finSql)) {
                 ps.setInt(1, safeInt(data.getProjetId()));
@@ -139,14 +114,10 @@ public class FinancementOffreService {
             }
             conn.commit();
         } catch (SQLException e) {
-<<<<<<< HEAD
-            e.printStackTrace();
-=======
             rollbackQuietly();
             e.printStackTrace();
         } finally {
             restoreAutoCommit();
->>>>>>> yassine_antar
         }
     }
 
@@ -155,11 +126,7 @@ public class FinancementOffreService {
         String offDeleteById = "DELETE FROM " + offreTable + " WHERE id_offre=?";
         String offDeleteByFin = "DELETE FROM " + offreTable + " WHERE id_financement=?";
         String finDelete = "DELETE FROM financement WHERE id=?";
-<<<<<<< HEAD
-        try (Connection conn = MyConnection.getConnection()) {
-=======
         try {
->>>>>>> yassine_antar
             conn.setAutoCommit(false);
             if (data.getOffreId() != null && data.getOffreId() > 0) {
                 try (PreparedStatement ps = conn.prepareStatement(offDeleteById)) {
@@ -178,14 +145,10 @@ public class FinancementOffreService {
             }
             conn.commit();
         } catch (SQLException e) {
-<<<<<<< HEAD
-            e.printStackTrace();
-=======
             rollbackQuietly();
             e.printStackTrace();
         } finally {
             restoreAutoCommit();
->>>>>>> yassine_antar
         }
     }
 
@@ -207,8 +170,6 @@ public class FinancementOffreService {
         return value == null ? 0.0 : value;
     }
 
-<<<<<<< HEAD
-=======
     private void rollbackQuietly() {
         try {
             conn.rollback();
@@ -223,7 +184,6 @@ public class FinancementOffreService {
         }
     }
 
->>>>>>> yassine_antar
     private boolean hasOffreData(FinancementOffre data) {
         return data.getTypeOffre() != null && !data.getTypeOffre().trim().isEmpty();
     }
@@ -232,23 +192,11 @@ public class FinancementOffreService {
         if (cachedOffreTable != null) {
             return cachedOffreTable;
         }
-<<<<<<< HEAD
-        try (Connection conn = MyConnection.getConnection()) {
-            cachedOffreTable = tableExists(conn, "offre_financement") ? "offre_financement" : "offres";
-        } catch (SQLException e) {
-            cachedOffreTable = "offre_financement";
-        }
-        return cachedOffreTable;
-    }
-
-    private boolean tableExists(Connection conn, String tableName) {
-=======
         cachedOffreTable = tableExists("offre_financement") ? "offre_financement" : "offres";
         return cachedOffreTable;
     }
 
     private boolean tableExists(String tableName) {
->>>>>>> yassine_antar
         try (ResultSet rs = conn.getMetaData().getTables(null, null, tableName, null)) {
             return rs.next();
         } catch (SQLException e) {

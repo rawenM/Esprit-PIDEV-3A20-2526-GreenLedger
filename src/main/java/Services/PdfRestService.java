@@ -1,15 +1,5 @@
 package Services;
 
-<<<<<<< HEAD
-/**
- * PdfRest integration removed.
- */
-public class PdfRestService {
-    public PdfRestService() {
-        throw new UnsupportedOperationException("PdfRest integration removed");
-    }
-}
-=======
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
@@ -275,5 +265,3 @@ public class PdfRestService {
         }
     }
 }
-
->>>>>>> yassine_antar

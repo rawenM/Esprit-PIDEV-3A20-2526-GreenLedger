@@ -49,58 +49,29 @@ public class MyConnection {
             }
         }
         return instance.conn;
-
     }
-<<<<<<< HEAD
 
     // Fermer la connexion (déconseillé pour le singleton)
-=======
-<<<<<<< HEAD
-=======
-
->>>>>>> yassine_antar
     public void closeConnection() {
         if (conn != null) {
             try {
                 conn.close();
-<<<<<<< HEAD
                 System.out.println("[DB] Connexion fermée");
                 // Réinitialiser l'instance pour forcer une reconnexion
                 conn = null;
             } catch (SQLException e) {
-
                 System.err.println("[CLEAN] Erreur lors de la fermeture de la connexion: " + e.getMessage());
-
-                System.err.println("[DB] Erreur lors de la fermeture de la connexion");
                 e.printStackTrace();
-
-=======
-                System.out.println("[CLEAN] Connexion fermée");
-            } catch (SQLException e) {
-                System.err.println("[CLEAN] Erreur lors de la fermeture de la connexion");
-                e.printStackTrace();
->>>>>>> yassine_antar
             }
         }
     }
 
-<<<<<<< HEAD
     // Tester la connexion
     public boolean testConnection() {
         try (Connection c = DriverManager.getConnection(url, user, pwd)) {
             return c != null && !c.isClosed();
-=======
-    public boolean testConnection() {
-        try {
-            return conn != null && !conn.isClosed();
->>>>>>> yassine_antar
         } catch (SQLException e) {
             return false;
         }
     }
-<<<<<<< HEAD
 }
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
-}
->>>>>>> yassine_antar

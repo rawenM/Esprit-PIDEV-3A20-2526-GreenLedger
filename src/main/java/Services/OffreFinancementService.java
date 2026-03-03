@@ -8,13 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OffreFinancementService {
-<<<<<<< HEAD
-
-    public OffreFinancementService() {
-    }
-=======
     private final Connection conn = MyConnection.getConnection();
->>>>>>> yassine_antar
 
     public List<OffreFinancement> getAll() {
         return afficherAll();
@@ -23,12 +17,7 @@ public class OffreFinancementService {
     public List<OffreFinancement> afficherAll() {
         List<OffreFinancement> list = new ArrayList<>();
         String sql = "SELECT id_offre, type_offre, taux, duree, id_financement FROM offre_financement";
-<<<<<<< HEAD
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-=======
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
->>>>>>> yassine_antar
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     OffreFinancement o = new OffreFinancement(
@@ -49,12 +38,7 @@ public class OffreFinancementService {
 
     public void add(OffreFinancement o) {
         String sql = "INSERT INTO offre_financement (type_offre, taux, duree, id_financement) VALUES (?,?,?,?)";
-<<<<<<< HEAD
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-=======
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
->>>>>>> yassine_antar
             ps.setString(1, o.getTypeOffre());
             ps.setDouble(2, o.getTaux());
             ps.setInt(3, o.getDuree());
@@ -67,12 +51,7 @@ public class OffreFinancementService {
 
     public void update(OffreFinancement o) {
         String sql = "UPDATE offre_financement SET type_offre=?, taux=?, duree=?, id_financement=? WHERE id_offre=?";
-<<<<<<< HEAD
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-=======
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
->>>>>>> yassine_antar
             ps.setString(1, o.getTypeOffre());
             ps.setDouble(2, o.getTaux());
             ps.setInt(3, o.getDuree());
@@ -86,12 +65,7 @@ public class OffreFinancementService {
 
     public void delete(int idOffre) {
         String sql = "DELETE FROM offre_financement WHERE id_offre=?";
-<<<<<<< HEAD
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
-=======
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
->>>>>>> yassine_antar
             ps.setInt(1, idOffre);
             ps.executeUpdate();
         } catch (SQLException e) {

@@ -4,11 +4,8 @@ import Models.Financement;
 import Models.OffreFinancement;
 import Services.FinancementService;
 import Services.OffreFinancementService;
-<<<<<<< HEAD
 import Services.PdfContractService;
 import Services.PdfOffresReportService;
-=======
->>>>>>> yassine_antar
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -16,17 +13,12 @@ import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.layout.GridPane;
-<<<<<<< HEAD
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-=======
-
-import java.io.IOException;
->>>>>>> yassine_antar
 
 public class FinancementController extends BaseController {
 
@@ -57,11 +49,8 @@ public class FinancementController extends BaseController {
     @FXML private TextField txtDeleteFinancementId;
     @FXML private TextField txtFinancementIdToModify;
 
-<<<<<<< HEAD
     private final PdfOffresReportService pdfOffresService = new PdfOffresReportService();
     private final PdfContractService pdfService = new PdfContractService();
-=======
->>>>>>> yassine_antar
     private final FinancementService financementService = new FinancementService();
     private final OffreFinancementService offreService = new OffreFinancementService();
     private final javafx.collections.ObservableList<Financement> financementItems = FXCollections.observableArrayList();
@@ -380,23 +369,17 @@ public class FinancementController extends BaseController {
         txtProjetId.requestFocus();
     }
 
-<<<<<<< HEAD
-    /*
-      Handle sidebar button: New Offer
-=======
     /**
      * Handle sidebar button: New Offer
->>>>>>> yassine_antar
      */
     @FXML
     private void btnNewOffre_click() {
         clearOffreFields();
         txtTypeOffre.requestFocus();
     }
-<<<<<<< HEAD
 
-    /*
-      Navigation agent
+    /**
+     * Navigation agent
      */
     @FXML
     private void handleGoRiskAgent() {
@@ -408,6 +391,7 @@ public class FinancementController extends BaseController {
             showError("Erreur", "Impossible d'ouvrir l'agent de risque");
         }
     }
+
     @FXML
     private void exporterContrat() {
 
@@ -460,6 +444,7 @@ public class FinancementController extends BaseController {
             e.printStackTrace();
         }
     }
+
     @FXML
     private void exporterRapportOffres() {
 
@@ -510,8 +495,4 @@ public class FinancementController extends BaseController {
         try { org.GreenLedger.MainFX.setRoot("Investment_dashboard"); }
         catch (IOException e) { e.printStackTrace(); }
     }
-
-
-=======
->>>>>>> yassine_antar
 }

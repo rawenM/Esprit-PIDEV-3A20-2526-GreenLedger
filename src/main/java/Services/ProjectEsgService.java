@@ -21,12 +21,9 @@ public class ProjectEsgService {
     private final EvaluationService evaluationService = new EvaluationService();
     private final CritereImpactService critereService = new CritereImpactService();
 
-<<<<<<< HEAD
     public ProjectEsgService() {
     }
 
-=======
->>>>>>> yassine_antar
     public static class EsgBreakdown {
         public final double e; // 0..10
         public final double s; // 0..10
@@ -148,8 +145,4 @@ public class ProjectEsgService {
         void add(double note, int poids) { sum += note * poids; w += poids; }
         double avg() { return w == 0 ? 0.0 : sum / w; }
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> yassine_antar

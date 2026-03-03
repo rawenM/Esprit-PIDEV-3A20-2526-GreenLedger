@@ -1,12 +1,5 @@
 package tools;
 
-<<<<<<< HEAD
-public class AdobePdfTestMain {
-    public static void main(String[] args) {
-        System.out.println("Adobe PDF integration removed.");
-    }
-}
-=======
 import Services.AdobePdfService;
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.pdmodel.PDPage;
@@ -43,5 +36,3 @@ public class AdobePdfTestMain {
         }
     }
 }
-
->>>>>>> yassine_antar

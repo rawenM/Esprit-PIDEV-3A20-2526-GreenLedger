@@ -17,6 +17,9 @@
       <env name="SMTP_PORT" value="587" />
       <env name="SMTP_STARTTLS" value="true" />
       <env name="SMTP_USERNAME" value="ibrahimimajid058@gmail.com" />
+      <env name="TWILIO_ACCOUNT_SID" value="AC6ad062fface7f94f3522d37ac7041440" />
+      <env name="TWILIO_AUTH_TOKEN" value="7156d08c770f3d7d27800f47ea2654f7" />
+      <env name="TWILIO_FROM_NUMBER" value="+16812647734" />
     </envs>
     <option name="MAIN_CLASS_NAME" value="org.GreenLedger.MainFX" />
     <module name="workshopjdbc3a" />

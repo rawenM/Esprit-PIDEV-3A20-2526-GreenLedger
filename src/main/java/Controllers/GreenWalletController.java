@@ -1,24 +1,12 @@
-package Controllers;
+﻿package Controllers;
 
 import Models.Wallet;
 import Models.OperationWallet;
-<<<<<<< HEAD
 import Models.TypeUtilisateur;
 import Models.User;
 import Models.CarbonCreditBatch;
 import Services.WalletService;
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-import Services.WalletService;
-=======
-import Models.TypeUtilisateur;
-import Models.User;
-import Services.WalletService;
->>>>>>> yassine_antar
-=======
 import Services.BatchEventService;
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
 import Services.ExternalCarbonApiService;
 import Services.ClimatiqApiService;
 import Services.AirQualityService;
@@ -29,10 +17,6 @@ import Models.dto.external.AirQualityData;
 import Utils.SessionManager;
 import javafx.application.Platform;
 import javafx.event.ActionEvent;
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -42,22 +26,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.GridPane;
-<<<<<<< HEAD
 import javafx.scene.layout.HBox;
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-import javafx.scene.layout.HBox;
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-=======
-import javafx.scene.layout.Pane;
-import javafx.scene.shape.Rectangle;
-import javafx.scene.paint.Color;
-import javafx.scene.web.WebView;
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.stage.Stage;
 import org.GreenLedger.MainFX;
@@ -69,15 +38,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
-<<<<<<< HEAD
 import java.util.stream.Collectors;
-=======
-<<<<<<< HEAD
-=======
-import java.util.stream.Collectors;
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-
 /**
  * Controller for Green Wallet - Carbon Credit Management System.
  */
@@ -92,18 +53,9 @@ public class GreenWalletController extends BaseController {
 
     // Services
     private WalletService walletService;
-<<<<<<< HEAD
     private ExternalCarbonApiService carbonApiService;
     private ClimatiqApiService climatiqApiService;
-    private AirQualityService airQualityService;
-=======
-<<<<<<< HEAD
-=======
-    private ExternalCarbonApiService carbonApiService;
-    private AirQualityService airQualityService;
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-    private Wallet currentWallet;
+    private AirQualityService airQualityService;    private Wallet currentWallet;
     
     // Air quality data cache (disk + memory, 4 hour refresh for performance)
     private java.util.Map<String, CachedAirQuality> airQualityCache = new java.util.HashMap<>();
@@ -136,18 +88,8 @@ public class GreenWalletController extends BaseController {
 
     // Sidebar Buttons
     @FXML private Button btnWalletOverview;
-<<<<<<< HEAD
     @FXML private Button btnGestionProjets;
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
-    @FXML private Button btnGestionProjets;
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-=======
     @FXML private Button btnMarketplace;
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
     @FXML private Button btnTransactions;
     @FXML private Button btnBatches;
     @FXML private Button btnBatchCarbonTests;
@@ -155,17 +97,8 @@ public class GreenWalletController extends BaseController {
     @FXML private Button btnRetireCredits;
     @FXML private Button btnCreateWallet;
     @FXML private Button btnSettings;
-<<<<<<< HEAD
     @FXML private Label lblProfileName;
     @FXML private Label lblProfileType;
-=======
-<<<<<<< HEAD
-=======
-    @FXML private Label lblProfileName;
-    @FXML private Label lblProfileType;
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-
     // Sidebar Quick Stats
     @FXML private Label lblSidebarAvailable;
     @FXML private Label lblSidebarRetired;
@@ -219,19 +152,11 @@ public class GreenWalletController extends BaseController {
     @FXML private Button btnDeleteWallet;
     @FXML private Button btnExport;
     @FXML private Button btnRefresh;
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> yassine_antar
-=======
     @FXML private Button btnFilterTransactions;
     @FXML private Button btnMapFullscreen;
     @FXML private Button btnViewAllBatches;
     @FXML private Button btnIssueBatch;
     @FXML private Button btnCalculateEmissions;
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
     @FXML private Button btnTestAdd25;
     @FXML private Button btnTestAdd100;
     @FXML private Button btnTestAdd500;
@@ -243,10 +168,6 @@ public class GreenWalletController extends BaseController {
     @FXML private Button btnCalculateShipping;
     @FXML private Button btnCheckAirQuality;
     @FXML private TextArea txtApiResults;
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
 
     // Inline Climatiq Studio Controls
     @FXML private TextField txtApiElectricityValue;
@@ -330,17 +251,12 @@ public class GreenWalletController extends BaseController {
 
     @FXML
     public void initialize() {
-        System.out.println("=================================================");
+        System.out.println("");
         System.out.println("GREEN WALLET CONTROLLER INITIALIZING...");
-        System.out.println("=================================================");
+        System.out.println("");
         
         super.initialize();
         walletService = new WalletService();
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> yassine_antar
         carbonApiService = new ExternalCarbonApiService();
         climatiqApiService = new ClimatiqApiService();
         airQualityService = new AirQualityService();
@@ -350,35 +266,17 @@ public class GreenWalletController extends BaseController {
         loadCacheFromDisk();
 
         applyProfile(lblProfileName, lblProfileType);
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
         
         setupTableColumns();
         setupWalletSelector();
         setupMapWebView();
         setupListeners();
-<<<<<<< HEAD
         setupApiListeners();
         setupInlineApiSection();
         loadWallets();
-=======
-<<<<<<< HEAD
-        loadWallets();
-=======
-        setupApiListeners();
-        loadWallets();
->>>>>>> yassine_antar
-
         if (btnWalletOverview != null) {
             Platform.runLater(() -> btnWalletOverview.requestFocus());
-        }
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-    }
+        }    }
 
     private void setupTableColumns() {
         colTransactionId.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -425,22 +323,8 @@ public class GreenWalletController extends BaseController {
             @Override
             public String toString(Wallet wallet) {
                 if (wallet == null) return null;
-<<<<<<< HEAD
                 String name = wallet.getName() != null ? wallet.getName() : "Unnamed Wallet";
-<<<<<<< HEAD
                 return String.format("#%s - %s (%s)", formatWalletNumber(wallet.getWalletNumber()), name, wallet.getOwnerType());
-=======
-<<<<<<< HEAD
-                return String.format("#%d - %s (%s)", wallet.getWalletNumber(), name, wallet.getOwnerType());
-=======
-                return String.format("#%s - %s (%s)", formatWalletNumber(wallet.getWalletNumber()), name, wallet.getOwnerType());
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-=======
-                return formatWalletDisplay(wallet);
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
-            }
-
             @Override
             public Wallet fromString(String string) {
                 return null;
@@ -469,7 +353,6 @@ public class GreenWalletController extends BaseController {
     }
 
     private void setupListeners() {
-<<<<<<< HEAD
         if (btnWalletOverview != null) {
             btnWalletOverview.setOnAction(e -> showWalletOverview());
         }
@@ -478,14 +361,7 @@ public class GreenWalletController extends BaseController {
         }
         if (btnBatches != null) {
             btnBatches.setOnAction(e -> showBatches());
-        }
-=======
-<<<<<<< HEAD
-        btnWalletOverview.setOnAction(e -> showWalletOverview());
-        btnTransactions.setOnAction(e -> showTransactions());
-        btnBatches.setOnAction(e -> showBatches());
->>>>>>> yassine_antar
-        
+        }        
         if (btnIssueCredits != null) {
             btnIssueCredits.setOnAction(e -> showQuickIssueDialog());
         }
@@ -495,47 +371,7 @@ public class GreenWalletController extends BaseController {
         if (btnCreateWallet != null) {
             btnCreateWallet.setOnAction(e -> showCreateWalletDialog());
         }
-        
-<<<<<<< HEAD
-=======
-        btnIssueCreditsMain.setOnAction(e -> showQuickIssueDialog());
-        btnRetireCreditsMain.setOnAction(e -> showRetireCreditsDialog());
-=======
-        if (btnWalletOverview != null) {
-            btnWalletOverview.setOnAction(e -> showWalletOverview());
-        }
-        if (btnMarketplace != null) {
-            btnMarketplace.setOnAction(e -> showMarketplace());
-        }
-        if (btnTransactions != null) {
-            btnTransactions.setOnAction(e -> showTransactions());
-        }
-        if (btnBatches != null) {
-            btnBatches.setOnAction(e -> showBatches());
-        }
-        
-        if (btnIssueCredits != null) {
-            btnIssueCredits.setOnAction(e -> showQuickIssueDialog());
-        }
-        if (btnRetireCredits != null) {
-            btnRetireCredits.setOnAction(e -> showRetireCreditsDialog());
-        }
-        if (btnCreateWallet != null) {
-            btnCreateWallet.setOnAction(e -> showCreateWalletDialog());
-        }
-        
->>>>>>> yassine_antar
-        if (btnIssueCreditsMain != null) {
-            btnIssueCreditsMain.setOnAction(e -> showQuickIssueDialog());
-        }
-        if (btnRetireCreditsMain != null) {
-            btnRetireCreditsMain.setOnAction(e -> showRetireCreditsDialog());
-        }
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-        
+                
         if (btnTransferCredits != null) {
             btnTransferCredits.setOnAction(e -> showTransferDialog());
         }
@@ -546,13 +382,6 @@ public class GreenWalletController extends BaseController {
             btnDeleteWallet.setOnAction(e -> showDeleteWalletDialog());
         }
         
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-        btnExport.setOnAction(e -> exportData());
-        btnRefresh.setOnAction(e -> refreshData());
-=======
->>>>>>> yassine_antar
         if (btnExport != null) {
             btnExport.setOnAction(e -> exportData());
         }
@@ -588,20 +417,11 @@ public class GreenWalletController extends BaseController {
         if (btnTestAdd1000 != null) {
             btnTestAdd1000.setOnAction(e -> addTestCredits(1000.0));
         }
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
         
         if (btnSettings != null) {
             btnSettings.setOnAction(e -> showSettings());
         }
     }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> yassine_antar
     
     private void setupApiListeners() {
         if (btnCalculateElectricity != null) {
@@ -617,10 +437,6 @@ public class GreenWalletController extends BaseController {
             btnCheckAirQuality.setOnAction(e -> checkAirQuality());
         }
     }
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
 
     private void setupInlineApiSection() {
         if (cmbApiElectricityUnit != null) {
@@ -1332,46 +1148,20 @@ public class GreenWalletController extends BaseController {
         }
     }
 
-    // ==================== WALLET LOADING ====================
-
-    private void loadWallets() {
+    // ====== WALLET LOADING ======    private void loadWallets() {
         System.out.println("[LOAD WALLETS] Loading wallets...");
         try {
-<<<<<<< HEAD
             List<Wallet> wallets = getScopedWallets();
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-            List<Wallet> wallets = walletService.getAllWallets();
-=======
-            List<Wallet> wallets = getScopedWallets();
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-=======
-            System.out.println("[LOAD WALLETS] Found " + wallets.size() + " wallets");
-            
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
-            ObservableList<Wallet> walletList = FXCollections.observableArrayList(wallets);
             cmbWalletSelector.setItems(walletList);
             
             // Select first wallet if available
             if (!wallets.isEmpty()) {
                 System.out.println("[LOAD WALLETS] Selecting first wallet: " + wallets.get(0).getId());
                 cmbWalletSelector.getSelectionModel().select(0);
-<<<<<<< HEAD
             } else {
                 System.err.println("[LOAD WALLETS] No wallets found!");
                 currentWallet = null;
-                clearWalletDisplay();
-=======
-<<<<<<< HEAD
-=======
-            } else {
-                currentWallet = null;
-                clearWalletDisplay();
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-            }
+                clearWalletDisplay();            }
         } catch (Exception e) {
             System.err.println("[LOAD WALLETS] Error: " + e.getMessage());
             e.printStackTrace();
@@ -1407,25 +1197,8 @@ public class GreenWalletController extends BaseController {
             return;
         }
         
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-        System.out.println("[WALLET DISPLAY] Wallet ID: " + currentWallet.getId());
-        System.out.println("[WALLET DISPLAY] Wallet Name: " + currentWallet.getName());
-        System.out.println("[WALLET DISPLAY] Available Credits: " + currentWallet.getAvailableCredits());
-        System.out.println("[WALLET DISPLAY] Retired Credits: " + currentWallet.getRetiredCredits());
-        System.out.println("[WALLET DISPLAY] Total Credits: " + currentWallet.getTotalCredits());
-        
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
         lblWalletNumber.setText(formatWalletNumber(currentWallet.getWalletNumber()));
-=======
-<<<<<<< HEAD
-        lblWalletNumber.setText(String.valueOf(currentWallet.getWalletNumber()));
-=======
-        lblWalletNumber.setText(formatWalletNumber(currentWallet.getWalletNumber()));
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-        lblHolderName.setText(currentWallet.getName() != null ? currentWallet.getName() : "Unnamed Wallet");
+        lblWalletNumber.setText(String.valueOf(currentWallet.getWalletNumber()));        lblHolderName.setText(currentWallet.getName() != null ? currentWallet.getName() : "Unnamed Wallet");
         lblOwnerType.setText(currentWallet.getOwnerType());
         lblStatus.setText("Active");
         
@@ -1669,27 +1442,7 @@ public class GreenWalletController extends BaseController {
         }
     }
 
-    // ==================== ACTIONS ====================
-
-    private void showCreateWalletDialog() {
-<<<<<<< HEAD
-        User user = SessionManager.getInstance().getCurrentUser();
-        Integer userId = getCurrentUserIdAsInt(user);
-        if (user == null || userId == null) {
-            showWarning("Session invalide", "Impossible de créer un wallet sans utilisateur connecté.");
-            return;
-        }
-
-<<<<<<< HEAD
-        Dialog<Wallet> dialog = new Dialog<>();
-        dialog.setTitle("🌱 Créer un Nouveau Wallet Carbone");
-        dialog.setHeaderText("Créez un wallet lié à votre compte");
-=======
-<<<<<<< HEAD
-        Dialog<Wallet> dialog = new Dialog<>();
-        dialog.setTitle("🌱 Créer un Nouveau Wallet Carbone");
-        dialog.setHeaderText("Enregistrement d'un nouveau portefeuille de crédits carbone");
-=======
+    // ====== ACTIONS ======    private void showCreateWalletDialog() {
         User user = SessionManager.getInstance().getCurrentUser();
         Integer userId = getCurrentUserIdAsInt(user);
         if (user == null || userId == null) {
@@ -1699,17 +1452,7 @@ public class GreenWalletController extends BaseController {
 
         Dialog<Wallet> dialog = new Dialog<>();
         dialog.setTitle("🌱 Créer un Nouveau Wallet Carbone");
-        dialog.setHeaderText("Créez un wallet lié à votre compte");
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-=======
-        // Clear form fields
-        txtCreateWalletName.clear();
-        txtCreateWalletNumber.clear();
-        txtCreateWalletCredits.setText("0");
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
-
-        // Show slide-in panel
+        dialog.setHeaderText("Créez un wallet lié à votre compte");        // Show slide-in panel
         showSlidePanel(createWalletPanel);
     }
 
@@ -1718,71 +1461,19 @@ public class GreenWalletController extends BaseController {
         hideSlidePanel(createWalletPanel);
     }
 
-<<<<<<< HEAD
         TextField walletName = new TextField();
-<<<<<<< HEAD
-        walletName.setPromptText("Ex: Wallet Projet Solaire 2026");
-=======
-<<<<<<< HEAD
-        walletName.setPromptText("Ex: Projet Solaire 2026, Reforestation Amazonie...");
-=======
-        walletName.setPromptText("Ex: Wallet Projet Solaire 2026");
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-        walletName.setPrefWidth(300);
+        walletName.setPromptText("Ex: Wallet Projet Solaire 2026");        walletName.setPrefWidth(300);
         
         TextField walletNumber = new TextField();
         walletNumber.setPromptText("Laissez vide pour génération automatique");
-        
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-        ComboBox<String> ownerType = new ComboBox<>();
-        ownerType.getItems().addAll("ENTERPRISE", "BANK", "NGO", "GOVERNMENT");
-        ownerType.setValue("ENTERPRISE");
-        
-        TextField ownerId = new TextField();
-        ownerId.setPromptText("ID entité");
-        ownerId.setText("1");
-        
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-        TextField initialCredits = new TextField();
-        initialCredits.setPromptText("0.00");
-        initialCredits.setText("0");
-
-<<<<<<< HEAD
-        Label ownerLabel = new Label(user.getNomComplet() + " (" + user.getTypeUtilisateur().getLibelle() + ")");
-        ownerLabel.setStyle("-fx-font-weight: 600; -fx-text-fill: #2D5F3F;");
-
-=======
-<<<<<<< HEAD
-=======
-        Label ownerLabel = new Label(user.getNomComplet() + " (" + user.getTypeUtilisateur().getLibelle() + ")");
-        ownerLabel.setStyle("-fx-font-weight: 600; -fx-text-fill: #2D5F3F;");
-
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-        grid.add(new Label("📛 Nom du Wallet:"), 0, 0);
+                grid.add(new Label("📛 Nom du Wallet:"), 0, 0);
         grid.add(walletName, 1, 0);
         grid.add(new Label("🔢 Numéro (optionnel):"), 0, 1);
         grid.add(walletNumber, 1, 1);
-<<<<<<< HEAD
         grid.add(new Label("👤 Propriétaire:"), 0, 2);
         grid.add(ownerLabel, 1, 2);
         grid.add(new Label("💰 Crédits initiaux (tCO₂):"), 0, 3);
         grid.add(initialCredits, 1, 3);
-=======
-<<<<<<< HEAD
-        grid.add(new Label("🏢 Type Propriétaire:"), 0, 2);
-        grid.add(ownerType, 1, 2);
-        grid.add(new Label("🆔 Owner ID:"), 0, 3);
-        grid.add(ownerId, 1, 3);
-        grid.add(new Label("💰 Crédits initiaux (tCO₂):"), 0, 4);
-        grid.add(initialCredits, 1, 4);
->>>>>>> yassine_antar
-
         dialog.getDialogPane().setContent(grid);
 
         Button createButton = (Button) dialog.getDialogPane().lookupButton(createButtonType);
@@ -1833,59 +1524,6 @@ public class GreenWalletController extends BaseController {
                 if (!walletNumberText.isEmpty()) {
                     wallet.setWalletNumber(parseIntegerOrNull(walletNumberText));
                 }
-<<<<<<< HEAD
-=======
-=======
-        grid.add(new Label("👤 Propriétaire:"), 0, 2);
-        grid.add(ownerLabel, 1, 2);
-        grid.add(new Label("💰 Crédits initiaux (tCO₂):"), 0, 3);
-        grid.add(initialCredits, 1, 3);
-
-        dialog.getDialogPane().setContent(grid);
-
-        Button createButton = (Button) dialog.getDialogPane().lookupButton(createButtonType);
-        createButton.addEventFilter(ActionEvent.ACTION, event -> {
-            String name = walletName.getText() == null ? "" : walletName.getText().trim();
-            String walletNumberText = walletNumber.getText() == null ? "" : walletNumber.getText().trim();
-            String creditsText = initialCredits.getText() == null ? "" : initialCredits.getText().trim();
-
-            if (name.isEmpty()) {
-                event.consume();
-                showWarning("Nom requis", "Veuillez saisir un nom de wallet.");
-                return;
-            }
-
-            if (!walletNumberText.isEmpty()) {
-                try {
-                    int number = Integer.parseInt(walletNumberText);
-                    if (number <= 0) {
-                        event.consume();
-                        showWarning("Numéro invalide", "Le numéro du wallet doit être un entier positif.");
-                        return;
-                    }
-                } catch (NumberFormatException ex) {
-                    event.consume();
-                    showWarning("Numéro invalide", "Le numéro du wallet doit être numérique.");
-=======
-    @FXML
-    private void onConfirmCreateWallet() {
-        User user = SessionManager.getInstance().getCurrentUser();
-        Integer userId = getCurrentUserIdAsInt(user);
-
-        String name = txtCreateWalletName.getText() == null ? "" : txtCreateWalletName.getText().trim();
-        if (name.isEmpty()) {
-            showWarning("Nom requis", "Veuillez saisir un nom de wallet.");
-            return;
-        }
-
-        String walletNumberText = txtCreateWalletNumber.getText() == null ? "" : txtCreateWalletNumber.getText().trim();
-        Integer walletNumber = null;
-        if (!walletNumberText.isEmpty()) {
-            try {
-                walletNumber = Integer.parseInt(walletNumberText);
-                if (walletNumber <= 0) {
-                    showWarning("Numéro invalide", "Le numéro du wallet doit être un entier positif.");
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
                     return;
                 }
             } catch (NumberFormatException ex) {
@@ -1894,7 +1532,6 @@ public class GreenWalletController extends BaseController {
             }
         }
 
-<<<<<<< HEAD
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == createButtonType) {
                 Wallet wallet = new Wallet();
@@ -1904,7 +1541,6 @@ public class GreenWalletController extends BaseController {
                 if (!walletNumberText.isEmpty()) {
                     wallet.setWalletNumber(parseIntegerOrNull(walletNumberText));
                 }
->>>>>>> yassine_antar
 
                 String creditsText = initialCredits.getText() == null ? "0" : initialCredits.getText().trim();
                 double credits = Double.parseDouble((creditsText.isEmpty() ? "0" : creditsText).replace(',', '.'));
@@ -1915,11 +1551,6 @@ public class GreenWalletController extends BaseController {
                 wallet.setRetiredCredits(0.0);
 
                 return wallet;
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-=======
         String creditsText = txtCreateWalletCredits.getText() == null ? "0" : txtCreateWalletCredits.getText().trim();
         double credits = 0;
         try {
@@ -1927,7 +1558,6 @@ public class GreenWalletController extends BaseController {
             if (credits < 0) {
                 showWarning("Crédits invalides", "Les crédits initiaux ne peuvent pas être négatifs.");
                 return;
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
             }
         } catch (NumberFormatException ex) {
             showWarning("Crédits invalides", "Veuillez saisir une valeur numérique valide.");
@@ -2056,25 +1686,9 @@ public class GreenWalletController extends BaseController {
             return;
         }
 
-<<<<<<< HEAD
         Dialog<Wallet> dialog = new Dialog<>();
         dialog.setTitle("✏️ Modifier le Wallet");
-<<<<<<< HEAD
-        dialog.setHeaderText("Modification du Wallet #" + formatWalletNumber(currentWallet.getWalletNumber()));
-=======
-<<<<<<< HEAD
-        dialog.setHeaderText("Modification du Wallet #" + currentWallet.getWalletNumber());
-=======
-        dialog.setHeaderText("Modification du Wallet #" + formatWalletNumber(currentWallet.getWalletNumber()));
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-=======
-        // Pre-populate form fields
-        txtEditWalletName.setText(currentWallet.getName());
-        txtEditWalletNumber.setText(formatWalletNumber(currentWallet.getWalletNumber()));
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
-
-        // Show slide-in panel
+        dialog.setHeaderText("Modification du Wallet #" + formatWalletNumber(currentWallet.getWalletNumber()));        // Show slide-in panel
         showSlidePanel(editWalletPanel);
     }
 
@@ -2083,7 +1697,6 @@ public class GreenWalletController extends BaseController {
         hideSlidePanel(editWalletPanel);
     }
 
-<<<<<<< HEAD
         TextField walletName = new TextField(currentWallet.getName());
         walletName.setPrefWidth(300);
         
@@ -2091,27 +1704,10 @@ public class GreenWalletController extends BaseController {
         ownerType.getItems().addAll("ENTERPRISE", "BANK", "NGO", "GOVERNMENT");
         ownerType.setValue(currentWallet.getOwnerType());
         
-<<<<<<< HEAD
-        Label walletNumberLabel = new Label("#" + formatWalletNumber(currentWallet.getWalletNumber()));
-=======
-<<<<<<< HEAD
-        Label walletNumberLabel = new Label("#" + currentWallet.getWalletNumber());
-=======
-        Label walletNumberLabel = new Label("#" + formatWalletNumber(currentWallet.getWalletNumber()));
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-        walletNumberLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
+        Label walletNumberLabel = new Label("#" + formatWalletNumber(currentWallet.getWalletNumber()));        walletNumberLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 14;");
         
         Label creditsLabel = new Label(String.format("%.2f tCO₂ disponibles", currentWallet.getAvailableCredits()));
         creditsLabel.setStyle("-fx-text-fill: #2B6A4A;");
-=======
-    @FXML
-    private void onConfirmEditWallet() {
-        if (currentWallet == null) {
-            return;
-        }
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
-
         String name = txtEditWalletName.getText() == null ? "" : txtEditWalletName.getText().trim();
         if (name.isEmpty()) {
             showWarning("Nom requis", "Veuillez saisir un nom de wallet.");
@@ -2142,16 +1738,7 @@ public class GreenWalletController extends BaseController {
         }
 
         if (currentWallet.getAvailableCredits() <= 0) {
-<<<<<<< HEAD
-            showWarning("Crédits insuffisants", "Ce wallet n'a pas de crédits disponibles pour le transfert");
-=======
-<<<<<<< HEAD
-            showWarning("🚫 Insufficient Funds", "Ce wallet n'a pas de crédits disponibles pour le transfert");
-=======
-            showWarning("Crédits insuffisants", "Ce wallet n'a pas de crédits disponibles pour le transfert");
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-            return;
+            showWarning("Crédits insuffisants", "Ce wallet n'a pas de crédits disponibles pour le transfert");            return;
         }
 
         Dialog<String[]> dialog = new Dialog<>();
@@ -2168,31 +1755,13 @@ public class GreenWalletController extends BaseController {
         grid.setPadding(new Insets(20));
 
         ComboBox<Wallet> destinationWallet = new ComboBox<>();
-<<<<<<< HEAD
-        List<Wallet> allWallets = getScopedWallets();
-=======
-<<<<<<< HEAD
-        List<Wallet> allWallets = walletService.getAllWallets();
-=======
-        List<Wallet> allWallets = getScopedWallets();
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-        allWallets.removeIf(w -> w.getId() == currentWallet.getId());
+        List<Wallet> allWallets = getScopedWallets();        allWallets.removeIf(w -> w.getId() == currentWallet.getId());
         destinationWallet.setItems(FXCollections.observableArrayList(allWallets));
         destinationWallet.setConverter(new javafx.util.StringConverter<Wallet>() {
             @Override
             public String toString(Wallet w) {
                 if (w == null) return null;
-<<<<<<< HEAD
-                return String.format("#%s - %s", formatWalletNumber(w.getWalletNumber()), w.getName());
-=======
-<<<<<<< HEAD
-                return String.format("#%d - %s", w.getWalletNumber(), w.getName());
-=======
-                return String.format("#%s - %s", formatWalletNumber(w.getWalletNumber()), w.getName());
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-            }
+                return String.format("#%s - %s", formatWalletNumber(w.getWalletNumber()), w.getName());            }
             @Override
             public Wallet fromString(String s) { return null; }
         });
@@ -2272,16 +1841,7 @@ public class GreenWalletController extends BaseController {
 
         Dialog<double[]> dialog = new Dialog<>();
         dialog.setTitle("Émettre des Crédits Carbone");
-<<<<<<< HEAD
         dialog.setHeaderText("Émission de crédits pour: Wallet #" + formatWalletNumber(currentWallet.getWalletNumber()));
-=======
-<<<<<<< HEAD
-        dialog.setHeaderText("Émission de crédits pour: Wallet #" + currentWallet.getWalletNumber());
-=======
-        dialog.setHeaderText("Émission de crédits pour: Wallet #" + formatWalletNumber(currentWallet.getWalletNumber()));
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-
         ButtonType issueButtonType = new ButtonType("Émettre", ButtonBar.ButtonData.OK_DONE);
         dialog.getDialogPane().getButtonTypes().addAll(issueButtonType, ButtonType.CANCEL);
 
@@ -2349,16 +1909,7 @@ public class GreenWalletController extends BaseController {
         }
 
         if (currentWallet.getAvailableCredits() <= 0) {
-<<<<<<< HEAD
-            showWarning("Aucun crédit disponible", "Ce wallet n'a pas de crédits disponibles à retirer");
-=======
-<<<<<<< HEAD
-            showWarning("🚫 Aucun Crédit Disponible", "Ce wallet n'a pas de crédits disponibles à retirer");
-=======
-            showWarning("Aucun crédit disponible", "Ce wallet n'a pas de crédits disponibles à retirer");
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-            return;
+            showWarning("Aucun crédit disponible", "Ce wallet n'a pas de crédits disponibles à retirer");            return;
         }
 
         Dialog<String[]> dialog = new Dialog<>();
@@ -2444,16 +1995,7 @@ public class GreenWalletController extends BaseController {
                 
                 boolean success = walletService.retireCredits(currentWallet.getId(), amt, ref);
                 if (success) {
-<<<<<<< HEAD
-                    showInfo("Retrait effectué", String.format("%.2f tCO₂ retirés avec succès!\n\nCes crédits sont maintenant définitivement retirés du marché.", amt));
-=======
-<<<<<<< HEAD
-                    showInfo("✅ Retirement Effectué", String.format("%.2f tCO₂ retirés avec succès!\n\nCes crédits sont maintenant définitivement retirés du marché.", amt));
-=======
-                    showInfo("Retrait effectué", String.format("%.2f tCO₂ retirés avec succès!\n\nCes crédits sont maintenant définitivement retirés du marché.", amt));
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-                    refreshData();
+                    showInfo("Retrait effectué", String.format("%.2f tCO₂ retirés avec succès!\n\nCes crédits sont maintenant définitivement retirés du marché.", amt));                    refreshData();
                 } else {
                     showError("Erreur", "Impossible de retirer les crédits");
                 }
@@ -2472,28 +2014,11 @@ public class GreenWalletController extends BaseController {
         // Safety check: Can only delete wallets with zero balance
         if (currentWallet.getTotalCredits() > 0) {
             showWarning(
-<<<<<<< HEAD
                 "Suppression impossible", 
                 String.format(
                     "Ce wallet contient encore des crédits:\n\n" +
                     "💰 Disponibles: %.2f tCO₂\n" +
-                    "♻️ Retirés: %.2f tCO₂\n" +
-=======
-<<<<<<< HEAD
-                "🚫 Suppression Impossible", 
-                String.format(
-                    "Ce wallet contient encore des crédits:\n\n" +
-                    "💰 Disponibles: %.2f tCO₂\n" +
-                    "❌ Retirés: %.2f tCO₂\n" +
-=======
-                "Suppression impossible", 
-                String.format(
-                    "Ce wallet contient encore des crédits:\n\n" +
-                    "💰 Disponibles: %.2f tCO₂\n" +
-                    "♻️ Retirés: %.2f tCO₂\n" +
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-                    "📊 Total: %.2f tCO₂\n\n" +
+                    "♻️ Retirés: %.2f tCO₂\n" +                    "📊 Total: %.2f tCO₂\n\n" +
                     "Vous devez d'abord transférer ou retirer tous les crédits disponibles.",
                     currentWallet.getAvailableCredits(),
                     currentWallet.getRetiredCredits(),
@@ -2503,48 +2028,14 @@ public class GreenWalletController extends BaseController {
             return;
         }
 
-<<<<<<< HEAD
         // Confirmation dialog
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
-<<<<<<< HEAD
         confirmation.setTitle("Confirmer la suppression");
-        confirmation.setHeaderText("Supprimer le wallet #" + formatWalletNumber(currentWallet.getWalletNumber()) + "?");
-=======
-<<<<<<< HEAD
-        confirmation.setTitle("⚠️ Confirmer la Suppression");
-        confirmation.setHeaderText("Supprimer le wallet #" + currentWallet.getWalletNumber() + "?");
-=======
-        confirmation.setTitle("Confirmer la suppression");
-        confirmation.setHeaderText("Supprimer le wallet #" + formatWalletNumber(currentWallet.getWalletNumber()) + "?");
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-        confirmation.setContentText(
+        confirmation.setHeaderText("Supprimer le wallet #" + formatWalletNumber(currentWallet.getWalletNumber()) + "?");        confirmation.setContentText(
             String.format(
                 "Wallet: %s\n" +
                 "Type: %s\n" +
-<<<<<<< HEAD
-                "Cette action est IRRÉVERSIBLE!\n" +
-=======
-<<<<<<< HEAD
-                "Owner ID: %d\n\n" +
-                "⚠️ Cette action est IRRÉVERSIBLE!\n" +
->>>>>>> yassine_antar
-                "Toutes les transactions associées seront également supprimées.\n\n" +
-                "Êtes-vous sûr de vouloir continuer?",
-                currentWallet.getName(),
-                currentWallet.getOwnerType()
-            )
-        );
-
-<<<<<<< HEAD
-        ButtonType btnDelete = new ButtonType("Supprimer", ButtonBar.ButtonData.OK_DONE);
-        ButtonType btnCancel = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
-=======
-        ButtonType btnDelete = new ButtonType("🗑️ Supprimer", ButtonBar.ButtonData.OK_DONE);
-        ButtonType btnCancel = new ButtonType("❌ Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
-=======
-                "Cette action est IRRÉVERSIBLE!\n" +
-                "Toutes les transactions associées seront également supprimées.\n\n" +
+                "Cette action est IRRÉVERSIBLE!\n" +                "Toutes les transactions associées seront également supprimées.\n\n" +
                 "Êtes-vous sûr de vouloir continuer?",
                 currentWallet.getName(),
                 currentWallet.getOwnerType()
@@ -2552,71 +2043,21 @@ public class GreenWalletController extends BaseController {
         );
 
         ButtonType btnDelete = new ButtonType("Supprimer", ButtonBar.ButtonData.OK_DONE);
-        ButtonType btnCancel = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-        confirmation.getButtonTypes().setAll(btnDelete, btnCancel);
+        ButtonType btnCancel = new ButtonType("Annuler", ButtonBar.ButtonData.CANCEL_CLOSE);        confirmation.getButtonTypes().setAll(btnDelete, btnCancel);
 
         Optional<ButtonType> result = confirmation.showAndWait();
         if (result.isPresent() && result.get() == btnDelete) {
             try {
                 boolean success = walletService.deleteWallet(currentWallet.getId());
                 if (success) {
-<<<<<<< HEAD
-                    showInfo("Wallet supprimé", "Le wallet a été supprimé avec succès!");
-=======
-<<<<<<< HEAD
-                    showInfo("✅ Wallet Supprimé", "Le wallet a été supprimé avec succès!");
-=======
-                    showInfo("Wallet supprimé", "Le wallet a été supprimé avec succès!");
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-                    currentWallet = null;
+                    showInfo("Wallet supprimé", "Le wallet a été supprimé avec succès!");                    currentWallet = null;
                     loadWallets();
                     clearWalletDisplay();
                 } else {
                     showError("Erreur", "Impossible de supprimer le wallet");
                 }
             } catch (Exception e) {
-                showError("Erreur lors de la suppression", e.getMessage());
-=======
-        // Pre-populate form fields
-        lblDeleteWalletName.setText(currentWallet.getName() + " (#" + formatWalletNumber(currentWallet.getWalletNumber()) + ")");
-        chkDeleteWalletConfirm.setSelected(false);
-        btnConfirmDeleteWallet.setDisable(true);
-
-        // Enable delete button only when checkbox is checked
-        chkDeleteWalletConfirm.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            btnConfirmDeleteWallet.setDisable(!newVal);
-        });
-
-        // Show slide-in panel
-        showSlidePanel(deleteWalletPanel);
-    }
-
-    @FXML
-    private void onCloseDeleteWalletPanel() {
-        hideSlidePanel(deleteWalletPanel);
-    }
-
-    @FXML
-    private void onConfirmDeleteWallet() {
-        if (currentWallet == null || !chkDeleteWalletConfirm.isSelected()) {
-            return;
-        }
-
-        try {
-            boolean success = walletService.deleteWallet(currentWallet.getId());
-            if (success) {
-                showInfo("Wallet supprimé", "Le wallet a été supprimé avec succès!");
-                onCloseDeleteWalletPanel();
-                currentWallet = null;
-                loadWallets();
-                clearWalletDisplay();
-            } else {
-                showError("Erreur", "Impossible de supprimer le wallet");
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
-            }
+                showError("Erreur lors de la suppression", e.getMessage());            }
         } catch (Exception e) {
             showError("Erreur lors de la suppression", e.getMessage());
         }
@@ -2871,31 +2312,6 @@ public class GreenWalletController extends BaseController {
         }
     }
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> yassine_antar
-    private void addTestCredits(double amount) {
-        if (currentWallet == null) {
-            showWarning("Aucun wallet sélectionné", "Veuillez sélectionner un wallet");
-            return;
-        }
-
-        String note = String.format("[TEST] Quick top-up %.2f tCO₂", amount);
-        boolean success = walletService.quickIssueCredits(currentWallet.getId(), amount, note);
-        if (success) {
-            showInfo("🧪 Crédit Test Ajouté", String.format("%.2f tCO₂ ajoutés au wallet %s", amount, currentWallet.getName()));
-            refreshData();
-        } else {
-            showError("Erreur", "Impossible d'ajouter les crédits de test");
-        }
-    }
-
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
     private void showSettings() {
         try {
             MainFX.setRoot("settings");
@@ -2904,13 +2320,6 @@ public class GreenWalletController extends BaseController {
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> yassine_antar
-=======
     private void showMarketplace() {
         try {
             MainFX.setRoot("fxml/marketplace");
@@ -2941,7 +2350,6 @@ public class GreenWalletController extends BaseController {
         }
     }
 
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
     @FXML
     private void onGestionProjets() {
         try {
@@ -2969,12 +2377,6 @@ public class GreenWalletController extends BaseController {
         }
     }
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
-=======
     @FXML
     private void onShowIssuePanel() {
         if (currentWallet == null) {
@@ -3199,9 +2601,7 @@ public class GreenWalletController extends BaseController {
         exportData();
     }
 
-    // ==================== SLIDE PANEL ANIMATION ====================
-
-    private void showSlidePanel(VBox panel) {
+    // ====== SLIDE PANEL ANIMATION ======    private void showSlidePanel(VBox panel) {
         if (panel == null) return;
         
         panel.setManaged(true);
@@ -3251,107 +2651,10 @@ public class GreenWalletController extends BaseController {
         if (txtTransferReference != null) txtTransferReference.clear();
     }
 
->>>>>>> dhiaeddine_bondka_gestion_green_wallet
-    // ==================== UTILITY METHODS ====================
-
-    private String formatCredits(double credits) {
+    // ====== UTILITY METHODS ======    private String formatCredits(double credits) {
         return String.format("%.2f tCO₂", credits);
     }
 
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> yassine_antar
-    private String formatWalletNumber(Integer walletNumber) {
-        return walletNumber == null ? "—" : String.valueOf(walletNumber);
-    }
-
-    /**
-     * Safe wallet display formatting that filters out corrupted/serialized data.
-     * Returns a clean string regardless of database state.
-     */
-    private String formatWalletDisplay(Wallet wallet) {
-        if (wallet == null) return "Unknown Wallet";
-        
-        String ownerType = wallet.getOwnerType() != null ? wallet.getOwnerType().toString() : "UNKNOWN";
-        String walletNum = formatWalletNumber(wallet.getWalletNumber());
-        
-        // Sanitize name: remove any non-ASCII or control characters
-        String name = wallet.getName();
-        if (name == null || name.isEmpty()) {
-            return String.format("Wallet #%s (%s)", walletNum, ownerType);
-        }
-        
-        // Remove control characters, serialized data artifacts, and invalid UTF-8
-        String cleanName = name.replaceAll("[^\\p{Print}]", "")          // Remove control chars
-                               .replaceAll("(?i)(JavaBin|Raw|\\x00)", "") // Remove serialization artifacts
-                               .replaceAll("[\\s]+", " ")                 // Normalize whitespace
-                               .trim();
-        
-        // If name became empty after cleaning, fall back to generic
-        if (cleanName.isEmpty() || cleanName.length() < 2) {
-            return String.format("Wallet #%s (%s)", walletNum, ownerType);
-        }
-        
-        return String.format("%s (Wallet #%s)", cleanName, walletNum);
-    }
-
-    private Integer parseIntegerOrNull(String value) {
-        if (value == null) {
-            return null;
-        }
-        String text = value.trim();
-        if (text.isEmpty()) {
-            return null;
-        }
-        try {
-            return Integer.parseInt(text);
-        } catch (NumberFormatException ex) {
-            return null;
-        }
-    }
-
-    private List<Wallet> getScopedWallets() {
-        List<Wallet> allWallets = walletService.getAllWallets();
-        User user = SessionManager.getInstance().getCurrentUser();
-        Integer currentUserId = getCurrentUserIdAsInt(user);
-
-        if (user == null || currentUserId == null || user.getTypeUtilisateur() == TypeUtilisateur.ADMIN) {
-            return allWallets;
-        }
-
-        return allWallets.stream()
-                .filter(wallet -> wallet.getOwnerId() == currentUserId)
-                .collect(Collectors.toList());
-    }
-
-    private Integer getCurrentUserIdAsInt(User user) {
-        if (user == null || user.getId() == null) {
-            return null;
-        }
-        try {
-            return Math.toIntExact(user.getId());
-        } catch (ArithmeticException ex) {
-            return null;
-        }
-    }
-
-    private String resolveOwnerTypeForUser(User user) {
-        if (user == null || user.getTypeUtilisateur() == null) {
-            return "ENTERPRISE";
-        }
-
-        if (user.getTypeUtilisateur() == TypeUtilisateur.INVESTISSEUR) {
-            return "BANK";
-        }
-        return "ENTERPRISE";
-    }
-
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
     private void showInfo(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle(title);
@@ -3375,598 +2678,4 @@ public class GreenWalletController extends BaseController {
         alert.setContentText(content);
         alert.showAndWait();
     }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> yassine_antar
-    
-    // ==================== CARBON API INTEGRATION ====================
-    
-    private void calculateElectricityEmissions() {
-        if (!ensureCarbonApiAvailable()) {
-            return;
-        }
-        Dialog<Double> dialog = new Dialog<>();
-        dialog.setTitle("⚡ Calcul Émissions Électricité");
-        dialog.setHeaderText("Estimer les émissions CO₂ de la consommation électrique");
-        
-        ButtonType calculateButtonType = new ButtonType("Calculer", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(calculateButtonType, ButtonType.CANCEL);
-        
-        GridPane grid = new GridPane();
-        grid.setHgap(12);
-        grid.setVgap(12);
-        grid.setPadding(new Insets(20));
-        
-        TextField electricityValue = new TextField("1000");
-        electricityValue.setPromptText("Valeur");
-        
-        ComboBox<String> electricityUnit = new ComboBox<>();
-        electricityUnit.getItems().addAll("kwh", "mwh");
-        electricityUnit.setValue("kwh");
-        
-        TextField country = new TextField("us");
-        country.setPromptText("Code pays (ex: us, fr)");
-        
-        TextField state = new TextField();
-        state.setPromptText("État (optionnel, ex: fl)");
-        
-        grid.add(new Label("⚡ Consommation:"), 0, 0);
-        grid.add(electricityValue, 1, 0);
-        grid.add(new Label("📊 Unité:"), 0, 1);
-        grid.add(electricityUnit, 1, 1);
-        grid.add(new Label("🌍 Pays:"), 0, 2);
-        grid.add(country, 1, 2);
-        grid.add(new Label("📍 État:"), 0, 3);
-        grid.add(state, 1, 3);
-        
-        dialog.getDialogPane().setContent(grid);
-        
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == calculateButtonType) {
-                try {
-                    return Double.parseDouble(electricityValue.getText());
-                } catch (NumberFormatException e) {
-                    return null;
-                }
-            }
-            return null;
-        });
-        
-        Optional<Double> result = dialog.showAndWait();
-        result.ifPresent(value -> {
-            appendToApiResults("⚡ Calcul d'émissions d'électricité en cours...\n");
-            
-            new Thread(() -> {
-                try {
-                    String countryCode = country.getText().trim();
-                    
-                    CarbonEstimateResponse response = carbonApiService.estimateElectricity(
-                        value,
-                        electricityUnit.getValue(),
-                        countryCode
-                    );
-                    
-                    Platform.runLater(() -> {
-                        if (response != null && response.getAttributes() != null) {
-                            appendToApiResults(formatCarbonEstimateResponse(response));
-                        } else {
-                            appendToApiResults(buildCarbonApiErrorMessage());
-                        }
-                    });
-                } catch (Exception e) {
-                    Platform.runLater(() -> appendToApiResults("❌ Erreur: " + e.getMessage() + "\n"));
-                }
-            }).start();
-        });
-    }
-    
-    private void calculateFuelEmissions() {
-        if (!ensureCarbonApiAvailable()) {
-            return;
-        }
-        Dialog<Double> dialog = new Dialog<>();
-        dialog.setTitle("⛽ Calcul Émissions Carburant");
-        dialog.setHeaderText("Estimer les émissions CO₂ de la combustion de carburant");
-        
-        ButtonType calculateButtonType = new ButtonType("Calculer", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(calculateButtonType, ButtonType.CANCEL);
-        
-        GridPane grid = new GridPane();
-        grid.setHgap(12);
-        grid.setVgap(12);
-        grid.setPadding(new Insets(20));
-        
-        ComboBox<String> fuelSourceType = new ComboBox<>();
-        fuelSourceType.getItems().addAll("dfo", "rfo", "lng", "lpg", "cng", "coal", "petcoke");
-        fuelSourceType.setValue("dfo");
-        
-        TextField fuelSourceValue = new TextField("100");
-        fuelSourceValue.setPromptText("Valeur");
-        
-        ComboBox<String> fuelSourceUnit = new ComboBox<>();
-        fuelSourceUnit.getItems().addAll("litre", "gallon", "tonne");
-        fuelSourceUnit.setValue("litre");
-        
-        grid.add(new Label("⛽ Type Carburant:"), 0, 0);
-        grid.add(fuelSourceType, 1, 0);
-        grid.add(new Label("📊 Quantité:"), 0, 1);
-        grid.add(fuelSourceValue, 1, 1);
-        grid.add(new Label("📏 Unité:"), 0, 2);
-        grid.add(fuelSourceUnit, 1, 2);
-        
-        Label infoLabel = new Label("dfo=Diesel, rfo=Fuel Heavy, lng=Gaz Naturel Liquéfié");
-        infoLabel.setStyle("-fx-font-size: 10; -fx-opacity: 0.7;");
-        grid.add(infoLabel, 0, 3, 2, 1);
-        
-        dialog.getDialogPane().setContent(grid);
-        
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == calculateButtonType) {
-                try {
-                    return Double.parseDouble(fuelSourceValue.getText());
-                } catch (NumberFormatException e) {
-                    return null;
-                }
-            }
-            return null;
-        });
-        
-        Optional<Double> result = dialog.showAndWait();
-        result.ifPresent(value -> {
-            appendToApiResults("⛽ Calcul d'émissions de carburant en cours...\n");
-            
-            new Thread(() -> {
-                try {
-                    CarbonEstimateResponse response = carbonApiService.estimateFuel(
-                        fuelSourceType.getValue(),
-                        value,
-                        fuelSourceUnit.getValue()
-                    );
-                    
-                    Platform.runLater(() -> {
-                        if (response != null && response.getAttributes() != null) {
-                            appendToApiResults(formatCarbonEstimateResponse(response));
-                        } else {
-                            appendToApiResults(buildCarbonApiErrorMessage());
-                        }
-                    });
-                } catch (Exception e) {
-                    Platform.runLater(() -> appendToApiResults("❌ Erreur: " + e.getMessage() + "\n"));
-                }
-            }).start();
-        });
-    }
-    
-    private void calculateShippingEmissions() {
-        if (!ensureCarbonApiAvailable()) {
-            return;
-        }
-        Dialog<Double> dialog = new Dialog<>();
-        dialog.setTitle("🚢 Calcul Émissions Transport");
-        dialog.setHeaderText("Estimer les émissions CO₂ du transport maritime");
-        
-        ButtonType calculateButtonType = new ButtonType("Calculer", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(calculateButtonType, ButtonType.CANCEL);
-        
-        GridPane grid = new GridPane();
-        grid.setHgap(12);
-        grid.setVgap(12);
-        grid.setPadding(new Insets(20));
-        
-        TextField weightValue = new TextField("1000");
-        weightValue.setPromptText("Poids");
-        
-        ComboBox<String> weightUnit = new ComboBox<>();
-        weightUnit.getItems().addAll("kg", "lb", "mt", "g");
-        weightUnit.setValue("kg");
-        
-        TextField distanceValue = new TextField("1000");
-        distanceValue.setPromptText("Distance");
-        
-        ComboBox<String> distanceUnit = new ComboBox<>();
-        distanceUnit.getItems().addAll("km", "mi");
-        distanceUnit.setValue("km");
-        
-        ComboBox<String> transportMethod = new ComboBox<>();
-        transportMethod.getItems().addAll("ship", "train", "truck", "plane");
-        transportMethod.setValue("ship");
-        
-        grid.add(new Label("📦 Poids:"), 0, 0);
-        grid.add(weightValue, 1, 0);
-        grid.add(new Label("⚖️ Unité Poids:"), 0, 1);
-        grid.add(weightUnit, 1, 1);
-        grid.add(new Label("📏 Distance:"), 0, 2);
-        grid.add(distanceValue, 1, 2);
-        grid.add(new Label("📐 Unité Distance:"), 0, 3);
-        grid.add(distanceUnit, 1, 3);
-        grid.add(new Label("🚚 Mode Transport:"), 0, 4);
-        grid.add(transportMethod, 1, 4);
-        
-        dialog.getDialogPane().setContent(grid);
-        
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == calculateButtonType) {
-                try {
-                    return Double.parseDouble(weightValue.getText());
-                } catch (NumberFormatException e) {
-                    return null;
-                }
-            }
-            return null;
-        });
-        
-        Optional<Double> result = dialog.showAndWait();
-        result.ifPresent(weight -> {
-            appendToApiResults("🚢 Calcul d'émissions de transport en cours...\n");
-            
-            new Thread(() -> {
-                try {
-                    double distance = Double.parseDouble(distanceValue.getText());
-                    double weightKg = convertWeightToKg(weight, weightUnit.getValue());
-                    double distanceKm = convertDistanceToKm(distance, distanceUnit.getValue());
-                    
-                    CarbonEstimateResponse response = carbonApiService.estimateShipping(
-                        weightKg,
-                        distanceKm,
-                        transportMethod.getValue()
-                    );
-                    
-                    Platform.runLater(() -> {
-                        if (response != null && response.getAttributes() != null) {
-                            appendToApiResults(formatCarbonEstimateResponse(response));
-                        } else {
-                            appendToApiResults(buildCarbonApiErrorMessage());
-                        }
-                    });
-                } catch (Exception e) {
-                    Platform.runLater(() -> appendToApiResults("❌ Erreur: " + e.getMessage() + "\n"));
-                }
-            }).start();
-        });
-    }
-    
-    private void checkAirQuality() {
-        Dialog<String[]> dialog = new Dialog<>();
-        dialog.setTitle("🌫️ Vérification Qualité de l'Air");
-        dialog.setHeaderText("Obtenir les données de qualité de l'air pour une localisation");
-        
-        ButtonType checkButtonType = new ButtonType("Vérifier", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(checkButtonType, ButtonType.CANCEL);
-        
-        GridPane grid = new GridPane();
-        grid.setHgap(12);
-        grid.setVgap(12);
-        grid.setPadding(new Insets(20));
-        
-        TextField latitude = new TextField("40.7128");
-        latitude.setPromptText("Latitude");
-        
-        TextField longitude = new TextField("-74.0060");
-        longitude.setPromptText("Longitude");
-        
-        Label exampleLabel = new Label("Exemple: New York = 40.7128, -74.0060");
-        exampleLabel.setStyle("-fx-font-size: 10; -fx-opacity: 0.7;");
-        
-        HBox presetBox = new HBox(8);
-        Button btnParis = new Button("🇫🇷 Paris");
-        Button btnNewYork = new Button("🇺🇸 New York");
-        Button btnTokyo = new Button("🇯🇵 Tokyo");
-        
-        btnParis.setOnAction(e -> {
-            latitude.setText("48.8566");
-            longitude.setText("2.3522");
-        });
-        btnNewYork.setOnAction(e -> {
-            latitude.setText("40.7128");
-            longitude.setText("-74.0060");
-        });
-        btnTokyo.setOnAction(e -> {
-            latitude.setText("35.6762");
-            longitude.setText("139.6503");
-        });
-        
-        presetBox.getChildren().addAll(btnParis, btnNewYork, btnTokyo);
-        
-        grid.add(new Label("📍 Latitude:"), 0, 0);
-        grid.add(latitude, 1, 0);
-        grid.add(new Label("📍 Longitude:"), 0, 1);
-        grid.add(longitude, 1, 1);
-        grid.add(exampleLabel, 0, 2, 2, 1);
-        grid.add(new Label("🗺️ Préréglages:"), 0, 3);
-        grid.add(presetBox, 1, 3);
-        
-        dialog.getDialogPane().setContent(grid);
-        
-        dialog.setResultConverter(dialogButton -> {
-            if (dialogButton == checkButtonType) {
-                return new String[]{latitude.getText(), longitude.getText()};
-            }
-            return null;
-        });
-        
-        Optional<String[]> result = dialog.showAndWait();
-        result.ifPresent(coords -> {
-            appendToApiResults("🌫️ Vérification de la qualité de l'air en cours...\n");
-            
-            new Thread(() -> {
-                try {
-                    double lat = Double.parseDouble(coords[0]);
-                    double lon = Double.parseDouble(coords[1]);
-                    
-                    AirPollutionResponse response = airQualityService.getCurrentAirQuality(lat, lon);
-                    
-                    Platform.runLater(() -> {
-                        if (response != null && response.getList() != null && !response.getList().isEmpty()) {
-                            appendToApiResults(formatAirQualityResponse(response, lat, lon));
-                        } else {
-                            appendToApiResults("❌ Aucune donnée de qualité de l'air retournée.\n");
-                        }
-                    });
-                } catch (Exception e) {
-                    Platform.runLater(() -> appendToApiResults("❌ Erreur: " + e.getMessage() + "\n"));
-                }
-            }).start();
-        });
-    }
-    
-    private String formatCarbonEstimateResponse(CarbonEstimateResponse response) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("═══════════════════════════════════════════════════\n");
-        sb.append("✅ RÉSULTAT DU CALCUL D'ÉMISSIONS CO₂\n");
-        sb.append("═══════════════════════════════════════════════════\n\n");
-        
-        if (response.getAttributes() != null) {
-            var attrs = response.getAttributes();
-            
-            sb.append(String.format("🌍 Émissions CO₂: %.3f kg\n", attrs.getCarbonKg()));
-            sb.append(String.format("📊 Équivalent: %.6f tonnes\n", attrs.getCarbonMt()));
-            
-            if (attrs.getEstimatedAt() != null) {
-                sb.append(String.format("⏰ Calculé le: %s\n", attrs.getEstimatedAt()));
-            }
-        }
-        
-        sb.append("\n═══════════════════════════════════════════════════\n\n");
-        return sb.toString();
-    }
-    
-    private String formatAirQualityResponse(AirPollutionResponse response, double lat, double lon) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("═══════════════════════════════════════════════════\n");
-        sb.append("✅ QUALITÉ DE L'AIR\n");
-        sb.append("═══════════════════════════════════════════════════\n\n");
-        
-        sb.append(String.format("📍 Localisation: %.4f, %.4f\n\n", lat, lon));
-        
-        if (!response.getList().isEmpty()) {
-            var data = response.getList().get(0);
-            
-            if (data.getMain() != null) {
-                int aqi = data.getMain().getAqi();
-                sb.append(String.format("🌫️ Indice Qualité Air (AQI): %d - %s\n\n", 
-                    aqi, getAqiDescription(aqi)));
-            }
-            
-            if (data.getComponents() != null) {
-                var comp = data.getComponents();
-                sb.append("📊 COMPOSANTS (μg/m³):\n");
-                sb.append(String.format("  • CO (Monoxyde de carbone): %.2f\n", comp.getCo()));
-                sb.append(String.format("  • NO₂ (Dioxyde d'azote): %.2f\n", comp.getNo2()));
-                sb.append(String.format("  • O₃ (Ozone): %.2f\n", comp.getO3()));
-                sb.append(String.format("  • PM2.5 (Particules fines): %.2f\n", comp.getPm2_5()));
-                sb.append(String.format("  • PM10 (Particules): %.2f\n", comp.getPm10()));
-                sb.append(String.format("  • SO₂ (Dioxyde de soufre): %.2f\n", comp.getSo2()));
-            }
-        }
-        
-        sb.append("\n═══════════════════════════════════════════════════\n\n");
-        return sb.toString();
-    }
-    
-    private String getAqiDescription(int aqi) {
-        switch (aqi) {
-            case 1: return "Bon ✅";
-            case 2: return "Moyen 🟡";
-            case 3: return "Modéré 🟠";
-            case 4: return "Mauvais 🔴";
-            case 5: return "Très mauvais ⛔";
-            default: return "Inconnu";
-        }
-    }
-    
-    private void appendToApiResults(String text) {
-        if (txtApiResults != null) {
-            txtApiResults.appendText(text);
-        }
-    }
-
-    private String buildCarbonApiErrorMessage() {
-        String lastError = carbonApiService != null ? carbonApiService.getLastError() : null;
-        if (lastError == null || lastError.trim().isEmpty()) {
-            return "❌ Aucune donnée retournée par l'API.\n";
-        }
-        return "❌ API Carbon Error: " + lastError + "\n";
-    }
-
-    private boolean ensureCarbonApiAvailable() {
-        if (carbonApiService == null || !carbonApiService.isEnabled()) {
-            appendToApiResults("❌ Carbon API non configurée. Ajoutez CARBON_API_KEY ou carbon.api.key.\n");
-            showWarning("API non configurée", "La clé Carbon API est manquante. Ajoutez CARBON_API_KEY ou carbon.api.key.");
-            return false;
-        }
-        return true;
-    }
-
-    private String buildClimatiqApiErrorMessage() {
-        String lastError = climatiqApiService != null ? climatiqApiService.getLastError() : null;
-        if (lastError == null || lastError.trim().isEmpty()) {
-            return "❌ Aucune donnée retournée par Climatiq.\n";
-        }
-        return "❌ API Climatiq Error: " + lastError + "\n";
-    }
-
-    private boolean ensureClimatiqApiAvailable() {
-        if (climatiqApiService == null || !climatiqApiService.isEnabled()) {
-            appendToApiResults("❌ Climatiq API non configurée. Ajoutez CLIMATIQ_API_KEY (ou CLIMATIQ_API).\n");
-            showWarning("API Climatiq non configurée", "La clé Climatiq est manquante. Ajoutez CLIMATIQ_API_KEY (ou CLIMATIQ_API).");
-            return false;
-        }
-        return true;
-    }
-
-    private String mapFuelActivityId(String fuelType) {
-        if (fuelType == null) return "fuel_combustion";
-        return switch (fuelType.toLowerCase()) {
-            case "lng", "lpg", "cng" -> "natural_gas_combustion";
-            case "coal", "petcoke" -> "coal_combustion";
-            case "rfo", "dfo" -> "diesel_combustion";
-            default -> "fuel_combustion";
-        };
-    }
-
-    private String mapShippingActivityId(String method) {
-        if (method == null) return "freight_transport";
-        return switch (method.toLowerCase()) {
-            case "ship" -> "sea_freight";
-            case "train" -> "rail_freight";
-            case "truck" -> "road_freight";
-            case "plane" -> "air_freight";
-            default -> "freight_transport";
-        };
-    }
-
-    private String formatClimatiqResult(EmissionResult result, String scenarioLabel) {
-        double co2eKg = result.getCo2eAmount().doubleValue();
-        double co2eTonnes = co2eKg / 1000.0;
-        
-        // Calculate emissions in comparable units
-        double co2eGrams = co2eKg * 1000;
-        double co2ePounds = co2eKg * 2.20462;  // kg to lbs
-        
-        StringBuilder sb = new StringBuilder();
-        sb.append("\n");
-        sb.append("╔════════════════════════════════════════════════════════════╗\n");
-        sb.append("║              ✅ RÉSULTAT CLIMATIQ - EMISSIONS              ║\n");
-        sb.append("╚════════════════════════════════════════════════════════════╝\n\n");
-
-        // Main emissions display
-        sb.append("📌 SCÉNARIO: ").append(scenarioLabel).append("\n\n");
-        
-        sb.append("🌍 ÉMISSIONS CO₂e (Résultats Principaux):\n");
-        sb.append(String.format("   ├─ %.1f kg (kilogrammes)\n", co2eKg));
-        sb.append(String.format("   ├─ %.6f tonnes métriques\n", co2eTonnes));
-        sb.append(String.format("   ├─ %.0f grammes\n", co2eGrams));
-        sb.append(String.format("   └─ %.2f lbs (livres)\n\n", co2ePounds));
-
-        // Emissions context and comparisons
-        sb.append("📊 CONTEXTE & COMPARAISONS:\n");
-        double flightsEquivalent = co2eKg / 0.255;  // 1 hour flight ≈ 0.255 kg
-        double carDrivingEquivalent = co2eKg / 0.21;  // car driving ≈ 0.21 kg/km
-        double treesCO2Sequestered = co2eKg / 21;  // 1 tree sequesters ~21kg CO2/year
-        sb.append(String.format("   ├─ Équivalent à %.1f km de conduite voiture\n", carDrivingEquivalent));
-        sb.append(String.format("   ├─ Équivalent à %.1f heure(s) de vol aérien\n", flightsEquivalent));
-        sb.append(String.format("   └─ Équivalent absorption par %.0f arbre(s)/an\n\n", treesCO2Sequestered));
-
-        // Data quality and uncertainty
-        sb.append("🎯 QUALITÉ DES DONNÉES:\n");
-        if (result.getTier() != null) {
-            String tierEmoji = getTierEmoji(result.getTier  ());
-            sb.append(String.format("   ├─ Tier GHG: %s %d\n", tierEmoji, result.getTier()));
-            if (result.getTierDescription() != null) {
-                sb.append(String.format("   │  └─ %s\n", result.getTierDescription()));
-            }
-        }
-        if (result.getUncertaintyPercent() != null) {
-            String uncertaintyLevel = result.getUncertaintyPercent() < 5 ? "Très fiable ✓✓✓" :
-                                    result.getUncertaintyPercent() < 15 ? "Fiable ✓✓" :
-                                    result.getUncertaintyPercent() < 30 ? "Acceptable ✓" : "À vérifier ⚠";
-            sb.append(String.format("   └─ Incertitude: ±%.1f%% (%s)\n\n", 
-                result.getUncertaintyPercent(), uncertaintyLevel));
-        } else {
-            sb.append("   └─ Incertitude: Non spécifiée\n\n");
-        }
-
-        // Activity details
-        if (result.getActivityAmount() != null || result.getActivityUnit() != null) {
-            sb.append("📐 DONNÉES D'ACTIVITÉ:\n");
-            if (result.getActivityAmount() != null) {
-                sb.append(String.format("   ├─ Quantité: %.2f\n", result.getActivityAmount()));
-            }
-            if (result.getActivityUnit() != null) {
-                sb.append(String.format("   └─ Unité: %s\n\n", result.getActivityUnit()));
-            }
-        }
-
-        // Emission factor information
-        if (result.getEmissionFactor() != null) {
-            sb.append("🧾 FACTEUR D'ÉMISSION:\n");
-            if (result.getEmissionFactor().getName() != null) {
-                sb.append(String.format("   ├─ Nom: %s\n", result.getEmissionFactor().getName()));
-            }
-            if (result.getEmissionFactor().getRegion() != null) {
-                sb.append(String.format("   ├─ Région: %s\n", result.getEmissionFactor().getRegion()));
-            }
-            if (result.getEmissionFactor().getYear() != null) {
-                sb.append(String.format("   ├─ Année: %d\n", result.getEmissionFactor().getYear()));
-            }
-            if (result.getEmissionFactor().getSource() != null) {
-                sb.append(String.format("   ├─ Source: %s\n", result.getEmissionFactor().getSource()));
-            }
-            if (result.getEmissionFactor().getMethodology() != null) {
-                sb.append(String.format("   └─ Méthodologie: %s\n\n", result.getEmissionFactor().getMethodology()));
-            }
-        }
-
-        // Calculation metadata
-        if (result.getCalculationId() != null) {
-            sb.append("🔑 IDENTIFIANTS:\n");
-            sb.append(String.format("   └─ ID Calcul: %s\n\n", result.getCalculationId()));
-        }
-
-        sb.append("╚════════════════════════════════════════════════════════════╝\n");
-        return sb.toString();
-    }
-
-    private String getTierEmoji(Integer tier) {
-        if (tier == null) return "❓";
-        return switch (tier) {
-            case 1 -> "🥇";
-            case 2 -> "🥈";
-            case 3 -> "🥉";
-            case 4 -> "⚡";
-            default -> "📊";
-        };
-    }
-
-    private double convertWeightToKg(double value, String unit) {
-        if (unit == null) return value;
-        switch (unit) {
-            case "lb":
-                return value * 0.453592;
-            case "g":
-                return value / 1000.0;
-            case "mt":
-                return value * 1000.0;
-            case "kg":
-            default:
-                return value;
-        }
-    }
-
-    private double convertDistanceToKm(double value, String unit) {
-        if (unit == null) return value;
-        switch (unit) {
-            case "mi":
-                return value * 1.60934;
-            case "km":
-            default:
-                return value;
-        }
-    }
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
 }

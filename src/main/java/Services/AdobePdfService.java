@@ -1,15 +1,5 @@
 package Services;
 
-<<<<<<< HEAD
-/**
- * Adobe PDF integration removed.
- */
-public class AdobePdfService {
-    public AdobePdfService() {
-        throw new UnsupportedOperationException("Adobe PDF integration removed");
-    }
-}
-=======
 import org.apache.pdfbox.pdmodel.PDDocument;
 import org.apache.pdfbox.text.PDFTextStripper;
 
@@ -222,5 +212,3 @@ public class AdobePdfService {
         }
     }
 }
-
->>>>>>> yassine_antar

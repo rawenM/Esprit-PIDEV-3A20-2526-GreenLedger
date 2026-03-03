@@ -11,10 +11,7 @@ import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 import Models.User;
-<<<<<<< HEAD
 import Services.AuditLogService;
-=======
->>>>>>> yassine_antar
 import Services.IUserService;
 import Services.UserServiceImpl;
 import Utils.CaptchaHttpServer;
@@ -33,20 +30,14 @@ public class LoginController {
     @FXML private CheckBox rememberMeCheckbox;
     @FXML private Label errorLabel;
     @FXML private Button loginButton;
-<<<<<<< HEAD
     @FXML private Button recaptchaChoiceBtn;
     @FXML private Button puzzleChoiceBtn;
     @FXML private Button bypassCaptchaBtn;
     @FXML private Button regeneratePuzzleBtn;
-=======
-    @FXML private Button fallbackCaptchaBtn;
-    @FXML private Button bypassCaptchaBtn;
->>>>>>> yassine_antar
     @FXML private Hyperlink forgotPasswordLink;
     @FXML private Hyperlink registerLink;
     @FXML private WebView captchaWebView;
     @FXML private javafx.scene.layout.VBox captchaContainer;
-<<<<<<< HEAD
     @FXML private javafx.scene.layout.VBox recaptchaBox;
     @FXML private javafx.scene.layout.VBox puzzleBox;
     @FXML private javafx.scene.layout.StackPane puzzleBackgroundPane;
@@ -66,19 +57,6 @@ public class LoginController {
     private boolean puzzleVerified = false;
     private boolean usingRecaptcha = false;
     private boolean usingPuzzle = false;
-=======
-    @FXML private javafx.scene.layout.HBox simpleCaptchaBox;
-    @FXML private Label captchaQuestion;
-    @FXML private TextField captchaAnswer;
-
-    private final IUserService userService = new UserServiceImpl();
-    private final CaptchaService captchaService = new CaptchaService();
-    private CaptchaHttpServer captchaHttpServer;
-    private String captchaToken;
-    private int captchaExpectedAnswer = 0;
-    private boolean usingSimpleCaptcha = false;
-    private boolean captchaBypassed = false;
->>>>>>> yassine_antar
     private javafx.animation.Timeline captchaResizeTimeline;
 
     @FXML
@@ -98,7 +76,6 @@ public class LoginController {
             }
         } catch (Exception ignored) {}
 
-<<<<<<< HEAD
         // Afficher les 2 choix de captcha
         System.out.println("[CLEAN] Page de login avec 2 choix de captcha");
     }
@@ -274,122 +251,10 @@ public class LoginController {
     /**
      * Bypass temporaire du CAPTCHA (pour démo)
      */
-=======
-        setupCaptcha();
-    }
-
-    private void setupCaptcha() {
-        captchaBypassed = false;
-        // Try reCAPTCHA first if configured
-        if (captchaService.isConfigured() && captchaWebView != null) {
-            String siteKey = captchaService.getSiteKey();
-            System.out.println("[CLEAN] reCAPTCHA configured with site key: " + siteKey.substring(0, Math.min(10, siteKey.length())) + "...");
-            System.out.println("[CLEAN] Loading reCAPTCHA v2 from local server");
-            
-            WebEngine engine = captchaWebView.getEngine();
-            engine.setJavaScriptEnabled(true);
-            
-            // Enable user agent to avoid blocking
-            engine.setUserAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
-            
-            // Log load worker exceptions
-            try {
-                engine.getLoadWorker().exceptionProperty().addListener((o, old, ex) -> {
-                    if (ex != null) {
-                        System.err.println("[WEBVIEW] Exception: " + ex.getMessage());
-                    }
-                });
-            } catch (Exception ignored) {}
-            
-            // Set timeout to fallback to simple captcha
-            final boolean[] captchaLoaded = {false};
-            
-            // WebView is already visible by default in FXML
-            
-            new Thread(() -> {
-                try {
-                    // Show fallback button after 3 seconds if token not received
-                    Thread.sleep(3000);
-                    javafx.application.Platform.runLater(() -> {
-                        if (!captchaLoaded[0] && fallbackCaptchaBtn != null && !usingSimpleCaptcha) {
-                            fallbackCaptchaBtn.setVisible(true);
-                            System.out.println("[CLEAN] Showing fallback captcha button after 3s");
-                        }
-                    });
-                    
-                    // Auto-switch to simple captcha after 5 seconds total
-                    Thread.sleep(2000);
-                    if (!captchaLoaded[0]) {
-                        javafx.application.Platform.runLater(() -> {
-                            System.out.println("[CLEAN] reCAPTCHA timeout - Using simple math captcha fallback");
-                            showSimpleCaptcha();
-                        });
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }).start();
-            
-            engine.setOnError(event -> {
-                System.err.println("[CLEAN] WebView error: " + event.getMessage());
-                if (!captchaLoaded[0]) {
-                    showSimpleCaptcha();
-                }
-            });
-            
-            engine.getLoadWorker().stateProperty().addListener((obs, oldState, newState) -> {
-                System.out.println("[CLEAN] WebView state: " + newState);
-                if (newState == javafx.concurrent.Worker.State.SUCCEEDED) {
-                    try {
-                        netscape.javascript.JSObject window =
-                                (netscape.javascript.JSObject) engine.executeScript("window");
-                        window.setMember("captchaBridge", new CaptchaBridge());
-                        captchaLoaded[0] = true;
-                        startCaptchaAutoResize(engine);
-                        System.out.println("[CLEAN] reCAPTCHA WebView loaded and captchaBridge connected");
-                    } catch (Exception e) {
-                        System.err.println("[CLEAN] Failed to initialize reCAPTCHA bridge: " + e.getMessage());
-                        e.printStackTrace();
-                        showSimpleCaptcha();
-                    }
-                } else if (newState == javafx.concurrent.Worker.State.FAILED) {
-                    System.err.println("[CLEAN] WebView failed to load");
-                    showSimpleCaptcha();
-                }
-            });
-            
-            try {
-                if (captchaHttpServer == null) {
-                    captchaHttpServer = new CaptchaHttpServer(siteKey);
-                    captchaHttpServer.start();
-                }
-                String url = captchaHttpServer.getCaptchaUrl();
-                engine.load(url);
-                System.out.println("[CLEAN] Loaded captcha from local server: " + url);
-            } catch (Exception e) {
-                System.err.println("[CLEAN] Failed to start local captcha server: " + e.getMessage());
-                e.printStackTrace();
-                showSimpleCaptcha();
-            }
-        } else {
-            // No reCAPTCHA configured, use simple captcha
-            System.out.println("[CLEAN] reCAPTCHA not configured - Using simple math captcha");
-            showSimpleCaptcha();
-        }
-    }
-    
-    @FXML
-    private void useFallbackCaptcha(ActionEvent event) {
-        System.out.println("[CLEAN] User manually requested simple captcha");
-        showSimpleCaptcha();
-    }
-
->>>>>>> yassine_antar
     @FXML
     private void bypassCaptcha(ActionEvent event) {
         captchaBypassed = true;
         System.out.println("[CLEAN] Captcha bypass enabled (temporary)");
-<<<<<<< HEAD
         showError("Mode démo: captcha bypassé");
 =======
         if (captchaContainer != null) {
@@ -479,35 +344,11 @@ public class LoginController {
     private class CaptchaBridge {
         public void onCaptchaSuccess(String token) {
             captchaToken = token;
-<<<<<<< HEAD
             System.out.println("[CLEAN] reCAPTCHA token received (length: " + (token != null ? token.length() : 0) + ")");
             javafx.application.Platform.runLater(() -> {
                 System.out.println("[CLEAN] Captcha validated successfully");
             });
         }
-=======
-            System.out.println("[CLEAN] ✓ reCAPTCHA token received (length: " + (token != null ? token.length() : 0) + ")");
-            // Hide fallback button since reCAPTCHA is working
-            javafx.application.Platform.runLater(() -> {
-                if (fallbackCaptchaBtn != null) {
-                    fallbackCaptchaBtn.setVisible(false);
-                }
-                System.out.println("[CLEAN] Captcha validated successfully");
-            });
-        }
-        
-        public void onCaptchaFailed(String reason) {
-            System.err.println("[CLEAN] ❌ reCAPTCHA failed: " + reason);
-            javafx.application.Platform.runLater(() -> {
-                showSimpleCaptcha();
-            });
-        }
-        
-        // Legacy compatibility
-        public void setToken(String token) {
-            onCaptchaSuccess(token);
-        }
->>>>>>> yassine_antar
     }
 
     @FXML
@@ -522,37 +363,10 @@ public class LoginController {
         }
 
         // Verify captcha
-<<<<<<< HEAD
         if (captchaBypassed) {
             System.out.println("[CLEAN] Captcha bypassed for this login");
         } else if (usingRecaptcha) {
             // Verify reCAPTCHA
-=======
-        if (usingSimpleCaptcha) {
-            // Verify simple math captcha
-            if (captchaAnswer == null || captchaAnswer.getText().trim().isEmpty()) {
-                showError("Veuillez repondre a la question de verification");
-                return;
-            }
-            try {
-                int userAnswer = Integer.parseInt(captchaAnswer.getText().trim());
-                if (userAnswer != captchaExpectedAnswer) {
-                    showError("Reponse incorrecte. Reessayez.");
-                    showSimpleCaptcha(); // Generate new question
-                    captchaAnswer.clear();
-                    return;
-                }
-                System.out.println("[CLEAN] Simple captcha verified");
-            } catch (NumberFormatException e) {
-                showError("Veuillez entrer un nombre valide");
-                return;
-            }
-        } else if (captchaService.isConfigured()) {
-            if (captchaBypassed) {
-                System.out.println("[CLEAN] Captcha bypassed for this login");
-            } else {
-            // Verify reCAPTCHA (v2 checkbox)
->>>>>>> yassine_antar
             if ((captchaToken == null || captchaToken.trim().isEmpty()) && captchaWebView != null) {
                 try {
                     Object response = captchaWebView.getEngine().executeScript(
@@ -576,7 +390,6 @@ public class LoginController {
                 return;
             }
             System.out.println("[CLEAN] reCAPTCHA verified");
-<<<<<<< HEAD
         } else if (usingPuzzle) {
             // Verify Puzzle
             if (!puzzleVerified) {
@@ -588,9 +401,6 @@ public class LoginController {
             // Aucun captcha sélectionné
             showError("Veuillez choisir une methode de verification");
             return;
-=======
-            }
->>>>>>> yassine_antar
         }
 
         try {
@@ -600,12 +410,9 @@ public class LoginController {
                 User user = userOpt.get();
 
                 System.out.println("[CLEAN] Bienvenue " + user.getNomComplet());
-<<<<<<< HEAD
                 
                 // Enregistrer la connexion réussie dans le journal d'activité
                 AuditLogService.getInstance().logLogin(user, "127.0.0.1");
-=======
->>>>>>> yassine_antar
 
                 // Rediriger vers le tableau de bord approprié selon le rôle
                 navigateToDashboard(event, user);
@@ -614,18 +421,14 @@ public class LoginController {
                 // Message générique pour limiter la fuite d'information
                 showError("Email ou mot de passe incorrect");
                 System.err.println("🔒 Échec de connexion pour: " + email);
-<<<<<<< HEAD
                 
                 // Enregistrer l'échec de connexion
                 AuditLogService.getInstance().logLoginFailed(email, "Mot de passe incorrect", "127.0.0.1");
-=======
->>>>>>> yassine_antar
             }
         } catch (RuntimeException e) {
             // Messages métiers renvoyés par le service (compte bloqué/suspendu/non vérifié)
             showError(e.getMessage());
             System.err.println("[CLEAN] Exception métier lors de la connexion: " + e.getMessage());
-<<<<<<< HEAD
             
             // Enregistrer l'échec de connexion avec la raison
             AuditLogService.getInstance().logLoginFailed(email, e.getMessage(), "127.0.0.1");
@@ -635,25 +438,11 @@ public class LoginController {
             
             // Enregistrer l'erreur système
             AuditLogService.getInstance().logLoginFailed(email, "Erreur système", "127.0.0.1");
-=======
-        } catch (Exception e) {
-            showError("Une erreur est survenue lors de la connexion");
-            e.printStackTrace();
->>>>>>> yassine_antar
         }
     }
 
     private void resetCaptcha() {
-<<<<<<< HEAD
         if (usingRecaptcha) {
-=======
-        if (usingSimpleCaptcha) {
-            showSimpleCaptcha();
-            if (captchaAnswer != null) {
-                captchaAnswer.clear();
-            }
-        } else {
->>>>>>> yassine_antar
             captchaToken = null;
             captchaBypassed = false;
             if (captchaWebView != null && captchaService.isConfigured()) {
@@ -667,11 +456,8 @@ public class LoginController {
                     "}"
                 );
             }
-<<<<<<< HEAD
         } else if (usingPuzzle) {
             setupPuzzleCaptcha();
-=======
->>>>>>> yassine_antar
         }
     }
 
@@ -702,7 +488,6 @@ public class LoginController {
 
     @FXML
     private void handleForgotPassword(ActionEvent event) {
-<<<<<<< HEAD
         try {
             // Charger la nouvelle page de réinitialisation avec code à 6 chiffres
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/forgot_password.fxml"));
@@ -719,60 +504,6 @@ public class LoginController {
         }
     }
 
-
-=======
-        // Boîte de dialogue pour entrer l'email ou le téléphone
-        TextInputDialog dialog = new TextInputDialog();
-        dialog.setTitle("Mot de passe oublié");
-        dialog.setHeaderText("Réinitialisation du mot de passe");
-        dialog.setContentText("Entrez votre email ou numéro de téléphone:");
-
-        Optional<String> result = dialog.showAndWait();
-        result.ifPresent(input -> {
-            String trimmed = input == null ? "" : input.trim();
-            if (trimmed.isEmpty()) {
-                showError("Veuillez entrer un email ou un numéro de téléphone");
-                return;
-            }
-
-            String token = userService.initiatePasswordReset(trimmed);
-            if (token != null) {
-                // Afficher une alerte informative contenant le token (utile en local/dev) et option d'ouvrir le formulaire de reset
-                Alert alert = new Alert(Alert.AlertType.INFORMATION);
-                alert.setTitle("Réinitialisation envoyée");
-                alert.setHeaderText(null);
-                String body = "Si cet email/numéro existe, vous recevrez les instructions pour réinitialiser votre mot de passe.\n" +
-                        "(En test local, le token est affiché ci-dessous)\n\nToken: " + token;
-                alert.setContentText(body);
-                ButtonType openReset = new ButtonType("Ouvrir formulaire de reset", ButtonBar.ButtonData.OTHER);
-                alert.getButtonTypes().add(openReset);
-                Optional<ButtonType> choice = alert.showAndWait();
-                if (choice.isPresent() && choice.get() == openReset) {
-                    try {
-                        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/reset_password.fxml"));
-                        Parent root = loader.load();
-                        // Passer le token au contrôleur pour pré-remplir le champ
-                        Controllers.ResetPasswordController controller = loader.getController();
-                        if (controller != null) {
-                            controller.setToken(token);
-                        }
-                        Stage modal = new Stage();
-                        modal.setTitle("Réinitialisation du mot de passe");
-                        modal.initOwner(((Node) event.getSource()).getScene().getWindow());
-                        modal.setScene(new Scene(root));
-                        modal.setResizable(false);
-                        modal.showAndWait();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                showError("Aucun utilisateur trouvé pour cet email/numéro");
-            }
-        });
-    }
-
->>>>>>> yassine_antar
     @FXML
     private void handleRegister(ActionEvent event) {
         try {
