@@ -1,49 +1,50 @@
 ═══════════════════════════════════════════════════════════
-  ✅ ERREUR FXML CORRIGÉE
+  ✅ CONFLIT RÉSOLU - FINALISER LE MERGE
 ═══════════════════════════════════════════════════════════
 
-❌ ERREUR
+✅ CONFLIT RÉSOLU!
 
-Error resolving onAction='#useFallbackCaptcha'
-
-✅ CORRIGÉ!
-
-Le fichier login.fxml a été mis à jour avec la bonne version.
+Le conflit dans MyConnection.java a été résolu automatiquement.
 
 ═══════════════════════════════════════════════════════════
 
-🔧 CE QUI A ÉTÉ FAIT
+🚀 FINALISER LE MERGE - 3 COMMANDES
 
-✅ Supprimé la référence à useFallbackCaptcha (méthode obsolète)
-✅ Mis à jour login.fxml avec les 2 choix de captcha
-✅ Copié le FXML dans target/classes
-✅ Créé une sauvegarde: login.fxml.backup
+Copier-coller ces commandes:
 
-═══════════════════════════════════════════════════════════
+git add src/main/java/DataBase/MyConnection.java
 
-🚀 TESTER MAINTENANT
+git commit -m "Merge: Resolve conflict in MyConnection.java"
 
-./run.bat
-
-Résultat attendu:
-✅ Application démarre sans erreur
-✅ Page de login s'affiche
-✅ 2 boutons de choix visibles:
-   - 🔒 Google reCAPTCHA
-   - 🧩 Captcha Puzzle
+git push origin main
 
 ═══════════════════════════════════════════════════════════
 
-📋 SI ERREUR PERSISTE
+📋 EXPLICATION
 
-Recompiler avec votre IDE:
-1. Build → Rebuild Project
-2. Relancer l'application
+Le conflit était juste une différence dans le message d'erreur:
+- Version locale: "[DB] Erreur lors de la fermeture..."
+- Version distante: "[CLEAN] Erreur lors de la fermeture..."
+
+✅ Résolution: Gardé "[DB]" avec le message complet
 
 ═══════════════════════════════════════════════════════════
 
-✅ LANCEZ L'APPLICATION MAINTENANT!
+🔍 VÉRIFIER LE STATUT
 
-./run.bat
+Avant de commit, vérifier:
+
+git status
+
+Vous devriez voir:
+- modified: src/main/java/DataBase/MyConnection.java
+
+═══════════════════════════════════════════════════════════
+
+✅ EXÉCUTEZ LES 3 COMMANDES MAINTENANT!
+
+git add src/main/java/DataBase/MyConnection.java
+git commit -m "Merge: Resolve conflict in MyConnection.java"
+git push origin main
 
 ═══════════════════════════════════════════════════════════

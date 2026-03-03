@@ -1,0 +1,63 @@
+═══════════════════════════════════════════════════════════
+🔧 SOLUTION: CONNEXION MYSQL FERMÉE
+═══════════════════════════════════════════════════════════
+
+❌ PROBLÈME:
+"No operations allowed after connection closed"
+→ La connexion MySQL se ferme après le login
+
+✅ SOLUTION APPLIQUÉE:
+J'ai corrigé MyConnection.java avec:
+1. Auto-reconnexion MySQL: autoReconnect=true
+2. Suppression des marqueurs de conflit Git
+
+═══════════════════════════════════════════════════════════
+⚠️ ACTION REQUISE: RECOMPILER DANS L'IDE
+═══════════════════════════════════════════════════════════
+
+Le fichier source est corrigé MAIS le .class compilé est ancien.
+Tu dois recompiler dans ton IDE:
+
+🔧 DANS INTELLIJ IDEA:
+1. Ouvre le projet dans IntelliJ
+2. Clique droit sur "src/main/java/DataBase/MyConnection.java"
+3. Sélectionne "Recompile 'MyConnection.java'"
+4. OU: Build → Rebuild Project
+
+🔧 DANS ECLIPSE:
+1. Ouvre le projet dans Eclipse
+2. Project → Clean...
+3. Sélectionne "GreenLedger"
+4. Clique "Clean"
+
+🔧 DANS NETBEANS:
+1. Ouvre le projet dans NetBeans
+2. Run → Clean and Build Project
+
+═══════════════════════════════════════════════════════════
+📋 APRÈS LA RECOMPILATION
+═══════════════════════════════════════════════════════════
+
+Lance l'application:
+./run.bat
+
+✅ La connexion MySQL restera ouverte
+✅ Le bouton "Actualiser" fonctionnera
+✅ Les statistiques s'afficheront correctement
+
+═══════════════════════════════════════════════════════════
+📝 CHANGEMENTS DANS MyConnection.java
+═══════════════════════════════════════════════════════════
+
+AVANT:
+private String url = "jdbc:mysql://localhost:3306/greenledger";
+
+APRÈS:
+private String url = "jdbc:mysql://localhost:3306/greenledger?autoReconnect=true&useSSL=false&allowPublicKeyRetrieval=true";
+
+Ces paramètres garantissent:
+- autoReconnect=true → Reconnexion automatique
+- useSSL=false → Pas de SSL (développement local)
+- allowPublicKeyRetrieval=true → Authentification MySQL 8+
+
+═══════════════════════════════════════════════════════════

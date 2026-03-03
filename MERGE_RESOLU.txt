@@ -1,0 +1,23 @@
+═══════════════════════════════════════════════════════════
+  ✅ CONFLIT RÉSOLU!
+═══════════════════════════════════════════════════════════
+
+Le conflit dans MyConnection.java a été corrigé.
+
+═══════════════════════════════════════════════════════════
+
+🚀 3 COMMANDES À EXÉCUTER
+
+git add src/main/java/DataBase/MyConnection.java
+
+git commit -m "Merge: Resolve conflict in MyConnection"
+
+git push origin main
+
+═══════════════════════════════════════════════════════════
+
+✅ FAIT!
+
+Après ces commandes, le merge sera terminé.
+
+═══════════════════════════════════════════════════════════
