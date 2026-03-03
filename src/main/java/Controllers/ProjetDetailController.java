@@ -241,65 +241,6 @@ public class ProjetDetailController {
         return f;
     }
 
-    // =========================
-    // DOCS / IMAGES (READ-ONLY)
-    // =========================
-    @FXML
-    private void onOpenSelectedDoc() {
-        if (lvDocs == null || docs == null || docs.isEmpty()) return;
-
-        int idx = lvDocs.getSelectionModel().getSelectedIndex();
-        if (idx < 0 || idx >= docs.size()) {
-            error("Veuillez sélectionner un fichier.");
-            return;
-        }
-
-        ProjectDocument d = docs.get(idx);
-        String pth = d.getFilePath();
-        if (pth == null || pth.trim().isEmpty()) {
-            error("Chemin du fichier introuvable.");
-            return;
-        }
-
-        try {
-            File f = resolveFile(pth);
-            if (!f.exists()) {
-                error("Fichier introuvable sur disque:\n" + f.getAbsolutePath());
-                return;
-            }
-
-            // ✅ ouvre dans l'app par défaut (Edge/Chrome/Adobe/Photos)
-            Desktop.getDesktop().open(f);
-
-        } catch (Exception ex) {
-            error("Impossible d'ouvrir le fichier : " + ex.getMessage());
-        }
-    }
-
-    private void loadDocuments() {
-        docs = new ArrayList<>();
-        if (projet == null) return;
-
-        try {
-            docs = documentService.getByProject(projet.getId());
-        } catch (Exception e) {
-            System.out.println("loadDocuments error: " + e.getMessage());
-            docs = new ArrayList<>();
-        }
-
-        if (lblDocsCount != null) {
-            lblDocsCount.setText(docs.size() + " fichier(s)");
-        }
-
-        if (lvDocs != null) {
-            List<String> items = new ArrayList<>();
-            for (ProjectDocument d : docs) {
-                String tag = d.isImage() ? "🖼" : "📄";
-                items.add(tag + " " + safe(d.getFileName()));
-            }
-            lvDocs.setItems(FXCollections.observableArrayList(items));
-        }
-    }
 
     private void render() {
         if (projet == null) return;

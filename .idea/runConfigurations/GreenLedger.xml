@@ -23,7 +23,7 @@
     </envs>
     <option name="MAIN_CLASS_NAME" value="org.GreenLedger.MainFX" />
     <module name="workshopjdbc3a" />
-    <option name="VM_PARAMETERS" value="--module-path $MAVEN_REPOSITORY$/org/openjfx/javafx-controls/20.0.2/javafx-controls-20.0.2-win.jar;$MAVEN_REPOSITORY$/org/openjfx/javafx-graphics/20.0.2/javafx-graphics-20.0.2-win.jar;$MAVEN_REPOSITORY$/org/openjfx/javafx-base/20.0.2/javafx-base-20.0.2-win.jar;$MAVEN_REPOSITORY$/org/openjfx/javafx-fxml/20.0.2/javafx-fxml-20.0.2-win.jar;$MAVEN_REPOSITORY$/org/openjfx/javafx-web/20.0.2/javafx-web-20.0.2-win.jar;$MAVEN_REPOSITORY$/org/openjfx/javafx-media/20.0.2/javafx-media-20.0.2-win.jar --add-modules javafx.controls,javafx.fxml,javafx.web,javafx.media --add-opens javafx.web/com.sun.webkit=ALL-UNNAMED --add-opens javafx.web/com.sun.webkit.dom=ALL-UNNAMED" />
+    <option name="VM_PARAMETERS" value="--module-path &quot;C:\Users\mouna\.m2\repository\org\openjfx\javafx-controls\20.0.2;C:\Users\mouna\.m2\repository\org\openjfx\javafx-graphics\20.0.2;C:\Users\mouna\.m2\repository\org\openjfx\javafx-base\20.0.2;C:\Users\mouna\.m2\repository\org\openjfx\javafx-fxml\20.0.2&quot; --add-modules javafx.controls,javafx.fxml " />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

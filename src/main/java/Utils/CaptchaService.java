@@ -64,6 +64,10 @@ public class CaptchaService {
         return captchaProps.getProperty("captcha.site.key", "");
     }
 
+    public String getSecretKey() {
+        return captchaProps.getProperty("captcha.secret", "");
+    }
+
     public boolean verifyToken(String token) {
         if (!configured || token == null || token.trim().isEmpty()) {
             return false;
