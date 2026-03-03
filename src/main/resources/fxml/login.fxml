@@ -58,11 +58,9 @@
                 <!-- Captcha -->
                 <VBox spacing="5" fx:id="captchaContainer">
                     <HBox alignment="CENTER_LEFT" spacing="10">
-                        <Label text="Verification" styleClass="form-label"/>
+                        <Label text="Vérification de sécurité" styleClass="form-label"/>
                         <Button fx:id="fallbackCaptchaBtn" text="Utiliser captcha simple" visible="false" 
                                 style="-fx-font-size: 10px; -fx-padding: 2 8 2 8;" onAction="#useFallbackCaptcha"/>
-                        <Button fx:id="bypassCaptchaBtn" text="Bypass (temp)" 
-                                style="-fx-font-size: 10px; -fx-padding: 2 8 2 8;" onAction="#bypassCaptcha"/>
                     </HBox>
                     <WebView fx:id="captchaWebView" prefHeight="120" minHeight="120" maxHeight="300" prefWidth="380" maxWidth="400"/>
                     <HBox spacing="10" alignment="CENTER_LEFT" fx:id="simpleCaptchaBox" visible="false" managed="false">

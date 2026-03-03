@@ -1,0 +1,181 @@
+/* Styles pour la Détection de Fraude */
+
+/* Badges de Score de Risque */
+.fraud-badge {
+    -fx-background-radius: 12px;
+    -fx-padding: 5px 12px;
+    -fx-font-weight: bold;
+    -fx-font-size: 11px;
+    -fx-text-fill: white;
+    -fx-alignment: center;
+}
+
+.fraud-badge-faible {
+    -fx-background-color: #10B981;
+}
+
+.fraud-badge-moyen {
+    -fx-background-color: #F59E0B;
+}
+
+.fraud-badge-eleve {
+    -fx-background-color: #F97316;
+}
+
+.fraud-badge-critique {
+    -fx-background-color: #EF4444;
+}
+
+/* Statistiques de Fraude */
+.fraud-stat-card {
+    -fx-background-color: white;
+    -fx-background-radius: 8px;
+    -fx-padding: 16px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 4, 0, 0, 2);
+}
+
+.fraud-stat-title {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6B7280;
+    -fx-font-weight: 500;
+}
+
+.fraud-stat-value {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+}
+
+.fraud-stat-value-safe {
+    -fx-text-fill: #10B981;
+}
+
+.fraud-stat-value-warning {
+    -fx-text-fill: #F59E0B;
+}
+
+.fraud-stat-value-danger {
+    -fx-text-fill: #EF4444;
+}
+
+/* Modal de Détails */
+.fraud-modal {
+    -fx-background-color: white;
+    -fx-background-radius: 12px;
+    -fx-padding: 24px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 10, 0, 0, 4);
+    -fx-max-width: 600px;
+}
+
+.fraud-modal-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.fraud-modal-subtitle {
+    -fx-font-size: 14px;
+    -fx-text-fill: #6B7280;
+}
+
+/* Score Circle */
+.fraud-score-circle {
+    -fx-background-radius: 50%;
+    -fx-pref-width: 120px;
+    -fx-pref-height: 120px;
+    -fx-alignment: center;
+}
+
+.fraud-score-circle-faible {
+    -fx-background-color: linear-gradient(to bottom right, #10B981, #059669);
+}
+
+.fraud-score-circle-moyen {
+    -fx-background-color: linear-gradient(to bottom right, #F59E0B, #D97706);
+}
+
+.fraud-score-circle-eleve {
+    -fx-background-color: linear-gradient(to bottom right, #F97316, #EA580C);
+}
+
+.fraud-score-circle-critique {
+    -fx-background-color: linear-gradient(to bottom right, #EF4444, #DC2626);
+}
+
+.fraud-score-text {
+    -fx-font-size: 36px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+}
+
+.fraud-score-label {
+    -fx-font-size: 12px;
+    -fx-text-fill: white;
+    -fx-font-weight: 500;
+}
+
+/* Indicateurs */
+.fraud-indicator {
+    -fx-background-color: #F3F4F6;
+    -fx-background-radius: 8px;
+    -fx-padding: 12px;
+}
+
+.fraud-indicator-detected {
+    -fx-background-color: #FEE2E2;
+    -fx-border-color: #EF4444;
+    -fx-border-width: 2px;
+    -fx-border-radius: 8px;
+}
+
+.fraud-indicator-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #111827;
+}
+
+.fraud-indicator-description {
+    -fx-font-size: 12px;
+    -fx-text-fill: #6B7280;
+}
+
+.fraud-indicator-icon {
+    -fx-font-size: 20px;
+}
+
+/* Bouton Détails */
+.btn-fraud-details {
+    -fx-background-color: #3B82F6;
+    -fx-text-fill: white;
+    -fx-background-radius: 6px;
+    -fx-padding: 6px 12px;
+    -fx-font-size: 11px;
+    -fx-font-weight: 500;
+    -fx-cursor: hand;
+}
+
+.btn-fraud-details:hover {
+    -fx-background-color: #2563EB;
+}
+
+/* Recommendation Badge */
+.fraud-recommendation {
+    -fx-background-radius: 6px;
+    -fx-padding: 8px 16px;
+    -fx-font-weight: 600;
+    -fx-font-size: 12px;
+}
+
+.fraud-recommendation-approuver {
+    -fx-background-color: #D1FAE5;
+    -fx-text-fill: #065F46;
+}
+
+.fraud-recommendation-examiner {
+    -fx-background-color: #FEF3C7;
+    -fx-text-fill: #92400E;
+}
+
+.fraud-recommendation-rejeter {
+    -fx-background-color: #FEE2E2;
+    -fx-text-fill: #991B1B;
+}

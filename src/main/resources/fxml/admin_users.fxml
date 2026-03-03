@@ -21,6 +21,8 @@
 
             <Label text="GESTION" styleClass="section-title-sidebar"/>
             <Button text="👤 Utilisateurs" styleClass="nav-btn" onAction="#handleNavUsers"/>
+            <Button text="📊 Statistiques" styleClass="nav-btn" onAction="#handleNavStatistics"/>
+            <Button text="📋 Journal d'Activité" styleClass="nav-btn" onAction="#handleNavAuditLog"/>
             <Button text="📁 Projets" styleClass="nav-btn" onAction="#handleNavProjets"/>
             <Button text="📊 Evaluations" styleClass="nav-btn" onAction="#handleNavEvaluations"/>
 
@@ -73,6 +75,22 @@
                             <Label fx:id="blockedUsersLabel" text="0" styleClass="stat-value accent-red"/>
                         </VBox>
                     </HBox>
+                    
+                    <!-- Statistiques de Fraude -->
+                    <HBox spacing="12">
+                        <VBox alignment="CENTER" styleClass="stat-card" spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="🔴 Fraudes Détectées" styleClass="stat-title"/>
+                            <Label fx:id="fraudDetectedLabel" text="0" styleClass="stat-value accent-red"/>
+                        </VBox>
+                        <VBox alignment="CENTER" styleClass="stat-card" spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="🟢 Utilisateurs Sûrs" styleClass="stat-title"/>
+                            <Label fx:id="fraudSafeLabel" text="0" styleClass="stat-value accent-green"/>
+                        </VBox>
+                        <VBox alignment="CENTER" styleClass="stat-card" spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="🟡 À Examiner" styleClass="stat-title"/>
+                            <Label fx:id="fraudWarningLabel" text="0" styleClass="stat-value accent-amber"/>
+                        </VBox>
+                    </HBox>
                 </VBox>
 
                 <!-- Filters + Table -->
@@ -117,7 +135,7 @@
                             <TableColumn fx:id="typeColumn" text="Type" prefWidth="130"/>
                             <TableColumn fx:id="statutColumn" text="Statut" prefWidth="120"/>
                             <TableColumn fx:id="dateInscriptionColumn" text="Date Inscription" prefWidth="150"/>
-                            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="150"/>
+                            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="200"/>
                         </columns>
                     </TableView>
                 </VBox>

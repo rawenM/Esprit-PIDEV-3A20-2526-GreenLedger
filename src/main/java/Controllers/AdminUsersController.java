@@ -16,12 +16,16 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import Models.FraudDetectionResult;
 import Models.StatutUtilisateur;
 import Models.TypeUtilisateur;
 import Models.User;
+import Services.AuditLogService;
 import Services.IUserService;
 import Services.UserServiceImpl;
 import Utils.SessionManager;
+import dao.FraudDetectionDAOImpl;
+import dao.IFraudDetectionDAO;
 import org.GreenLedger.MainFX;
 
 import java.io.IOException;
@@ -53,11 +57,17 @@ public class AdminUsersController {
     @FXML private Label blockedUsersLabel;
     @FXML private Label lblProfileName;
     @FXML private Label lblProfileType;
+    
+    // NOUVEAUX LABELS POUR STATISTIQUES DE FRAUDE
+    @FXML private Label fraudDetectedLabel;
+    @FXML private Label fraudSafeLabel;
+    @FXML private Label fraudWarningLabel;
 
     @FXML private StackPane contentPane;
     @FXML private VBox usersContent;
 
     private final IUserService userService = new UserServiceImpl();
+    private final IFraudDetectionDAO fraudDetectionDAO = new FraudDetectionDAOImpl(); // NOUVEAU
     private ObservableList<User> usersList = FXCollections.observableArrayList();
     private User currentUser;
 
@@ -209,21 +219,21 @@ public class AdminUsersController {
         // Colonne Actions avec boutons
         actionsColumn.setCellFactory(column -> new TableCell<User, Void>() {
             private final Button validateBtn = new Button("✓");
-            private final Button blockBtn = new Button("[CLEAN]");
+            private final Button blockBtn = new Button("⛔");
             private final Button deleteBtn = new Button("🗑");
-            private final Button editBtn = new Button("✏️");
-            private final HBox container = new HBox(5, validateBtn, blockBtn, deleteBtn, /*edit*/ editBtn);
+            private final Button detailsBtn = new Button("📊");
+            private final HBox container = new HBox(5, validateBtn, blockBtn, deleteBtn, detailsBtn);
 
             {
-                validateBtn.setStyle("-fx-background-color: #10B981; -fx-text-fill: white;");
-                blockBtn.setStyle("-fx-background-color: #EF4444; -fx-text-fill: white;");
-                deleteBtn.setStyle("-fx-background-color: #6B7280; -fx-text-fill: white;");
-                editBtn.setStyle("-fx-background-color: #F59E0B; -fx-text-fill: white;");
+                validateBtn.setStyle("-fx-background-color: #10B981; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
+                blockBtn.setStyle("-fx-background-color: #EF4444; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
+                deleteBtn.setStyle("-fx-background-color: #6B7280; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
+                detailsBtn.setStyle("-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
 
                 validateBtn.setTooltip(new Tooltip("Valider"));
                 blockBtn.setTooltip(new Tooltip("Bloquer"));
                 deleteBtn.setTooltip(new Tooltip("Supprimer"));
-                editBtn.setTooltip(new Tooltip("Éditer"));
+                detailsBtn.setTooltip(new Tooltip("Détails Fraude"));
 
                 validateBtn.setOnAction(e -> {
                     User user = getTableView().getItems().get(getIndex());
@@ -240,9 +250,9 @@ public class AdminUsersController {
                     handleDeleteUser(user);
                 });
 
-                editBtn.setOnAction(e -> {
+                detailsBtn.setOnAction(e -> {
                     User user = getTableView().getItems().get(getIndex());
-                    handleEditUser(user);
+                    showFraudDetails(user);
                 });
             }
 
@@ -376,6 +386,10 @@ public class AdminUsersController {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             User validatedUser = userService.validateAccount(user.getId());
             if (validatedUser != null) {
+                // Enregistrer l'action dans le journal d'activité
+                if (currentUser != null) {
+                    AuditLogService.getInstance().logAdminValidateUser(currentUser, user);
+                }
                 showSuccess("Compte validé avec succès");
                 handleRefresh();
             }
@@ -387,6 +401,10 @@ public class AdminUsersController {
             // Débloquer
             User unblockedUser = userService.unblockUser(user.getId());
             if (unblockedUser != null) {
+                // Enregistrer l'action dans le journal d'activité
+                if (currentUser != null) {
+                    AuditLogService.getInstance().logAdminUnblockUser(currentUser, user);
+                }
                 showSuccess("Utilisateur débloqué");
                 handleRefresh();
             }
@@ -401,6 +419,10 @@ public class AdminUsersController {
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 User blockedUser = userService.blockUser(user.getId());
                 if (blockedUser != null) {
+                    // Enregistrer l'action dans le journal d'activité
+                    if (currentUser != null) {
+                        AuditLogService.getInstance().logAdminBlockUser(currentUser, user);
+                    }
                     showSuccess("Utilisateur bloqué");
                     handleRefresh();
                 }
@@ -419,6 +441,10 @@ public class AdminUsersController {
         if (result.isPresent() && result.get() == ButtonType.YES) {
             boolean ok = userService.deleteUser(user.getId());
             if (ok) {
+                // Enregistrer l'action dans le journal d'activité
+                if (currentUser != null) {
+                    AuditLogService.getInstance().logAdminDeleteUser(currentUser, user);
+                }
                 showSuccess("Utilisateur supprimé");
                 handleRefresh();
             } else {
@@ -427,28 +453,7 @@ public class AdminUsersController {
         }
     }
 
-    private void handleEditUser(User user) {
-        if (user == null) return;
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/edit_user.fxml"));
-            Parent root = loader.load();
 
-            EditUserController controller = loader.getController();
-            controller.setUser(user);
-            controller.setOnSaved(this::handleRefresh);
-
-            Stage modal = new Stage();
-            modal.setTitle("Éditer utilisateur");
-            modal.initOwner(usersTable.getScene().getWindow());
-            modal.setScene(new Scene(root));
-            modal.setResizable(false);
-            modal.showAndWait();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-            showWarning("Impossible d'ouvrir le formulaire d'édition");
-        }
-    }
 
     @FXML
     private void handleLogout(ActionEvent event) {
@@ -478,6 +483,24 @@ public class AdminUsersController {
         activeUsersLabel.setText(String.valueOf(active));
         pendingUsersLabel.setText(String.valueOf(pending));
         blockedUsersLabel.setText(String.valueOf(blocked));
+        
+        // NOUVELLES STATISTIQUES DE FRAUDE
+        if (fraudDetectedLabel != null && fraudSafeLabel != null && fraudWarningLabel != null) {
+            List<User> allUsers = userService.getAllUsers();
+            long fraudDetected = allUsers.stream()
+                    .filter(u -> u.isFraudChecked() && u.getFraudScore() >= 75)
+                    .count();
+            long fraudSafe = allUsers.stream()
+                    .filter(u -> u.isFraudChecked() && u.getFraudScore() < 25)
+                    .count();
+            long fraudWarning = allUsers.stream()
+                    .filter(u -> u.isFraudChecked() && u.getFraudScore() >= 25 && u.getFraudScore() < 75)
+                    .count();
+            
+            fraudDetectedLabel.setText(String.valueOf(fraudDetected));
+            fraudSafeLabel.setText(String.valueOf(fraudSafe));
+            fraudWarningLabel.setText(String.valueOf(fraudWarning));
+        }
     }
 
     private void showSuccess(String message) {
@@ -507,6 +530,43 @@ public class AdminUsersController {
     @FXML
     private void handleNavUsers() {
         showUsersContent();
+    }
+
+    @FXML
+    private void handleNavStatistics() {
+        try {
+            System.out.println("[ADMIN] Navigation vers les statistiques Chart.js");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/user_statistics.fxml"));
+            Parent root = loader.load();
+            
+            // Charger dans le contentPane au lieu de changer la scène
+            if (contentPane != null) {
+                contentPane.getChildren().setAll(root);
+                System.out.println("[ADMIN] Statistiques chargées dans le contentPane");
+            }
+        } catch (IOException e) {
+            System.err.println("[ADMIN] Erreur lors du chargement des statistiques: " + e.getMessage());
+            e.printStackTrace();
+            showError("Erreur", "Impossible de charger les statistiques");
+        }
+    }
+
+    @FXML
+    private void handleNavAuditLog() {
+        try {
+            System.out.println("[ADMIN] Navigation vers le journal d'activité");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/audit_log.fxml"));
+            Parent root = loader.load();
+            
+            if (contentPane != null) {
+                contentPane.getChildren().setAll(root);
+                System.out.println("[ADMIN] Journal d'activité chargé dans le contentPane");
+            }
+        } catch (IOException e) {
+            System.err.println("[ADMIN] Erreur lors du chargement du journal: " + e.getMessage());
+            e.printStackTrace();
+            showError("Erreur", "Impossible de charger le journal d'activité");
+        }
     }
 
     @FXML
@@ -566,5 +626,66 @@ public class AdminUsersController {
         } catch (IOException e) {
             showWarning("Navigation impossible");
         }
+    }
+    
+    /**
+     * Affiche les détails de l'analyse de fraude pour un utilisateur
+     */
+    private void showFraudDetails(User user) {
+        // Enregistrer la consultation dans le journal d'activité
+        if (currentUser != null) {
+            AuditLogService.getInstance().logAdminViewFraud(currentUser, user);
+        }
+        
+        Optional<FraudDetectionResult> fraudResultOpt = fraudDetectionDAO.findByUserId(user.getId());
+        
+        if (fraudResultOpt.isEmpty()) {
+            showWarning("Aucune analyse de fraude disponible pour cet utilisateur");
+            return;
+        }
+        
+        FraudDetectionResult result = fraudResultOpt.get();
+        
+        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+        alert.setTitle("Détection de Fraude - " + user.getNomComplet());
+        alert.setHeaderText(null);
+        
+        StringBuilder content = new StringBuilder();
+        content.append("=== ANALYSE DE FRAUDE ===\n\n");
+        content.append("Utilisateur: ").append(user.getNomComplet()).append("\n");
+        content.append("Email: ").append(user.getEmail()).append("\n\n");
+        
+        content.append("SCORE DE RISQUE: ").append(String.format("%.1f", result.getRiskScore())).append("/100\n");
+        content.append("Niveau: ").append(result.getRiskLevel().getLabel()).append("\n");
+        content.append("Frauduleux: ").append(result.isFraudulent() ? "OUI" : "NON").append("\n");
+        content.append("Recommandation: ").append(result.getRecommendation()).append("\n\n");
+        
+        content.append("=== INDICATEURS DETECTES ===\n\n");
+        
+        long detectedCount = result.getIndicators().stream()
+                .filter(FraudDetectionResult.FraudIndicator::isDetected)
+                .count();
+        
+        if (detectedCount == 0) {
+            content.append("✅ Aucun indicateur de fraude détecté\n");
+        } else {
+            for (FraudDetectionResult.FraudIndicator indicator : result.getIndicators()) {
+                if (indicator.isDetected()) {
+                    content.append("⚠️  ").append(indicator.getType()).append(": ")
+                           .append(indicator.getDescription()).append("\n");
+                }
+            }
+        }
+        
+        content.append("\n=== DETAILS DE L'ANALYSE ===\n\n");
+        content.append(result.getAnalysisDetails());
+        
+        alert.setContentText(content.toString());
+        
+        // Agrandir la fenêtre
+        alert.getDialogPane().setPrefWidth(600);
+        alert.getDialogPane().setPrefHeight(500);
+        
+        alert.showAndWait();
     }
 }

@@ -37,7 +37,15 @@ build/
 ### Local config (secrets) ###
 src/main/resources/config.properties
 *.env
+<<<<<<< HEAD
 .env
+=======
+
+# Gmail API credentials
+src/main/resources/credentials.json
+tokens/
+
+>>>>>>> abdelmajid_ibrahimi_gestion_utilisateur
 ### Mac OS ###
 .DS_Store
 

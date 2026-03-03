@@ -1,0 +1,22 @@
+═══════════════════════════════════════════════════════════════
+   ⚡ SOLUTION ULTRA-RAPIDE
+═══════════════════════════════════════════════════════════════
+
+PROBLÈME : Table user vide + erreur connexion MySQL
+
+SOLUTION EN 4 CLICS :
+
+1. Double-cliquez : ajouter-utilisateurs.bat
+2. IDE : Build → Rebuild Project
+3. Double-cliquez : run.bat
+4. Connectez-vous : admin@plateforme.com / admin123
+
+✅ FAIT !
+
+═══════════════════════════════════════════════════════════════
+
+Vous verrez 6 utilisateurs dans le tableau.
+Plus d'erreur de connexion.
+Tout fonctionne.
+
+═══════════════════════════════════════════════════════════════

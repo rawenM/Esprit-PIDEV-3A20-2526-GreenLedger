@@ -153,6 +153,13 @@ public class EmailService {
         StatusEmail statusEmail = buildStatusEmail(fullName, status);
         return sendEmail(to, statusEmail.subject, statusEmail.htmlBody, true);
     }
+    /**
+     * Envoie un email personnalisé avec sujet et contenu HTML
+     */
+    public boolean sendCustomEmail(String to, String subject, String htmlContent) {
+        return sendEmail(to, subject, htmlContent, true);
+    }
+
 
     public boolean sendEvaluationReportEmail(String to, String subject, String htmlBody, java.io.File attachmentPdf) {
         if (!configured) {

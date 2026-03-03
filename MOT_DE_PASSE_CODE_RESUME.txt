@@ -1,0 +1,247 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║         🔐 RÉSUMÉ: Mot de Passe Oublié avec Code de Vérification         ║
+║                                                                            ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+📋 NOUVEAU SYSTÈME
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Réinitialisation de mot de passe en 2 étapes avec code par email.
+
+FLUX:
+1. Utilisateur entre son email
+2. Reçoit un code à 6 chiffres par email
+3. Entre le code + nouveau mot de passe
+4. Mot de passe réinitialisé ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ FICHIERS CRÉÉS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. src/main/resources/fxml/forgot_password.fxml
+2. src/main/java/Controllers/ForgotPasswordController.java
+3. compile-forgot-password.bat
+4. GUIDE_MOT_DE_PASSE_CODE.md
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 INSTALLATION (2 MINUTES)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ÉTAPE 1: Compiler
+> compile-forgot-password.bat
+
+ÉTAPE 2: Lancer
+> run.bat
+
+ÉTAPE 3: Tester
+1. Page de connexion → "Mot de passe oublié ?"
+2. Entrer email
+3. Vérifier email reçu
+4. Entrer code à 6 chiffres
+5. Entrer nouveau mot de passe
+6. ✅ Réinitialisé!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎨 INTERFACE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+ÉTAPE 1: Demander le code
+┌─────────────────────────────────────────────────────────┐
+│  Mot de passe oublié                                     │
+│  Entrez votre email pour recevoir un code               │
+│─────────────────────────────────────────────────────────│
+│  Email: [_____________________________________]          │
+│            [     Envoyer le code     ]                  │
+└─────────────────────────────────────────────────────────┘
+
+ÉTAPE 2: Vérifier et réinitialiser
+┌─────────────────────────────────────────────────────────┐
+│  Un code à 6 chiffres a été envoyé à user@email.com    │
+│─────────────────────────────────────────────────────────│
+│  Code (6 chiffres):  Expire dans: 09:45                │
+│  [______]  [Renvoyer le code]                           │
+│                                                          │
+│  Nouveau mot de passe:                                  │
+│  [_____________________________________]                 │
+│                                                          │
+│  Confirmer:                                              │
+│  [_____________________________________]                 │
+│                                                          │
+│        [  Réinitialiser le mot de passe  ]              │
+└─────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📧 EMAIL REÇU
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+┌─────────────────────────────────────────────────────────┐
+│              🔐 Code de Vérification                     │
+│─────────────────────────────────────────────────────────│
+│  Bonjour Jean Dupont,                                   │
+│                                                          │
+│  Voici votre code de vérification:                      │
+│                                                          │
+│  ┌─────────────────────────────────────────────────┐   │
+│  │              1 2 3 4 5 6                        │   │
+│  └─────────────────────────────────────────────────┘   │
+│                                                          │
+│  ⚠️ Important:                                           │
+│  • Ce code expire dans 10 minutes                       │
+│  • Ne partagez jamais ce code                           │
+│                                                          │
+│  Cordialement, L'équipe GreenLedger                     │
+└─────────────────────────────────────────────────────────┘
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✨ CARACTÉRISTIQUES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Code à 6 chiffres aléatoire (100000-999999)
+✅ Expiration après 10 minutes
+✅ Compte à rebours visuel (MM:SS)
+✅ Changement de couleur selon temps restant:
+   • Vert: > 3 minutes
+   • Orange: 1-3 minutes
+   • Rouge: < 1 minute
+✅ Possibilité de renvoyer le code
+✅ Email HTML professionnel
+✅ Validation complète:
+   • Email existe
+   • Code correct et non expiré
+   • Mot de passe: 8+ caractères, majuscule, chiffre
+   • Confirmation identique
+✅ Redirection automatique après succès
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 AVANT vs APRÈS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+AVANT (avec lien):
+❌ Lien peut être intercepté
+❌ Lien peut être partagé
+❌ Nécessite clic sur lien externe
+❌ Pas de contrôle sur expiration
+
+APRÈS (avec code):
+✅ Code court et facile à copier
+✅ Expiration visible (compte à rebours)
+✅ Pas de lien externe
+✅ Plus sécurisé (code à usage unique)
+✅ Possibilité de renvoyer
+✅ Meilleure UX (tout dans l'app)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔒 SÉCURITÉ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Code aléatoire (SecureRandom)
+✅ Expiration 10 minutes
+✅ Usage unique
+✅ Validation stricte
+✅ Email sécurisé (Gmail API + OAuth2)
+✅ Mot de passe hashé (BCrypt)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🧪 TEST RAPIDE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Lancer: run.bat
+2. Page connexion → "Mot de passe oublié ?"
+3. Entrer: test@example.com
+4. Cliquer: "Envoyer le code"
+5. ✅ Message: "Code envoyé!"
+6. Vérifier email reçu
+7. Copier code à 6 chiffres
+8. Entrer code
+9. Nouveau mot de passe: Test1234
+10. Confirmer: Test1234
+11. Cliquer: "Réinitialiser"
+12. ✅ Message: "Réinitialisé avec succès!"
+13. Redirection automatique
+14. Se connecter avec nouveau mot de passe
+15. ✅ Connexion réussie!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎓 POUR LA PRÉSENTATION AU JURY (2 MIN)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. MONTRER LA PAGE (10 sec)
+   "Système de réinitialisation avec code de vérification"
+
+2. ÉTAPE 1 (30 sec)
+   → Entrer email
+   → Cliquer "Envoyer le code"
+   → Montrer email reçu avec code
+
+3. ÉTAPE 2 (1 min)
+   → Montrer compte à rebours
+   → Entrer code
+   → Entrer nouveau mot de passe
+   → Cliquer "Réinitialiser"
+   → Montrer succès
+
+4. TESTER (20 sec)
+   → Se connecter avec nouveau mot de passe
+   → ✅ Connexion réussie!
+
+POINTS CLÉS:
+✅ Code à 6 chiffres (facile)
+✅ Expiration 10 min (sécurité)
+✅ Compte à rebours (UX)
+✅ Email professionnel
+✅ Validation complète
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Fichiers créés (4 fichiers)
+□ Compilé (compile-forgot-password.bat)
+□ Application lancée (run.bat)
+□ Page "Mot de passe oublié" accessible
+□ Email reçu avec code
+□ Code fonctionne
+□ Mot de passe réinitialisé
+□ Connexion avec nouveau mot de passe réussie
+□ Démonstration préparée pour jury
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 RÉSUMÉ
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+AVANT: Système avec lien de réinitialisation
+
+APRÈS: Système avec code de vérification à 6 chiffres
+
+AVANTAGES:
+✅ Plus sécurisé
+✅ Meilleure UX
+✅ Pas de lien externe
+✅ Expiration visible
+✅ Code facile à copier
+
+RÉSULTAT:
+Système moderne et sécurisé de réinitialisation de mot de passe
+avec code de vérification par email.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Date: 28 Février 2026
+Projet: GreenLedger
+Auteur: Ibrahim Imajid
+
+✅ VOTRE SYSTÈME DE MOT DE PASSE OUBLIÉ EST MAINTENANT MODERNE! 🔐
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

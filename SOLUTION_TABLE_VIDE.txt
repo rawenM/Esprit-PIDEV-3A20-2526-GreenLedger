@@ -1,0 +1,164 @@
+═══════════════════════════════════════════════════════════════
+   ✅ SOLUTION : TABLE USER VIDE + ERREUR CONNEXION
+═══════════════════════════════════════════════════════════════
+
+PROBLÈMES RÉSOLUS :
+
+1. ✅ Erreur "No operations allowed after connection closed"
+   → UserDAOImpl utilise maintenant getConnection() à chaque requête
+   → La connexion se rouvre automatiquement si fermée
+
+2. ✅ Table user vide
+   → Script SQL créé pour ajouter 6 utilisateurs de test
+
+═══════════════════════════════════════════════════════════════
+   📋 ÉTAPE 1 : AJOUTER DES UTILISATEURS
+═══════════════════════════════════════════════════════════════
+
+Ouvrez MySQL et exécutez le fichier :
+
+   ajouter_utilisateurs_test.sql
+
+OU copiez-collez ce code dans MySQL :
+
+```sql
+USE greenledger;
+
+-- ADMINISTRATEUR
+INSERT INTO `user` (
+    nom, prenom, email, mot_de_passe, telephone, adresse, 
+    date_naissance, type_utilisateur, statut, email_verifie, 
+    date_inscription, fraud_score, fraud_checked
+) VALUES (
+    'Admin', 'Super', 'admin@plateforme.com',
+    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+    '+33612345678', '123 Rue Admin, Paris', '1985-01-15',
+    'ADMINISTRATEUR', 'ACTIVE', 1, NOW(), 0.0, 1
+);
+
+-- INVESTISSEUR
+INSERT INTO `user` (
+    nom, prenom, email, mot_de_passe, telephone, adresse, 
+    date_naissance, type_utilisateur, statut, email_verifie, 
+    date_inscription, fraud_score, fraud_checked
+) VALUES (
+    'Dupont', 'Jean', 'investisseur@test.com',
+    '$2a$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy',
+    '+33623456789', '45 Avenue Lyon', '1990-05-20',
+    'INVESTISSEUR', 'ACTIVE', 1, NOW(), 15.5, 1
+);
+```
+
+Mot de passe pour tous : admin123
+
+═══════════════════════════════════════════════════════════════
+   📋 ÉTAPE 2 : RECOMPILER LE PROJET
+═══════════════════════════════════════════════════════════════
+
+Dans votre IDE (IntelliJ/Eclipse/NetBeans) :
+
+   Build → Rebuild Project
+
+OU
+
+   Build → Clean and Build
+
+═══════════════════════════════════════════════════════════════
+   📋 ÉTAPE 3 : LANCER L'APPLICATION
+═══════════════════════════════════════════════════════════════
+
+Double-cliquez sur : run.bat
+
+═══════════════════════════════════════════════════════════════
+   📋 ÉTAPE 4 : SE CONNECTER
+═══════════════════════════════════════════════════════════════
+
+Email    : admin@plateforme.com
+Password : admin123
+
+═══════════════════════════════════════════════════════════════
+   ✅ RÉSULTAT ATTENDU
+═══════════════════════════════════════════════════════════════
+
+Vous devriez voir :
+
+✓ 6 utilisateurs dans le tableau
+✓ Statistiques correctes (Total: 6, Actifs: 4, En attente: 1, Bloqués: 1)
+✓ Statistiques de fraude (Détectées: 2, Sûrs: 3, À examiner: 1)
+✓ Plus d'erreur de connexion
+✓ Le bouton "🔄 Actualiser" fonctionne
+
+═══════════════════════════════════════════════════════════════
+   📊 UTILISATEURS DE TEST CRÉÉS
+═══════════════════════════════════════════════════════════════
+
+1. admin@plateforme.com      - ADMINISTRATEUR - ACTIVE
+   Score fraude: 0.0 (Sûr)
+
+2. investisseur@test.com     - INVESTISSEUR - ACTIVE
+   Score fraude: 15.5 (Sûr)
+
+3. porteur@test.com          - PORTEUR_PROJET - EN_ATTENTE
+   Score fraude: 8.2 (Sûr)
+
+4. expert@test.com           - EXPERT_CARBONE - ACTIVE
+   Score fraude: 5.0 (Sûr)
+
+5. bloque@test.com           - INVESTISSEUR - BLOQUE
+   Score fraude: 85.7 (Fraude détectée)
+
+6. fraude@test.com           - INVESTISSEUR - ACTIVE
+   Score fraude: 92.3 (Fraude détectée)
+
+Mot de passe pour tous : admin123
+
+═══════════════════════════════════════════════════════════════
+   🧪 TESTER LES FONCTIONNALITÉS
+═══════════════════════════════════════════════════════════════
+
+1. VALIDER UN COMPTE
+   → Cliquez sur ✓ pour "porteur@test.com"
+   → Le statut passe à ACTIVE
+
+2. BLOQUER/DÉBLOQUER
+   → Cliquez sur ⛔ pour bloquer un utilisateur
+   → Cliquez à nouveau pour débloquer
+
+3. VOIR DÉTAILS FRAUDE
+   → Cliquez sur 📊 pour "fraude@test.com"
+   → Vous verrez le score de 92.3 et les indicateurs
+
+4. JOURNAL D'ACTIVITÉ
+   → Cliquez sur "📋 Journal d'Activité" dans le menu
+   → Vous verrez toutes vos actions enregistrées
+
+═══════════════════════════════════════════════════════════════
+   🔧 MODIFICATIONS TECHNIQUES
+═══════════════════════════════════════════════════════════════
+
+Fichier modifié : src/main/java/dao/UserDAOImpl.java
+
+Changements :
+- Supprimé la variable d'instance "connection"
+- Ajouté méthode getConnection() qui récupère une connexion fraîche
+- Remplacé toutes les utilisations de "connection" par "getConnection()"
+- La connexion se rouvre automatiquement si fermée
+
+Résultat :
+✓ Plus d'erreur "No operations allowed after connection closed"
+✓ Les requêtes fonctionnent même après fermeture de connexion
+✓ Compatible avec le système de reconnexion de MyConnection
+
+═══════════════════════════════════════════════════════════════
+   ⚠️ SI ÇA NE MARCHE TOUJOURS PAS
+═══════════════════════════════════════════════════════════════
+
+1. Vérifiez que MySQL est démarré
+2. Vérifiez que la base "greenledger" existe
+3. Vérifiez que les utilisateurs ont été ajoutés :
+   
+   SELECT * FROM user;
+
+4. Vérifiez les logs dans la console pour voir les erreurs
+
+═══════════════════════════════════════════════════════════════

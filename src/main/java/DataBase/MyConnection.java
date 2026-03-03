@@ -29,19 +29,47 @@ public class MyConnection {
         return instance;
     }
 
+<<<<<<< HEAD
     public static Connection getConnection() throws SQLException {
         MyConnection inst = MyConnection.getInstance();
         return DriverManager.getConnection(inst.url, inst.user, inst.pwd);
+=======
+    public static Connection getConnection() {
+        MyConnection instance = MyConnection.getInstance();
+        try {
+            // Vérifier si la connexion est fermée et la rouvrir si nécessaire
+            if (instance.conn == null || instance.conn.isClosed()) {
+                System.out.println("[DB] Reconnexion à la base de données...");
+                instance.conn = DriverManager.getConnection(instance.url, instance.user, instance.pwd);
+                System.out.println("[DB] Reconnexion réussie!");
+            }
+        } catch (SQLException e) {
+            System.err.println("[DB] Erreur lors de la reconnexion: " + e.getMessage());
+            try {
+                instance.conn = DriverManager.getConnection(instance.url, instance.user, instance.pwd);
+            } catch (SQLException ex) {
+                System.err.println("[DB] Impossible de se reconnecter: " + ex.getMessage());
+            }
+        }
+        return instance.conn;
+>>>>>>> abdelmajid_ibrahimi_gestion_utilisateur
     }
 
-    // Fermer la connexion
+    // Fermer la connexion (déconseillé pour le singleton)
     public void closeConnection() {
         if (conn != null) {
             try {
                 conn.close();
-                System.out.println("[CLEAN] Connexion fermée");
+                System.out.println("[DB] Connexion fermée");
+                // Réinitialiser l'instance pour forcer une reconnexion
+                conn = null;
             } catch (SQLException e) {
+<<<<<<< HEAD
                 System.err.println("[CLEAN] Erreur lors de la fermeture de la connexion: " + e.getMessage());
+=======
+                System.err.println("[DB] Erreur lors de la fermeture de la connexion");
+                e.printStackTrace();
+>>>>>>> abdelmajid_ibrahimi_gestion_utilisateur
             }
         }
     }

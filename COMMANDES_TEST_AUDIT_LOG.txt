@@ -1,0 +1,199 @@
+===========================================
+COMMANDES RAPIDES - TEST JOURNAL D'ACTIVITÉ
+===========================================
+
+📋 OUVRIR MYSQL
+---------------
+mysql -u root -p greenledger
+
+
+✅ TEST 1: VOIR TOUS LES LOGS
+------------------------------
+SELECT * FROM audit_log ORDER BY created_at DESC LIMIT 20;
+
+
+✅ TEST 2: CONNEXIONS RÉUSSIES
+-------------------------------
+SELECT 
+    user_email,
+    action_description,
+    ip_address,
+    created_at
+FROM audit_log 
+WHERE action_type = 'USER_LOGIN' 
+ORDER BY created_at DESC;
+
+
+✅ TEST 3: ÉCHECS DE CONNEXION
+-------------------------------
+SELECT 
+    user_email,
+    action_description,
+    error_message,
+    ip_address,
+    created_at
+FROM audit_log 
+WHERE action_type = 'USER_LOGIN_FAILED' 
+ORDER BY created_at DESC;
+
+
+✅ TEST 4: ACTIONS ADMIN
+-------------------------
+SELECT 
+    action_type,
+    user_name AS admin,
+    target_user_email AS utilisateur_cible,
+    action_description,
+    created_at
+FROM audit_log 
+WHERE action_type LIKE 'ADMIN_%' 
+ORDER BY created_at DESC;
+
+
+✅ TEST 5: RÉINITIALISATIONS MOT DE PASSE
+------------------------------------------
+SELECT 
+    user_email,
+    action_description,
+    created_at
+FROM audit_log 
+WHERE action_type = 'USER_PASSWORD_RESET' 
+ORDER BY created_at DESC;
+
+
+✅ TEST 6: STATISTIQUES PAR TYPE
+---------------------------------
+SELECT 
+    action_type,
+    COUNT(*) as nombre,
+    MAX(created_at) as derniere_action
+FROM audit_log 
+GROUP BY action_type
+ORDER BY nombre DESC;
+
+
+✅ TEST 7: LOGS D'UN UTILISATEUR
+---------------------------------
+SELECT * FROM audit_log 
+WHERE user_email = 'admin@plateforme.com' 
+ORDER BY created_at DESC;
+
+
+✅ TEST 8: COMPTER TOUS LES LOGS
+---------------------------------
+SELECT COUNT(*) as total_logs FROM audit_log;
+
+
+✅ TEST 9: LOGS AUJOURD'HUI
+----------------------------
+SELECT 
+    action_type,
+    user_email,
+    action_description,
+    created_at
+FROM audit_log 
+WHERE DATE(created_at) = CURDATE()
+ORDER BY created_at DESC;
+
+
+✅ TEST 10: DÉTECTIONS DE FRAUDE
+---------------------------------
+SELECT 
+    user_email,
+    action_description,
+    ip_address,
+    created_at
+FROM audit_log 
+WHERE action_type = 'FRAUD_DETECTED'
+ORDER BY created_at DESC;
+
+
+🔍 VÉRIFICATION RAPIDE
+-----------------------
+-- Voir si la table existe
+SHOW TABLES LIKE 'audit_log';
+
+-- Voir la structure
+DESCRIBE audit_log;
+
+-- Compter les enregistrements
+SELECT COUNT(*) FROM audit_log;
+
+
+🗑️ NETTOYER (SI BESOIN)
+-------------------------
+-- ATTENTION: Supprime tous les logs!
+DELETE FROM audit_log;
+
+-- Réinitialiser l'auto-increment
+ALTER TABLE audit_log AUTO_INCREMENT = 1;
+
+
+📊 EXPORT POUR PRÉSENTATION
+----------------------------
+-- Exporter les 50 derniers logs
+SELECT 
+    id,
+    action_type,
+    user_email,
+    action_description,
+    status,
+    DATE_FORMAT(created_at, '%d/%m/%Y %H:%i:%s') as date
+FROM audit_log 
+ORDER BY created_at DESC 
+LIMIT 50;
+
+
+===========================================
+SCÉNARIO DE TEST COMPLET
+===========================================
+
+1. Lance l'application: run.bat
+
+2. TEST CONNEXION RÉUSSIE
+   - Connecte-toi avec admin@plateforme.com
+   - Vérifie: SELECT * FROM audit_log WHERE action_type = 'USER_LOGIN';
+
+3. TEST ÉCHEC CONNEXION
+   - Déconnecte-toi
+   - Essaie un mauvais mot de passe
+   - Vérifie: SELECT * FROM audit_log WHERE action_type = 'USER_LOGIN_FAILED';
+
+4. TEST ACTIONS ADMIN
+   - Connecte-toi en admin
+   - Valide un utilisateur (bouton ✓)
+   - Vérifie: SELECT * FROM audit_log WHERE action_type = 'ADMIN_USER_VALIDATE';
+   - Bloque un utilisateur (bouton ⛔)
+   - Vérifie: SELECT * FROM audit_log WHERE action_type = 'ADMIN_USER_BLOCK';
+   - Clique sur 📊 (Détails Fraude)
+   - Vérifie: SELECT * FROM audit_log WHERE action_type = 'ADMIN_VIEW_FRAUD';
+
+5. TEST RÉINITIALISATION
+   - Déconnecte-toi
+   - Clique "Mot de passe oublié"
+   - Complète avec le code à 6 chiffres
+   - Vérifie: SELECT * FROM audit_log WHERE action_type = 'USER_PASSWORD_RESET';
+
+6. VOIR TOUS LES RÉSULTATS
+   - SELECT * FROM audit_log ORDER BY created_at DESC;
+
+
+===========================================
+RÉSULTAT ATTENDU
+===========================================
+
+Tu devrais voir au minimum:
+- 2 logs USER_LOGIN (tes connexions)
+- 1+ logs USER_LOGIN_FAILED (tes tests)
+- 1+ logs ADMIN_USER_VALIDATE (si tu as validé)
+- 1+ logs ADMIN_USER_BLOCK (si tu as bloqué)
+- 1+ logs ADMIN_VIEW_FRAUD (si tu as cliqué 📊)
+- 1+ logs USER_PASSWORD_RESET (si tu as réinitialisé)
+
+TOTAL: Au moins 6-10 logs après les tests!
+
+
+===========================================
+Date: 2025-03-02
+Statut: Prêt pour test
+===========================================

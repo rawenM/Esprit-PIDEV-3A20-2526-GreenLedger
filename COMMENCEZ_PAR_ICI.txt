@@ -1,0 +1,141 @@
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║              🍃 GREENLEDGER - COMMENCEZ PAR ICI 🍃            ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  🚀 DÉMARRAGE ULTRA-RAPIDE (2 MINUTES)                        │
+└───────────────────────────────────────────────────────────────┘
+
+1. Double-cliquer sur: COMMANDES_PRESENTATION.bat
+   └─ Menu interactif pour tout gérer
+
+2. Choisir option [1] pour lancer l'application
+   └─ Vérifier que MySQL est démarré
+
+3. Tester l'application rapidement
+   └─ Se connecter, voir le dashboard, cliquer sur 📊 "Détails"
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  📚 DOCUMENTS À LIRE (DANS CET ORDRE)                         │
+└───────────────────────────────────────────────────────────────┘
+
+1️⃣  LANCER_PRESENTATION.txt
+    └─ Guide ultra-rapide pour la présentation (5 min de lecture)
+
+2️⃣  PHRASES_JURY_EXACTES.txt
+    └─ Phrases exactes à dire + réponses aux questions (10 min)
+
+3️⃣  GUIDE_PRESENTATION_JURY.md
+    └─ Guide complet avec tous les détails (15 min)
+
+4️⃣  RESUME_VISUEL_PROJET.txt
+    └─ Résumé visuel avec statistiques (5 min)
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  ⚡ RÉSUMÉ ULTRA-RAPIDE                                       │
+└───────────────────────────────────────────────────────────────┘
+
+Votre application GreenLedger a:
+
+✅ 5 APIs intégrées
+   • Gmail API (OAuth2)
+   • Google reCAPTCHA
+   • Chart.js
+   • Détection Fraude IA
+   • MySQL
+
+✅ Fonctionnalités impressionnantes
+   • Détection de fraude avec 10 indicateurs ⭐⭐⭐⭐⭐
+   • Code à 6 chiffres comme Google/Facebook
+   • 4 graphiques interactifs
+   • Sécurité moderne (OAuth2, reCAPTCHA)
+
+✅ Prêt pour la présentation
+   • Tout fonctionne
+   • Documents préparés
+   • Scénario de 5 minutes
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  🎯 SCÉNARIO DE PRÉSENTATION (5 MINUTES)                      │
+└───────────────────────────────────────────────────────────────┘
+
+30s  → Connexion avec reCAPTCHA
+45s  → Dashboard + Statistiques
+90s  → Détection de Fraude IA ⭐ (LE PLUS IMPRESSIONNANT)
+60s  → Statistiques Chart.js
+90s  → Réinitialisation mot de passe
+30s  → Gestion utilisateurs
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  💬 3 PHRASES CLÉS                                            │
+└───────────────────────────────────────────────────────────────┘
+
+1. "J'ai intégré 5 APIs modernes avec un système de détection
+    de fraude par intelligence artificielle"
+
+2. "Le système analyse automatiquement 10 indicateurs lors de
+    chaque inscription: emails jetables, VPN, patterns suspects..."
+
+3. "L'application combine sécurité moderne, intelligence
+    artificielle, et expérience utilisateur fluide"
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  ✅ CHECKLIST AVANT PRÉSENTATION                              │
+└───────────────────────────────────────────────────────────────┘
+
+□ MySQL démarré
+□ Navigateurs fermés
+□ Application testée (run.bat)
+□ Email de test ouvert
+□ Documents lus (au moins LANCER_PRESENTATION.txt)
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  🎤 POINT FORT À METTRE EN AVANT                              │
+└───────────────────────────────────────────────────────────────┘
+
+⭐⭐⭐⭐⭐ DÉTECTION DE FRAUDE IA
+
+C'est votre point fort unique! Insistez dessus:
+• 10 indicateurs analysés en temps réel
+• Score automatique (0-100)
+• Recommandations intelligentes
+• Popup détaillée avec analyse complète
+
+Montrez la popup 📊 "Détails" et expliquez chaque indicateur.
+
+
+┌───────────────────────────────────────────────────────────────┐
+│  🚀 PROCHAINES ÉTAPES                                         │
+└───────────────────────────────────────────────────────────────┘
+
+1. Lancer COMMANDES_PRESENTATION.bat
+2. Tester l'application
+3. Lire LANCER_PRESENTATION.txt
+4. Lire PHRASES_JURY_EXACTES.txt
+5. Pratiquer le scénario de 5 minutes
+
+
+╔═══════════════════════════════════════════════════════════════╗
+║                                                               ║
+║              🍀 VOUS ÊTES PRÊT! BONNE CHANCE! 🍀              ║
+║                                                               ║
+╚═══════════════════════════════════════════════════════════════╝
+
+
+═══════════════════════════════════════════════════════════════
+📞 BESOIN D'AIDE?
+═══════════════════════════════════════════════════════════════
+
+• Problème technique? → Vérifier MySQL et .env
+• Question sur la présentation? → Lire GUIDE_PRESENTATION_JURY.md
+• Besoin de phrases? → Lire PHRASES_JURY_EXACTES.txt
+• Menu interactif? → Lancer COMMANDES_PRESENTATION.bat

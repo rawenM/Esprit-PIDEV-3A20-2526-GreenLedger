@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>User Statistics</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 15px;
+            background: #f5f5f5;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .chart-container {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .chart-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        canvas {
+            max-height: 280px !important;
+            height: 280px !important;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="stats-grid">
+        <!-- Graphique 1: Répartition par Statut -->
+        <div class="chart-container">
+            <div class="chart-title">📊 Répartition par Statut</div>
+            <canvas id="statusChart"></canvas>
+        </div>
+
+        <!-- Graphique 2: Répartition par Type -->
+        <div class="chart-container">
+            <div class="chart-title">👥 Répartition par Type</div>
+            <canvas id="typeChart"></canvas>
+        </div>
+    </div>
+
+    <!-- Graphique 3: Inscriptions par Mois -->
+    <div class="chart-container full-width">
+        <div class="chart-title">📈 Inscriptions par Mois (6 derniers mois)</div>
+        <canvas id="registrationChart"></canvas>
+    </div>
+
+    <!-- Graphique 4: Score de Fraude -->
+    <div class="chart-container full-width">
+        <div class="chart-title">🔒 Distribution des Scores de Fraude</div>
+        <canvas id="fraudChart"></canvas>
+    </div>
+
+    <script>
+        // Configuration globale
+        Chart.defaults.font.family = "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif";
+        Chart.defaults.color = '#666';
+
+        // Graphique 1: Statut (Donut)
+        const statusCtx = document.getElementById('statusChart').getContext('2d');
+        const statusChart = new Chart(statusCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Actifs', 'En Attente', 'Bloqués', 'Suspendus'],
+                datasets: [{
+                    data: [0, 0, 0, 0],
+                    backgroundColor: [
+                        '#4CAF50',
+                        '#FFC107',
+                        '#F44336',
+                        '#9E9E9E'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: { size: 12 }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Graphique 2: Type (Pie)
+        const typeCtx = document.getElementById('typeChart').getContext('2d');
+        const typeChart = new Chart(typeCtx, {
+            type: 'pie',
+            data: {
+                labels: ['Investisseurs', 'Porteurs de Projet', 'Admins', 'Evaluateurs'],
+                datasets: [{
+                    data: [0, 0, 0, 0],
+                    backgroundColor: [
+                        '#2196F3',
+                        '#FF9800',
+                        '#9C27B0',
+                        '#00BCD4'
+                    ],
+                    borderWidth: 2,
+                    borderColor: '#fff'
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: {
+                            padding: 15,
+                            font: { size: 12 }
+                        }
+                    }
+                }
+            }
+        });
+
+        // Graphique 3: Inscriptions (Line)
+        const registrationCtx = document.getElementById('registrationChart').getContext('2d');
+        const registrationChart = new Chart(registrationCtx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Nouvelles Inscriptions',
+                    data: [],
+                    borderColor: '#4CAF50',
+                    backgroundColor: 'rgba(76, 175, 80, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointHoverRadius: 7,
+                    pointBackgroundColor: '#4CAF50',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 2
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Graphique 4: Fraude (Bar)
+        const fraudCtx = document.getElementById('fraudChart').getContext('2d');
+        const fraudChart = new Chart(fraudCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Sûr (0-30)', 'Faible (31-50)', 'Moyen (51-70)', 'Élevé (71-85)', 'Critique (86-100)'],
+                datasets: [{
+                    label: 'Nombre d\'utilisateurs',
+                    data: [0, 0, 0, 0, 0],
+                    backgroundColor: [
+                        '#4CAF50',
+                        '#8BC34A',
+                        '#FFC107',
+                        '#FF9800',
+                        '#F44336'
+                    ],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        display: false
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            stepSize: 1
+                        }
+                    }
+                }
+            }
+        });
+
+        // Fonction pour mettre à jour les données depuis Java
+        function updateCharts(data) {
+            console.log('Updating charts with data:', data);
+            
+            // Mise à jour Statut
+            if (data.status) {
+                statusChart.data.datasets[0].data = [
+                    data.status.active || 0,
+                    data.status.pending || 0,
+                    data.status.blocked || 0,
+                    data.status.suspended || 0
+                ];
+                statusChart.update();
+            }
+
+            // Mise à jour Type
+            if (data.type) {
+                typeChart.data.datasets[0].data = [
+                    data.type.investor || 0,
+                    data.type.projectOwner || 0,
+                    data.type.admin || 0,
+                    data.type.evaluator || 0
+                ];
+                typeChart.update();
+            }
+
+            // Mise à jour Inscriptions
+            if (data.registrations) {
+                registrationChart.data.labels = data.registrations.labels || [];
+                registrationChart.data.datasets[0].data = data.registrations.values || [];
+                registrationChart.update();
+            }
+
+            // Mise à jour Fraude
+            if (data.fraud) {
+                fraudChart.data.datasets[0].data = [
+                    data.fraud.safe || 0,
+                    data.fraud.low || 0,
+                    data.fraud.medium || 0,
+                    data.fraud.high || 0,
+                    data.fraud.critical || 0
+                ];
+                fraudChart.update();
+            }
+        }
+
+        // Fonction appelée depuis Java pour initialiser
+        function initializeCharts() {
+            console.log('Charts initialized and ready');
+            return true;
+        }
+
+        // Notifier Java que la page est prête
+        window.onload = function() {
+            console.log('Chart.js page loaded successfully');
+        };
+    </script>
+</body>
+</html>

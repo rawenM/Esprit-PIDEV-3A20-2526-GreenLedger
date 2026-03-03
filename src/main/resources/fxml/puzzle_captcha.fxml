@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="Controllers.PuzzleCaptchaController"
+      spacing="10"
+      alignment="CENTER"
+      style="-fx-background-color: #f5f5f5; -fx-padding: 15; -fx-background-radius: 8;">
+    
+    <!-- Titre -->
+    <Label text="Vérification CAPTCHA" 
+           style="-fx-font-size: 14px; -fx-font-weight: bold; -fx-text-fill: #333;"/>
+    
+    <!-- Container du puzzle -->
+    <Pane fx:id="captchaContainer" 
+          prefWidth="300" 
+          prefHeight="150"
+          style="-fx-background-color: white; -fx-border-color: #ddd; -fx-border-width: 1; -fx-border-radius: 4;">
+        
+        <!-- Image de fond -->
+        <ImageView fx:id="backgroundImageView"
+                   fitWidth="300"
+                   fitHeight="150"
+                   preserveRatio="false"
+                   layoutX="0"
+                   layoutY="0"/>
+        
+        <!-- Pièce du puzzle (draggable) -->
+        <ImageView fx:id="puzzlePieceImageView"
+                   fitWidth="70"
+                   fitHeight="70"
+                   preserveRatio="true"
+                   layoutX="10"
+                   layoutY="40"/>
+    </Pane>
+    
+    <!-- Label de statut -->
+    <Label fx:id="statusLabel"
+           text="Glissez la pièce pour compléter l'image"
+           wrapText="true"
+           maxWidth="300"
+           style="-fx-text-fill: #666; -fx-font-size: 12px;"
+           textAlignment="CENTER"/>
+    
+    <!-- Bouton de rafraîchissement -->
+    <Button fx:id="refreshButton"
+            text="🔄 Nouveau puzzle"
+            onAction="#generateNewPuzzle"
+            style="-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-padding: 8 16; -fx-background-radius: 4; -fx-cursor: hand;"/>
+</VBox>

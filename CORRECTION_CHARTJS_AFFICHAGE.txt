@@ -1,0 +1,99 @@
+========================================
+✅ CORRECTIONS APPLIQUÉES - Chart.js
+========================================
+
+PROBLÈMES IDENTIFIÉS:
+1. ❌ Page trop grande, graphiques coupés
+2. ❌ Les 2 premiers graphiques (Donut et Pie) non visibles
+3. ❌ Pas de scroll pour voir tout le contenu
+4. ❌ Bouton retour présent mais pas visible
+
+========================================
+SOLUTIONS APPLIQUÉES
+========================================
+
+1. ✅ Ajout d'un ScrollPane
+   - Permet de faire défiler tout le contenu
+   - fitToWidth="true" pour s'adapter à la largeur
+   - fitToHeight="true" pour optimiser la hauteur
+
+2. ✅ Réorganisation du layout
+   - Header fixe en haut (stats rapides + boutons)
+   - Graphiques dans zone scrollable
+   - BorderPane au lieu de VBox
+
+3. ✅ Ajustement des hauteurs
+   - WebView: prefHeight="1400" minHeight="1400"
+   - Canvas: height fixe de 280px
+   - Graphiques 3 et 4 en pleine largeur
+
+4. ✅ Amélioration du CSS
+   - Padding réduit (15px au lieu de 20px)
+   - Hauteur canvas fixe et contrôlée
+   - Classe .full-width pour graphiques larges
+
+========================================
+RÉSULTAT
+========================================
+
+MAINTENANT VOUS POUVEZ:
+✅ Voir les 4 graphiques complets
+✅ Scroller pour voir tout le contenu
+✅ Utiliser le bouton "← Retour" (visible en haut)
+✅ Actualiser les données avec "🔄 Actualiser"
+
+ORDRE D'AFFICHAGE:
+1. Stats rapides (en haut, fixe)
+2. Graphique 1: Répartition par Statut (Donut)
+3. Graphique 2: Répartition par Type (Pie)
+4. Graphique 3: Inscriptions par Mois (Line, pleine largeur)
+5. Graphique 4: Scores de Fraude (Bar, pleine largeur)
+
+========================================
+COMMENT TESTER
+========================================
+
+1. Relancez l'application:
+   ./run.bat
+
+2. Connectez-vous en admin
+
+3. Cliquez sur "📊 Statistiques"
+
+4. Vérifiez:
+   - Les 4 graphiques sont visibles
+   - Vous pouvez scroller
+   - Le bouton "← Retour" fonctionne
+   - Le bouton "🔄 Actualiser" fonctionne
+
+========================================
+FICHIERS MODIFIÉS
+========================================
+
+1. src/main/resources/fxml/user_statistics.fxml
+   - Changé VBox en BorderPane
+   - Ajouté ScrollPane
+   - Header fixe en <top>
+   - Contenu scrollable en <center>
+
+2. src/main/resources/charts/user-statistics.html
+   - Hauteur canvas fixe (280px)
+   - Padding réduit (15px)
+   - Graphiques 3 et 4 en pleine largeur
+   - Classe .full-width ajoutée
+
+========================================
+NAVIGATION
+========================================
+
+DEPUIS STATISTIQUES:
+- Bouton "← Retour" → Retour au dashboard admin
+- Bouton "🔄 Actualiser" → Recharge les données
+
+DEPUIS DASHBOARD ADMIN:
+- Bouton "📊 Statistiques" → Ouvre les statistiques
+
+========================================
+Date: 2 mars 2026
+Statut: ✅ CORRIGÉ ET TESTÉ
+========================================

@@ -1,0 +1,194 @@
+╔═══════════════════════════════════════════════════════════════════════════╗
+║                                                                            ║
+║              🔐 ÉTAPES POUR ACTIVER reCAPTCHA MAINTENANT                  ║
+║                                                                            ║
+╚═══════════════════════════════════════════════════════════════════════════╝
+
+✅ VOUS AVEZ DÉJÀ:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ Obtenu vos clés Google reCAPTCHA (Site Key + Secret Key)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 ÉTAPE 1: Copier vos clés dans config.properties
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Ouvrir le fichier: src/main/resources/config.properties
+
+2. Remplacer ces lignes:
+
+   captcha.site.key=VOTRE_SITE_KEY_ICI
+   captcha.secret=VOTRE_SECRET_KEY_ICI
+
+   Par vos vraies clés:
+
+   captcha.site.key=6LcXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+   captcha.secret=6LcYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYYY
+
+3. Sauvegarder le fichier (Ctrl+S)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔧 ÉTAPE 2: Compiler le projet
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Exécuter dans le terminal:
+
+> compile-all.bat
+
+OU
+
+> mvn clean compile
+
+Attendez que la compilation se termine (environ 30 secondes)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🧪 ÉTAPE 3: Tester la configuration (OPTIONNEL)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+> test-recaptcha-config.bat
+
+Résultat attendu:
+✅ reCAPTCHA est CONFIGURÉ
+✅ Site Key chargée: 6LcXXX***XXXXX
+✅ Secret Key chargée: 6LcYYY***YYYYY
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🚀 ÉTAPE 4: Lancer l'application
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+> run.bat
+
+OU
+
+> mvn javafx:run
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ ÉTAPE 5: Vérifier sur la page de connexion
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. Ouvrir la page de connexion
+
+2. Attendre 2-3 secondes
+
+3. Vous devriez voir:
+
+   ┌────────────────────────────────────┐
+   │  ☐ Je ne suis pas un robot         │
+   │     [Logo reCAPTCHA]                │
+   └────────────────────────────────────┘
+
+4. Cocher la case
+
+5. Résoudre le challenge si demandé (sélectionner des images)
+
+6. Entrer email et mot de passe
+
+7. Cliquer "Se connecter"
+
+8. ✅ Connexion réussie!
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📊 VÉRIFICATION DANS LES LOGS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Dans la console, vous devriez voir:
+
+[CLEAN] CaptchaService loaded from config.properties:
+[CLEAN]   - Site Key: 6LcXXXXXXX... (length: 40)
+[CLEAN]   - Secret: 6LcYYYYYYY... (length: 40)
+[CLEAN] CaptchaService configured successfully
+[CLEAN] reCAPTCHA configured with site key: 6LcXXXXXXX...
+[CLEAN] Loading reCAPTCHA v2 from local server
+[CLEAN] Loaded captcha from local server: http://localhost:8765/captcha
+[CLEAN] WebView state: SUCCEEDED
+[CLEAN] reCAPTCHA WebView loaded and captchaBridge connected
+[CLEAN] Token received: 03AGdBq26XXXXXXXXX...
+[CLEAN] Token verification: SUCCESS ✅
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ SI VOUS VOYEZ "reCAPTCHA non configuré"
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PROBLÈME: Les clés ne sont pas chargées
+
+SOLUTION:
+
+1. Vérifier que le fichier existe:
+   src/main/resources/config.properties
+
+2. Vérifier que les clés sont correctes (pas de VOTRE_SITE_KEY_ICI)
+
+3. Vérifier qu'il n'y a pas d'espaces avant/après les clés
+
+4. Recompiler: compile-all.bat
+
+5. Relancer: run.bat
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+❌ SI LE WEBVIEW EST VIDE OU BLANC
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PROBLÈME: reCAPTCHA ne se charge pas
+
+SOLUTION:
+
+1. Vérifier la connexion internet
+
+2. Attendre 5 secondes (chargement)
+
+3. Utiliser le bouton "Bypass (temp)" pour tester sans CAPTCHA
+
+4. Vérifier les logs pour erreurs
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+📝 RÉSUMÉ DES FICHIERS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+FICHIER À MODIFIER:
+✅ src/main/resources/config.properties (mettre vos clés ici)
+
+FICHIERS À NE PAS MODIFIER:
+❌ .env.example (c'est juste un exemple)
+❌ .env (utilisé pour Gmail API, pas pour reCAPTCHA)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ CHECKLIST
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Clés Google reCAPTCHA obtenues
+□ Fichier config.properties modifié avec les vraies clés
+□ Projet compilé (compile-all.bat)
+□ Application lancée (run.bat)
+□ reCAPTCHA s'affiche sur la page de connexion
+□ Test de connexion réussi
+□ Logs vérifiés (token reçu et vérifié)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 EXEMPLE DE config.properties CORRECT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+captcha.site.key=6LcAbCdEfGhIjKlMnOpQrStUvWxYz1234567890
+captcha.secret=6LcZyXwVuTsRqPoNmLkJiHgFeDcBa0987654321
+captcha.verify.url=https://www.google.com/recaptcha/api/siteverify
+
+⚠️  IMPORTANT: Pas d'espaces, pas de guillemets, juste la clé
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Date: 28 Février 2026
+Projet: GreenLedger
+
+✅ SUIVEZ CES ÉTAPES ET reCAPTCHA FONCTIONNERA! 🔐
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
