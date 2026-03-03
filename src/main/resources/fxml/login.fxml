@@ -5,7 +5,10 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Text?>
 <?import javafx.scene.web.WebView?>
+<<<<<<< HEAD
 <?import javafx.scene.image.ImageView?>
+=======
+>>>>>>> yassine_antar
 
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
@@ -13,6 +16,7 @@
             prefHeight="750" prefWidth="850"
             styleClass="page">
 
+<<<<<<< HEAD
     <!-- CENTRE: Formulaire de connexion avec ScrollPane -->
     <center>
         <ScrollPane fitToWidth="true" fitToHeight="true" 
@@ -21,6 +25,14 @@
                 <padding>
                     <Insets top="50" right="50" bottom="50" left="50"/>
                 </padding>
+=======
+    <!-- CENTRE: Formulaire de connexion -->
+    <center>
+        <VBox alignment="CENTER" spacing="20" styleClass="content-area">
+            <padding>
+                <Insets top="50" right="50" bottom="50" left="50"/>
+            </padding>
+>>>>>>> yassine_antar
 
             <!-- Card de connexion -->
             <VBox spacing="20" styleClass="card" maxWidth="450" minWidth="420">
@@ -58,6 +70,7 @@
                 <!-- Se souvenir de moi -->
                 <CheckBox fx:id="rememberMeCheckbox" text="Se souvenir de moi"/>
 
+<<<<<<< HEAD
                 <!-- Choix de méthode de vérification -->
                 <VBox spacing="10">
                     <Label text="Méthode de vérification" styleClass="form-label"/>
@@ -135,6 +148,22 @@
                                style="-fx-font-size: 11px;" 
                                visible="false"/>
                     </VBox>
+=======
+                <!-- Captcha -->
+                <VBox spacing="5" fx:id="captchaContainer">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Verification" styleClass="form-label"/>
+                        <Button fx:id="fallbackCaptchaBtn" text="Utiliser captcha simple" visible="false" 
+                                style="-fx-font-size: 10px; -fx-padding: 2 8 2 8;" onAction="#useFallbackCaptcha"/>
+                        <Button fx:id="bypassCaptchaBtn" text="Bypass (temp)" 
+                                style="-fx-font-size: 10px; -fx-padding: 2 8 2 8;" onAction="#bypassCaptcha"/>
+                    </HBox>
+                    <WebView fx:id="captchaWebView" prefHeight="120" minHeight="120" maxHeight="300" prefWidth="380" maxWidth="400"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT" fx:id="simpleCaptchaBox" visible="false" managed="false">
+                        <Label fx:id="captchaQuestion" styleClass="form-label"/>
+                        <TextField fx:id="captchaAnswer" promptText="Votre réponse" prefWidth="100" styleClass="field"/>
+                    </HBox>
+>>>>>>> yassine_antar
                 </VBox>
 
                 <!-- Bouton de connexion -->
@@ -156,8 +185,12 @@
                                onAction="#handleRegister"/>
                 </HBox>
             </VBox>
+<<<<<<< HEAD
             </VBox>
         </ScrollPane>
+=======
+        </VBox>
+>>>>>>> yassine_antar
     </center>
 
     <!-- BOTTOM: Footer -->

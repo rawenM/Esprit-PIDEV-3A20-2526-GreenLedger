@@ -4,9 +4,18 @@ import Utils.ThemeManager;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
+<<<<<<< HEAD
 import javafx.scene.control.Label;
 import Models.User;
 import Utils.SessionManager;
+=======
+<<<<<<< HEAD
+=======
+import javafx.scene.control.Label;
+import Models.User;
+import Utils.SessionManager;
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
 
 /**
  * Base controller with common functionality like theme switching.
@@ -59,6 +68,11 @@ public abstract class BaseController {
         // Base initialization
         initializeThemeSelector();
     }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> yassine_antar
 
     /**
      * Helper method to populate profile labels from the current session user.
@@ -75,4 +89,8 @@ public abstract class BaseController {
         nameLabel.setText(user.getNomComplet());
         typeLabel.setText(user.getTypeUtilisateur().getLibelle());
     }
+<<<<<<< HEAD
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
 }

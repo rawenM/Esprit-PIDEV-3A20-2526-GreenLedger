@@ -122,11 +122,20 @@
     -fx-text-fill: #2F6D4B;
 }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> yassine_antar
 .nav-btn-active {
     -fx-background-color: #2F6D4B;
     -fx-text-fill: #FFFFFF;
 }
 
+<<<<<<< HEAD
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
 /* ===== FORM FIELDS ===== */
 .field {
     -fx-background-color: #FFFFFF;

@@ -8,22 +8,35 @@ import Services.AdvancedEvaluationFacade;
 import Services.CritereImpactService;
 import Services.EvaluationService;
 import Services.PdfService;
+<<<<<<< HEAD
+=======
+import Services.PdfRestService;
+>>>>>>> yassine_antar
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 
+<<<<<<< HEAD
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+=======
+import java.io.File;
+import java.io.IOException;
+>>>>>>> yassine_antar
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+<<<<<<< HEAD
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+=======
+import java.util.*;
+>>>>>>> yassine_antar
 import java.util.stream.Collectors;
 
 /**
@@ -53,14 +66,96 @@ public class ApiServer {
         server.createContext("/api/ai/evaluations/suggest-decision", this::handleSuggestDecision);
         server.createContext("/api/evaluations/pdf", this::handleEvaluationPdf);
         server.createContext("/api/ai/doccat", this::handleDoccat); // ML debug endpoint
+<<<<<<< HEAD
         server.createContext("/api/ai/evaluations/predict", this::handlePredictDecision);
         server.createContext("/predict", this::handlePredictDecision);
+=======
+        // New endpoint: extract text from a PDF file using external pdfrest API with local fallback
+        server.createContext("/api/pdf/extract", this::handlePdfExtract);
+        // New endpoint: upload PDF bytes (POST) and extract text
+        server.createContext("/api/pdf/upload-extract", this::handlePdfUploadExtract);
+>>>>>>> yassine_antar
 
         server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
         System.out.println("API server started on http://localhost:" + port);
         server.start();
     }
 
+<<<<<<< HEAD
+=======
+    /**
+     * GET /api/pdf/extract?path={localPath}
+     * Responds with JSON: { success: bool, text: string|null, error: string|null }
+     * Security: only allows files under the current project directory to avoid arbitrary file access.
+     */
+    private void handlePdfExtract(HttpExchange exchange) throws IOException {
+        if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
+            send(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
+            return;
+        }
+        Map<String, String> params = parseQuery(exchange.getRequestURI().getRawQuery());
+        String path = params.get("path");
+        if (path == null || path.isEmpty()) {
+            send(exchange, 400, "{\"success\":false,\"text\":null,\"error\":\"Missing 'path' query param\"}");
+            return;
+        }
+        File f = new File(path);
+        if (!f.exists() || !f.isFile()) {
+            send(exchange, 400, "{\"success\":false,\"text\":null,\"error\":\"File not found or is not a file\"}");
+            return;
+        }
+        // Restrict to project directory for safety
+        String projectRoot = new File(".").getCanonicalPath();
+        String canonical = f.getCanonicalPath();
+        if (!canonical.startsWith(projectRoot)) {
+            send(exchange, 403, "{\"success\":false,\"text\":null,\"error\":\"Access to the requested path is forbidden\"}");
+            return;
+        }
+
+        // allow per-request API key via header X-PDFREST-API-KEY (optional)
+        String headerKey = exchange.getRequestHeaders().getFirst("X-PDFREST-API-KEY");
+
+        try {
+            String text = new PdfRestService(headerKey).extractTextFromFilePath(canonical);
+            String json = String.format(Locale.ROOT, "{\"success\":true,\"text\":\"%s\",\"error\":null}", escape(text));
+            send(exchange, 200, json);
+        } catch (Exception ex) {
+            String msg = escape(ex.getMessage());
+            send(exchange, 502, "{\"success\":false,\"text\":null,\"error\":\"" + msg + "\"}");
+        }
+    }
+
+    /**
+     * POST /api/pdf/upload-extract
+     * Body: raw PDF bytes with Content-Type: application/pdf
+     * Responds: JSON { success: bool, text: string|null, error: string|null }
+     */
+    private void handlePdfUploadExtract(com.sun.net.httpserver.HttpExchange exchange) throws IOException {
+        if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+            send(exchange, 405, "{\"success\":false,\"text\":null,\"error\":\"Method Not Allowed\"}");
+            return;
+        }
+        String ct = exchange.getRequestHeaders().getFirst("Content-Type");
+        if (ct == null || !ct.toLowerCase().contains("pdf")) {
+            send(exchange, 400, "{\"success\":false,\"text\":null,\"error\":\"Content-Type must be application/pdf\"}");
+            return;
+        }
+        byte[] bodyBytes = exchange.getRequestBody().readAllBytes();
+        if (bodyBytes == null || bodyBytes.length == 0) {
+            send(exchange, 400, "{\"success\":false,\"text\":null,\"error\":\"Empty request body\"}");
+            return;
+        }
+        String headerKey = exchange.getRequestHeaders().getFirst("X-PDFREST-API-KEY");
+        try {
+            String text = new Services.PdfRestService(headerKey).extractText(bodyBytes);
+            String json = String.format(Locale.ROOT, "{\"success\":true,\"text\":\"%s\",\"error\":null}", escape(text));
+            send(exchange, 200, json);
+        } catch (Exception ex) {
+            send(exchange, 502, "{\"success\":false,\"text\":null,\"error\":\"" + escape(ex.getMessage()) + "\"}");
+        }
+    }
+
+>>>>>>> yassine_antar
     private void handleListReferences(HttpExchange exchange) throws IOException {
         if (!"GET".equalsIgnoreCase(exchange.getRequestMethod())) {
             send(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
@@ -212,6 +307,7 @@ public class ApiServer {
         send(exchange, 200, body);
     }
 
+<<<<<<< HEAD
     private void handlePredictDecision(HttpExchange exchange) throws IOException {
         if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
             send(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
@@ -367,6 +463,8 @@ public class ApiServer {
         return new File(System.getProperty("user.dir"));
     }
 
+=======
+>>>>>>> yassine_antar
     // Helpers
 
     private void send(HttpExchange exchange, int status, String body) throws IOException {

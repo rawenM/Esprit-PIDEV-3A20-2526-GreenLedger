@@ -33,7 +33,15 @@
 
         <!-- Back Section -->
         <Label text="NAVIGATION" styleClass="section-title-sidebar"/>
+<<<<<<< HEAD
         <Button fx:id="btnBack" text="← Retour" onAction="#showWallet" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
+=======
+<<<<<<< HEAD
+        <Button fx:id="btnBack" text="⬅ Go back" onAction="#showWallet" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
+=======
+        <Button fx:id="btnBack" text="← Retour" onAction="#showWallet" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
 
         <Region VBox.vgrow="ALWAYS"/>
     </VBox>

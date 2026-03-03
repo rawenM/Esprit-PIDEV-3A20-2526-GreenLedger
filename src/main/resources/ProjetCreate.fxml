@@ -15,6 +15,13 @@
             <Insets top="24" right="32" bottom="32" left="32"/>
         </padding>
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+        <!-- Header -->
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
         <HBox alignment="CENTER_LEFT" spacing="10">
             <Button text="←" onAction="#onBack" styleClass="btn-secondary"/>
             <Label text="Nouveau Projet" styleClass="page-title"/>
@@ -30,6 +37,40 @@
                 <TextField fx:id="tfTitre" styleClass="field"/>
             </VBox>
 
+<<<<<<< HEAD
+            <VBox spacing="8">
+                <Label text="Budget" styleClass="form-label"/>
+=======
+<<<<<<< HEAD
+            <HBox spacing="12">
+                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                    <Label text="Budget" styleClass="form-label"/>
+                    <TextField fx:id="tfBudget" styleClass="field"/>
+                </VBox>
+>>>>>>> yassine_antar
+
+                <HBox spacing="12">
+                    <VBox spacing="6" HBox.hgrow="ALWAYS">
+                        <Label text="Montant" styleClass="form-label"/>
+                        <TextField fx:id="tfBudgetMontant" styleClass="field"/>
+                    </VBox>
+
+                    <VBox spacing="6" prefWidth="140">
+                        <Label text="Devise" styleClass="form-label"/>
+                        <ComboBox fx:id="cbBudgetDevise" styleClass="field"/>
+                    </VBox>
+                </HBox>
+
+                <VBox spacing="6">
+                    <Label text="Raison" styleClass="form-label"/>
+                    <TextArea fx:id="taBudgetRaison" wrapText="true" styleClass="field textarea"
+                              style="-fx-pref-height: 90px;"/>
+                </VBox>
+<<<<<<< HEAD
+            </VBox>
+=======
+            </HBox>
+=======
             <VBox spacing="8">
                 <Label text="Budget" styleClass="form-label"/>
 
@@ -51,6 +92,8 @@
                               style="-fx-pref-height: 90px;"/>
                 </VBox>
             </VBox>
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
 
             <VBox spacing="8">
                 <Label text="Adresse entreprise" styleClass="form-label"/>
@@ -63,7 +106,15 @@
                     <TextField fx:id="tfCompanyEmail" styleClass="field"/>
                 </VBox>
 
+<<<<<<< HEAD
                 <VBox spacing="8" prefWidth="220">
+=======
+<<<<<<< HEAD
+                <VBox spacing="8" prefWidth="200">
+=======
+                <VBox spacing="8" prefWidth="220">
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
                     <Label text="Téléphone entreprise" styleClass="form-label"/>
                     <TextField fx:id="tfCompanyPhone" styleClass="field"/>
                 </VBox>
@@ -74,9 +125,20 @@
                 <TextArea fx:id="taDescription"
                           wrapText="true"
                           styleClass="field textarea"
+<<<<<<< HEAD
                           style="-fx-pref-height: 180px;"/>
             </VBox>
 
+=======
+<<<<<<< HEAD
+                          style="-fx-pref-height: 200px;"/>
+            </VBox>
+
+=======
+                          style="-fx-pref-height: 180px;"/>
+            </VBox>
+
+>>>>>>> yassine_antar
             <!-- ✅ Pièces jointes -->
             <VBox spacing="8">
                 <Label text="Pièces jointes (documents / images)" styleClass="form-label"/>
@@ -98,12 +160,24 @@
                         prefWidth="120"/>
             </HBox>
 
+<<<<<<< HEAD
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
             <HBox spacing="15" alignment="CENTER">
                 <Button text="💾  DRAFT"
                         onAction="#onSaveDraft"
                         styleClass="btn-secondary"/>
 
+<<<<<<< HEAD
                 <Button text="➕ SUBMIT"
+=======
+<<<<<<< HEAD
+                <Button text="➕ Ajouter"
+=======
+                <Button text="➕ SUBMIT"
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
                         onAction="#onAdd"
                         styleClass="btn-primary"/>
             </HBox>
@@ -111,4 +185,12 @@
         </VBox>
 
     </VBox>
+<<<<<<< HEAD
 </VBox>
+=======
+<<<<<<< HEAD
+</VBox>
+=======
+</VBox>
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar

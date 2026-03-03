@@ -91,12 +91,21 @@
     -fx-font-weight: 600;
 }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> yassine_antar
 .nav-btn-active {
     -fx-background-color: #2D5F3F;
     -fx-text-fill: #FFFFFF;
     -fx-font-weight: 600;
 }
 
+<<<<<<< HEAD
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
 /* Section Titles in Sidebar */
 .section-title-sidebar {
     -fx-font-size: 10px;
@@ -678,6 +687,11 @@
     -fx-text-fill: #2D5F3F;
 }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> yassine_antar
 .message-success {
     -fx-text-fill: #10B981;
     -fx-font-weight: 600;
@@ -688,6 +702,10 @@
     -fx-font-weight: 600;
 }
 
+<<<<<<< HEAD
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
 /* Readonly Fields */
 .field-readonly {
     -fx-background-color: #F3F4F6;

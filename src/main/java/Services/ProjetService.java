@@ -10,17 +10,28 @@ import java.util.List;
 public class ProjetService {
 
     public List<Projet> afficher() {
+<<<<<<< HEAD
         try (Connection cnx = MyConnection.getConnection()) {
             String sql = "SELECT id, entreprise_id, titre, description, statut, score_esg, " +
                     "       company_address, company_email, company_phone " +
                     "FROM projet " +
                     "ORDER BY date_creation DESC";
+=======
+        String sql =
+                "SELECT p.id, p.entreprise_id, p.titre, p.description, p.statut, p.score_esg, " +
+                        "       p.company_address, p.company_email, p.company_phone, " +
+                        "       b.id_budget, b.montant, b.raison, b.devise " +
+                        "FROM projet p " +
+                        "LEFT JOIN budget b ON b.id_projet = p.id " +
+                        "ORDER BY p.date_creation DESC";
+>>>>>>> yassine_antar
 
             List<Projet> list = new ArrayList<>();
 
             try (PreparedStatement ps = cnx.prepareStatement(sql);
                  ResultSet rs = ps.executeQuery()) {
 
+<<<<<<< HEAD
                 while (rs.next()) {
                     Integer score = (Integer) rs.getObject("score_esg");
 
@@ -37,6 +48,37 @@ public class ProjetService {
                     );
 
                     list.add(p);
+=======
+            while (rs.next()) {
+                list.add(mapProjetWithBudget(rs));
+            }
+
+        } catch (SQLException e) {
+            System.out.println("Erreur afficher projets: " + e.getMessage());
+        }
+
+        return list;
+    }
+
+    public List<Projet> getByEntreprise(int entrepriseId) {
+        String sql =
+                "SELECT p.id, p.entreprise_id, p.titre, p.description, p.statut, p.score_esg, " +
+                        "       p.company_address, p.company_email, p.company_phone, " +
+                        "       b.id_budget, b.montant, b.raison, b.devise " +
+                        "FROM projet p " +
+                        "LEFT JOIN budget b ON b.id_projet = p.id " +
+                        "WHERE p.entreprise_id=? " +
+                        "ORDER BY p.date_creation DESC";
+
+        List<Projet> list = new ArrayList<>();
+
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+            ps.setInt(1, entrepriseId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    list.add(mapProjetWithBudget(rs));
+>>>>>>> yassine_antar
                 }
 
             } catch (SQLException e) {
@@ -50,6 +92,7 @@ public class ProjetService {
         }
     }
 
+<<<<<<< HEAD
     public List<Projet> getByEntreprise(int entrepriseId) {
         try (Connection cnx = MyConnection.getConnection()) {
             String sql = "SELECT id, entreprise_id, titre, description, statut, score_esg, " +
@@ -91,14 +134,18 @@ public class ProjetService {
             System.out.println("Erreur getByEntreprise (connexion): " + e.getMessage());
             return new ArrayList<>();
         }
+=======
+    public List<Projet> getByEntreprise(Integer entrepriseId) {
+        if (entrepriseId == null) return new ArrayList<>();
+        return getByEntreprise(entrepriseId.intValue());
+>>>>>>> yassine_antar
     }
 
     public void insert(Projet p) {
-        String sql = "INSERT INTO projet (" +
-                "  entreprise_id, titre, description, budget, statut, score_esg, " +
-                "  company_address, company_email, company_phone" +
-                ") VALUES (?,?,?,?,?,?,?,?,?)";
+        insertAndReturnId(p);
+    }
 
+<<<<<<< HEAD
         try (Connection cnx = MyConnection.getConnection();
              PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, p.getEntrepriseId());
@@ -110,17 +157,75 @@ public class ProjetService {
             // score ESG doit rester NULL côté entreprise
             if (p.getScoreEsg() == null) ps.setNull(6, Types.INTEGER);
             else ps.setInt(6, p.getScoreEsg());
+=======
+    public int insertAndReturnId(Projet p) {
+        if (p == null) return -1;
+>>>>>>> yassine_antar
 
-            ps.setString(7, p.getCompanyAddress());
-            ps.setString(8, p.getCompanyEmail());
-            ps.setString(9, p.getCompanyPhone());
+        Budget b = extractBudgetSafe(p);
 
+<<<<<<< HEAD
             ps.executeUpdate();
+=======
+        String sqlProjet =
+                "INSERT INTO projet (entreprise_id, titre, description, statut, score_esg, company_address, company_email, company_phone) " +
+                        "VALUES (?,?,?,?,?,?,?,?)";
+
+        String sqlBudget =
+                "INSERT INTO budget (montant, raison, devise, id_projet) VALUES (?,?,?,?)";
+
+        try {
+            cnx.setAutoCommit(false);
+
+            int newId;
+            try (PreparedStatement ps = cnx.prepareStatement(sqlProjet, Statement.RETURN_GENERATED_KEYS)) {
+
+                ps.setInt(1, p.getEntrepriseId());
+                ps.setString(2, p.getTitre());
+                ps.setString(3, p.getDescription());
+
+                // statut
+                String statut = safeStatut(p);
+                ps.setString(4, statut);
+
+                // score ESG doit rester NULL côté entreprise
+                if (p.getScoreEsg() == null) ps.setNull(5, Types.INTEGER);
+                else ps.setInt(5, p.getScoreEsg());
+
+                ps.setString(6, p.getCompanyAddress());
+                ps.setString(7, p.getCompanyEmail());
+                ps.setString(8, p.getCompanyPhone());
+
+                ps.executeUpdate();
+
+                try (ResultSet keys = ps.getGeneratedKeys()) {
+                    if (!keys.next()) throw new SQLException("Insertion projet: aucune clé générée");
+                    newId = keys.getInt(1);
+                }
+            }
+
+            try (PreparedStatement psB = cnx.prepareStatement(sqlBudget)) {
+                psB.setDouble(1, b.getMontant());
+                psB.setString(2, b.getRaison());
+                psB.setString(3, normalizeDevise(b.getDevise()));
+                psB.setInt(4, newId);
+                psB.executeUpdate();
+            }
+
+            cnx.commit();
+            return newId;
+
+>>>>>>> yassine_antar
         } catch (SQLException e) {
-            System.out.println("Erreur insert projet: " + e.getMessage());
+            rollbackQuietly();
+            System.out.println("Erreur insertAndReturnId: " + e.getMessage());
+            return -1;
+        } finally {
+            setAutoCommitQuietly(true);
         }
     }
 
+<<<<<<< HEAD
     public int insertAndReturnId(Projet p) {
         String sql = "INSERT INTO projet (" +
                 "  entreprise_id, titre, description, budget, statut, score_esg, " +
@@ -191,19 +296,95 @@ public class ProjetService {
             ps.setString(7, p.getCompanyEmail());
             ps.setString(8, p.getCompanyPhone());
             ps.setInt(9, p.getId());
+=======
 
-            ps.executeUpdate();
+    public void update(Projet p) {
+        if (p == null) return;
+
+        String current = getStatutById(p.getId());
+        if (current == null) current = safeStatut(p);
+
+        // Règles : si DRAFT => tout modifiable
+        // sinon => seulement description + infos entreprise
+        if ("DRAFT".equalsIgnoreCase(current)) {
+            updateDraft(p);
+        } else {
+            updateDescriptionOnly(p.getId(),
+                    p.getDescription(),
+                    p.getCompanyAddress(),
+                    p.getCompanyEmail(),
+                    p.getCompanyPhone()
+            );
+        }
+    }
+
+    private void updateDraft(Projet p) {
+        Budget b = extractBudgetSafe(p);
+>>>>>>> yassine_antar
+
+        String sqlProjet =
+                "UPDATE projet SET titre=?, description=?, company_address=?, company_email=?, company_phone=? " +
+                        "WHERE id=?";
+
+        String sqlBudget =
+                "UPDATE budget SET montant=?, raison=?, devise=? WHERE id_projet=?";
+
+        try {
+            cnx.setAutoCommit(false);
+
+            try (PreparedStatement ps = cnx.prepareStatement(sqlProjet)) {
+                ps.setString(1, p.getTitre());
+                ps.setString(2, p.getDescription());
+                ps.setString(3, p.getCompanyAddress());
+                ps.setString(4, p.getCompanyEmail());
+                ps.setString(5, p.getCompanyPhone());
+                ps.setInt(6, p.getId());
+                ps.executeUpdate();
+            }
+
+            int updated;
+            try (PreparedStatement psB = cnx.prepareStatement(sqlBudget)) {
+                psB.setDouble(1, b.getMontant());
+                psB.setString(2, b.getRaison());
+                psB.setString(3, normalizeDevise(b.getDevise()));
+                psB.setInt(4, p.getId());
+                updated = psB.executeUpdate();
+            }
+
+            if (updated == 0) {
+                String ins = "INSERT INTO budget (montant, raison, devise, id_projet) VALUES (?,?,?,?)";
+                try (PreparedStatement psIns = cnx.prepareStatement(ins)) {
+                    psIns.setDouble(1, b.getMontant());
+                    psIns.setString(2, b.getRaison());
+                    psIns.setString(3, normalizeDevise(b.getDevise()));
+                    psIns.setInt(4, p.getId());
+                    psIns.executeUpdate();
+                }
+            }
+
+            cnx.commit();
 
         } catch (SQLException e) {
+<<<<<<< HEAD
             System.out.println("Erreur updateDraft: " + e.getMessage());
+=======
+            rollbackQuietly();
+            System.out.println("Erreur updateDraft: " + e.getMessage());
+        } finally {
+            setAutoCommitQuietly(true);
+>>>>>>> yassine_antar
         }
     }
 
 
     public void updateDescriptionOnly(int id, String description, String address, String email, String phone) {
         String sql = "UPDATE projet SET description=?, company_address=?, company_email=?, company_phone=? WHERE id=?";
+<<<<<<< HEAD
         try (Connection cnx = MyConnection.getConnection();
              PreparedStatement ps = cnx.prepareStatement(sql)) {
+=======
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+>>>>>>> yassine_antar
             ps.setString(1, description);
             ps.setString(2, address);
             ps.setString(3, email);
@@ -256,8 +437,12 @@ public class ProjetService {
         }
 
         String sql = "UPDATE projet SET statut=? WHERE id=?";
+<<<<<<< HEAD
         try (Connection cnx = MyConnection.getConnection();
              PreparedStatement ps = cnx.prepareStatement(sql)) {
+=======
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+>>>>>>> yassine_antar
             ps.setString(1, statut);
             ps.setInt(2, idProjet);
             return ps.executeUpdate() > 0;
@@ -269,8 +454,12 @@ public class ProjetService {
 
     public String getStatutById(int idProjet) {
         String sql = "SELECT statut FROM projet WHERE id=?";
+<<<<<<< HEAD
         try (Connection cnx = MyConnection.getConnection();
              PreparedStatement ps = cnx.prepareStatement(sql)) {
+=======
+        try (PreparedStatement ps = cnx.prepareStatement(sql)) {
+>>>>>>> yassine_antar
             ps.setInt(1, idProjet);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) return rs.getString("statut");
@@ -281,6 +470,7 @@ public class ProjetService {
         return null;
     }
 
+<<<<<<< HEAD
 
     public Projet getById(int id) {
         String sql = "SELECT p.id, p.entreprise_id, p.titre, p.description, " +
@@ -320,6 +510,8 @@ public class ProjetService {
     }
 
 
+=======
+>>>>>>> yassine_antar
     // ✅ Overload attendu (Integer)
     public String getStatutById(Integer idProjet) {
         if (idProjet == null) return null;
@@ -397,4 +589,15 @@ public class ProjetService {
         if (v.equals("TND") || v.equals("EUR") || v.equals("USD")) return v;
         return "TND";
     }
+<<<<<<< HEAD
+=======
+
+    private void rollbackQuietly() {
+        try { cnx.rollback(); } catch (Exception ignored) {}
+    }
+
+    private void setAutoCommitQuietly(boolean value) {
+        try { cnx.setAutoCommit(value); } catch (Exception ignored) {}
+    }
+>>>>>>> yassine_antar
 }

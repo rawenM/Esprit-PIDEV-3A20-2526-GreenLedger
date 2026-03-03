@@ -16,6 +16,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+<<<<<<< HEAD
 import Models.FraudDetectionResult;
 import Models.StatutUtilisateur;
 import Models.TypeUtilisateur;
@@ -26,6 +27,14 @@ import Services.UserServiceImpl;
 import Utils.SessionManager;
 import dao.FraudDetectionDAOImpl;
 import dao.IFraudDetectionDAO;
+=======
+import Models.StatutUtilisateur;
+import Models.TypeUtilisateur;
+import Models.User;
+import Services.IUserService;
+import Services.UserServiceImpl;
+import Utils.SessionManager;
+>>>>>>> yassine_antar
 import org.GreenLedger.MainFX;
 
 import java.io.IOException;
@@ -57,17 +66,23 @@ public class AdminUsersController {
     @FXML private Label blockedUsersLabel;
     @FXML private Label lblProfileName;
     @FXML private Label lblProfileType;
+<<<<<<< HEAD
     
     // NOUVEAUX LABELS POUR STATISTIQUES DE FRAUDE
     @FXML private Label fraudDetectedLabel;
     @FXML private Label fraudSafeLabel;
     @FXML private Label fraudWarningLabel;
+=======
+>>>>>>> yassine_antar
 
     @FXML private StackPane contentPane;
     @FXML private VBox usersContent;
 
     private final IUserService userService = new UserServiceImpl();
+<<<<<<< HEAD
     private final IFraudDetectionDAO fraudDetectionDAO = new FraudDetectionDAOImpl(); // NOUVEAU
+=======
+>>>>>>> yassine_antar
     private ObservableList<User> usersList = FXCollections.observableArrayList();
     private User currentUser;
 
@@ -219,6 +234,7 @@ public class AdminUsersController {
         // Colonne Actions avec boutons
         actionsColumn.setCellFactory(column -> new TableCell<User, Void>() {
             private final Button validateBtn = new Button("✓");
+<<<<<<< HEAD
             private final Button blockBtn = new Button("⛔");
             private final Button deleteBtn = new Button("🗑");
             private final Button detailsBtn = new Button("📊");
@@ -229,11 +245,27 @@ public class AdminUsersController {
                 blockBtn.setStyle("-fx-background-color: #EF4444; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
                 deleteBtn.setStyle("-fx-background-color: #6B7280; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
                 detailsBtn.setStyle("-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
+=======
+            private final Button blockBtn = new Button("[CLEAN]");
+            private final Button deleteBtn = new Button("🗑");
+            private final Button editBtn = new Button("✏️");
+            private final HBox container = new HBox(5, validateBtn, blockBtn, deleteBtn, /*edit*/ editBtn);
+
+            {
+                validateBtn.setStyle("-fx-background-color: #10B981; -fx-text-fill: white;");
+                blockBtn.setStyle("-fx-background-color: #EF4444; -fx-text-fill: white;");
+                deleteBtn.setStyle("-fx-background-color: #6B7280; -fx-text-fill: white;");
+                editBtn.setStyle("-fx-background-color: #F59E0B; -fx-text-fill: white;");
+>>>>>>> yassine_antar
 
                 validateBtn.setTooltip(new Tooltip("Valider"));
                 blockBtn.setTooltip(new Tooltip("Bloquer"));
                 deleteBtn.setTooltip(new Tooltip("Supprimer"));
+<<<<<<< HEAD
                 detailsBtn.setTooltip(new Tooltip("Détails Fraude"));
+=======
+                editBtn.setTooltip(new Tooltip("Éditer"));
+>>>>>>> yassine_antar
 
                 validateBtn.setOnAction(e -> {
                     User user = getTableView().getItems().get(getIndex());
@@ -250,9 +282,15 @@ public class AdminUsersController {
                     handleDeleteUser(user);
                 });
 
+<<<<<<< HEAD
                 detailsBtn.setOnAction(e -> {
                     User user = getTableView().getItems().get(getIndex());
                     showFraudDetails(user);
+=======
+                editBtn.setOnAction(e -> {
+                    User user = getTableView().getItems().get(getIndex());
+                    handleEditUser(user);
+>>>>>>> yassine_antar
                 });
             }
 
@@ -386,10 +424,13 @@ public class AdminUsersController {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             User validatedUser = userService.validateAccount(user.getId());
             if (validatedUser != null) {
+<<<<<<< HEAD
                 // Enregistrer l'action dans le journal d'activité
                 if (currentUser != null) {
                     AuditLogService.getInstance().logAdminValidateUser(currentUser, user);
                 }
+=======
+>>>>>>> yassine_antar
                 showSuccess("Compte validé avec succès");
                 handleRefresh();
             }
@@ -401,10 +442,13 @@ public class AdminUsersController {
             // Débloquer
             User unblockedUser = userService.unblockUser(user.getId());
             if (unblockedUser != null) {
+<<<<<<< HEAD
                 // Enregistrer l'action dans le journal d'activité
                 if (currentUser != null) {
                     AuditLogService.getInstance().logAdminUnblockUser(currentUser, user);
                 }
+=======
+>>>>>>> yassine_antar
                 showSuccess("Utilisateur débloqué");
                 handleRefresh();
             }
@@ -419,10 +463,13 @@ public class AdminUsersController {
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 User blockedUser = userService.blockUser(user.getId());
                 if (blockedUser != null) {
+<<<<<<< HEAD
                     // Enregistrer l'action dans le journal d'activité
                     if (currentUser != null) {
                         AuditLogService.getInstance().logAdminBlockUser(currentUser, user);
                     }
+=======
+>>>>>>> yassine_antar
                     showSuccess("Utilisateur bloqué");
                     handleRefresh();
                 }
@@ -441,10 +488,13 @@ public class AdminUsersController {
         if (result.isPresent() && result.get() == ButtonType.YES) {
             boolean ok = userService.deleteUser(user.getId());
             if (ok) {
+<<<<<<< HEAD
                 // Enregistrer l'action dans le journal d'activité
                 if (currentUser != null) {
                     AuditLogService.getInstance().logAdminDeleteUser(currentUser, user);
                 }
+=======
+>>>>>>> yassine_antar
                 showSuccess("Utilisateur supprimé");
                 handleRefresh();
             } else {
@@ -453,7 +503,32 @@ public class AdminUsersController {
         }
     }
 
+<<<<<<< HEAD
 
+=======
+    private void handleEditUser(User user) {
+        if (user == null) return;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/edit_user.fxml"));
+            Parent root = loader.load();
+
+            EditUserController controller = loader.getController();
+            controller.setUser(user);
+            controller.setOnSaved(this::handleRefresh);
+
+            Stage modal = new Stage();
+            modal.setTitle("Éditer utilisateur");
+            modal.initOwner(usersTable.getScene().getWindow());
+            modal.setScene(new Scene(root));
+            modal.setResizable(false);
+            modal.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showWarning("Impossible d'ouvrir le formulaire d'édition");
+        }
+    }
+>>>>>>> yassine_antar
 
     @FXML
     private void handleLogout(ActionEvent event) {
@@ -483,6 +558,7 @@ public class AdminUsersController {
         activeUsersLabel.setText(String.valueOf(active));
         pendingUsersLabel.setText(String.valueOf(pending));
         blockedUsersLabel.setText(String.valueOf(blocked));
+<<<<<<< HEAD
         
         // NOUVELLES STATISTIQUES DE FRAUDE
         if (fraudDetectedLabel != null && fraudSafeLabel != null && fraudWarningLabel != null) {
@@ -501,6 +577,8 @@ public class AdminUsersController {
             fraudSafeLabel.setText(String.valueOf(fraudSafe));
             fraudWarningLabel.setText(String.valueOf(fraudWarning));
         }
+=======
+>>>>>>> yassine_antar
     }
 
     private void showSuccess(String message) {
@@ -533,6 +611,7 @@ public class AdminUsersController {
     }
 
     @FXML
+<<<<<<< HEAD
     private void handleNavStatistics() {
         try {
             System.out.println("[ADMIN] Navigation vers les statistiques Chart.js");
@@ -570,6 +649,8 @@ public class AdminUsersController {
     }
 
     @FXML
+=======
+>>>>>>> yassine_antar
     private void handleNavProjets() {
         loadContent("GestionProjet");
     }
@@ -627,6 +708,7 @@ public class AdminUsersController {
             showWarning("Navigation impossible");
         }
     }
+<<<<<<< HEAD
     
     /**
      * Affiche les détails de l'analyse de fraude pour un utilisateur
@@ -688,4 +770,6 @@ public class AdminUsersController {
         
         alert.showAndWait();
     }
+=======
+>>>>>>> yassine_antar
 }

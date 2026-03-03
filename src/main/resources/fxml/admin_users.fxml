@@ -21,8 +21,11 @@
 
             <Label text="GESTION" styleClass="section-title-sidebar"/>
             <Button text="👤 Utilisateurs" styleClass="nav-btn" onAction="#handleNavUsers"/>
+<<<<<<< HEAD
             <Button text="📊 Statistiques" styleClass="nav-btn" onAction="#handleNavStatistics"/>
             <Button text="📋 Journal d'Activité" styleClass="nav-btn" onAction="#handleNavAuditLog"/>
+=======
+>>>>>>> yassine_antar
             <Button text="📁 Projets" styleClass="nav-btn" onAction="#handleNavProjets"/>
             <Button text="📊 Evaluations" styleClass="nav-btn" onAction="#handleNavEvaluations"/>
 
@@ -75,6 +78,7 @@
                             <Label fx:id="blockedUsersLabel" text="0" styleClass="stat-value accent-red"/>
                         </VBox>
                     </HBox>
+<<<<<<< HEAD
                     
                     <!-- Statistiques de Fraude -->
                     <HBox spacing="12">
@@ -91,6 +95,8 @@
                             <Label fx:id="fraudWarningLabel" text="0" styleClass="stat-value accent-amber"/>
                         </VBox>
                     </HBox>
+=======
+>>>>>>> yassine_antar
                 </VBox>
 
                 <!-- Filters + Table -->
@@ -135,7 +141,11 @@
                             <TableColumn fx:id="typeColumn" text="Type" prefWidth="130"/>
                             <TableColumn fx:id="statutColumn" text="Statut" prefWidth="120"/>
                             <TableColumn fx:id="dateInscriptionColumn" text="Date Inscription" prefWidth="150"/>
+<<<<<<< HEAD
                             <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="200"/>
+=======
+                            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="150"/>
+>>>>>>> yassine_antar
                         </columns>
                     </TableView>
                 </VBox>

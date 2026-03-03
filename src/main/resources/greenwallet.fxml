@@ -7,11 +7,55 @@
 <HBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="Controllers.GreenWalletController"
+<<<<<<< HEAD
         spacing="0" styleClass="page">
+=======
+<<<<<<< HEAD
+    spacing="0" styleClass="app-container">
+=======
+        spacing="0" styleClass="page">
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
 
     <!-- LEFT SIDEBAR -->
     <VBox prefWidth="220" styleClass="sidebar" style="-fx-min-width: 220; -fx-max-width: 220;">
 
+<<<<<<< HEAD
+        <HBox alignment="CENTER_LEFT" spacing="8">
+            <Label text="🌿" style="-fx-font-size: 20px;"/>
+            <Label text="GreenLedger" styleClass="sidebar-title"/>
+        </HBox>
+=======
+<<<<<<< HEAD
+        <!-- Logo/Brand Section -->
+        <VBox spacing="2" style="-fx-padding: 0 0 12 0;" alignment="CENTER_LEFT">
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="🍃" style="-fx-font-size: 24; -fx-padding: 0;"/>
+                <VBox spacing="0">
+                    <Label text="GreenLedger" styleClass="brand-title" style="-fx-font-size: 16; -fx-padding: 0;"/>
+                    <Label text="Wallet" styleClass="brand-subtitle" style="-fx-padding: 0;"/>
+                </VBox>
+            </HBox>
+        </VBox>
+>>>>>>> yassine_antar
+
+        <Separator styleClass="sidebar-sep"/>
+
+        <Button text="← Retour" styleClass="btn btn-secondary" onAction="#onBack"/>
+
+        <Button fx:id="btnGestionProjets" text="📁 Gestion Projets" styleClass="nav-btn" onAction="#onGestionProjets"/>
+        <Button fx:id="btnWalletOverview" text="💳 GreenWallet" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
+        <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+    </VBox>
+
+
+    <!-- MAIN CONTENT -->
+<<<<<<< HEAD
+=======
+    <VBox fx:id="contentPane" spacing="16" alignment="TOP_LEFT" styleClass="page" HBox.hgrow="ALWAYS">
+=======
         <HBox alignment="CENTER_LEFT" spacing="8">
             <Label text="🌿" style="-fx-font-size: 20px;"/>
             <Label text="GreenLedger" styleClass="sidebar-title"/>
@@ -30,10 +74,15 @@
 
 
     <!-- MAIN CONTENT -->
+>>>>>>> yassine_antar
     <ScrollPane fitToWidth="true" fitToHeight="false" HBox.hgrow="ALWAYS"
                 style="-fx-background-color: transparent; -fx-background: transparent;">
         <content>
     <VBox fx:id="contentPane" spacing="16" alignment="TOP_LEFT" styleClass="content-area">
+<<<<<<< HEAD
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
         <padding>
             <Insets top="20" right="20" bottom="20" left="20"/>
         </padding>
@@ -48,6 +97,11 @@
             <Label text="Gestion des crédits carbone et traçabilité complète" styleClass="page-subtitle"/>
         </VBox>
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> yassine_antar
         <!-- WALLET TOOLS -->
         <VBox spacing="10" styleClass="card" style="-fx-padding: 16;">
             <HBox spacing="8" alignment="CENTER_LEFT">
@@ -94,6 +148,10 @@
                       style="-fx-font-family: 'Consolas', 'Monaco', monospace; -fx-font-size: 11; -fx-background-color: white; -fx-border-color: #d1d5db; -fx-border-radius: 4;"/>
         </VBox>
 
+<<<<<<< HEAD
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
         <!-- WALLET INFO CARD -->
         <VBox spacing="12" styleClass="card" style="-fx-padding: 20;">
             <HBox spacing="8" alignment="CENTER_LEFT">
@@ -135,6 +193,11 @@
             </VBox>
         </HBox>
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> yassine_antar
         <!-- TEST LAB -->
         <VBox spacing="10" styleClass="card" style="-fx-padding: 16;">
             <HBox spacing="8" alignment="CENTER_LEFT">
@@ -152,6 +215,10 @@
             </HBox>
         </VBox>
 
+<<<<<<< HEAD
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
         <!-- TRANSACTIONS TABLE SECTION -->
         <VBox spacing="10" styleClass="card" style="-fx-padding: 18;" VBox.vgrow="ALWAYS">
             <HBox spacing="8" alignment="CENTER_LEFT">
@@ -214,6 +281,14 @@
                     prefWidth="120"/>
         </HBox>
     </VBox>
+<<<<<<< HEAD
         </content>
     </ScrollPane>
+=======
+<<<<<<< HEAD
+=======
+        </content>
+    </ScrollPane>
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
 </HBox>

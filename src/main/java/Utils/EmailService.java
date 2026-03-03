@@ -8,6 +8,7 @@ import jakarta.mail.Session;
 import jakarta.mail.Transport;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
+<<<<<<< HEAD
 import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.activation.DataHandler;
@@ -19,6 +20,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+=======
+
+import java.io.InputStream;
+>>>>>>> yassine_antar
 import java.util.Properties;
 
 /**
@@ -48,6 +53,7 @@ public class EmailService {
                 return;
             }
         }
+<<<<<<< HEAD
 
         loadFromDotenv();
         if (validateConfig()) {
@@ -55,6 +61,8 @@ public class EmailService {
             return;
         }
 
+=======
+>>>>>>> yassine_antar
         try (InputStream in = getClass().getResourceAsStream("/config.properties")) {
             if (in == null) return;
             smtpProps.load(in);
@@ -67,6 +75,7 @@ public class EmailService {
         }
     }
 
+<<<<<<< HEAD
     private void loadFromDotenv() {
         String baseDir = System.getProperty("user.dir");
         Path[] candidates = new Path[] {
@@ -116,6 +125,8 @@ public class EmailService {
         }
     }
 
+=======
+>>>>>>> yassine_antar
     public boolean isConfigured() {
         return configured;
     }
@@ -153,6 +164,7 @@ public class EmailService {
         StatusEmail statusEmail = buildStatusEmail(fullName, status);
         return sendEmail(to, statusEmail.subject, statusEmail.htmlBody, true);
     }
+<<<<<<< HEAD
     /**
      * Envoie un email personnalisé avec sujet et contenu HTML
      */
@@ -202,6 +214,8 @@ public class EmailService {
             return false;
         }
     }
+=======
+>>>>>>> yassine_antar
 
     private boolean sendEmail(String to, String subject, String body, boolean isHtml) {
         if (!configured) {
