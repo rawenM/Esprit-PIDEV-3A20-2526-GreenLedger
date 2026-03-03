@@ -11,7 +11,7 @@ public class ProjetService {
 
     public List<Projet> afficher() {
         try (Connection cnx = MyConnection.getConnection()) {
-            String sql = "SELECT id, entreprise_id, titre, description, budget, statut, score_esg, " +
+            String sql = "SELECT id, entreprise_id, titre, description, statut, score_esg, " +
                     "       company_address, company_email, company_phone " +
                     "FROM projet " +
                     "ORDER BY date_creation DESC";
@@ -29,7 +29,7 @@ public class ProjetService {
                             rs.getInt("entreprise_id"),
                             rs.getString("titre"),
                             rs.getString("description"),
-                            rs.getDouble("budget"),
+                            0.0,
                             score,
                             rs.getString("statut"),
                             rs.getString("company_address"),
@@ -53,7 +53,7 @@ public class ProjetService {
 
     public List<Projet> getByEntreprise(int entrepriseId) {
         try (Connection cnx = MyConnection.getConnection()) {
-            String sql = "SELECT id, entreprise_id, titre, description, budget, statut, score_esg, " +
+            String sql = "SELECT id, entreprise_id, titre, description, statut, score_esg, " +
                     "       company_address, company_email, company_phone " +
                     "FROM projet " +
                     "WHERE entreprise_id=? " +
@@ -72,7 +72,7 @@ public class ProjetService {
                                 rs.getInt("entreprise_id"),
                                 rs.getString("titre"),
                                 rs.getString("description"),
-                                rs.getDouble("budget"),
+                                0.0,
                                 score,
                                 rs.getString("statut"),
                                 rs.getString("company_address"),
@@ -97,25 +97,24 @@ public class ProjetService {
 
     public void insert(Projet p) {
         String sql = "INSERT INTO projet (" +
-                "  entreprise_id, titre, description, budget, statut, score_esg, " +
+                "  entreprise_id, titre, description, statut, score_esg, " +
                 "  company_address, company_email, company_phone" +
-                ") VALUES (?,?,?,?,?,?,?,?,?)";
+                ") VALUES (?,?,?,?,?,?,?,?)";
 
         try (Connection cnx = MyConnection.getConnection();
              PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setInt(1, p.getEntrepriseId());
             ps.setString(2, p.getTitre());
             ps.setString(3, p.getDescription());
-            ps.setDouble(4, p.getBudget());
-            ps.setString(5, p.getStatut());
+            ps.setString(4, p.getStatut());
 
             //null khater liaison expert carbon
-            if (p.getScoreEsg() == null) ps.setNull(6, Types.INTEGER);
-            else ps.setInt(6, p.getScoreEsg());
+            if (p.getScoreEsg() == null) ps.setNull(5, Types.INTEGER);
+            else ps.setInt(5, p.getScoreEsg());
 
-            ps.setString(7, p.getCompanyAddress());
-            ps.setString(8, p.getCompanyEmail());
-            ps.setString(9, p.getCompanyPhone());
+            ps.setString(6, p.getCompanyAddress());
+            ps.setString(7, p.getCompanyEmail());
+            ps.setString(8, p.getCompanyPhone());
 
             ps.executeUpdate();
 
@@ -126,7 +125,7 @@ public class ProjetService {
 
     public void update(Projet p) {
         String sql = "UPDATE projet SET " +
-                "  titre=?, description=?, budget=?, statut=?, score_esg=?, " +
+                "  titre=?, description=?, statut=?, score_esg=?, " +
                 "  company_address=?, company_email=?, company_phone=? " +
                 "WHERE id=?";
 
@@ -134,16 +133,14 @@ public class ProjetService {
              PreparedStatement ps = cnx.prepareStatement(sql)) {
             ps.setString(1, p.getTitre());
             ps.setString(2, p.getDescription());
-            ps.setDouble(3, p.getBudget());
-            ps.setString(4, p.getStatut());
-            if (p.getScoreEsg() == null) ps.setNull(5, Types.INTEGER);
-            else ps.setInt(5, p.getScoreEsg());
+            ps.setString(3, p.getStatut());
+            if (p.getScoreEsg() == null) ps.setNull(4, Types.INTEGER);
+            else ps.setInt(4, p.getScoreEsg());
 
-            ps.setString(6, p.getCompanyAddress());
-            ps.setString(7, p.getCompanyEmail());
-            ps.setString(8, p.getCompanyPhone());
-
-            ps.setInt(9, p.getId());
+            ps.setString(5, p.getCompanyAddress());
+            ps.setString(6, p.getCompanyEmail());
+            ps.setString(7, p.getCompanyPhone());
+            ps.setInt(8, p.getId());
 
             ps.executeUpdate();
 
