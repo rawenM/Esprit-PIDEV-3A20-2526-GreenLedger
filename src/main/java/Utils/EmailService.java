@@ -115,7 +115,6 @@ public class EmailService {
             default -> { }
         }
     }
-
     public boolean isConfigured() {
         return configured;
     }
@@ -153,6 +152,7 @@ public class EmailService {
         StatusEmail statusEmail = buildStatusEmail(fullName, status);
         return sendEmail(to, statusEmail.subject, statusEmail.htmlBody, true);
     }
+
     /**
      * Envoie un email personnalisé avec sujet et contenu HTML
      */

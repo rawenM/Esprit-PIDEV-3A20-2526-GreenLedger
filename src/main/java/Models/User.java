@@ -116,6 +116,11 @@ public class User {
     public TypeUtilisateur getTypeUtilisateur() {
         return typeUtilisateur;
     }
+    
+    // Convenience method for controllers expecting getType()
+    public TypeUtilisateur getType() {
+        return typeUtilisateur;
+    }
 
     public void setTypeUtilisateur(TypeUtilisateur typeUtilisateur) {
         this.typeUtilisateur = typeUtilisateur;

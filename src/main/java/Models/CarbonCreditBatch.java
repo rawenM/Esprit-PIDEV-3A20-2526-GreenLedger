@@ -6,6 +6,13 @@ import java.time.LocalDateTime;
 /**
  * Represents a batch of carbon credits issued from a verified project.
  * Each batch tracks the total amount issued and the remaining amount available.
+ * 
+ * Enhanced with elite traceability features:
+ * - Unique serial numbers (CC-YYYY-XXXXXX format)
+ * - Verification standards (VCS, Gold Standard, CDM, CAR)
+ * - Vintage year tracking
+ * - Calculation audit linkage for scientific verification
+ * - Batch lineage for splits/subdivisions
  */
 public class CarbonCreditBatch {
     
@@ -17,9 +24,27 @@ public class CarbonCreditBatch {
     private String status;                // AVAILABLE, PARTIALLY_RETIRED, FULLY_RETIRED
     private LocalDateTime issuedAt;
 
+    // Elite traceability fields
+    private String serialNumber;          // Unique identifier (CC-2026-001234)
+    private String verificationStandard;  // VCS, GOLD_STANDARD, CDM, CAR, etc.
+    private Integer vintageYear;          // Year credits were issued/verified
+    private String projectCertificationUrl; // Link to verification documentation
+    private String calculationAuditId;    // Link to EmissionCalculationAudit
+    private BatchType batchType;          // PRIMARY (issued) or SECONDARY (marketplace/split)
+    
+    // Batch lineage (for splits/subdivisions)
+    private Integer parentBatchId;        // If split from larger batch
+    private String lineageJson;           // Child batch IDs as JSON array
+
+    // Optional fields for marketplace display
+    private String projectName;           // Name of the project (for display)
+    private String verificationStatus;    // Verification standard (e.g., VCS, Gold Standard)
+
     // Constructors
     public CarbonCreditBatch() {
         this.status = "AVAILABLE";
+        this.vintageYear = LocalDateTime.now().getYear();
+        this.batchType = BatchType.PRIMARY; // Default to PRIMARY
     }
 
     public CarbonCreditBatch(int projectId, int walletId, BigDecimal totalAmount) {
@@ -28,6 +53,85 @@ public class CarbonCreditBatch {
         this.walletId = walletId;
         this.totalAmount = totalAmount;
         this.remainingAmount = totalAmount;
+    }
+    
+    public CarbonCreditBatch(int projectId, int walletId, BigDecimal totalAmount, BatchType batchType) {
+        this(projectId, walletId, totalAmount);
+        this.batchType = batchType;
+    }
+
+    /**
+     * Get display-friendly serial number with formatting.
+     * Format: CC-YYYY-XXXXXX (e.g., CC-2026-001234)
+     */
+    public String getDisplaySerial() {
+        return serialNumber != null ? serialNumber : "Pending";
+    }
+    
+    /**
+     * Get verification badge for UI display.
+     */
+    public String getVerificationBadge() {
+        if (verificationStandard == null) return "";
+        
+        return switch (verificationStandard.toUpperCase()) {
+            case "VCS" -> "🌿 VCS Verified";
+            case "GOLD_STANDARD" -> "🥇 Gold Standard";
+            case "CDM" -> "🌍 CDM Certified";
+            case "CAR" -> "⭐ CAR Verified";
+            default -> "✓ " + verificationStandard;
+        };
+    }
+    
+    /**
+     * Check if batch has been split into sub-batches.
+     */
+    public boolean hasLineage() {
+        return parentBatchId != null || (lineageJson != null && !lineageJson.isEmpty());
+    }
+    
+    /**
+     * Check if this is a PRIMARY batch (issued from emission calculation).
+     */
+    public boolean isPrimary() {
+        return batchType == BatchType.PRIMARY;
+    }
+    
+    /**
+     * Check if this is a SECONDARY batch (marketplace/split derivative).
+     */
+    public boolean isSecondary() {
+        return batchType == BatchType.SECONDARY;
+    }
+    
+    /**
+     * Get lineage depth (0 = root, 1 = first generation child, etc.).
+     * Requires recursive query to calculate fully, returns 0 or 1 here based on parent.
+     */
+    public int getLineageDepth() {
+        return parentBatchId != null ? 1 : 0;
+    }
+    
+    /**
+     * Get batch type badge for UI display.
+     */
+    public String getBatchTypeBadge() {
+        if (batchType == null) return "";
+        return switch (batchType) {
+            case PRIMARY -> "🟢 PRIMARY";
+            case SECONDARY -> "🔵 SECONDARY";
+        };
+    }
+    
+    /**
+     * Get percentage of batch that has been retired.
+     */
+    public double getRetirementPercentage() {
+        if (totalAmount == null || totalAmount.doubleValue() == 0) {
+            return 0.0;
+        }
+        BigDecimal retired = totalAmount.subtract(remainingAmount != null ? remainingAmount : BigDecimal.ZERO);
+        return retired.divide(totalAmount, 4, java.math.RoundingMode.HALF_UP).doubleValue() * 100;
     }
 
     // Getters and Setters
@@ -86,6 +190,86 @@ public class CarbonCreditBatch {
     public void setIssuedAt(LocalDateTime issuedAt) {
         this.issuedAt = issuedAt;
     }
+    
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+    
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
+    }
+    
+    public String getVerificationStandard() {
+        return verificationStandard;
+    }
+    
+    public void setVerificationStandard(String verificationStandard) {
+        this.verificationStandard = verificationStandard;
+    }
+    
+    public Integer getVintageYear() {
+        return vintageYear;
+    }
+    
+    public void setVintageYear(Integer vintageYear) {
+        this.vintageYear = vintageYear;
+    }
+    
+    public String getProjectCertificationUrl() {
+        return projectCertificationUrl;
+    }
+    
+    public void setProjectCertificationUrl(String projectCertificationUrl) {
+        this.projectCertificationUrl = projectCertificationUrl;
+    }
+    
+    public String getCalculationAuditId() {
+        return calculationAuditId;
+    }
+    
+    public void setCalculationAuditId(String calculationAuditId) {
+        this.calculationAuditId = calculationAuditId;
+    }
+    
+    public BatchType getBatchType() {
+        return batchType;
+    }
+    
+    public void setBatchType(BatchType batchType) {
+        this.batchType = batchType;
+    }
+    
+    public Integer getParentBatchId() {
+        return parentBatchId;
+    }
+    
+    public void setParentBatchId(Integer parentBatchId) {
+        this.parentBatchId = parentBatchId;
+    }
+    
+    public String getLineageJson() {
+        return lineageJson;
+    }
+    
+    public void setLineageJson(String lineageJson) {
+        this.lineageJson = lineageJson;
+    }
+
+    public String getProjectName() {
+        return projectName;
+    }
+
+    public void setProjectName(String projectName) {
+        this.projectName = projectName;
+    }
+
+    public String getVerificationStatus() {
+        return verificationStatus != null ? verificationStatus : "VERIFIED";
+    }
+
+    public void setVerificationStatus(String verificationStatus) {
+        this.verificationStatus = verificationStatus;
+    }
 
     // Utility methods
     public BigDecimal getRetiredAmount() {
@@ -103,7 +287,9 @@ public class CarbonCreditBatch {
 
     @Override
     public String toString() {
-        return String.format("Batch[#%d - Project: %d - %.2f/%.2f remaining]", 
-            id, projectId, remainingAmount, totalAmount);
+        return String.format("Batch[#%d - %s - %.2f/%.2f remaining]", 
+            id, getDisplaySerial(), 
+            remainingAmount != null ? remainingAmount.doubleValue() : 0.0, 
+            totalAmount != null ? totalAmount.doubleValue() : 0.0);
     }
 }

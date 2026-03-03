@@ -58,7 +58,11 @@ public class MyConnection {
                 // Réinitialiser l'instance pour forcer une reconnexion
                 conn = null;
             } catch (SQLException e) {
+<<<<<<< HEAD
                 System.err.println("[DB] Erreur lors de la fermeture de la connexion");
+=======
+                System.err.println("[CLEAN] Erreur lors de la fermeture de la connexion: " + e.getMessage());
+>>>>>>> b5568a3f031b93946a6d9ea413ef7fb6e276b59c
                 e.printStackTrace();
             }
         }

@@ -7,7 +7,7 @@ public class NlpMlServiceTest {
 
     @Test
     public void testCategorizeSamples() throws Exception {
-        NlpMlService nlp = new NlpMlService();
+        NlpMlService nlp = NlpMlService.getInstance();
 
         String eBest = nlp.classifyPillar("énergie émissions CO2 efficacité procédés");
         String sBest = nlp.classifyPillar("sécurité employés santé formation");

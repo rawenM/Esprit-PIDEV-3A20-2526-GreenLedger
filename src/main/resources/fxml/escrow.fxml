@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.EscrowManagementController"
+            styleClass="page">
+
+    <!-- LEFT: Navigation Sidebar -->
+    <left>
+        <VBox prefWidth="220" styleClass="sidebar">
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="Leaf" style="-fx-font-size: 20px;"/>
+                <Label text="Admin Panel" styleClass="sidebar-title"/>
+            </HBox>
+
+            <Separator styleClass="sidebar-sep"/>
+
+            <Label text="MANAGEMENT" styleClass="section-title-sidebar"/>
+            <Button text="Users" styleClass="nav-btn" onAction="#handleNavUsers"/>
+            <Button text="Projects" styleClass="nav-btn" onAction="#handleNavProjets"/>
+            <Button text="Evaluations" styleClass="nav-btn" onAction="#handleNavEvaluations"/>
+            <Button text="Escrow" styleClass="nav-btn" style="-fx-text-fill: #10b981;"/>
+
+            <Separator styleClass="sidebar-sep"/>
+
+            <Label text="SYSTEM" styleClass="section-title-sidebar"/>
+            <Button text="Settings" styleClass="nav-btn" onAction="#handleNavSettings"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <VBox spacing="2" alignment="TOP_LEFT" style="-fx-padding: 10 0 0 0;">
+                <Label fx:id="lblProfileName" styleClass="page-title"/>
+                <Label fx:id="lblProfileType" styleClass="page-subtitle"/>
+                <Button text="Edit Profile" styleClass="btn-secondary" onAction="#handleEditProfile"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- CENTER: Main Content Area -->
+    <center>
+        <VBox spacing="16" styleClass="content-area">
+            <padding>
+                <Insets top="20" right="20" bottom="20" left="20"/>
+            </padding>
+
+            <!-- Header Section -->
+            <VBox spacing="12" styleClass="card">
+                <HBox alignment="CENTER_LEFT" spacing="16">
+                    <Label text="Escrow Management" styleClass="page-title"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Refresh" styleClass="btn-primary" onAction="#handleRefresh"/>
+                    <Button text="Back" styleClass="btn-secondary" onAction="#handleBack"/>
+                </HBox>
+
+                <!-- Statistics Cards -->
+                <HBox spacing="12">
+                    <VBox alignment="CENTER" styleClass="stat-card" spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Held Escrows" styleClass="stat-title"/>
+                        <Label fx:id="lblHeldCount" text="0" styleClass="stat-value" style="-fx-text-fill: #ef4444;"/>
+                    </VBox>
+                    <VBox alignment="CENTER" styleClass="stat-card" spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Total Amount" styleClass="stat-title"/>
+                        <Label fx:id="lblTotalAmount" text="0.00 USD" styleClass="stat-value" style="-fx-text-fill: #f59e0b;"/>
+                    </VBox>
+                    <VBox alignment="CENTER" styleClass="stat-card" spacing="5" HBox.hgrow="ALWAYS">
+                        <Label text="Ready to Release" styleClass="stat-title"/>
+                        <Label fx:id="lblReadyToRelease" text="0" styleClass="stat-value" style="-fx-text-fill: #10b981;"/>
+                    </VBox>
+                </HBox>
+            </VBox>
+
+            <!-- Escrows Table -->
+            <VBox spacing="8" styleClass="card" VBox.vgrow="ALWAYS">
+                <Label text="Pending Escrow Verifications" styleClass="section-title"/>
+
+                <TableView fx:id="escrowsTable" VBox.vgrow="ALWAYS" style="-fx-font-size: 11px;">
+                    <columns>
+                        <TableColumn fx:id="escrowIdColumn" text="ID" prefWidth="50" sortable="true"/>
+                        <TableColumn fx:id="orderIdColumn" text="Order" prefWidth="70"/>
+                        <TableColumn fx:id="buyerIdColumn" text="Buyer" prefWidth="70"/>
+                        <TableColumn fx:id="sellerIdColumn" text="Seller" prefWidth="70"/>
+                        <TableColumn fx:id="amountColumn" text="Amount USD" prefWidth="100"/>
+                        <TableColumn fx:id="createdAtColumn" text="Created Date" prefWidth="140"/>
+                        <TableColumn fx:id="hoursHeldColumn" text="Hours Held" prefWidth="80"/>
+                        <TableColumn fx:id="statusColumn" text="Status" prefWidth="80"/>
+                        <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="150"/>
+                    </columns>
+                </TableView>
+
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label fx:id="lblEmptyMessage" text="No pending escrows" style="-fx-text-fill: #888888;"/>
+                </HBox>
+            </VBox>
+
+            <!-- Info Section -->
+            <VBox spacing="8" styleClass="card">
+                <Label text="How Escrow Works" styleClass="section-title"/>
+                <VBox spacing="5" style="-fx-padding: 10; -fx-border-radius: 5; -fx-border-color: #e0f2fe; -fx-background-color: #f0f9ff;">
+                    <Label text="Payment threshold: 10000 USD or more"/>
+                    <Label text="Admin can release funds or wait 24h for auto-release"/>
+                    <Label text="Seller receives: Total amount minus 3% processing fee"/>
+                </VBox>
+            </VBox>
+        </VBox>
+    </center>
+
+</BorderPane>

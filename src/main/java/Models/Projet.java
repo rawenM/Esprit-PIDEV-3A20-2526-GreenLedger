@@ -1,7 +1,6 @@
 package Models;
 
 public class Projet {
-
     private int id;
     private int idUser;
     private String titre;

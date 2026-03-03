@@ -394,7 +394,7 @@ public class LoginWithCaptchaChoiceController {
     private void navigateToDashboard(ActionEvent event, User user) {
         try {
             String fxmlPath = switch (user.getTypeUtilisateur()) {
-                case ADMINISTRATEUR -> "/fxml/admin_users.fxml";
+                case ADMIN -> "/fxml/admin_users.fxml";
                 case INVESTISSEUR -> "/fxml/investisseur_dashboard.fxml";
                 case PORTEUR_PROJET -> "/fxml/porteur_projet_dashboard.fxml";
                 case EXPERT_CARBONE -> "/fxml/expert_carbone_dashboard.fxml";

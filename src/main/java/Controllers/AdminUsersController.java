@@ -229,7 +229,6 @@ public class AdminUsersController {
                 blockBtn.setStyle("-fx-background-color: #EF4444; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
                 deleteBtn.setStyle("-fx-background-color: #6B7280; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
                 detailsBtn.setStyle("-fx-background-color: #3B82F6; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 5px 10px;");
-
                 validateBtn.setTooltip(new Tooltip("Valider"));
                 blockBtn.setTooltip(new Tooltip("Bloquer"));
                 deleteBtn.setTooltip(new Tooltip("Supprimer"));
@@ -386,7 +385,7 @@ public class AdminUsersController {
         if (result.isPresent() && result.get() == ButtonType.OK) {
             User validatedUser = userService.validateAccount(user.getId());
             if (validatedUser != null) {
-                // Enregistrer l'action dans le journal d'activité
+                // Log action in audit log
                 if (currentUser != null) {
                     AuditLogService.getInstance().logAdminValidateUser(currentUser, user);
                 }
@@ -401,7 +400,7 @@ public class AdminUsersController {
             // Débloquer
             User unblockedUser = userService.unblockUser(user.getId());
             if (unblockedUser != null) {
-                // Enregistrer l'action dans le journal d'activité
+                // Log action in audit log
                 if (currentUser != null) {
                     AuditLogService.getInstance().logAdminUnblockUser(currentUser, user);
                 }
@@ -419,7 +418,7 @@ public class AdminUsersController {
             if (result.isPresent() && result.get() == ButtonType.OK) {
                 User blockedUser = userService.blockUser(user.getId());
                 if (blockedUser != null) {
-                    // Enregistrer l'action dans le journal d'activité
+                    // Log action in audit log
                     if (currentUser != null) {
                         AuditLogService.getInstance().logAdminBlockUser(currentUser, user);
                     }
@@ -441,7 +440,7 @@ public class AdminUsersController {
         if (result.isPresent() && result.get() == ButtonType.YES) {
             boolean ok = userService.deleteUser(user.getId());
             if (ok) {
-                // Enregistrer l'action dans le journal d'activité
+                // Log action in audit log
                 if (currentUser != null) {
                     AuditLogService.getInstance().logAdminDeleteUser(currentUser, user);
                 }
@@ -453,7 +452,28 @@ public class AdminUsersController {
         }
     }
 
+    private void handleEditUser(User user) {
+        if (user == null) return;
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/edit_user.fxml"));
+            Parent root = loader.load();
 
+            EditUserController controller = loader.getController();
+            controller.setUser(user);
+            controller.setOnSaved(this::handleRefresh);
+
+            Stage modal = new Stage();
+            modal.setTitle("Éditer utilisateur");
+            modal.initOwner(usersTable.getScene().getWindow());
+            modal.setScene(new Scene(root));
+            modal.setResizable(false);
+            modal.showAndWait();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            showWarning("Impossible d'ouvrir le formulaire d'édition");
+        }
+    }
 
     @FXML
     private void handleLogout(ActionEvent event) {
@@ -484,7 +504,7 @@ public class AdminUsersController {
         pendingUsersLabel.setText(String.valueOf(pending));
         blockedUsersLabel.setText(String.valueOf(blocked));
         
-        // NOUVELLES STATISTIQUES DE FRAUDE
+        // FRAUD DETECTION STATISTICS
         if (fraudDetectedLabel != null && fraudSafeLabel != null && fraudWarningLabel != null) {
             List<User> allUsers = userService.getAllUsers();
             long fraudDetected = allUsers.stream()
@@ -580,6 +600,20 @@ public class AdminUsersController {
     }
 
     @FXML
+    private void handleNavEscrow() {
+        try {
+            System.out.println("[ADMIN DEBUG] Attempting to navigate to escrow panel");
+            MainFX.setRoot("fxml/escrow");
+            System.out.println("[ADMIN DEBUG] Successfully navigated to escrow panel");
+        } catch (Exception e) {
+            System.err.println("[ADMIN DEBUG] Exception caught: " + e.getClass().getName());
+            System.err.println("[ADMIN DEBUG] Message: " + e.getMessage());
+            e.printStackTrace();
+            showError("Erreur Navigation", "Impossible d'accéder au panneau Escrow: " + e.getMessage());
+        }
+    }
+
+    @FXML
     private void handleNavSettings() {
         loadContent("settings");
     }
@@ -629,10 +663,10 @@ public class AdminUsersController {
     }
     
     /**
-     * Affiche les détails de l'analyse de fraude pour un utilisateur
+     * Display fraud analysis details for a user
      */
     private void showFraudDetails(User user) {
-        // Enregistrer la consultation dans le journal d'activité
+        // Log fraud view in audit log
         if (currentUser != null) {
             AuditLogService.getInstance().logAdminViewFraud(currentUser, user);
         }
@@ -682,7 +716,7 @@ public class AdminUsersController {
         
         alert.setContentText(content.toString());
         
-        // Agrandir la fenêtre
+        // Enlarge the window
         alert.getDialogPane().setPrefWidth(600);
         alert.getDialogPane().setPrefHeight(500);
         

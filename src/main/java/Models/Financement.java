@@ -39,7 +39,4 @@ public class Financement {
     @Override public String toString() {
         return String.valueOf(id);
     }
-
 }
-
-

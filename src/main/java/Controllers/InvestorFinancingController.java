@@ -1,8 +1,7 @@
 package Controllers;
 import Services.ExchangeRateService;
 import javafx.application.Platform;
-import javafx.scene.layout.VBox;
-import Models.Financement;
+import javafx.scene.layout.VBox;import Models.Financement;
 import Models.OffreFinancement;
 import Models.Projet;
 import Models.User;
@@ -16,6 +15,7 @@ import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 
@@ -35,7 +35,6 @@ public class InvestorFinancingController extends BaseController {
     @FXML private Label lblUSDRate;
     @FXML private Label lblGBP;
     @FXML private Label lblGBPRate;
-
     @FXML private Label lblTotalInvestments;
     @FXML private Label lblTotalAmount;
     @FXML private Label lblProjectsFollowed;
@@ -48,7 +47,6 @@ public class InvestorFinancingController extends BaseController {
     @FXML private Button btnNavInvestments;
     @FXML private Button btnNavFinancement;
     @FXML private Button btnNavSettings;
-
     @FXML private TableView<Financement> tableMyInvestments;
     @FXML private TableColumn<Financement, Integer> colInvProjetId;
     @FXML private TableColumn<Financement, Double> colInvMontant;
@@ -63,11 +61,11 @@ public class InvestorFinancingController extends BaseController {
 
     @FXML private ComboBox<Projet> cmbProjectSelection;
     @FXML private TextField txtInvestmentAmount;
-
     private final FinancementService financementService = new FinancementService();
     private final OffreFinancementService offreService = new OffreFinancementService();
     private final ProjetService projetService = new ProjetService();
 
+    // Data
     private final ObservableList<Financement> myInvestments = FXCollections.observableArrayList();
     private final ObservableList<OffreFinancement> availableOffers = FXCollections.observableArrayList();
     private final ObservableList<Projet> projects = FXCollections.observableArrayList();
@@ -98,82 +96,15 @@ public class InvestorFinancingController extends BaseController {
                             updateCurrencyConversion(newVal.getMontant());
                         }
                     });
-
-        } catch (Exception ex) {
-            System.err.println("[ERROR] Initialization error: " + ex.getMessage());
-            ex.printStackTrace();
-            showError("Erreur d'initialisation", ex.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+            showError("Erreur d'initialisation", e.getMessage());
         }
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // ADDED: Currency conversion method
-    // Called every time a row is selected in tableMyInvestments
-    // Runs the API call on a background thread — UI never freezes
-    // ─────────────────────────────────────────────────────────────
-    private void updateCurrencyConversion(double montant) {
-
-        // Show panel and set loading state immediately
-        if (conversionPanel != null) {
-            conversionPanel.setVisible(true);
-            conversionPanel.setManaged(true);
-        }
-        if (lblConversionStatus != null) lblConversionStatus.setText("Chargement...");
-        if (lblTND  != null) lblTND.setText(String.format("%,.2f", montant));
-        if (lblEUR  != null) lblEUR.setText("—");
-        if (lblUSD  != null) lblUSD.setText("—");
-        if (lblGBP  != null) lblGBP.setText("—");
-        if (lblEURRate != null) lblEURRate.setText("");
-        if (lblUSDRate != null) lblUSDRate.setText("");
-        if (lblGBPRate != null) lblGBPRate.setText("");
-
-        // Background thread for the API call
-        Thread apiThread = new Thread(() -> {
-            try {
-                ExchangeRateService.ConversionResult result =
-                        exchangeRateService.convert(montant);
-
-                // Back to JavaFX thread to update UI
-                Platform.runLater(() -> {
-                    if (lblEUR != null)
-                        lblEUR.setText(String.format("%,.2f €", result.getEur()));
-                    if (lblEURRate != null)
-                        lblEURRate.setText("1 TND = " + String.format("%.4f", result.getEurRate()) + " EUR");
-
-                    if (lblUSD != null)
-                        lblUSD.setText(String.format("%,.2f $", result.getUsd()));
-                    if (lblUSDRate != null)
-                        lblUSDRate.setText("1 TND = " + String.format("%.4f", result.getUsdRate()) + " USD");
-
-                    if (lblGBP != null)
-                        lblGBP.setText(String.format("%,.2f £", result.getGbp()));
-                    if (lblGBPRate != null)
-                        lblGBPRate.setText("1 TND = " + String.format("%.4f", result.getGbpRate()) + " GBP");
-
-                    if (lblConversionStatus != null)
-                        lblConversionStatus.setText("Taux en temps réel");
-                });
-
-            } catch (Exception e) {
-                Platform.runLater(() -> {
-                    if (lblConversionStatus != null)
-                        lblConversionStatus.setText("Conversion indisponible");
-                    if (lblEUR != null) lblEUR.setText("N/A");
-                    if (lblUSD != null) lblUSD.setText("N/A");
-                    if (lblGBP != null) lblGBP.setText("N/A");
-                });
-                System.err.println("ExchangeRate API error: " + e.getMessage());
-            }
-        });
-
-        apiThread.setDaemon(true);
-        apiThread.start();
     }
 
     private void configureNavigationForRole() {
-        TypeUtilisateur type = currentUser.getTypeUtilisateur();
-        if (type == null) return;
-
+        TypeUtilisateur type = currentUser != null ? currentUser.getTypeUtilisateur() : TypeUtilisateur.INVESTISSEUR;
+        
         switch (type) {
             case ADMIN:
                 applyNavLabels("GreenLedger Admin", "👑 Administration");
@@ -206,6 +137,11 @@ public class InvestorFinancingController extends BaseController {
                 break;
         }
     }
+    
+    private void updateCurrencyConversion(double montant) {
+        // Placeholder for currency conversion logic
+        System.out.println("Converting amount: " + montant);
+    }
 
     private void applyNavLabels(String sidebarTitle, String pageTitle) {
         if (lblSidebarTitle != null) lblSidebarTitle.setText(sidebarTitle);
@@ -213,16 +149,14 @@ public class InvestorFinancingController extends BaseController {
     }
 
     private void configureNavButton(Button button, String text, Runnable action) {
-        if (button == null) return;
-        button.setText(text);
+        if (button == null) return;        button.setText(text);
         button.setOnAction(event -> action.run());
         button.setVisible(true);
         button.setManaged(true);
     }
 
     private void hideNavButton(Button button) {
-        if (button == null) return;
-        button.setVisible(false);
+        if (button == null) return;        button.setVisible(false);
         button.setManaged(false);
     }
 
@@ -230,19 +164,16 @@ public class InvestorFinancingController extends BaseController {
         try {
             org.GreenLedger.MainFX.setRoot(fxml);
         } catch (IOException ex) {
-            System.err.println("[ERROR] Navigation error: " + ex.getMessage());
-            showError("Erreur", "Impossible de naviguer vers " + fxml);
+            System.err.println("[ERROR] Navigation error: " + ex.getMessage());            showError("Erreur", "Impossible de naviguer vers " + fxml);
         }
     }
 
-    private void setupTableColumns() {
-        colInvProjetId.setCellValueFactory(cd -> new SimpleIntegerProperty(cd.getValue().getProjetId()).asObject());
+    private void setupTableColumns() {        colInvProjetId.setCellValueFactory(cd -> new SimpleIntegerProperty(cd.getValue().getProjetId()).asObject());
         colInvMontant.setCellValueFactory(cd -> new SimpleDoubleProperty(cd.getValue().getMontant()).asObject());
         colInvDate.setCellValueFactory(cd -> new SimpleStringProperty(
                 cd.getValue().getDateFinancement() != null ? cd.getValue().getDateFinancement() : "N/A"
         ));
         colInvStatut.setCellValueFactory(cd -> new SimpleStringProperty("Actif"));
-
         colOffreType.setCellValueFactory(cd -> new SimpleStringProperty(
                 cd.getValue().getTypeOffre() != null ? cd.getValue().getTypeOffre() : "N/A"
         ));
@@ -263,13 +194,14 @@ public class InvestorFinancingController extends BaseController {
             System.err.println("[ERROR] Data loading error: " + ex.getMessage());
         }
     }
-
     private void setupComboBox() {
         try {
             List<Projet> allProjects = projetService.afficher();
             if (allProjects != null) {
                 projects.setAll(allProjects);
                 cmbProjectSelection.setItems(projects);
+
+                // Custom cell factory for better display
                 cmbProjectSelection.setCellFactory(lv -> new ListCell<Projet>() {
                     @Override
                     protected void updateItem(Projet item, boolean empty) {
@@ -289,7 +221,6 @@ public class InvestorFinancingController extends BaseController {
             System.err.println("[ERROR] ComboBox setup error: " + ex.getMessage());
         }
     }
-
     @FXML
     private void refreshInvestments() {
         try {
@@ -300,7 +231,6 @@ public class InvestorFinancingController extends BaseController {
             System.err.println("[ERROR] Refresh investments error: " + ex.getMessage());
         }
     }
-
     @FXML
     private void refreshOffers() {
         try {
@@ -318,13 +248,15 @@ public class InvestorFinancingController extends BaseController {
             lblTotalAmount.setText(String.format("%.2f EUR", totalAmount));
             long projectsCount = myInvestments.stream().map(Financement::getProjetId).distinct().count();
             lblProjectsFollowed.setText(String.valueOf(projectsCount));
-        } catch (Exception ex) {
-            lblTotalInvestments.setText("--");
+        } catch (Exception ex) {            lblTotalInvestments.setText("--");
             lblTotalAmount.setText("-- EUR");
             lblProjectsFollowed.setText("--");
         }
     }
 
+    /**
+     * Handle new investment submission
+     */
     @FXML
     private void handleNewInvestment() {
         try {
@@ -360,8 +292,7 @@ public class InvestorFinancingController extends BaseController {
 
         } catch (NumberFormatException nfe) {
             showAlert("Erreur", "Montant invalide.", Alert.AlertType.ERROR);
-        } catch (Exception ex) {
-            showAlert("Erreur", "Impossible de créer l'investissement: " + ex.getMessage(), Alert.AlertType.ERROR);
+        } catch (Exception ex) {            showAlert("Erreur", "Impossible de créer l'investissement: " + ex.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -374,7 +305,6 @@ public class InvestorFinancingController extends BaseController {
     @FXML private void handleReportIssue() {
         showAlert("Information", "Fonctionnalité en développement", Alert.AlertType.INFORMATION);
     }
-
     @FXML
     private void handleBack() {
         try {
@@ -383,8 +313,7 @@ public class InvestorFinancingController extends BaseController {
             else if (type == TypeUtilisateur.PORTEUR_PROJET)  org.GreenLedger.MainFX.setRoot("GestionProjet");
             else if (type == TypeUtilisateur.ADMIN)           org.GreenLedger.MainFX.setRoot("fxml/admin_users");
             else                                               org.GreenLedger.MainFX.setRoot("fxml/dashboard");
-        } catch (IOException ex) {
-            showError("Erreur", "Impossible de retourner au tableau de bord");
+        } catch (IOException ex) {            showError("Erreur", "Impossible de retourner au tableau de bord");
         }
     }
 
@@ -417,7 +346,6 @@ public class InvestorFinancingController extends BaseController {
 
     @FXML private void handleGoSettings()  { navigate("settings"); }
     @FXML private void handleEditProfile() { navigate("editProfile"); }
-
     private void showError(String title, String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(title);
@@ -426,6 +354,9 @@ public class InvestorFinancingController extends BaseController {
         alert.showAndWait();
     }
 
+    /**
+     * Show alert
+     */
     private void showAlert(String title, String message, Alert.AlertType type) {
         Alert alert = new Alert(type);
         alert.setTitle(title);
@@ -444,4 +375,3 @@ public class InvestorFinancingController extends BaseController {
         }
     }
 }
-

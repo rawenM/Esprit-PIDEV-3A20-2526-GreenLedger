@@ -11,6 +11,7 @@
   <component name="ProjectResources">
     <resource url="http://javafx.com/fxml" location="$PROJECT_DIR$" />
     <resource url="http://javafx.com/fxml/1" location="$PROJECT_DIR$" />
+    <resource url="http://javafx.com/javafx" location="$PROJECT_DIR$" />
     <resource url="http://javafx.com/javafx/20" location="$PROJECT_DIR$" />
     <resource url="http://javafx.com/javafx/23.0.1" location="$PROJECT_DIR$" />
   </component>
