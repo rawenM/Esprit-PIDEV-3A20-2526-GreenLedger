@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class FinancementService {
+    private final Connection conn = MyConnection.getConnection();
 
     public List<Financement> getAll() {
         return afficherAll();
@@ -16,8 +17,7 @@ public class FinancementService {
     public List<Financement> afficherAll() {
         List<Financement> list = new ArrayList<>();
         String sql = "SELECT id, projet_id, banque_id, montant, date_financement FROM financement";
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
                     Financement f = new Financement(
@@ -41,8 +41,7 @@ public class FinancementService {
 
     public void add(Financement f) {
         String sql = "INSERT INTO financement (projet_id, banque_id, montant, date_financement) VALUES (?,?,?,?)";
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, f.getProjetId());
             ps.setInt(2, f.getBanqueId());
             ps.setDouble(3, f.getMontant());
@@ -55,8 +54,7 @@ public class FinancementService {
 
     public void update(Financement f) {
         String sql = "UPDATE financement SET projet_id=?, banque_id=?, montant=?, date_financement=? WHERE id=?";
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, f.getProjetId());
             ps.setInt(2, f.getBanqueId());
             ps.setDouble(3, f.getMontant());
@@ -70,8 +68,7 @@ public class FinancementService {
 
     public void delete(int id) {
         String sql = "DELETE FROM financement WHERE id=?";
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, id);
             ps.executeUpdate();
         } catch (SQLException e) {

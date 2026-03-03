@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20.0.1"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.BatchCarbonTestController"
+            prefWidth="1200" prefHeight="800"
+            styleClass="page">
+
+    <top>
+        <VBox spacing="8" style="-fx-background-color: #2c3e50; -fx-padding: 14;">
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Button text="← Retour Green Wallet" onAction="#onBackToGreenWallet" styleClass="btn btn-secondary"/>
+                <Label text="🧪 Tests Batch + Carbon Credit" style="-fx-text-fill: white; -fx-font-size: 20px; -fx-font-weight: bold;"/>
+            </HBox>
+            <Label text="Tests ciblés: émission, listing des batches, lineage, événements, transfert et retrait de crédits carbone"
+                   style="-fx-text-fill: #ecf0f1; -fx-font-size: 12px;"/>
+        </VBox>
+    </top>
+
+    <center>
+        <SplitPane dividerPositions="0.53">
+            <items>
+                <ScrollPane fitToWidth="true">
+                    <content>
+                        <VBox spacing="12" style="-fx-padding: 14;">
+
+                            <TitledPane text="Wallet de test" expanded="true">
+                                <content>
+                                    <VBox spacing="8" style="-fx-padding: 10;">
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <TextField fx:id="txtOwnerType" promptText="Owner Type (ENTERPRISE)" prefWidth="220"/>
+                                            <Button text="Créer Wallet" onAction="#testCreateWallet" prefWidth="150"/>
+                                        </HBox>
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <Label text="Wallet ID:"/>
+                                            <TextField fx:id="txtWalletId" promptText="ID" prefWidth="100"/>
+                                            <Button text="Charger Solde" onAction="#testLoadWallet" prefWidth="140"/>
+                                            <Label fx:id="lblWalletBalance" text="Solde: -"/>
+                                        </HBox>
+                                    </VBox>
+                                </content>
+                            </TitledPane>
+
+                            <TitledPane text="Émission / Batches" expanded="true">
+                                <content>
+                                    <VBox spacing="8" style="-fx-padding: 10;">
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <TextField fx:id="txtIssueAmount" promptText="Montant à émettre" prefWidth="160"/>
+                                            <Button text="Émettre crédits" onAction="#testIssueCredits" prefWidth="150"/>
+                                        </HBox>
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <Button text="Lister batches wallet" onAction="#testListBatches" prefWidth="170"/>
+                                            <TextField fx:id="txtBatchId" promptText="Batch ID" prefWidth="110"/>
+                                            <Button text="Voir lineage" onAction="#testBatchLineage" prefWidth="120"/>
+                                            <Button text="Voir événements" onAction="#testBatchEvents" prefWidth="120"/>
+                                        </HBox>
+                                    </VBox>
+                                </content>
+                            </TitledPane>
+
+                            <TitledPane text="Transfert / Retrait carbone" expanded="true">
+                                <content>
+                                    <VBox spacing="8" style="-fx-padding: 10;">
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <TextField fx:id="txtToWalletId" promptText="Wallet destination" prefWidth="130"/>
+                                            <TextField fx:id="txtTransferAmount" promptText="Montant transfert" prefWidth="130"/>
+                                            <Button text="Transfert DIRECT" onAction="#testTransferDirect" prefWidth="130"/>
+                                            <Button text="Transfert SPLIT_CHILD" onAction="#testTransferSplit" prefWidth="160"/>
+                                        </HBox>
+                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                            <TextField fx:id="txtRetireAmount" promptText="Montant retrait" prefWidth="130"/>
+                                            <Button text="Retirer crédits" onAction="#testRetireCredits" prefWidth="130"/>
+                                        </HBox>
+                                    </VBox>
+                                </content>
+                            </TitledPane>
+
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button text="Clear log" onAction="#clearLog" styleClass="btn btn-secondary"/>
+                                <Label fx:id="lblStats" text="Tests: 0 | Pass: 0 | Fail: 0"/>
+                            </HBox>
+                        </VBox>
+                    </content>
+                </ScrollPane>
+
+                <VBox spacing="8" style="-fx-padding: 14;">
+                    <Label text="Console" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                    <TextArea fx:id="logArea" editable="false" wrapText="true" prefHeight="650"
+                              style="-fx-control-inner-background: #1e1e1e; -fx-text-fill: #00ff8a; -fx-font-family: 'Consolas';"/>
+                    <Label fx:id="lblStatus" text="Prêt"/>
+                </VBox>
+            </items>
+        </SplitPane>
+    </center>
+</BorderPane>

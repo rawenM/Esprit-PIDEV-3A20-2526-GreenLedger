@@ -122,11 +122,20 @@
     -fx-text-fill: #2B6A4A;
 }
 
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+=======
+>>>>>>> yassine_antar
 .nav-btn-active {
     -fx-background-color: #2B6A4A;
     -fx-text-fill: #FFFFFF;
 }
 
+<<<<<<< HEAD
+=======
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
 /* ===== FORM FIELDS ===== */
 .field {
     -fx-background-color: #FFFFFF;
@@ -358,4 +367,103 @@
 
 .accent-amber {
     -fx-text-fill: #C58B2E;
+}
+
+/* ===== MARKETPLACE STYLES - LIGHT THEME ===== */
+.page-header {
+    -fx-background-color: linear-gradient(to right, #E8F5E9, #E0F2F1);
+    -fx-border-color: #2E8B6C;
+}
+
+.price-accent {
+    -fx-text-fill: #2E8B6C;
+}
+
+.price-range-display {
+    -fx-text-fill: #2E8B6C;
+}
+
+.market-price-large {
+    -fx-text-fill: #2E8B6C;
+}
+
+.section-subtitle {
+    -fx-text-fill: #6B7280;
+}
+
+.sidebar-footer {
+    -fx-background-color: rgba(0, 0, 0, 0.05);
+}
+
+.market-stat-box {
+    -fx-background-color: rgba(46, 139, 108, 0.1);
+}
+
+.market-stat-box.blue {
+    -fx-background-color: rgba(47, 111, 163, 0.1);
+}
+
+.market-stat-box.orange {
+    -fx-background-color: rgba(197, 139, 46, 0.1);
+}
+
+.market-stat-label {
+    -fx-text-fill: #6B7280;
+}
+
+.market-stat-value {
+    -fx-text-fill: #2E8B6C;
+}
+
+.market-stat-value.blue {
+    -fx-text-fill: #2F6FA3;
+}
+
+.market-stat-value.orange {
+    -fx-text-fill: #C58B2E;
+}
+
+.market-stat-value.dark {
+    -fx-text-fill: #1F2937;
+}
+
+.order-stat-value {
+    -fx-text-fill: #1F2937;
+}
+
+.order-stat-value.accent {
+    -fx-text-fill: #2E8B6C;
+}
+
+.order-stat-label {
+    -fx-text-fill: #6B7280;
+}
+
+.market-chart .chart-plot-background {
+    -fx-background-color: #F9FAFB;
+}
+
+.market-chart .chart-vertical-grid-lines {
+    -fx-stroke: #E5E7EB;
+}
+
+.market-chart .chart-horizontal-grid-lines {
+    -fx-stroke: #E5E7EB;
+}
+
+.market-chart .chart-series-line {
+    -fx-stroke: #2E8B6C;
+    -fx-effect: dropshadow(gaussian, rgba(46, 139, 108, 0.3), 4, 0, 0, 2);
+}
+
+.market-chart .chart-line-symbol {
+    -fx-background-color: #2E8B6C;
+}
+
+.market-chart .axis-label {
+    -fx-text-fill: #6B7280;
+}
+
+.market-chart .axis-tick-label {
+    -fx-text-fill: #6B7280;
 }

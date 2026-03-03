@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" 
+            fx:controller="Controllers.ComprehensiveTestController"
+            prefHeight="900" prefWidth="1400">
+    
+    <!-- Header -->
+    <top>
+        <VBox styleClass="header-section" style="-fx-background-color: #2c3e50; -fx-padding: 15;">
+            <Label text="🧪 Comprehensive System Test Panel" style="-fx-text-fill: white; -fx-font-size: 24px; -fx-font-weight: bold;"/>
+            <Label text="Test all integrated systems: Wallet • Batch • Marketplace • Payment • Database" 
+                   style="-fx-text-fill: #ecf0f1; -fx-font-size: 12px;"/>
+        </VBox>
+    </top>
+    
+    <center>
+        <SplitPane dividerPositions="0.6" VBox.vgrow="ALWAYS">
+            
+            <!-- LEFT: Test Buttons Panel -->
+            <ScrollPane fitToWidth="true">
+                <VBox spacing="10" style="-fx-padding: 15;">
+                    
+                    <!-- 1. WALLET TESTS -->
+                    <TitledPane text="💰 Wallet Operations" expanded="true" collapsible="true">
+                        <VBox spacing="8" style="-fx-padding: 10;">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnCreateWallet" text="Create Test Wallet" onAction="#testCreateWallet" prefWidth="160"/>
+                                <TextField fx:id="txtWalletOwnerType" promptText="Owner Type (ENTERPRISE/INDIVIDUAL)" prefWidth="250"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnGetWallet" text="Get Wallet Details" onAction="#testGetWallet" prefWidth="160"/>
+                                <TextField fx:id="txtWalletId" promptText="Wallet ID" prefWidth="120"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnListWallets" text="List All Wallets" onAction="#testListWallets" prefWidth="160"/>
+                                <Label text="Shows first 20 wallets"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnUpdateWallet" text="Update Wallet" onAction="#testUpdateWallet" prefWidth="160"/>
+                                <TextField fx:id="txtNewWalletName" promptText="New Name" prefWidth="250"/>
+                            </HBox>
+                        </VBox>
+                    </TitledPane>
+                    
+                    <!-- 2. BATCH TESTS -->
+                    <TitledPane text="📦 Batch Operations" expanded="true" collapsible="true">
+                        <VBox spacing="8" style="-fx-padding: 10;">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnIssueCredits" text="Issue Credits (Create Batch)" onAction="#testIssueCredits" prefWidth="180"/>
+                                <TextField fx:id="txtIssueWalletId" promptText="Wallet ID" prefWidth="100"/>
+                                <TextField fx:id="txtIssueAmount" promptText="Amount" prefWidth="100"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnListBatches" text="List Wallet Batches" onAction="#testListBatches" prefWidth="180"/>
+                                <TextField fx:id="txtBatchWalletId" promptText="Wallet ID" prefWidth="100"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnBatchLineage" text="View Batch Lineage" onAction="#testBatchLineage" prefWidth="180"/>
+                                <TextField fx:id="txtBatchId" promptText="Batch ID" prefWidth="100"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnBatchEvents" text="View Batch Events" onAction="#testBatchEvents" prefWidth="180"/>
+                                <TextField fx:id="txtEventBatchId" promptText="Batch ID" prefWidth="100"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnRetireCredits" text="Retire Credits" onAction="#testRetireCredits" prefWidth="180"/>
+                                <TextField fx:id="txtRetireWalletId" promptText="Wallet ID" prefWidth="100"/>
+                                <TextField fx:id="txtRetireAmount" promptText="Amount" prefWidth="100"/>
+                            </HBox>
+                        </VBox>
+                    </TitledPane>
+                    
+                    <!-- 3. TRANSFER TESTS -->
+                    <TitledPane text="🔄 Transfer Operations" expanded="true" collapsible="true">
+                        <VBox spacing="8" style="-fx-padding: 10;">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnTransferDirect" text="Transfer (DIRECT)" onAction="#testTransferDirect" prefWidth="150"/>
+                                <TextField fx:id="txtTransferFrom" promptText="From Wallet" prefWidth="100"/>
+                                <TextField fx:id="txtTransferTo" promptText="To Wallet" prefWidth="100"/>
+                                <TextField fx:id="txtTransferAmount" promptText="Amount" prefWidth="100"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnTransferSplit" text="Transfer (SPLIT_CHILD)" onAction="#testTransferSplit" prefWidth="150"/>
+                                <Label text="Creates child batches for traceability"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnSplitBatch" text="Split Batch" onAction="#testSplitBatch" prefWidth="150"/>
+                                <TextField fx:id="txtSplitBatchId" promptText="Batch ID" prefWidth="100"/>
+                                <TextField fx:id="txtSplitAmount" promptText="Split Amount" prefWidth="100"/>
+                            </HBox>
+                        </VBox>
+                    </TitledPane>
+                    
+                    <!-- 4. MARKETPLACE TESTS -->
+                    <TitledPane text="🛒 Marketplace Operations" expanded="true" collapsible="true">
+                        <VBox spacing="8" style="-fx-padding: 10;">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnCreateListing" text="Create Listing" onAction="#testCreateListing" prefWidth="150"/>
+                                <TextField fx:id="txtListingWalletId" promptText="Wallet ID" prefWidth="100"/>
+                                <TextField fx:id="txtListingQty" promptText="Quantity" prefWidth="80"/>
+                                <TextField fx:id="txtListingPrice" promptText="Price/unit" prefWidth="80"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnListMarketplace" text="List Active Listings" onAction="#testListMarketplace" prefWidth="150"/>
+                                <Label text="Shows first 20 active listings"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnPlaceOrder" text="Place Order" onAction="#testPlaceOrder" prefWidth="150"/>
+                                <TextField fx:id="txtOrderListingId" promptText="Listing ID" prefWidth="100"/>
+                                <TextField fx:id="txtOrderBuyerId" promptText="Buyer ID" prefWidth="100"/>
+                                <TextField fx:id="txtOrderQty" promptText="Quantity" prefWidth="80"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnCompleteOrder" text="Complete Order (Mock)" onAction="#testCompleteOrder" prefWidth="150"/>
+                                <TextField fx:id="txtOrderId" promptText="Order ID" prefWidth="100"/>
+                                <Label text="Simulates successful payment"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnListOrders" text="List Orders" onAction="#testListOrders" prefWidth="150"/>
+                                <TextField fx:id="txtOrderUserId" promptText="User ID (optional)" prefWidth="120"/>
+                            </HBox>
+                        </VBox>
+                    </TitledPane>
+                    
+                    <!-- 5. PAYMENT TESTS -->
+                    <TitledPane text="💳 Payment Integration Tests" expanded="true" collapsible="true">
+                        <VBox spacing="8" style="-fx-padding: 10;">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnTestStripeConfig" text="Test Stripe Config" onAction="#testStripeConfig" prefWidth="160"/>
+                                <Label text="Verifies API keys loaded"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnCreatePaymentIntent" text="Create Payment Intent" onAction="#testCreatePaymentIntent" prefWidth="160"/>
+                                <TextField fx:id="txtPaymentAmount" promptText="Amount USD" prefWidth="100"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnTestCheckout" text="Test Checkout Session" onAction="#testCheckoutSession" prefWidth="160"/>
+                                <Label text="Creates Stripe Checkout URL"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnTestWebhook" text="Simulate Webhook" onAction="#testWebhook" prefWidth="160"/>
+                                <Label text="Tests webhook handler"/>
+                            </HBox>
+                        </VBox>
+                    </TitledPane>
+                    
+                    <!-- 6. DATABASE TESTS -->
+                    <TitledPane text="🗄️ Database Integrity Tests" expanded="true" collapsible="true">
+                        <VBox spacing="8" style="-fx-padding: 10;">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnTestConnection" text="Test DB Connection" onAction="#testConnection" prefWidth="160"/>
+                                <Label text="Verifies MySQL connectivity"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnCheckSchema" text="Check Schema" onAction="#testCheckSchema" prefWidth="160"/>
+                                <Label text="Validates all required tables"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnCheckIndexes" text="Check Indexes" onAction="#testCheckIndexes" prefWidth="160"/>
+                                <Label text="Verifies performance indexes"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnCheckConstraints" text="Check Constraints" onAction="#testCheckConstraints" prefWidth="160"/>
+                                <Label text="Foreign keys & constraints"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnOrphanCheck" text="Find Orphaned Records" onAction="#testOrphanCheck" prefWidth="160"/>
+                                <Label text="Detects data inconsistencies"/>
+                            </HBox>
+                        </VBox>
+                    </TitledPane>
+                    
+                    <!-- 7. INTEGRATION TESTS -->
+                    <TitledPane text="🔗 End-to-End Integration Tests" expanded="true" collapsible="true">
+                        <VBox spacing="8" style="-fx-padding: 10;">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnE2EComplete" text="Full Purchase Flow" onAction="#testE2EComplete" prefWidth="170"/>
+                                <Label text="Create listing → buy → verify"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnE2EBatchFlow" text="Batch Lifecycle" onAction="#testE2EBatchFlow" prefWidth="170"/>
+                                <Label text="Issue → transfer → split → retire"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnE2EEscrow" text="Escrow Flow (>$10k)" onAction="#testE2EEscrow" prefWidth="170"/>
+                                <Label text="Large order with child batches"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnStressTest" text="Stress Test (100 ops)" onAction="#testStress" prefWidth="170"/>
+                                <Label text="⚠️ High load test"/>
+                            </HBox>
+                        </VBox>
+                    </TitledPane>
+                    
+                    <!-- 8. UTILITY BUTTONS -->
+                    <TitledPane text="🛠️ Utilities" expanded="true" collapsible="true">
+                        <VBox spacing="8" style="-fx-padding: 10;">
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <Button fx:id="btnClearLog" text="Clear Log" onAction="#clearLog" prefWidth="120" style="-fx-background-color: #e74c3c; -fx-text-fill: white;"/>
+                                <Button fx:id="btnExportLog" text="Export Log" onAction="#exportLog" prefWidth="120"/>
+                                <Button fx:id="btnResetTestData" text="⚠️ Reset Test Data" onAction="#resetTestData" prefWidth="140" style="-fx-background-color: #c0392b; -fx-text-fill: white;"/>
+                            </HBox>
+                            <HBox spacing="10" alignment="CENTER_LEFT">
+                                <CheckBox fx:id="chkVerbose" text="Verbose Logging"/>
+                                <CheckBox fx:id="chkAutoScroll" text="Auto-scroll" selected="true"/>
+                                <CheckBox fx:id="chkTimestamp" text="Show Timestamps" selected="true"/>
+                            </HBox>
+                        </VBox>
+                    </TitledPane>
+                    
+                </VBox>
+            </ScrollPane>
+            
+            <!-- RIGHT: Log Panel -->
+            <VBox spacing="5" style="-fx-padding: 10;">
+                <Label text="📋 Test Output Log" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
+                <TextArea fx:id="logArea" editable="false" wrapText="true" VBox.vgrow="ALWAYS"
+                          style="-fx-font-family: 'Courier New'; -fx-font-size: 11px; -fx-background-color: #1e1e1e; -fx-text-fill: #00ff00;"/>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <Label fx:id="statusLabel" text="Ready" style="-fx-font-weight: bold;"/>
+                    <Separator orientation="VERTICAL"/>
+                    <Label fx:id="statsLabel" text="Tests: 0 | Pass: 0 | Fail: 0"/>
+                </HBox>
+            </VBox>
+            
+        </SplitPane>
+    </center>
+    
+</BorderPane>

@@ -32,5 +32,3 @@ public class OffreFinancement {
     public int getIdFinancement() { return idFinancement; }
     public void setIdFinancement(int idFinancement) { this.idFinancement = idFinancement; }
 }
-
-

@@ -9,8 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CritereImpactService {
+    private final Connection conn;
 
     public CritereImpactService() {
+        this.conn = MyConnection.getConnection();
     }
 
     public void ensureDefaultReferences() {
@@ -19,9 +21,7 @@ public class CritereImpactService {
 
     private boolean hasAnyReferences() {
         String countSql = "SELECT COUNT(*) FROM critere_reference";
-        try (Connection conn = MyConnection.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(countSql)) {
+        try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(countSql)) {
             return rs.next() && rs.getInt(1) > 0;
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
@@ -31,8 +31,7 @@ public class CritereImpactService {
 
     private void seedDefaults() {
         String insertSql = "INSERT INTO critere_reference(nom_critere, description, poids) VALUES (?,?,?)";
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(insertSql)) {
+        try (PreparedStatement ps = conn.prepareStatement(insertSql)) {
             // Seed a small standard set if table is empty.
             addDefault(ps, "Pollution Air", "Impact sur la qualite de l'air", 1);
             addDefault(ps, "Pollution Eau", "Impact sur les ressources hydriques", 1);
@@ -55,9 +54,7 @@ public class CritereImpactService {
     public List<CritereReference> afficherReferences() {
         List<CritereReference> list = new ArrayList<>();
         String sql = "SELECT id_critere, nom_critere, description, poids FROM critere_reference ORDER BY id_critere";
-        try (Connection conn = MyConnection.getConnection();
-             Statement st = conn.createStatement();
-             ResultSet rs = st.executeQuery(sql)) {
+        try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 CritereReference c = new CritereReference();
                 c.setIdCritere(rs.getInt("id_critere"));
@@ -74,8 +71,7 @@ public class CritereImpactService {
 
     public void ajouterReference(CritereReference c) {
         String sql = "INSERT INTO critere_reference(nom_critere, description, poids) VALUES (?,?,?)";
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, c.getNomCritere());
             ps.setString(2, c.getDescription());
             ps.setInt(3, c.getPoids());
@@ -87,8 +83,7 @@ public class CritereImpactService {
 
     public void modifierReference(CritereReference c) {
         String sql = "UPDATE critere_reference SET nom_critere=?, description=?, poids=? WHERE id_critere=?";
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, c.getNomCritere());
             ps.setString(2, c.getDescription());
             ps.setInt(3, c.getPoids());
@@ -101,8 +96,7 @@ public class CritereImpactService {
 
     public boolean isReferenceUsed(int idCritere) {
         String sql = "SELECT COUNT(*) FROM evaluation_resultat WHERE id_critere=?";
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, idCritere);
             try (ResultSet rs = ps.executeQuery()) {
                 return rs.next() && rs.getInt(1) > 0;
@@ -116,7 +110,7 @@ public class CritereImpactService {
     public boolean supprimerReference(int idCritere) {
         String deleteResultsSql = "DELETE FROM evaluation_resultat WHERE id_critere=?";
         String deleteRefSql = "DELETE FROM critere_reference WHERE id_critere=?";
-        try (Connection conn = MyConnection.getConnection()) {
+        try {
             conn.setAutoCommit(false);
             try (PreparedStatement ps = conn.prepareStatement(deleteResultsSql)) {
                 ps.setInt(1, idCritere);
@@ -129,8 +123,19 @@ public class CritereImpactService {
                 return deleted;
             }
         } catch (SQLException ex) {
+            try {
+                conn.rollback();
+            } catch (SQLException ignore) {
+                // ignore rollback failures
+            }
             System.out.println(ex.getMessage());
             return false;
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException ignore) {
+                // ignore restore failures
+            }
         }
     }
 
@@ -141,8 +146,7 @@ public class CritereImpactService {
                 "JOIN critere_reference r ON r.id_critere = er.id_critere " +
                 "WHERE er.id_evaluation=? " +
                 "ORDER BY r.id_critere";
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, idEvaluation);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -163,8 +167,7 @@ public class CritereImpactService {
 
     public void ajouterResultats(int idEvaluation, List<EvaluationResult> criteres) {
         String sql = "INSERT INTO evaluation_resultat(id_evaluation, id_critere, est_respecte, note, commentaire_expert) VALUES (?,?,?,?,?)";
-        try (Connection conn = MyConnection.getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
             for (EvaluationResult c : criteres) {
                 ps.setInt(1, idEvaluation);
                 ps.setInt(2, c.getIdCritere());
@@ -182,7 +185,7 @@ public class CritereImpactService {
     public void modifierResultats(int idEvaluation, List<EvaluationResult> criteres) {
         String deleteSql = "DELETE FROM evaluation_resultat WHERE id_evaluation=?";
         String insertSql = "INSERT INTO evaluation_resultat(id_evaluation, id_critere, est_respecte, note, commentaire_expert) VALUES (?,?,?,?,?)";
-        try (Connection conn = MyConnection.getConnection()) {
+        try {
             conn.setAutoCommit(false);
             try (PreparedStatement deletePs = conn.prepareStatement(deleteSql)) {
                 deletePs.setInt(1, idEvaluation);
@@ -201,8 +204,18 @@ public class CritereImpactService {
             }
             conn.commit();
         } catch (SQLException ex) {
+            try {
+                conn.rollback();
+            } catch (SQLException ignore) {
+                // ignore rollback failures
+            }
             System.out.println(ex.getMessage());
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (SQLException ignore) {
+                // ignore restore failures
+            }
         }
     }
 }
-

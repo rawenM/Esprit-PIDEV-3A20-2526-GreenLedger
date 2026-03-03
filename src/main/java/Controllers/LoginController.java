@@ -256,6 +256,10 @@ public class LoginController {
         captchaBypassed = true;
         System.out.println("[CLEAN] Captcha bypass enabled (temporary)");
         showError("Mode démo: captcha bypassé");
+        if (captchaContainer != null) {
+            captchaContainer.setVisible(false);
+            captchaContainer.setManaged(false);
+        }
     }
 
     private class CaptchaBridge {
@@ -420,7 +424,6 @@ public class LoginController {
             e.printStackTrace();
         }
     }
-
 
     @FXML
     private void handleRegister(ActionEvent event) {

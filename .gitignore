@@ -8,6 +8,7 @@ target/
 .idea/jarRepositories.xml
 .idea/compiler.xml
 .idea/libraries/
+.idea/runConfigurations/
 *.iws
 *.iml
 *.ipr
@@ -34,6 +35,7 @@ build/
 ### VS Code ###
 .vscode/
 
+<<<<<<< HEAD
 ### Local config (secrets) ###
 src/main/resources/config.properties
 *.env
@@ -51,3 +53,20 @@ tokens/
 
 ### fichiers zeydin ###
 /uploads/
+=======
+<<<<<<< HEAD
+### Mac OS ###
+.DS_Store
+=======
+### Local config (secrets) ###
+src/main/resources/config.properties
+*.env
+.env
+
+### Mac OS ###
+.DS_Store
+
+### fichiers zeydin ###
+/uploads/
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar

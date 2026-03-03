@@ -14,13 +14,11 @@ import javafx.util.Callback;
 import Models.Projet;
 import org.GreenLedger.MainFX;
 import Services.ProjetService;
-
 import Services.EvaluationService;
 import Models.Evaluation;
 import Utils.SessionManager;
 import Models.TypeUtilisateur;
 import Models.User;
-
 
 import java.io.IOException;
 
@@ -67,9 +65,6 @@ public class ExpertProjetController extends BaseController {
 
     @FXML
     private TableColumn<Projet, Void> colPdf;
-
-    @FXML
-    private TableColumn<Projet, Void> colCalcEsg;
 
     @FXML
     private Label lblTotal;
@@ -274,13 +269,13 @@ public class ExpertProjetController extends BaseController {
 
     private Callback<TableColumn<Projet, Void>, TableCell<Projet, Void>> createDecisionCell() {
         return column -> new TableCell<>() {
-            private final Button btn = new Button("Check Decision");
+            private final Button btn = new Button("Décision");
             {
                 btn.getStyleClass().addAll("btn", "btn-secondary");
                 btn.setOnAction(event -> {
-                    Projet p = getTableView().getItems().get(getIndex());
+                    Projet projet = getTableView().getItems().get(getIndex());
+                    CarbonAuditController.setSelectedProjet(projet);
                     try {
-                        CarbonAuditController.setSelectedProjet(p);
                         MainFX.setRoot("mlDecision");
                     } catch (IOException e) {
                         e.printStackTrace();

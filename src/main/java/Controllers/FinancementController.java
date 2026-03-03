@@ -369,8 +369,8 @@ public class FinancementController extends BaseController {
         txtProjetId.requestFocus();
     }
 
-    /*
-      Handle sidebar button: New Offer
+    /**
+     * Handle sidebar button: New Offer
      */
     @FXML
     private void btnNewOffre_click() {
@@ -378,8 +378,8 @@ public class FinancementController extends BaseController {
         txtTypeOffre.requestFocus();
     }
 
-    /*
-      Navigation agent
+    /**
+     * Navigation agent
      */
     @FXML
     private void handleGoRiskAgent() {
@@ -391,6 +391,7 @@ public class FinancementController extends BaseController {
             showError("Erreur", "Impossible d'ouvrir l'agent de risque");
         }
     }
+
     @FXML
     private void exporterContrat() {
 
@@ -443,6 +444,7 @@ public class FinancementController extends BaseController {
             e.printStackTrace();
         }
     }
+
     @FXML
     private void exporterRapportOffres() {
 
@@ -493,6 +495,4 @@ public class FinancementController extends BaseController {
         try { org.GreenLedger.MainFX.setRoot("Investment_dashboard"); }
         catch (IOException e) { e.printStackTrace(); }
     }
-
-
 }

@@ -7,7 +7,10 @@
       fx:controller="Controllers.FinancementController"
       spacing="0" styleClass="page">
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> yassine_antar
     <VBox prefWidth="220" styleClass="sidebar">
         <HBox alignment="CENTER_LEFT" spacing="8">
             <Label text="💼" style="-fx-font-size:20px;"/>
@@ -17,6 +20,7 @@
         <Separator styleClass="sidebar-sep"/>
 
         <Button fx:id="btnDashboard" text="📊 Tableau de bord" onAction="#handleGoDashboard" styleClass="nav-btn"/>
+<<<<<<< HEAD
         <Button text="📊 Tableau analytique"
                 onAction="#GoDashboard"
                 styleClass="nav-btn"/>
@@ -29,6 +33,14 @@
 
         <Button fx:id="btnNewFinancement" text="➕ Nouveau Financement" onAction="#btnNewFinancement_click"
                 styleClass="nav-btn"/>
+=======
+        <Button fx:id="btnFinancement" text="💳 Financement" onAction="#handleGoFinancement" styleClass="nav-btn nav-btn-active"/>
+        <Button fx:id="btnOffres" text="🧾 Offres" onAction="#handleGoInvestments" styleClass="nav-btn"/>
+
+        <Separator styleClass="sidebar-sep"/>
+
+        <Button fx:id="btnNewFinancement" text="➕ Nouveau Financement" onAction="#btnNewFinancement_click" styleClass="nav-btn"/>
+>>>>>>> yassine_antar
         <Button fx:id="btnNewOffre" text="➕ Nouvelle Offre" onAction="#btnNewOffre_click" styleClass="nav-btn"/>
         <Button fx:id="btnRefresh" text="🔄 Actualiser" styleClass="nav-btn" onAction="#refreshAll"/>
         <Button fx:id="btnNavSettings" text="⚙️ Paramètres" onAction="#handleGoSettings" styleClass="nav-btn"/>
@@ -148,12 +160,15 @@
                                 styleClass="btn btn-danger"
                                 prefHeight="36"
                                 prefWidth="140"/>
+<<<<<<< HEAD
                         <Button text="📊 Exporter Rapport PDF"
                                 onAction="#exporterRapportOffres"
                                 styleClass="btn btn-primary"
                                 prefHeight="36"
                                 prefWidth="200"/>
 
+=======
+>>>>>>> yassine_antar
                         <Region HBox.hgrow="ALWAYS"/>
                         <Button text="🔄 Actualiser"
                                 onAction="#refreshAll"
@@ -234,12 +249,18 @@
                     </HBox>
 
                     <HBox spacing="12">
+<<<<<<< HEAD
                         <Button text="➕ Ajouter Offre" onAction="#ajouterOffre" styleClass="btn btn-primary"
                                 prefHeight="36" prefWidth="140"/>
                         <Button text="✏️ Modifier Offre" onAction="#modifierOffre" styleClass="btn btn-secondary"
                                 prefHeight="36" prefWidth="140"/>
                         <Button text="🗑️ Supprimer Offre" onAction="#supprimerOffre" styleClass="btn btn-danger"
                                 prefHeight="36" prefWidth="140"/>
+=======
+                        <Button text="➕ Ajouter Offre" onAction="#ajouterOffre" styleClass="btn btn-primary" prefHeight="36" prefWidth="140"/>
+                        <Button text="✏️ Modifier Offre" onAction="#modifierOffre" styleClass="btn btn-secondary" prefHeight="36" prefWidth="140"/>
+                        <Button text="🗑️ Supprimer Offre" onAction="#supprimerOffre" styleClass="btn btn-danger" prefHeight="36" prefWidth="140"/>
+>>>>>>> yassine_antar
                     </HBox>
                 </VBox>
 

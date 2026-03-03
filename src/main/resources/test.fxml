@@ -6,7 +6,15 @@
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
 
+<<<<<<< HEAD
 <HBox xmlns="http://javafx.com/javafx/20.0.2"
+=======
+<<<<<<< HEAD
+<HBox xmlns="http://javafx.com/javafx/23.0.1"
+=======
+<HBox xmlns="http://javafx.com/javafx/20.0.2"
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
+>>>>>>> yassine_antar
       xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="Controllers.CarbonAuditController"
     styleClass="page">

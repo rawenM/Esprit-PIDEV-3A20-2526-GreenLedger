@@ -38,8 +38,6 @@ public class ProjetDetailController {
     @FXML private TextArea taDescription;
     @FXML private Button btnSaveChanges;
     @FXML private Button btnCancelEdit;
-
-    // ✅ Documents / images (read-only)
     @FXML private Label lblDocsCount;
     @FXML private ListView<String> lvDocs;
 
@@ -68,7 +66,6 @@ public class ProjetDetailController {
     public void setOnChanged(Runnable r) {
         this.onChanged = r;
     }
-
     @FXML
     private void onAnnulerProjet() {
         if (projet == null) return;
@@ -243,6 +240,7 @@ public class ProjetDetailController {
         }
         return f;
     }
+
 
     private void render() {
         if (projet == null) return;

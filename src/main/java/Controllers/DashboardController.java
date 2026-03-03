@@ -52,6 +52,7 @@ public class DashboardController {
     @FXML private Button investmentsButton;
     @FXML private Button settingsButton;
     @FXML private Button financingButton;
+    @FXML private Button comprehensiveTestsButton;
     @FXML private Button logoutButton;
 
     // Section de modification de profil (optionnel)
@@ -541,6 +542,16 @@ public class DashboardController {
 
         } catch (IOException e) {
             showAlert("Erreur", "Impossible de charger le module de financement avancé", Alert.AlertType.ERROR);
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
+    private void handleComprehensiveTests(ActionEvent event) {
+        try {
+            MainFX.setRoot("ComprehensiveTest");
+        } catch (IOException e) {
+            showAlert("Erreur", "Impossible de charger le panneau de tests complets", Alert.AlertType.ERROR);
             e.printStackTrace();
         }
     }
