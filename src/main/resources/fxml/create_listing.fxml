@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="Controllers.CreateListingController"
+      prefWidth="700" prefHeight="650" spacing="16"
+      styleClass="content-area">
+
+    <padding>
+        <Insets top="20" right="24" bottom="24" left="24"/>
+    </padding>
+
+    <Label text="Create Marketplace Listing" styleClass="page-title"/>
+
+    <VBox spacing="16">
+        <!-- Asset Type Selection -->
+        <VBox spacing="8">
+            <Label text="What do you want to sell?" style="-fx-font-weight: bold;"/>
+            <HBox spacing="20">
+                <RadioButton fx:id="sellCreditsRadio" text="Carbon Credits (from wallet batches)" selected="true"/>
+                <RadioButton fx:id="sellWalletRadio" text="Entire Wallet (transfer ownership)"/>
+            </HBox>
+        </VBox>
+
+        <Separator/>
+
+        <!-- Wallet Selection -->
+        <VBox spacing="8">
+            <Label text="Select Wallet:" style="-fx-font-weight: bold;"/>
+            <ComboBox fx:id="walletComboBox" prefWidth="400" promptText="Choose a wallet"/>
+            <HBox spacing="16">
+                <Label fx:id="availableCreditsLabel" text="Available: -- tCO2" styleClass="muted-note"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="marketPriceLabel" text="Market Reference: Loading..." styleClass="muted-note"/>
+            </HBox>
+        </VBox>
+
+        <!-- Batches Table (only visible for carbon credits) -->
+        <VBox fx:id="batchesContainer" spacing="8">
+            <Label text="Available Credit Batches:" style="-fx-font-weight: bold;"/>
+            <TableView fx:id="batchesTable" prefHeight="180">
+                <columns>
+                    <TableColumn fx:id="batchIdColumn" text="Batch" prefWidth="100"/>
+                    <TableColumn fx:id="batchProjectColumn" text="Project" prefWidth="180"/>
+                    <TableColumn fx:id="batchAmountColumn" text="Amount" prefWidth="120"/>
+                    <TableColumn fx:id="batchStatusColumn" text="Status" prefWidth="150"/>
+                </columns>
+            </TableView>
+            <Label text="You can sell any quantity from the total available credits above" 
+                   style="-fx-font-size: 11px; -fx-text-fill: gray;"/>
+        </VBox>
+
+        <Separator/>
+
+        <!-- Pricing -->
+        <GridPane hgap="12" vgap="12">
+            <columnConstraints>
+                <ColumnConstraints prefWidth="160"/>
+                <ColumnConstraints prefWidth="400"/>
+            </columnConstraints>
+
+            <Label fx:id="quantityLabel" text="Quantity (tCO2):" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+            <TextField fx:id="quantityField" GridPane.rowIndex="0" GridPane.columnIndex="1" 
+                       promptText="e.g., 100"/>
+
+            <Label text="Your Price (USD):" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+            <TextField fx:id="priceField" GridPane.rowIndex="1" GridPane.columnIndex="1" 
+                       promptText="e.g., 18.50 per ton"/>
+
+            <Label text="Minimum Price (USD):" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+            <TextField fx:id="minPriceField" GridPane.rowIndex="2" GridPane.columnIndex="1" 
+                       promptText="Lowest acceptable offer"/>
+
+            <Label text="Auto-Accept Price (USD):" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+            <TextField fx:id="autoAcceptPriceField" GridPane.rowIndex="3" GridPane.columnIndex="1" 
+                       promptText="Optional: auto-accept at or above"/>
+
+            <Label text="Description (optional):" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+            <TextArea fx:id="descriptionArea" GridPane.rowIndex="4" GridPane.columnIndex="1" 
+                      prefRowCount="3" wrapText="true" 
+                      promptText="Add any additional information about your listing..."/>
+        </GridPane>
+
+        <Label text="Note: Your price is negotiable. The market reference is just a guideline." 
+               style="-fx-font-size: 11px; -fx-text-fill: gray;"/>
+
+        <Separator/>
+
+        <!-- Action Buttons -->
+        <HBox spacing="12" alignment="CENTER_RIGHT">
+            <Button fx:id="cancelButton" text="Cancel" onAction="#handleCancel" styleClass="btn btn-secondary"/>
+            <Button fx:id="createButton" text="Create Listing" onAction="#handleCreate" styleClass="btn"/>
+        </HBox>
+    </VBox>
+</VBox>

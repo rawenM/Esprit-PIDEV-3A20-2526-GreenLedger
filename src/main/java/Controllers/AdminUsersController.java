@@ -661,6 +661,20 @@ public class AdminUsersController {
     }
 
     @FXML
+    private void handleNavEscrow() {
+        try {
+            System.out.println("[ADMIN DEBUG] Attempting to navigate to escrow panel");
+            MainFX.setRoot("fxml/escrow");
+            System.out.println("[ADMIN DEBUG] Successfully navigated to escrow panel");
+        } catch (Exception e) {
+            System.err.println("[ADMIN DEBUG] Exception caught: " + e.getClass().getName());
+            System.err.println("[ADMIN DEBUG] Message: " + e.getMessage());
+            e.printStackTrace();
+            showError("Erreur Navigation", "Impossible d'accéder au panneau Escrow: " + e.getMessage());
+        }
+    }
+
+    @FXML
     private void handleNavSettings() {
         loadContent("settings");
     }

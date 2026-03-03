@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+
+<VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
+      fx:controller="Controllers.BatchLineageController"
+      spacing="15" style="-fx-background-color: #f5f7fa;">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+    
+    <!-- Header -->
+    <HBox alignment="CENTER_LEFT" spacing="15">
+        <Label text="🔍 Carbon Credit Batch Traceability" styleClass="header-title">
+            <font>
+                <Font name="System Bold" size="24"/>
+            </font>
+        </Label>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button fx:id="refreshButton" text="🔄 Refresh" onAction="#handleRefresh" styleClass="btn-primary"/>
+        <Button fx:id="exportButton" text="💾 Export Blockchain JSON" onAction="#handleExport" styleClass="btn-secondary"/>
+    </HBox>
+    
+    <Separator/>
+    
+    <!-- Search Bar -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Batch ID:"/>
+        <TextField fx:id="batchIdField" promptText="Enter batch ID" prefWidth="150"/>
+        <Button text="Search" onAction="#handleSearch" styleClass="btn-primary"/>
+        <Label fx:id="validationLabel" text="" style="-fx-text-fill: green; -fx-font-weight: bold;"/>
+    </HBox>
+    
+    <!-- Batch Details Card -->
+    <VBox fx:id="detailsCard" spacing="10" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 8;">
+        <Label text="Batch Details" style="-fx-font-size: 16; -fx-font-weight: bold;"/>
+        
+        <GridPane hgap="15" vgap="10">
+            <columnConstraints>
+                <ColumnConstraints minWidth="150" halignment="RIGHT"/>
+                <ColumnConstraints hgrow="ALWAYS"/>
+            </columnConstraints>
+            
+            <Label text="Serial Number:" GridPane.rowIndex="0" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+            <Label fx:id="serialNumberLabel" text="-" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+            
+            <Label text="Batch Type:" GridPane.rowIndex="1" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+            <Label fx:id="batchTypeLabel" text="-" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+            
+            <Label text="Total Amount:" GridPane.rowIndex="2" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+            <Label fx:id="totalAmountLabel" text="-" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+            
+            <Label text="Remaining:" GridPane.rowIndex="3" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+            <Label fx:id="remainingAmountLabel" text="-" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+            
+            <Label text="Status:" GridPane.rowIndex="4" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+            <Label fx:id="statusLabel" text="-" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+            
+            <Label text="Verification:" GridPane.rowIndex="5" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+            <Label fx:id="verificationLabel" text="-" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+            
+            <Label text="Event Count:" GridPane.rowIndex="6" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+            <Label fx:id="eventCountLabel" text="-" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
+            
+            <Label text="Chain Integrity:" GridPane.rowIndex="7" GridPane.columnIndex="0" style="-fx-font-weight: bold;"/>
+            <Label fx:id="chainIntegrityLabel" text="-" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+        </GridPane>
+    </VBox>
+    
+    <!-- Tabs for different views -->
+    <TabPane fx:id="tabPane" VBox.vgrow="ALWAYS" style="-fx-background-color: white;">
+        
+        <!-- Lineage Tab -->
+        <Tab text="📊 Lineage Tree" closable="false">
+            <VBox spacing="10" style="-fx-padding: 15;">
+                <Label text="Parent-Child Batch Relationships" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                <TreeView fx:id="lineageTreeView" VBox.vgrow="ALWAYS"/>
+            </VBox>
+        </Tab>
+        
+        <!-- Events Tab -->
+        <Tab text="📜 Event Timeline" closable="false">
+            <VBox spacing="10" style="-fx-padding: 15;">
+                <Label text="Complete Event History (Blockchain-Ready)" style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                <TableView fx:id="eventsTable" VBox.vgrow="ALWAYS">
+                    <columns>
+                        <TableColumn fx:id="eventIdColumn" text="ID" prefWidth="60"/>
+                        <TableColumn fx:id="eventTypeColumn" text="Event Type" prefWidth="150"/>
+                        <TableColumn fx:id="eventActorColumn" text="Actor" prefWidth="150"/>
+                        <TableColumn fx:id="eventHashColumn" text="Hash (Truncated)" prefWidth="150"/>
+                        <TableColumn fx:id="eventTimestampColumn" text="Timestamp" prefWidth="180"/>
+                    </columns>
+                </TableView>
+            </VBox>
+        </Tab>
+        
+        <!-- Provenance Tab -->
+        <Tab text="🔬 Complete Provenance" closable="false">
+            <VBox spacing="10" style="-fx-padding: 15;">
+                <Label text="Full Audit Trail from Emission Calculation to Current State" 
+                       style="-fx-font-size: 14; -fx-font-weight: bold;"/>
+                <TextArea fx:id="provenanceTextArea" VBox.vgrow="ALWAYS" editable="false" 
+                         wrapText="true" style="-fx-font-family: 'Courier New'; -fx-font-size: 12;"/>
+            </VBox>
+        </Tab>
+        
+    </TabPane>
+    
+    <!-- Action Buttons -->
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button fx:id="splitBatchButton" text="✂️ Split Batch" onAction="#handleSplitBatch" 
+                styleClass="btn-warning" disable="true"/>
+        <Button fx:id="viewParentButton" text="⬆️ View Parent" onAction="#handleViewParent" 
+                styleClass="btn-secondary" disable="true"/>
+        <Button fx:id="viewChildrenButton" text="⬇️ View Children" onAction="#handleViewChildren" 
+                styleClass="btn-secondary" disable="true"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="statusMessageLabel" text="" style="-fx-text-fill: #666;"/>
+    </HBox>
+    
+</VBox>

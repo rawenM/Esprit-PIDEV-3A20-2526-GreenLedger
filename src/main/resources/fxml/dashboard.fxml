@@ -100,6 +100,12 @@
                     maxWidth="Infinity"
                     styleClass="nav-btn"/>
 
+                <Button fx:id="comprehensiveTestsButton"
+                    text="🧪 Tests Complets"
+                    onAction="#handleComprehensiveTests"
+                    maxWidth="Infinity"
+                    styleClass="nav-btn"/>
+
             <Region VBox.vgrow="ALWAYS"/>
 
             <Separator/>

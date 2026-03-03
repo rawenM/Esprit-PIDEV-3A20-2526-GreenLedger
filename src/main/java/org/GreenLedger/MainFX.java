@@ -1,6 +1,7 @@
 package org.GreenLedger;
 
 import DataBase.MyConnection;
+import Services.MarketplaceOrderService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -31,7 +32,7 @@ public class MainFX extends Application {
 >>>>>>> yassine_antar
 
     @Override
-    public void start(Stage primaryStage) throws IOException {
+    public void start(Stage primaryStage) throws Exception {
 
 <<<<<<< HEAD
         // Test de la connexion a la base de donnees
@@ -49,6 +50,9 @@ public class MainFX extends Application {
 >>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
         Parent root = loadFXML(START_SCREEN);
 >>>>>>> yassine_antar
+
+        // Start escrow auto-release background task
+        startEscrowAutoReleaseTask();
 
         // Charger la page de connexion
         URL fxmlUrl = getClass().getResource("/fxml/login.fxml");
@@ -97,7 +101,14 @@ public class MainFX extends Application {
                 resetServer = new ResetHttpServer(port);
                 resetServer.start();
             } catch (Exception e) {
-                System.err.println("[CLEAN] Impossible de demarrer ResetHttpServer: " + e.getMessage());
+                System.err.println("[CLEAN] Impossible de demarrer ResetHttpServer sur le port configure: " + e.getMessage());
+                try {
+                    resetServer = new ResetHttpServer(0);
+                    resetServer.start();
+                    System.out.println("[CLEAN] ResetHttpServer relance sur un port dynamique");
+                } catch (Exception fallbackException) {
+                    System.err.println("[CLEAN] Impossible de demarrer ResetHttpServer: " + fallbackException.getMessage());
+                }
             }
 
             System.out.println("[CLEAN] Application demarree avec succes");
@@ -160,11 +171,42 @@ public class MainFX extends Application {
 
     private static Parent loadFXML(String fxml) throws IOException {
         java.net.URL resource = MainFX.class.getResource("/" + fxml + ".fxml");
+        System.out.println("[FXML DEBUG] Loading FXML: " + fxml);
+        System.out.println("[FXML DEBUG] Resource URL: " + resource);
+        System.out.println("[FXML DEBUG] Full path: /" + fxml + ".fxml");
         if (resource == null) {
             throw new IOException("FXML introuvable: /" + fxml + ".fxml");
         }
         FXMLLoader fxmlLoader = new FXMLLoader(resource);
-        return fxmlLoader.load();
+        System.out.println("[FXML DEBUG] FXMLLoader created, about to load...");
+        Parent result = fxmlLoader.load();
+        System.out.println("[FXML DEBUG] FXML loaded successfully");
+        return result;
+    }
+
+    /**
+     * Start background task for auto-releasing escrows after 24 hours
+     */
+    private static void startEscrowAutoReleaseTask() {
+        Thread autoReleaseThread = new Thread(() -> {
+            MarketplaceOrderService orderService = MarketplaceOrderService.getInstance();
+            while (true) {
+                try {
+                    // Check every hour
+                    Thread.sleep(3600000); // 1 hour
+                    System.out.println("[Escrow] Checking for escrows eligible for auto-release...");
+                    orderService.autoReleaseOldEscrows();
+                } catch (InterruptedException e) {
+                    System.out.println("[Escrow] Auto-release task interrupted");
+                    break;
+                } catch (Exception e) {
+                    System.err.println("[Escrow] Error in auto-release task: " + e.getMessage());
+                }
+            }
+        });
+        autoReleaseThread.setDaemon(true);
+        autoReleaseThread.start();
+        System.out.println("[CLEAN] Escrow auto-release task started (checks every hour)");
     }
 
     public static void main(String[] args) {

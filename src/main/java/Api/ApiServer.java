@@ -75,6 +75,7 @@ public class ApiServer {
         // New endpoint: upload PDF bytes (POST) and extract text
         server.createContext("/api/pdf/upload-extract", this::handlePdfUploadExtract);
 >>>>>>> yassine_antar
+        server.createContext("/webhooks/stripe", this::handleStripeWebhook); // Stripe webhook endpoint
 
         server.setExecutor(java.util.concurrent.Executors.newCachedThreadPool());
         System.out.println("API server started on http://localhost:" + port);
@@ -305,6 +306,48 @@ public class ApiServer {
                 .collect(java.util.stream.Collectors.joining(","));
         String body = "{\"best\":\"" + escape(best) + "\",\"scores\":{" + scoreJson + "}}";
         send(exchange, 200, body);
+    }
+
+    /**
+     * Handle Stripe webhook events
+     * POST /webhooks/stripe
+     */
+    private void handleStripeWebhook(HttpExchange exchange) throws IOException {
+        if (!"POST".equalsIgnoreCase(exchange.getRequestMethod())) {
+            send(exchange, 405, "{\"error\":\"Method Not Allowed\"}");
+            return;
+        }
+
+        try {
+            // Read request body
+            String contentLengthStr = exchange.getRequestHeaders().getFirst("Content-Length");
+            int contentLength = contentLengthStr != null ? Integer.parseInt(contentLengthStr) : 0;
+            byte[] bytes = new byte[contentLength];
+            if (contentLength > 0) {
+                exchange.getRequestBody().read(bytes, 0, bytes.length);
+            }
+            String payload = new String(bytes, StandardCharsets.UTF_8);
+
+            // Get Stripe signature header
+            String sigHeader = exchange.getRequestHeaders().getFirst("Stripe-Signature");
+            if (sigHeader == null) {
+                send(exchange, 400, "{\"error\":\"Missing Stripe-Signature header\"}");
+                return;
+            }
+
+            // Process webhook
+            StripeWebhookHandler handler = new StripeWebhookHandler();
+            boolean success = handler.handleWebhookEvent(payload, sigHeader);
+
+            if (success) {
+                send(exchange, 200, "{\"received\":true}");
+            } else {
+                send(exchange, 400, "{\"error\":\"Failed to process webhook\"}");
+            }
+        } catch (Exception e) {
+            System.err.println("ERROR handling Stripe webhook: " + e.getMessage());
+            send(exchange, 500, "{\"error\":\"Internal server error\"}");
+        }
     }
 
 <<<<<<< HEAD

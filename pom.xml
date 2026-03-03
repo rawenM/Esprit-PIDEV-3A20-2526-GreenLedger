@@ -123,6 +123,7 @@
             <version>2.10.1</version>
         </dependency>
 <<<<<<< HEAD
+<<<<<<< HEAD
 
 
         <!-- DynamicPDF API for PDF generation -->
@@ -164,6 +165,77 @@
 =======
 >>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 >>>>>>> yassine_antar
+=======
+
+        <!-- Stripe Java SDK for payment processing -->
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>25.1.0</version>
+        </dependency>
+
+        <!-- Apache Commons Lang for utility functions -->
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+
+        <!-- JavaFX Media for audio/video support -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-media</artifactId>
+            <version>20.0.2</version>
+        </dependency>
+
+        <!-- Redis client for caching (optional, for high-volume deployments) -->
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>4.3.1</version>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- HikariCP for database connection pooling -->
+        <dependency>
+            <groupId>com.zaxxer</groupId>
+            <artifactId>HikariCP</artifactId>
+            <version>5.0.1</version>
+        </dependency>
+
+        <!-- Project Reactor for reactive programming -->
+        <dependency>
+            <groupId>io.projectreactor</groupId>
+            <artifactId>reactor-core</artifactId>
+            <version>3.5.11</version>
+        </dependency>
+
+        <!-- Resilience4j for circuit breaker and rate limiting -->
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-circuitbreaker</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>io.github.resilience4j</groupId>
+            <artifactId>resilience4j-ratelimiter</artifactId>
+            <version>2.1.0</version>
+        </dependency>
+
+        <!-- Guava for event bus and utilities -->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>32.1.3-jre</version>
+        </dependency>
+
+        <!-- Caffeine cache (high-performance in-memory cache) -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>3.1.8</version>
+        </dependency>
+>>>>>>> dhiaeddine_bondka_gestion_green_wallet
     </dependencies>
 
 
