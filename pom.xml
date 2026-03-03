@@ -63,9 +63,8 @@
         <dependency>
             <groupId>com.sun.mail</groupId>
             <artifactId>jakarta.mail</artifactId>
-            <version>2.0.1</version> <!-- stable & widely available -->
+            <version>2.0.1</version>
         </dependency>
-<<<<<<< HEAD
 
         <!-- Apache PDFBox for PDF generation -->
         <dependency>
@@ -107,7 +106,8 @@
             <groupId>com.dynamicpdf.api</groupId>
             <artifactId>dynamicpdf-api</artifactId>
             <version>0.9.0</version>
-=======
+        </dependency>
+
         <!-- Weka pour les algorithmes de machine learning -->
         <dependency>
             <groupId>nz.ac.waikato.cms.weka</groupId>
@@ -120,7 +120,6 @@
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>
             <version>20231013</version>
->>>>>>> origin/rawen_madien_gestion_financement
         </dependency>
     </dependencies>
 
