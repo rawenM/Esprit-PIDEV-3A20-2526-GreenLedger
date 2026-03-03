@@ -91,6 +91,15 @@
     -fx-font-weight: 600;
 }
 
+<<<<<<< HEAD
+=======
+.nav-btn-active {
+    -fx-background-color: #2D5F3F;
+    -fx-text-fill: #FFFFFF;
+    -fx-font-weight: 600;
+}
+
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 /* Section Titles in Sidebar */
 .section-title-sidebar {
     -fx-font-size: 10px;
@@ -672,6 +681,19 @@
     -fx-text-fill: #2D5F3F;
 }
 
+<<<<<<< HEAD
+=======
+.message-success {
+    -fx-text-fill: #10B981;
+    -fx-font-weight: 600;
+}
+
+.message-error {
+    -fx-text-fill: #EF4444;
+    -fx-font-weight: 600;
+}
+
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 /* Readonly Fields */
 .field-readonly {
     -fx-background-color: #F3F4F6;

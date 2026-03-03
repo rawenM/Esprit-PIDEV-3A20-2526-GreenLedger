@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test reCAPTCHA Keys</title>
+    <script src="https://www.google.com/recaptcha/api.js?render=6LcsO3YsAAAAAP7LVf0uJ4FJyfO3DReJ_Pmnyjzb"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .result {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+        .success { color: #4CAF50; }
+        .error { color: #f44336; }
+        .info { color: #2196F3; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Test de vos clés reCAPTCHA v3</h1>
+    
+    <div class="result">
+        <h3>Clé du site:</h3>
+        <code>6LcsO3YsAAAAAP7LVf0uJ4FJyfO3DReJ_Pmnyjzb</code>
+        
+        <h3>Résultat du test:</h3>
+        <div id="status">⏳ Chargement...</div>
+        <div id="token" style="margin-top: 15px;"></div>
+        <div id="info" style="margin-top: 15px; font-size: 12px;"></div>
+    </div>
+    
+    <div class="result" style="margin-top: 20px;">
+        <h3>📋 Instructions:</h3>
+        <ol>
+            <li><strong>Ouvrez ce fichier dans Chrome/Firefox</strong> (pas dans JavaFX WebView)</li>
+            <li>Si vous voyez un token → vos clés sont <strong>v3 valides</strong></li>
+            <li>Si erreur "Invalid site key" → vos clés sont <strong>v2</strong> ou invalides</li>
+            <li>Si erreur de domaine → ajoutez "localhost" dans Google reCAPTCHA admin</li>
+        </ol>
+        
+        <h4>Comment créer des clés v3:</h4>
+        <ol>
+            <li>Allez sur <a href="https://www.google.com/recaptcha/admin/create" target="_blank">Google reCAPTCHA Admin</a></li>
+            <li>Choisissez <strong>reCAPTCHA v3</strong></li>
+            <li>Label: n'importe quoi (ex: "Green Ledger")</li>
+            <li>Domaines: ajoutez "localhost" et votre domaine</li>
+            <li>Copiez les nouvelles clés dans config.properties</li>
+        </ol>
+    </div>
+    
+    <script>
+        console.log('[TEST] Script reCAPTCHA chargé');
+        document.getElementById('info').innerHTML = '<span class="info">Type de clé: Tentative avec v3...</span>';
+        
+        if (typeof grecaptcha === 'undefined') {
+            document.getElementById('status').innerHTML = '<span class="error">❌ grecaptcha non défini - Script Google n\'a pas chargé</span>';
+            document.getElementById('info').innerHTML = '<span class="error">Le script Google reCAPTCHA n\'a pas pu être chargé. Vérifiez votre connexion internet.</span>';
+        } else {
+            grecaptcha.ready(function() {
+                console.log('[TEST] grecaptcha.ready() appelé');
+                document.getElementById('status').innerHTML = '<span class="info">⏳ Exécution de reCAPTCHA v3...</span>';
+                
+                grecaptcha.execute('6LcsO3YsAAAAAP7LVf0uJ4FJyfO3DReJ_Pmnyjzb', {action: 'test'})
+                    .then(function(token) {
+                        console.log('[TEST] Token reçu:', token);
+                        document.getElementById('status').innerHTML = '<span class="success">✅ SUCCESS! Vos clés sont v3 valides!</span>';
+                        document.getElementById('token').innerHTML = 
+                            '<strong>Token reçu (v3):</strong><br>' +
+                            '<code style="word-break: break-all; background: #f0f0f0; padding: 10px; display: block; margin-top: 5px;">' + 
+                            token + '</code>';
+                        document.getElementById('info').innerHTML = 
+                            '<span class="success">✓ Vos clés reCAPTCHA v3 fonctionnent correctement dans un navigateur standard.<br><br>' +
+                            '<strong>Problème JavaFX WebView:</strong> JavaFX WebView ne peut pas charger les scripts externes HTTPS de Google. ' +
+                            'C\'est une limitation technique de JavaFX, pas de vos clés.</span>';
+                    })
+                    .catch(function(error) {
+                        console.error('[TEST] Erreur:', error);
+                        document.getElementById('status').innerHTML = '<span class="error">❌ ERREUR: ' + error + '</span>';
+                        document.getElementById('info').innerHTML = 
+                            '<span class="error"><strong>Erreurs possibles:</strong><br>' +
+                            '• "Invalid site key" → Clés v2 au lieu de v3<br>' +
+                            '• "Domain not allowed" → Ajoutez "localhost" dans Google admin<br>' +
+                            '• "Timeout" → Problème de connexion internet</span>';
+                    });
+            });
+        }
+    </script>
+</body>
+</html>

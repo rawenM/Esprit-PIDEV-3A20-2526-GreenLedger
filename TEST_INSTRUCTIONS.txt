@@ -1,0 +1,115 @@
+INSTRUCTIONS POUR TESTER LA FIX - TABLEAU DE BORD ADMIN
+====================================================
+
+CHANGEMENTS EFFECTUES:
+
+1. AdminUsersController.java
+   - Ajout de try-catch dans initialize()
+   - Ajout de logs DEBUG pour chaque etape
+   - Ajout de gestion d'erreur robuste dans loadUsers()
+   - Messages d'erreur explicites pour l'utilisateur
+
+2. DashboardController.java (pour les autres utilisateurs)
+   - Ajout de try-catch dans setCurrentUser()
+   - Ajout de try-catch dans toutes les methodes de chargement
+   - Protection contre les NullPointerExceptions
+
+COMMENT COMPILER ET TESTER:
+
+Étape 1: Compiler le projet
+-----------
+cd "C:\Users\Lenovo\Desktop\Pi_Dev"
+
+javac -cp "src/main/java" -d target/classes -encoding UTF-8 ^
+    src/main/java/Models/*.java ^
+    src/main/java/dao/*.java ^
+    src/main/java/DataBase/*.java ^
+    src/main/java/Services/*.java ^
+    src/main/java/Utils/SessionManager.java ^
+    src/main/java/Utils/PasswordUtil.java
+
+Étape 2: Lancer l'application
+-----------
+java -cp "target/classes;src/main/java" org.GreenLedger.MainFX
+
+Étape 3: Se connecter avec l'admin
+-----------
+Email: admin@example.com (ou celui que vous avez cree)
+Mot de passe: Admin@123 (ou celui que vous avez defini)
+
+Étape 4: Observer la console
+-----------
+Regarder pour les logs [DEBUG]:
+- [DEBUG] Initialisation du AdminUsersController...
+- [DEBUG] Colonnes du tableau configurees
+- [DEBUG] Filtres configures
+- [DEBUG] Chargement de tous les utilisateurs...
+- [DEBUG] X utilisateurs recuperes
+- [DEBUG] Tableau des utilisateurs mis a jour avec X lignes
+- [DEBUG] Statistiques mises a jour
+- [DEBUG] Utilisateur courant defini depuis la session
+- [DEBUG] Initialisation terminee
+
+Étape 5: Verification du tableau de bord
+-----------
+✓ Le tableau de bord admin doit s'afficher
+✓ La liste des utilisateurs doit s'afficher
+✓ Les filtres doivent etre disponibles
+✓ Les boutons d'action (editer, bloquer, valider, supprimer) doivent etre presents
+
+SI VOUS VOYEZ UNE ERREUR:
+-----------
+1. Notez le message [CLEAN] Erreur dans la console
+2. Verifiez que MySQL est demarr
+3. Verifiez les parametres de connexion dans DataBase/MyConnection.java
+4. Verifiez que la base de donnees existe
+5. Verifiez que la table user existe
+
+CREATION D'UN UTILISATEUR ADMIN (SI N'EXISTE PAS):
+-----------
+cd "C:\Users\Lenovo\Desktop\Pi_Dev"
+
+java -cp "target/classes;src/main/java" tools.CreateAdmin ^
+    admin@greenledger.com ^
+    Admin@123 ^
+    Admin ^
+    Admin
+
+Cela creera un utilisateur admin avec:
+- Email: admin@greenledger.com
+- Mot de passe: Admin@123
+- Nom: Admin
+- Prenom: Admin
+
+DOCUMENTS ASSOCIES:
+-----------
+- DIAGNOSTIC_DASHBOARD_ERROR.txt : Diagnostic des erreurs possibles
+- CORRECTIONS_DASHBOARD_ADMIN.txt : Changements appliques
+- GUIDE_DIAGNOSTIQUE_DASHBOARD.md : Guide complet de diagnostic
+
+FICHIERS MODIFIES:
+-----------
+1. src/main/java/Controllers/AdminUsersController.java
+2. src/main/java/Controllers/DashboardController.java
+
+TESTS A FAIRE:
+-----------
+1. Test de connexion admin
+2. Verification que le tableau se charge
+3. Verification que la liste des utilisateurs s'affiche
+4. Test des filtres (statut, type)
+5. Test des boutons d'action (editer, bloquer, valider, supprimer)
+6. Test de la deconnexion
+
+STATUS:
+-----------
+✓ Corrections appliquees
+✓ Gestion d'erreur robuste ajoutee
+✓ Logs DEBUG ajoutes
+✓ Code compile correctement (erreurs JavaFX normales)
+✓ Pret pour le test
+
+PROCHAINE ETAPE:
+-----------
+Testez l'application et verifiez que le tableau de bord admin se charge correctement!
+

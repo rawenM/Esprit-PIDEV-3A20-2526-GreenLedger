@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.DashboardController"
+            prefHeight="700" prefWidth="1200"
+            styleClass="page">
+
+    <!-- TOP: Header -->
+    <top>
+        <VBox styleClass="topbar">
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <padding>
+                    <Insets top="16" right="24" bottom="16" left="24"/>
+                </padding>
+
+                <Label fx:id="welcomeLabel"
+                       text="Bienvenue"
+                       styleClass="topbar-title"/>
+
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <VBox alignment="CENTER_RIGHT" spacing="5">
+                    <Label fx:id="userNameLabel"
+                           text="Nom Utilisateur"
+                          styleClass="topbar-title"/>
+                    <Label fx:id="userEmailLabel"
+                           text="email@example.com"
+                          styleClass="muted-note"/>
+                </VBox>
+
+                <Button fx:id="logoutButton"
+                        text="Déconnexion"
+                       styleClass="btn btn-danger"
+                        onAction="#handleLogout"/>
+            </HBox>
+
+            <!-- Informations utilisateur -->
+                 <HBox spacing="30">
+                  <padding>
+                      <Insets top="0" right="24" bottom="16" left="24"/>
+                  </padding>
+                <Label fx:id="userTypeLabel"
+                       text="Type: Investisseur"
+                      styleClass="status-text status-text-success"/>
+                <Label fx:id="memberSinceLabel"
+                       text="Membre depuis le 01/01/2025"
+                      styleClass="muted-note"/>
+                <Label fx:id="lastLoginLabel"
+                       text="Dernière connexion : 13/02/2025 14:30"
+                      styleClass="muted-note"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- LEFT: Menu de navigation -->
+    <left>
+        <VBox spacing="10" styleClass="sidebar">
+            <padding>
+                <Insets top="20" right="10" bottom="20" left="10"/>
+            </padding>
+
+            <Label text="Navigation"
+                   styleClass="section-title-sidebar"/>
+
+            <Separator/>
+
+            <Button fx:id="profileButton"
+                    text="👤 Mon Profil"
+                    onAction="#handleProfile"
+                    maxWidth="Infinity"
+                    styleClass="nav-btn"/>
+
+            <Button fx:id="projectsButton"
+                    text="📊 Projets"
+                    onAction="#handleProjects"
+                    maxWidth="Infinity"
+                    styleClass="nav-btn"/>
+
+            <Button fx:id="investmentsButton"
+                    text="💰 Investissements"
+                    onAction="#handleInvestments"
+                    maxWidth="Infinity"
+                    styleClass="nav-btn"/>
+
+            <Button fx:id="settingsButton"
+                    text="⚙️ Paramètres"
+                    onAction="#handleSettings"
+                    maxWidth="Infinity"
+                    styleClass="nav-btn"/>
+
+            <Button fx:id="financingButton"
+                    text="💳 Gestion Financement Avancée"
+                    onAction="#handleAdvancedFinancing"
+                    maxWidth="Infinity"
+                    styleClass="nav-btn"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <Separator/>
+
+            <VBox spacing="2" alignment="TOP_LEFT" style="-fx-padding: 8 0 0 6;">
+                <Label fx:id="sidebarProfileName" styleClass="page-title"/>
+                <Label fx:id="sidebarProfileType" styleClass="page-subtitle"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- CENTER: Contenu principal -->
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="content-area">
+            <VBox spacing="20" styleClass="content-area">
+                <padding>
+                    <Insets top="30" right="30" bottom="30" left="30"/>
+                </padding>
+
+                <!-- Statistiques -->
+                <VBox spacing="15">
+                    <Label text="Statistiques"
+                           styleClass="section-title"/>
+
+                    <HBox spacing="20">
+                        <!-- Stat 1 -->
+                           <VBox alignment="CENTER" styleClass="stat-card" spacing="10"
+                              HBox.hgrow="ALWAYS">
+                            <Label fx:id="stat1Label"
+                                   text="Statistique 1"
+                                styleClass="stat-title"/>
+                            <Label fx:id="stat1Value"
+                                   text="0"
+                                styleClass="stat-value accent-blue"/>
+                        </VBox>
+
+                        <!-- Stat 2 -->
+                           <VBox alignment="CENTER" styleClass="stat-card" spacing="10"
+                              HBox.hgrow="ALWAYS">
+                            <Label fx:id="stat2Label"
+                                   text="Statistique 2"
+                                styleClass="stat-title"/>
+                            <Label fx:id="stat2Value"
+                                   text="0"
+                                styleClass="stat-value accent-green"/>
+                        </VBox>
+
+                        <!-- Stat 3 -->
+                           <VBox alignment="CENTER" styleClass="stat-card" spacing="10"
+                              HBox.hgrow="ALWAYS">
+                            <Label fx:id="stat3Label"
+                                   text="Statistique 3"
+                                styleClass="stat-title"/>
+                            <Label fx:id="stat3Value"
+                                   text="0"
+                                styleClass="stat-value accent-amber"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <Separator/>
+
+
+            </VBox>
+        </ScrollPane>
+    </center>
+
+    <!-- BOTTOM: Footer -->
+    <bottom>
+        <HBox alignment="CENTER" styleClass="topbar">
+            <padding>
+                <Insets top="12" right="12" bottom="12" left="12"/>
+            </padding>
+            <Text text="© 2025 Plateforme Énergie Renouvelable - Module Gestion Utilisateurs - PIDEV 3A"
+                  styleClass="muted-note"/>
+        </HBox>
+    </bottom>
+</BorderPane>

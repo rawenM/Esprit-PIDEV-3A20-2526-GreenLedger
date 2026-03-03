@@ -122,6 +122,14 @@
     -fx-text-fill: #2C6F7A;
 }
 
+<<<<<<< HEAD
+=======
+.nav-btn-active {
+    -fx-background-color: #2C6F7A;
+    -fx-text-fill: #FFFFFF;
+}
+
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 /* ===== FORM FIELDS ===== */
 .field {
     -fx-background-color: #FFFFFF;

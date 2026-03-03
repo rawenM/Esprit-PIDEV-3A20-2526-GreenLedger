@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.AdminUsersController"
+            styleClass="page">
+
+    <!-- LEFT: Admin Navigation -->
+    <left>
+        <VBox prefWidth="220" styleClass="sidebar">
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="🍃" style="-fx-font-size: 20px;"/>
+                <Label text="GreenLedger Admin" styleClass="sidebar-title"/>
+            </HBox>
+
+            <Separator styleClass="sidebar-sep"/>
+
+            <Label text="GESTION" styleClass="section-title-sidebar"/>
+            <Button text="👤 Utilisateurs" styleClass="nav-btn" onAction="#handleNavUsers"/>
+            <Button text="📁 Projets" styleClass="nav-btn" onAction="#handleNavProjets"/>
+            <Button text="📊 Evaluations" styleClass="nav-btn" onAction="#handleNavEvaluations"/>
+
+            <Separator styleClass="sidebar-sep"/>
+
+            <Label text="SYSTEM" styleClass="section-title-sidebar"/>
+            <Button text="⚙ Settings" styleClass="nav-btn" onAction="#handleNavSettings"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+
+            <VBox spacing="2" alignment="TOP_LEFT" style="-fx-padding: 10 0 0 0;">
+                <Label fx:id="lblProfileName" styleClass="page-title"/>
+                <Label fx:id="lblProfileType" styleClass="page-subtitle"/>
+                <Button text="✏️ Modifier profil" styleClass="btn-secondary" onAction="#handleEditProfile"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- CENTER: Swappable content -->
+    <center>
+        <StackPane fx:id="contentPane">
+            <VBox fx:id="usersContent" spacing="16" styleClass="content-area">
+                <padding>
+                    <Insets top="20" right="20" bottom="20" left="20"/>
+                </padding>
+
+                <!-- Header + Stats -->
+                <VBox spacing="16" styleClass="card">
+                    <HBox alignment="CENTER_LEFT" spacing="16">
+                        <Label text="Gestion des Utilisateurs" styleClass="page-title"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="Déconnexion" styleClass="btn-danger" onAction="#handleLogout"/>
+                    </HBox>
+
+                    <HBox spacing="12">
+                        <VBox alignment="CENTER" styleClass="stat-card" spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Total Utilisateurs" styleClass="stat-title"/>
+                            <Label fx:id="totalUsersLabel" text="0" styleClass="stat-value accent-blue"/>
+                        </VBox>
+                        <VBox alignment="CENTER" styleClass="stat-card" spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Actifs" styleClass="stat-title"/>
+                            <Label fx:id="activeUsersLabel" text="0" styleClass="stat-value accent-green"/>
+                        </VBox>
+                        <VBox alignment="CENTER" styleClass="stat-card" spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="En Attente" styleClass="stat-title"/>
+                            <Label fx:id="pendingUsersLabel" text="0" styleClass="stat-value accent-amber"/>
+                        </VBox>
+                        <VBox alignment="CENTER" styleClass="stat-card" spacing="5" HBox.hgrow="ALWAYS">
+                            <Label text="Bloqués" styleClass="stat-title"/>
+                            <Label fx:id="blockedUsersLabel" text="0" styleClass="stat-value accent-red"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+
+                <!-- Filters + Table -->
+                <VBox spacing="12" styleClass="card">
+                    <HBox spacing="12" alignment="CENTER_LEFT">
+                        <TextField fx:id="searchField"
+                                   promptText="Rechercher par nom, email, téléphone..."
+                                   prefWidth="300"
+                                   onKeyReleased="#handleSearch"
+                                   styleClass="field"/>
+
+                        <ComboBox fx:id="filterStatutCombo"
+                                  promptText="Filtrer par statut"
+                                  onAction="#handleSearch"
+                                  prefWidth="150"
+                                  styleClass="combo-box"/>
+
+                        <ComboBox fx:id="filterTypeCombo"
+                                  promptText="Filtrer par type"
+                                  onAction="#handleSearch"
+                                  prefWidth="150"
+                                  styleClass="combo-box"/>
+
+                        <Region HBox.hgrow="ALWAYS"/>
+
+                        <Button text="🔄 Actualiser"
+                                styleClass="btn-secondary"
+                                onAction="#handleRefresh"/>
+
+                        <Button text="➕ Nouvel utilisateur"
+                                styleClass="btn-primary"
+                                onAction="#handleAddUser"/>
+                    </HBox>
+
+                    <TableView fx:id="usersTable" VBox.vgrow="ALWAYS" styleClass="table-card">
+                        <columns>
+                            <TableColumn fx:id="idColumn" text="ID" prefWidth="60"/>
+                            <TableColumn fx:id="nomColumn" text="Nom" prefWidth="120"/>
+                            <TableColumn fx:id="prenomColumn" text="Prénom" prefWidth="120"/>
+                            <TableColumn fx:id="emailColumn" text="Email" prefWidth="200"/>
+                            <TableColumn fx:id="telephoneColumn" text="Téléphone" prefWidth="120"/>
+                            <TableColumn fx:id="typeColumn" text="Type" prefWidth="130"/>
+                            <TableColumn fx:id="statutColumn" text="Statut" prefWidth="120"/>
+                            <TableColumn fx:id="dateInscriptionColumn" text="Date Inscription" prefWidth="150"/>
+                            <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="150"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </VBox>
+        </StackPane>
+    </center>
+</BorderPane>

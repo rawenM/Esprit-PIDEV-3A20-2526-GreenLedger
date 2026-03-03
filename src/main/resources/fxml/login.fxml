@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Text?>
+<?import javafx.scene.web.WebView?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.LoginController"
+            prefHeight="750" prefWidth="850"
+            styleClass="page">
+
+    <!-- CENTRE: Formulaire de connexion -->
+    <center>
+        <VBox alignment="CENTER" spacing="20" styleClass="content-area">
+            <padding>
+                <Insets top="50" right="50" bottom="50" left="50"/>
+            </padding>
+
+            <!-- Card de connexion -->
+            <VBox spacing="20" styleClass="card" maxWidth="450" minWidth="420">
+                <padding>
+                    <Insets top="30" right="30" bottom="30" left="30"/>
+                </padding>
+
+                <!-- Titre -->
+                <Label text="Connexion" styleClass="page-title"/>
+                <Text text="Plateforme de Financement Participatif" styleClass="page-subtitle"/>
+
+                <Separator/>
+
+                <!-- Message d'erreur -->
+                <Label fx:id="errorLabel" styleClass="label-error" visible="false" wrapText="true"/>
+
+                <!-- Champ Email -->
+                <VBox spacing="5">
+                    <Label text="Email" styleClass="form-label"/>
+                    <TextField fx:id="emailField"
+                               promptText="votre.email@example.com"
+                               prefHeight="40"
+                               styleClass="field"/>
+                </VBox>
+
+                <!-- Champ Mot de passe -->
+                <VBox spacing="5">
+                    <Label text="Mot de passe" styleClass="form-label"/>
+                    <PasswordField fx:id="passwordField"
+                                   promptText="Votre mot de passe"
+                                   prefHeight="40"
+                                   styleClass="field"/>
+                </VBox>
+
+                <!-- Se souvenir de moi -->
+                <CheckBox fx:id="rememberMeCheckbox" text="Se souvenir de moi"/>
+
+                <!-- Captcha -->
+                <VBox spacing="5" fx:id="captchaContainer">
+                    <HBox alignment="CENTER_LEFT" spacing="10">
+                        <Label text="Verification" styleClass="form-label"/>
+                        <Button fx:id="fallbackCaptchaBtn" text="Utiliser captcha simple" visible="false" 
+                                style="-fx-font-size: 10px; -fx-padding: 2 8 2 8;" onAction="#useFallbackCaptcha"/>
+                        <Button fx:id="bypassCaptchaBtn" text="Bypass (temp)" 
+                                style="-fx-font-size: 10px; -fx-padding: 2 8 2 8;" onAction="#bypassCaptcha"/>
+                    </HBox>
+                    <WebView fx:id="captchaWebView" prefHeight="120" minHeight="120" maxHeight="300" prefWidth="380" maxWidth="400"/>
+                    <HBox spacing="10" alignment="CENTER_LEFT" fx:id="simpleCaptchaBox" visible="false" managed="false">
+                        <Label fx:id="captchaQuestion" styleClass="form-label"/>
+                        <TextField fx:id="captchaAnswer" promptText="Votre réponse" prefWidth="100" styleClass="field"/>
+                    </HBox>
+                </VBox>
+
+                <!-- Bouton de connexion -->
+                <Button fx:id="loginButton"
+                        text="Se connecter"
+                        onAction="#handleLogin"
+                        maxWidth="Infinity"
+                        prefHeight="45"
+                        styleClass="btn-primary"/>
+
+                <!-- Liens -->
+                <HBox spacing="10" alignment="CENTER">
+                    <Hyperlink fx:id="forgotPasswordLink"
+                               text="Mot de passe oublié ?"
+                               onAction="#handleForgotPassword"/>
+                    <Label text="|"/>
+                    <Hyperlink fx:id="registerLink"
+                               text="Créer un compte"
+                               onAction="#handleRegister"/>
+                </HBox>
+            </VBox>
+        </VBox>
+    </center>
+
+    <!-- BOTTOM: Footer -->
+    <bottom>
+        <HBox alignment="CENTER" styleClass="card" style="-fx-padding: 12;">
+            <Text text="© 2025 Plateforme Énergie Renouvelable - PIDEV 3A"
+                  styleClass="page-subtitle"/>
+        </HBox>
+    </bottom>
+</BorderPane>

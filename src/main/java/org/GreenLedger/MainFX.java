@@ -15,13 +15,22 @@ public class MainFX extends Application {
 
     private static Scene scene;
 
+<<<<<<< HEAD
     // ✅ Démarre uniquement sur ton écran Projet (change ici si besoin)
     private static final String START_SCREEN = "GestionProjet"; // -> fichier: /projet_crud.fxml
+=======
+
+    private static final String START_SCREEN = "GestionProjet"; // -> fichier: /GestionProjet.fxml
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 
     @Override
     public void start(Stage stage) throws IOException {
 
+<<<<<<< HEAD
         // Charger uniquement ton interface FXML (Projet)
+=======
+
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
         Parent root = loadFXML(START_SCREEN);
 
         scene = new Scene(root, 1100, 720);
@@ -34,7 +43,11 @@ public class MainFX extends Application {
             stage.getIcons().add(new Image(iconUrl.toExternalForm()));
         }
 
+<<<<<<< HEAD
         stage.setTitle("Green Ledger - Projet (Test)");
+=======
+        stage.setTitle("Green Ledger - Expert Carbone");
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
         stage.setScene(scene);
         stage.setMinWidth(1000);
         stage.setMinHeight(600);

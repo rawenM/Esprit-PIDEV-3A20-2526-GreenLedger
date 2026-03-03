@@ -1,0 +1,77 @@
+DIAGNOSTIQUE - ERREUR DASHBOARD ADMIN
+=====================================
+
+PROBLEME IDENTIFIE:
+L'application affiche "erreur lors du chargement du tableau de bord" quand l'admin se connecte.
+
+CAUSES POSSIBLES:
+
+1. PROBLEME DE FICHIER FXML
+   - Le fichier /fxml/dashboard.fxml pourrait ne pas etre dans le classpath
+   - Les chemins d'acces aux fichiers FXML peuvent etre incorrect
+   - Le fichier FXML pourrait avoir une syntaxe invalide
+
+2. PROBLEME DE CONTRÔLEUR
+   - La methode setCurrentUser() pourrait ne pas etre appelee correctement
+   - Les Labels du FXML n'existent pas ou ont des fx:id differents
+   - Les elements FXML pourraient etre nuls au moment de l'acces
+
+3. PROBLEME D'ACCES A LA BASE DE DONNEES
+   - userService.getUserCount() pourrait lever une exception
+   - La connexion a la BD pourrait etre fermee ou invalide
+   - Les tables user pourraient ne pas exister ou etre vides
+
+4. PROBLEME DE SESSION
+   - L'utilisateur connecte pourrait ne pas etre passe a DashboardController
+   - SessionManager pourrait ne pas retourner l'utilisateur correctement
+
+SOLUTIONS A APPLIQUER:
+
+1. Verifier que le fichier FXML existe:
+   C:\Users\Lenovo\Desktop\Pi_Dev\src\main\resources\fxml\dashboard.fxml
+
+2. Verifier que le contrôleur package est correct:
+   - Dans le FXML: fx:controller="Controllers.DashboardController"
+   - La classe doit etre dans le package: Controllers
+
+3. Ajouter des logs pour tracer le probleme:
+   - Les logs DEBUG ont ete ajoutes a setCurrentUser()
+   - Verifier la console pour les messages [DEBUG] et [CLEAN]
+
+4. Verifier la base de donnees:
+   - La table `user` doit exister
+   - Les colonnes doivent avoir les bons noms
+   - L'utilisateur admin doit avoir type_utilisateur = 'ADMIN'
+
+ACTIONS EFFECTUEES:
+
+✓ Ajout de try-catch dans setCurrentUser()
+✓ Ajout de try-catch dans displayUserInfo()
+✓ Ajout de try-catch dans loadUserStatistics()
+✓ Ajout de try-catch dans loadAdminStatistics()
+✓ Ajout de try-catch dans loadProfileForm()
+✓ Ajout de logs DEBUG pour tracer l'execution
+✓ Gestion des null pointers pour tous les Labels et TextFields
+
+PROCHAINES ETAPES:
+
+1. Lancer l'application et se connecter avec l'admin
+2. Observer les logs dans la console
+3. Verifier si les messages [DEBUG] s'affichent
+4. Corriger en fonction des erreurs affichees
+
+Si le probleme persiste:
+- Verifier que dashboard.fxml a tous les fx:id corrects
+- Verifier que la BD a la bonne structure
+- Verifier que l'utilisateur admin a type_utilisateur = 'ADMIN'
+
+LOGS A RECHERCHER:
+
+- [DEBUG] setCurrentUser appele avec user: admin@example.com
+- [DEBUG] Affichage des infos utilisateur...
+- [DEBUG] Chargement des statistiques...
+- [DEBUG] Chargement du formulaire de profil...
+- [DEBUG] setCurrentUser termine avec succes
+
+Si vous voyez [CLEAN] Erreur, regardez le message d'erreur associe.
+

@@ -7,11 +7,16 @@
 <HBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
     fx:controller="Controllers.GreenWalletController"
+<<<<<<< HEAD
     spacing="0" styleClass="app-container">
+=======
+        spacing="0" styleClass="page">
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 
     <!-- LEFT SIDEBAR -->
     <VBox prefWidth="220" styleClass="sidebar" style="-fx-min-width: 220; -fx-max-width: 220;">
 
+<<<<<<< HEAD
         <!-- Logo/Brand Section -->
         <VBox spacing="2" style="-fx-padding: 0 0 12 0;" alignment="CENTER_LEFT">
             <HBox spacing="8" alignment="CENTER_LEFT">
@@ -46,6 +51,30 @@
 
     <!-- MAIN CONTENT -->
     <VBox fx:id="contentPane" spacing="16" alignment="TOP_LEFT" styleClass="page" HBox.hgrow="ALWAYS">
+=======
+        <HBox alignment="CENTER_LEFT" spacing="8">
+            <Label text="🌿" style="-fx-font-size: 20px;"/>
+            <Label text="GreenLedger" styleClass="sidebar-title"/>
+        </HBox>
+
+        <Separator styleClass="sidebar-sep"/>
+
+        <Button text="← Retour" styleClass="btn btn-secondary" onAction="#onBack"/>
+
+        <Button fx:id="btnGestionProjets" text="📁 Gestion Projets" styleClass="nav-btn" onAction="#onGestionProjets"/>
+        <Button fx:id="btnWalletOverview" text="💳 GreenWallet" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
+        <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+    </VBox>
+
+
+    <!-- MAIN CONTENT -->
+    <ScrollPane fitToWidth="true" fitToHeight="false" HBox.hgrow="ALWAYS"
+                style="-fx-background-color: transparent; -fx-background: transparent;">
+        <content>
+    <VBox fx:id="contentPane" spacing="16" alignment="TOP_LEFT" styleClass="content-area">
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
         <padding>
             <Insets top="20" right="20" bottom="20" left="20"/>
         </padding>
@@ -60,6 +89,55 @@
             <Label text="Gestion des crédits carbone et traçabilité complète" styleClass="page-subtitle"/>
         </VBox>
 
+<<<<<<< HEAD
+=======
+        <!-- WALLET TOOLS -->
+        <VBox spacing="10" styleClass="card" style="-fx-padding: 16;">
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="🧰" style="-fx-font-size: 14;"/>
+                <Label text="Outils GreenWallet" styleClass="section-title" style="-fx-font-size: 14; -fx-padding: 0;"/>
+            </HBox>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="btnTransactions" text="📜 Transactions" styleClass="btn btn-secondary" prefHeight="34"/>
+                <Button fx:id="btnBatches" text="📦 Batches" styleClass="btn btn-secondary" prefHeight="34"/>
+                <Button fx:id="btnCreateWallet" text="💼 Nouveau Wallet" styleClass="btn btn-secondary" prefHeight="34"/>
+                <Region HBox.hgrow="ALWAYS"/>
+            </HBox>
+        </VBox>
+
+        <!-- CARBON API INSIGHTS -->
+        <VBox spacing="12" styleClass="card" style="-fx-padding: 18; -fx-background-color: linear-gradient(to bottom right, #f0fdf4, #dcfce7);">
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="🌍" style="-fx-font-size: 16;"/>
+                <Label text="Carbon API Insights" styleClass="section-title" style="-fx-font-size: 15;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Powered by Carbon Interface &amp; OpenWeatherMap" style="-fx-font-size: 9; -fx-opacity: 0.6;"/>
+            </HBox>
+            
+            <HBox spacing="12">
+                <VBox spacing="8" HBox.hgrow="ALWAYS">
+                    <Label text="Calcul d'Émissions en Temps Réel" style="-fx-font-weight: 600; -fx-font-size: 12;"/>
+                    <HBox spacing="8">
+                        <Button fx:id="btnCalculateElectricity" text="⚡ Électricité" styleClass="btn btn-primary" prefHeight="32" prefWidth="120"/>
+                        <Button fx:id="btnCalculateFuel" text="⛽ Carburant" styleClass="btn btn-primary" prefHeight="32" prefWidth="120"/>
+                        <Button fx:id="btnCalculateShipping" text="🚢 Transport" styleClass="btn btn-primary" prefHeight="32" prefWidth="120"/>
+                    </HBox>
+                </VBox>
+                <VBox spacing="8">
+                    <Label text="Qualité de l'Air" style="-fx-font-weight: 600; -fx-font-size: 12;"/>
+                    <Button fx:id="btnCheckAirQuality" text="🌫️ Vérifier Air Quality" styleClass="btn btn-secondary" prefHeight="32" prefWidth="180"/>
+                </VBox>
+            </HBox>
+            
+            <TextArea fx:id="txtApiResults" 
+                      promptText="Les résultats des APIs s'afficheront ici..."
+                      editable="false"
+                      wrapText="true"
+                      prefHeight="180"
+                      style="-fx-font-family: 'Consolas', 'Monaco', monospace; -fx-font-size: 11; -fx-background-color: white; -fx-border-color: #d1d5db; -fx-border-radius: 4;"/>
+        </VBox>
+
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
         <!-- WALLET INFO CARD -->
         <VBox spacing="12" styleClass="card" style="-fx-padding: 20;">
             <HBox spacing="8" alignment="CENTER_LEFT">
@@ -101,6 +179,26 @@
             </VBox>
         </HBox>
 
+<<<<<<< HEAD
+=======
+        <!-- TEST LAB -->
+        <VBox spacing="10" styleClass="card" style="-fx-padding: 16;">
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="🧪" style="-fx-font-size: 14;"/>
+                <Label text="Test Lab • Crédit Rapide" styleClass="section-title" style="-fx-font-size: 14; -fx-padding: 0;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Mode dev" style="-fx-font-size: 11; -fx-opacity: 0.65;"/>
+            </HBox>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="btnTestAdd25" text="+25 tCO₂" styleClass="btn btn-secondary" prefHeight="34"/>
+                <Button fx:id="btnTestAdd100" text="+100 tCO₂" styleClass="btn btn-secondary" prefHeight="34"/>
+                <Button fx:id="btnTestAdd500" text="+500 tCO₂" styleClass="btn btn-primary" prefHeight="34"/>
+                <Button fx:id="btnTestAdd1000" text="+1000 tCO₂" styleClass="btn btn-primary" prefHeight="34"/>
+                <Region HBox.hgrow="ALWAYS"/>
+            </HBox>
+        </VBox>
+
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
         <!-- TRANSACTIONS TABLE SECTION -->
         <VBox spacing="10" styleClass="card" style="-fx-padding: 18;" VBox.vgrow="ALWAYS">
             <HBox spacing="8" alignment="CENTER_LEFT">
@@ -163,4 +261,9 @@
                     prefWidth="120"/>
         </HBox>
     </VBox>
+<<<<<<< HEAD
+=======
+        </content>
+    </ScrollPane>
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 </HBox>

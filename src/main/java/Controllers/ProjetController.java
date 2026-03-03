@@ -1,7 +1,14 @@
 package Controllers;
 
 import Models.Projet;
+<<<<<<< HEAD
 import Services.ProjetService;
+=======
+import Models.Wallet;
+import Models.User;
+import Services.ProjetService;
+import Services.WalletService;
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,23 +21,52 @@ import javafx.scene.control.*;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import org.GreenLedger.MainFX;
+<<<<<<< HEAD
+=======
+import Utils.SessionManager;
+
+import java.util.List;
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 
 public class ProjetController {
 
     private final ProjetService service = new ProjetService();
+<<<<<<< HEAD
     private final ObservableList<Projet> data = FXCollections.observableArrayList();
+=======
+    private final WalletService walletService = new WalletService();
+    private final Services.EvaluationService evaluationService = new Services.EvaluationService();
+    private final ObservableList<Projet> data = FXCollections.observableArrayList();
+    private java.util.Set<Integer> evaluatedProjectIds = java.util.Collections.emptySet();
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 
     @FXML private TableView<Projet> table;
     @FXML private TableColumn<Projet, Number> colId;
     @FXML private TableColumn<Projet, String> colTitre;
     @FXML private TableColumn<Projet, String> colStatut;
     @FXML private TableColumn<Projet, Number> colBudget;
+<<<<<<< HEAD
+=======
+    @FXML private TableColumn<Projet, Void> colEvaluation;
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 
     @FXML private Label lblTotal;
     @FXML private Label lblDraft;
     @FXML private Label lblLocked;
+<<<<<<< HEAD
 
     @FXML private Button btnSettings;
+=======
+    @FXML private Label lblWalletAvailable;
+
+    @FXML private Button btnSettings;
+    @FXML private Button btnAuditCarbone;
+    @FXML private Button btnGestionProjets;
+    @FXML private Button btnGreenWallet;
+
+    @FXML private Label lblProfileName;
+    @FXML private Label lblProfileType;
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 
     @FXML
     public void initialize() {
@@ -38,6 +74,41 @@ public class ProjetController {
         colTitre.setCellValueFactory(v -> new SimpleStringProperty(v.getValue().getTitre()));
         colStatut.setCellValueFactory(v -> new SimpleStringProperty(v.getValue().getStatut()));
         colBudget.setCellValueFactory(v -> new SimpleDoubleProperty(v.getValue().getBudget()));
+<<<<<<< HEAD
+=======
+        if (colEvaluation != null) {
+            colEvaluation.setCellFactory(column -> new TableCell<>() {
+                private final Button button = new Button("Voir evaluation");
+                {
+                    button.getStyleClass().addAll("btn", "btn-secondary");
+                    button.setOnAction(event -> {
+                        Projet projet = getTableView().getItems().get(getIndex());
+                        ProjectEvaluationViewController.setCurrentProjet(projet.getId(), projet.getTitre());
+                        try {
+                            MainFX.setRoot("projectEvaluationView");
+                        } catch (Exception ex) {
+                            showError("Navigation impossible: " + ex.getMessage());
+                        }
+                    });
+                }
+
+                @Override
+                protected void updateItem(Void item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (empty) {
+                        setGraphic(null);
+                        return;
+                    }
+                    Projet projet = getTableView().getItems().get(getIndex());
+                    if (projet == null || !evaluatedProjectIds.contains(projet.getId())) {
+                        setGraphic(null);
+                    } else {
+                        setGraphic(button);
+                    }
+                }
+            });
+        }
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 
         table.setItems(data);
 
@@ -54,10 +125,34 @@ public class ProjetController {
         if (btnSettings != null) {
             btnSettings.setOnAction(e -> showSettings());
         }
+<<<<<<< HEAD
+=======
+        if (btnGreenWallet != null) {
+            btnGreenWallet.setOnAction(e -> onGreenWallet());
+        }
+
+        applyProfile();
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 
         refresh();
     }
 
+<<<<<<< HEAD
+=======
+    private void applyProfile() {
+        Models.User user = Utils.SessionManager.getInstance().getCurrentUser();
+        if (user == null) {
+            return;
+        }
+        if (lblProfileName != null) {
+            lblProfileName.setText(user.getNomComplet());
+        }
+        if (lblProfileType != null) {
+            lblProfileType.setText(user.getTypeUtilisateur().getLibelle());
+        }
+    }
+
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
     @FXML
     private void onNew() {
         try {
@@ -72,19 +167,124 @@ public class ProjetController {
         refresh();
     }
 
+<<<<<<< HEAD
     private void refresh() {
         data.setAll(service.afficher());
         updateStats();
+=======
+    @FXML
+    private void onGestionProjets() {
+        refresh();
+    }
+
+    @FXML
+    private void onAuditCarbone() {
+        try {
+            MainFX.setRoot("gestionCarbone");
+        } catch (Exception ex) {
+            showError("Navigation impossible: " + ex.getMessage());
+        }
+    }
+
+    @FXML
+    private void onSettings() {
+        showSettings();
+    }
+
+    @FXML
+    private void onGreenWallet() {
+        try {
+            MainFX.setRoot("greenwallet");
+        } catch (Exception ex) {
+            showError("Navigation impossible: " + ex.getMessage());
+        }
+    }
+
+    @FXML
+    private void onBack() {
+        try {
+            MainFX.setRoot("fxml/dashboard");
+        } catch (Exception ex) {
+            showError("Navigation impossible: " + ex.getMessage());
+        }
+    }
+
+    private void refresh() {
+        User user = SessionManager.getInstance().getCurrentUser();
+        Integer entrepriseId = (user != null && user.getId() != null) ? Math.toIntExact(user.getId()) : null;
+        List<Projet> projets = (entrepriseId != null)
+                ? service.getByEntreprise(entrepriseId)
+                : service.afficher();
+        if ((projets == null || projets.isEmpty()) && entrepriseId != null) {
+            projets = service.afficher();
+        }
+        if (projets == null) {
+            projets = java.util.Collections.emptyList();
+        }
+        data.setAll(projets);
+        evaluatedProjectIds = getEvaluatedProjectIds(projets);
+        updateStats();
+        refreshWalletBalance();
+    }
+
+    private java.util.Set<Integer> getEvaluatedProjectIds(List<Projet> projets) {
+        java.util.Set<Integer> evaluatedIds = evaluationService.getProjetIdsWithEvaluations();
+        if (evaluatedIds == null || evaluatedIds.isEmpty()) {
+            return java.util.Collections.emptySet();
+        }
+        if (projets == null || projets.isEmpty()) {
+            return evaluatedIds;
+        }
+        java.util.Set<Integer> visibleIds = new java.util.HashSet<>();
+        for (Projet projet : projets) {
+            visibleIds.add(projet.getId());
+        }
+        evaluatedIds.retainAll(visibleIds);
+        return evaluatedIds;
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
     }
 
     private void updateStats() {
         int total = data.size();
         long drafts = data.stream().filter(p -> "DRAFT".equalsIgnoreCase(p.getStatut())).count();
+<<<<<<< HEAD
         long locked = total - drafts;
 
         lblTotal.setText(String.valueOf(total));
         lblDraft.setText(String.valueOf(drafts));
         lblLocked.setText(String.valueOf(locked));
+=======
+        long submitted = data.stream().filter(p -> "SUBMITTED".equalsIgnoreCase(p.getStatut())).count();
+        long evaluated = data.stream().filter(p -> evaluatedProjectIds.contains(p.getId())).count();
+
+        lblTotal.setText(String.valueOf(total));
+        lblDraft.setText(String.valueOf(drafts));
+        lblLocked.setText(String.valueOf(submitted));
+    }
+
+    private void refreshWalletBalance() {
+        if (lblWalletAvailable == null) {
+            return;
+        }
+
+        User user = Utils.SessionManager.getInstance().getCurrentUser();
+        if (user == null || user.getId() == null) {
+            lblWalletAvailable.setText("0.00 tCO₂");
+            return;
+        }
+
+        try {
+            int ownerId = user.getId().intValue();
+            List<Wallet> wallets = walletService.getAllWallets();
+            double totalAvailableCredits = wallets.stream()
+                    .filter(wallet -> wallet.getOwnerId() == ownerId)
+                    .mapToDouble(Wallet::getAvailableCredits)
+                    .sum();
+            lblWalletAvailable.setText(String.format("%.2f tCO₂", totalAvailableCredits));
+        } catch (Exception ex) {
+            lblWalletAvailable.setText("0.00 tCO₂");
+        }
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
     }
 
     private void openDetailWindow(Projet projet) {
@@ -94,7 +294,11 @@ public class ProjetController {
 
             ProjetDetailController ctrl = loader.getController();
             ctrl.setProjet(projet);
+<<<<<<< HEAD
             ctrl.setOnChanged(this::refresh); // callback refresh après modif/annulation
+=======
+            ctrl.setOnChanged(this::refresh);
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 
             Stage stage = new Stage();
             stage.initModality(Modality.APPLICATION_MODAL);
@@ -120,4 +324,41 @@ public class ProjetController {
             showError("Navigation impossible: " + ex.getMessage());
         }
     }
+<<<<<<< HEAD
+=======
+
+    @FXML
+    private void handleEditProfile() {
+        try {
+            MainFX.setRoot("editProfile");
+        } catch (Exception e) {
+            showError("Navigation impossible: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void onOpenAssistant() {
+        try {
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(getClass().getResource("/AssistantChat.fxml"));
+            javafx.scene.Parent root = loader.load();
+
+            Controllers.AssistantChatController c = loader.getController();
+          //  c.setContextHint("Écran: liste projets. L'utilisateur veut comprendre comment préparer et soumettre un projet.");
+
+            javafx.stage.Stage stage = new javafx.stage.Stage();
+            stage.setTitle("Assistant GreenLedger");
+            stage.setScene(new javafx.scene.Scene(root, 720, 560));
+            stage.show();
+
+        } catch (Exception e) {
+            javafx.scene.control.Alert a = new javafx.scene.control.Alert(
+                    javafx.scene.control.Alert.AlertType.ERROR,
+                    "Impossible d'ouvrir l'assistant:\n" + e.getMessage(),
+                    javafx.scene.control.ButtonType.OK
+            );
+            a.setHeaderText(null);
+            a.showAndWait();
+        }
+    }
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 }

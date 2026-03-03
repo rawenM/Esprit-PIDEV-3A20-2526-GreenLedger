@@ -6,6 +6,7 @@
 
 <HBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
+<<<<<<< HEAD
       fx:controller="Controllers.ProjetController"
       spacing="0" styleClass="page">
 
@@ -60,10 +61,26 @@
                     <Label text="SOUMIS / AUTRES" styleClass="stat-title"/>
                     <Label fx:id="lblLocked" text="0" styleClass="stat-value accent-green"/>
                     <Label text="🔒" style="-fx-font-size: 18px;"/>
+=======
+      fx:controller="Controllers.ExpertProjetController"
+      spacing="0" styleClass="app-container">
+
+    <!-- LEFT SIDEBAR -->
+    <VBox prefWidth="220" styleClass="sidebar" style="-fx-min-width: 220; -fx-max-width: 220;">
+
+        <!-- Logo/Brand Section -->
+        <VBox spacing="2" style="-fx-padding: 0 0 12 0;" alignment="CENTER_LEFT">
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="🍃" style="-fx-font-size: 24; -fx-padding: 0;"/>
+                <VBox spacing="0">
+                    <Label text="GreenLedger" styleClass="brand-title" style="-fx-font-size: 16; -fx-padding: 0;"/>
+                    <Label text="Expert" styleClass="brand-subtitle" style="-fx-padding: 0;"/>
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
                 </VBox>
             </HBox>
         </VBox>
 
+<<<<<<< HEAD
         <!-- Table only -->
         <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS"
                     style="-fx-background-color: transparent; -fx-background: transparent;">
@@ -102,3 +119,89 @@
 
     </VBox>
 </HBox>
+=======
+        <Separator styleClass="sidebar-sep"/>
+
+        <Button text="← Retour" styleClass="btn btn-secondary" onAction="#handleBack"/>
+
+        <!-- Navigation Section -->
+        <Label text="NAVIGATION" styleClass="section-title-sidebar"/>
+        <Button fx:id="btnGestionProjets" text="📁 Voir Projets" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
+        <Button fx:id="btnGestionEvaluations" text="📋 Évaluations" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
+
+        <Separator styleClass="sidebar-sep" style="-fx-padding: 4 0;"/>
+
+        <!-- System Section -->
+        <Label text="SYSTEM" styleClass="section-title-sidebar"/>
+        <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+
+        <VBox spacing="2" alignment="TOP_LEFT" style="-fx-padding: 10 0 0 0;">
+            <Label fx:id="lblProfileName" styleClass="page-title"/>
+            <Label fx:id="lblProfileType" styleClass="page-subtitle"/>
+            <Button text="✏️ Modifier profil" styleClass="btn-secondary" onAction="#handleEditProfile"/>
+        </VBox>
+    </VBox>
+
+    <!-- MAIN CONTENT -->
+    <VBox fx:id="contentPane" spacing="16" alignment="TOP_LEFT" styleClass="page" HBox.hgrow="ALWAYS">
+        <padding>
+            <Insets top="20" right="20" bottom="20" left="20"/>
+        </padding>
+
+        <!-- PAGE HEADER -->
+        <VBox spacing="4">
+            <Label text="Dashboard Projets" styleClass="page-title"/>
+            <Label text="Liste des projets disponibles pour l'audit carbone" styleClass="page-subtitle"/>
+        </VBox>
+
+        <!-- STAT CARDS ROW -->
+        <HBox spacing="12" style="-fx-min-height: 90;">
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="TOP_LEFT">
+                <Label text="📊 DISPONIBLES" styleClass="stat-title"/>
+                <Label fx:id="lblTotal" text="0" styleClass="stat-value"/>
+            </VBox>
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="TOP_LEFT">
+                <Label text="⏳ EN ATTENTE" styleClass="stat-title"/>
+                <Label fx:id="lblPending" text="0" styleClass="stat-value accent-amber" style="-fx-font-size: 24;"/>
+            </VBox>
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" alignment="TOP_LEFT">
+                <Label text="✅ ÉVALUÉES" styleClass="stat-title"/>
+                <Label fx:id="lblEvaluated" text="0" styleClass="stat-value accent-green" style="-fx-font-size: 24;"/>
+            </VBox>
+        </HBox>
+
+        <!-- PROJECTS TABLE SECTION -->
+        <VBox spacing="10" styleClass="card" style="-fx-padding: 18;" VBox.vgrow="ALWAYS">
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="📁" style="-fx-font-size: 14;"/>
+                <Label text="Projets Disponibles" styleClass="section-title" style="-fx-font-size: 14; -fx-padding: 0;"/>
+            </HBox>
+
+            <TableView fx:id="tableProjets" prefHeight="340" styleClass="table-card" VBox.vgrow="ALWAYS">
+                <placeholder>
+                    <VBox spacing="8" alignment="CENTER">
+                        <Label text="📋" style="-fx-font-size: 32; -fx-opacity: 0.3;"/>
+                        <Label text="Aucun projet" styleClass="placeholder-label" style="-fx-font-size: 13;"/>
+                        <Label text="Les projets disponibles apparaîtront ici" styleClass="placeholder-label" style="-fx-font-size: 11;"/>
+                    </VBox>
+                </placeholder>
+                <columns>
+                    <TableColumn fx:id="colIcon" text="" prefWidth="40"/>
+                    <TableColumn fx:id="colId" text="ID" prefWidth="60"/>
+                    <TableColumn fx:id="colTitre" text="Titre" prefWidth="150"/>
+                    <TableColumn fx:id="colDescription" text="Description" prefWidth="200"/>
+                    <TableColumn fx:id="colBudget" text="Budget" prefWidth="100"/>
+                    <TableColumn fx:id="colStatut" text="Statut" prefWidth="100"/>
+                    <TableColumn fx:id="colScore" text="Score ESG" prefWidth="90"/>
+                    <TableColumn fx:id="colAction" text="Action" prefWidth="140"/>
+                    <TableColumn fx:id="colAi" text="IA" prefWidth="90"/>
+                    <TableColumn fx:id="colPdf" text="PDF" prefWidth="90"/>
+                    <TableColumn fx:id="colCalcEsg" text="Calc ESG" prefWidth="100"/>
+                </columns>
+            </TableView>
+        </VBox>
+    </VBox>
+</HBox>
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657

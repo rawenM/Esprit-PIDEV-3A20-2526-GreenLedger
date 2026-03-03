@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            fx:controller="Controllers.ExpertCarbonController"
+            style="-fx-font-family: 'Segoe UI'; -fx-font-size: 11;">
+
+    <!-- Top: Header -->
+    <top>
+        <VBox style="-fx-background-color: #1F2937; -fx-padding: 15;">
+            <HBox spacing="20" alignment="CENTER_LEFT">
+                <Label text="🌍 Expert Carbone - Évaluation d'Émissions"
+                       style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label fx:id="userLabel" style="-fx-text-fill: #D1D5DB;"/>
+                <Button text="Déconnexion" onAction="#handleLogout" style="-fx-padding: 8 15;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <!-- Center: Main Content with Tabs -->
+    <center>
+        <TabPane tabClosingPolicy="UNAVAILABLE" style="-fx-padding: 10;">
+            <!-- Onglet 1: Rapports en attente -->
+            <Tab text="📋 Rapports en attente">
+                <VBox spacing="10" style="-fx-padding: 15;">
+                    <HBox spacing="10">
+                        <Label text="Rapports à évaluer:" style="-fx-font-weight: bold;"/>
+                        <Label fx:id="pendingCountLabel" style="-fx-text-fill: #F59E0B; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <TableView fx:id="pendingReportsTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn prefWidth="150" text="Projet" fx:id="projectNameColumn"/>
+                            <TableColumn prefWidth="120" text="Porteur" fx:id="porteurNameColumn"/>
+                            <TableColumn prefWidth="100" text="Date" fx:id="dateColumn"/>
+                            <TableColumn prefWidth="150" text="Détails" fx:id="detailsColumn"/>
+                            <TableColumn prefWidth="200" text="Actions" fx:id="actionsColumn"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+
+            <!-- Onglet 2: Rapports validés -->
+            <Tab text="✅ Rapports validés">
+                <VBox spacing="10" style="-fx-padding: 15;">
+                    <HBox spacing="10">
+                        <Label text="Rapports validés:" style="-fx-font-weight: bold;"/>
+                        <Label fx:id="validatedCountLabel" style="-fx-text-fill: #10B981; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <TableView fx:id="validatedReportsTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn prefWidth="150" text="Projet" fx:id="projectNameValidColumn"/>
+                            <TableColumn prefWidth="120" text="Porteur" fx:id="porteurNameValidColumn"/>
+                            <TableColumn prefWidth="100" text="Émissions (tCO2e)" fx:id="emissionsValidColumn"/>
+                            <TableColumn prefWidth="100" text="Date" fx:id="dateValidColumn"/>
+                            <TableColumn prefWidth="150" text="Commentaires" fx:id="commentsValidColumn"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+
+            <!-- Onglet 3: Rapports rejetés -->
+            <Tab text="❌ Rapports rejetés">
+                <VBox spacing="10" style="-fx-padding: 15;">
+                    <HBox spacing="10">
+                        <Label text="Rapports rejetés:" style="-fx-font-weight: bold;"/>
+                        <Label fx:id="rejectedCountLabel" style="-fx-text-fill: #EF4444; -fx-font-weight: bold;"/>
+                    </HBox>
+                    <TableView fx:id="rejectedReportsTable" VBox.vgrow="ALWAYS">
+                        <columns>
+                            <TableColumn prefWidth="150" text="Projet" fx:id="projectNameRejColumn"/>
+                            <TableColumn prefWidth="120" text="Porteur" fx:id="porteurNameRejColumn"/>
+                            <TableColumn prefWidth="100" text="Date" fx:id="dateRejColumn"/>
+                            <TableColumn prefWidth="200" text="Motif du rejet" fx:id="motifRejColumn"/>
+                            <TableColumn prefWidth="150" text="Actions" fx:id="actionsRejColumn"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </Tab>
+
+            <!-- Onglet 4: Statistiques -->
+            <Tab text="📊 Statistiques">
+                <VBox spacing="15" style="-fx-padding: 20;">
+                    <HBox spacing="30" alignment="TOP_CENTER">
+                        <VBox spacing="5" style="-fx-border-color: #E5E7EB; -fx-border-radius: 5; -fx-padding: 15; -fx-min-width: 180;">
+                            <Label text="Total évalués" style="-fx-font-size: 12; -fx-text-fill: #6B7280;"/>
+                            <Label fx:id="totalStatsLabel" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #1F2937;"/>
+                        </VBox>
+                        <VBox spacing="5" style="-fx-border-color: #E5E7EB; -fx-border-radius: 5; -fx-padding: 15; -fx-min-width: 180;">
+                            <Label text="En attente" style="-fx-font-size: 12; -fx-text-fill: #6B7280;"/>
+                            <Label fx:id="pendingStatsLabel" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #F59E0B;"/>
+                        </VBox>
+                        <VBox spacing="5" style="-fx-border-color: #E5E7EB; -fx-border-radius: 5; -fx-padding: 15; -fx-min-width: 180;">
+                            <Label text="Validés" style="-fx-font-size: 12; -fx-text-fill: #6B7280;"/>
+                            <Label fx:id="validatedStatsLabel" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #10B981;"/>
+                        </VBox>
+                        <VBox spacing="5" style="-fx-border-color: #E5E7EB; -fx-border-radius: 5; -fx-padding: 15; -fx-min-width: 180;">
+                            <Label text="Rejetés" style="-fx-font-size: 12; -fx-text-fill: #6B7280;"/>
+                            <Label fx:id="rejectedStatsLabel" style="-fx-font-size: 24; -fx-font-weight: bold; -fx-text-fill: #EF4444;"/>
+                        </VBox>
+                    </HBox>
+                    <Separator/>
+                    <VBox spacing="10">
+                        <Label text="🌍 Émissions moyennes (rapports validés):" style="-fx-font-weight: bold;"/>
+                        <Label fx:id="averageEmissionsLabel" style="-fx-font-size: 16; -fx-text-fill: #059669;"/>
+                        <Label text="(En tonnes d'équivalent CO2)" style="-fx-font-size: 10; -fx-text-fill: #6B7280;"/>
+                    </VBox>
+                </VBox>
+            </Tab>
+        </TabPane>
+    </center>
+</BorderPane>
+

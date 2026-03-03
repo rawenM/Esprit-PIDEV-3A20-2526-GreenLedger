@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.RoleShellController"
+            fx:id="root"
+            userData="PORTEUR_PROJET"
+            prefHeight="600" prefWidth="900"
+            styleClass="page">
+
+    <left>
+        <VBox prefWidth="220" spacing="10" styleClass="sidebar">
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <padding>
+                    <Insets top="16" right="12" bottom="16" left="12"/>
+                </padding>
+                <Label text="📁" style="-fx-font-size:18px;"/>
+                <Label fx:id="lblSidebarTitle" text="GreenLedger Projet" styleClass="sidebar-title"/>
+            </HBox>
+            <Separator styleClass="sidebar-sep"/>
+            <Button fx:id="btnNavPrimary" text="📁 Mes projets" onAction="#onPrimary" styleClass="nav-btn nav-btn-active"/>
+            <Button fx:id="btnNavSecondary" text="➕ Nouveau projet" onAction="#onSecondary" styleClass="nav-btn"/>
+            <Button fx:id="btnNavTertiary" text="📊 Mes evaluations" onAction="#onTertiary" styleClass="nav-btn"/>
+            <Button fx:id="btnNavSettings" text="⚙️ Parametres" onAction="#onSettings" styleClass="nav-btn"/>
+            <Button text="🚪 Deconnexion" onAction="#onLogout" styleClass="nav-btn"/>
+            <Region VBox.vgrow="ALWAYS"/>
+            <VBox spacing="2" alignment="TOP_LEFT" style="-fx-padding: 10 0 0 12;">
+                <Label fx:id="lblProfileName" styleClass="page-title"/>
+                <Label fx:id="lblProfileType" styleClass="page-subtitle"/>
+                <Button text="✏️ Modifier profil" styleClass="btn-secondary" onAction="#onEditProfile"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <top>
+        <VBox styleClass="topbar">
+            <HBox alignment="CENTER_LEFT" spacing="20">
+                <padding>
+                    <Insets top="16" right="24" bottom="16" left="24"/>
+                </padding>
+                <Label fx:id="lblPageTitle" text="📁 Gestion des projets" styleClass="page-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="← Retour" onAction="#onBack" styleClass="btn btn-secondary"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" styleClass="content-area">
+            <VBox spacing="20" styleClass="content-area">
+                <padding>
+                    <Insets top="30" right="30" bottom="30" left="30"/>
+                </padding>
+
+                <VBox spacing="10" styleClass="card">
+                    <Label text="Actions rapides" styleClass="section-title"/>
+                    <HBox spacing="12">
+                        <Button text="📁 Mes projets" onAction="#onPrimary" styleClass="btn btn-secondary" prefWidth="160"/>
+                        <Button text="➕ Nouveau projet" onAction="#onSecondary" styleClass="btn btn-secondary" prefWidth="180"/>
+                        <Button text="📊 Mes evaluations" onAction="#onTertiary" styleClass="btn btn-secondary" prefWidth="180"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                    </HBox>
+                </VBox>
+
+                <VBox spacing="10" styleClass="card">
+                    <Label text="Astuce" styleClass="section-title"/>
+                    <Label text="Soumettez vos projets et suivez les evaluations associees." styleClass="page-subtitle"/>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>
+

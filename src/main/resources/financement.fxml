@@ -1,0 +1,234 @@
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<HBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.FinancementController"
+      spacing="0" styleClass="page">
+
+    <VBox prefWidth="220" styleClass="sidebar">
+        <HBox alignment="CENTER_LEFT" spacing="8">
+            <Label text="💼" style="-fx-font-size:20px;"/>
+            <Label text="GreenLedger Financement" styleClass="sidebar-title"/>
+        </HBox>
+
+        <Separator styleClass="sidebar-sep"/>
+
+        <Button fx:id="btnDashboard" text="📊 Tableau de bord" onAction="#handleGoDashboard" styleClass="nav-btn"/>
+        <Button fx:id="btnFinancement" text="💳 Financement" onAction="#handleGoFinancement" styleClass="nav-btn nav-btn-active"/>
+        <Button fx:id="btnOffres" text="🧾 Offres" onAction="#handleGoInvestments" styleClass="nav-btn"/>
+
+        <Separator styleClass="sidebar-sep"/>
+
+        <Button fx:id="btnNewFinancement" text="➕ Nouveau Financement" onAction="#btnNewFinancement_click" styleClass="nav-btn"/>
+        <Button fx:id="btnNewOffre" text="➕ Nouvelle Offre" onAction="#btnNewOffre_click" styleClass="nav-btn"/>
+        <Button fx:id="btnRefresh" text="🔄 Actualiser" styleClass="nav-btn" onAction="#refreshAll"/>
+        <Button fx:id="btnNavSettings" text="⚙️ Paramètres" onAction="#handleGoSettings" styleClass="nav-btn"/>
+
+        <Region VBox.vgrow="ALWAYS"/>
+    </VBox>
+
+    <VBox spacing="0" HBox.hgrow="ALWAYS" styleClass="content-area">
+
+        <HBox spacing="16" alignment="CENTER_LEFT">
+            <padding>
+                <Insets top="28" right="32" bottom="20" left="32"/>
+            </padding>
+
+            <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <Label text="FINANCEMENTS" styleClass="stat-title"/>
+                <Label text="0" styleClass="stat-value accent-green"/>
+                <Label text="🏦" style="-fx-font-size:18px;"/>
+            </VBox>
+
+            <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <Label text="OFFRES" styleClass="stat-title"/>
+                <Label text="0" styleClass="stat-value accent-blue"/>
+                <Label text="🧾" style="-fx-font-size:18px;"/>
+            </VBox>
+
+            <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS">
+                <Label text="PROJETS" styleClass="stat-title"/>
+                <Label text="0" styleClass="stat-value accent-amber"/>
+                <Label text="📁" style="-fx-font-size:18px;"/>
+            </VBox>
+        </HBox>
+
+        <ScrollPane fitToWidth="true" fitToHeight="true" VBox.vgrow="ALWAYS"
+                    style="-fx-background-color: transparent; -fx-background: transparent;">
+            <VBox spacing="24">
+                <padding>
+                    <Insets top="8" right="32" bottom="32" left="32"/>
+                </padding>
+
+                <VBox spacing="12">
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="📁" style="-fx-font-size:18px;"/>
+                        <Label text="Sélection Projet" styleClass="page-title"/>
+                    </HBox>
+                    <ComboBox fx:id="cmbProjetSelector"
+                              promptText="Sélectionner Projet"
+                              styleClass="field"
+                              prefWidth="400"/>
+                </VBox>
+
+                <VBox spacing="12" styleClass="card">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="🏦" style="-fx-font-size:18px;"/>
+                        <Label text="Table: Financement" styleClass="page-title"/>
+                    </HBox>
+
+                    <TableView fx:id="tableFinancement"
+                               styleClass="table-card selectable-table"
+                               style="-fx-pref-height:200px;">
+                        <placeholder>
+                            <VBox alignment="CENTER" spacing="8" style="-fx-padding:40;">
+                                <Label text="📋" style="-fx-font-size:32px; -fx-opacity:0.3;"/>
+                                <Label text="Aucun financement" styleClass="placeholder-label"/>
+                            </VBox>
+                        </placeholder>
+                        <columns>
+                            <TableColumn fx:id="colFinId" text="ID" prefWidth="70"/>
+                            <TableColumn fx:id="colFinProjetId" text="Projet ID" prefWidth="100"/>
+                            <TableColumn fx:id="colFinBanqueId" text="Banque ID" prefWidth="110"/>
+                            <TableColumn fx:id="colFinMontant" text="Montant" prefWidth="140"/>
+                            <TableColumn fx:id="colFinDate" text="Date Financement" prefWidth="160"/>
+                        </columns>
+                    </TableView>
+
+                    <Separator/>
+
+                    <HBox spacing="12">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Projet ID" styleClass="form-label"/>
+                            <TextField fx:id="txtProjetId" promptText="Ex:12" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Banque ID" styleClass="form-label"/>
+                            <TextField fx:id="txtBanqueId" promptText="Ex:5" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Montant" styleClass="form-label"/>
+                            <TextField fx:id="txtMontant" promptText="Ex:15000" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Date" styleClass="form-label"/>
+                            <TextField fx:id="txtDateFinancement" promptText="YYYY-MM-DD" styleClass="field"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="12">
+                        <Button fx:id="btnAddFinancement"
+                                text="➕ Ajouter"
+                                onAction="#ajouterFinancement"
+                                styleClass="btn btn-primary"
+                                prefHeight="36"
+                                prefWidth="140"/>
+                        <Button fx:id="btnEditFinancement"
+                                text="✏️ Modifier"
+                                onAction="#modifierFinancement"
+                                styleClass="btn btn-secondary"
+                                prefHeight="36"
+                                prefWidth="140"/>
+                        <Button fx:id="btnDeleteFinancement"
+                                text="🗑️ Supprimer"
+                                onAction="#supprimerFinancement"
+                                styleClass="btn btn-danger"
+                                prefHeight="36"
+                                prefWidth="140"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="🔄 Actualiser"
+                                onAction="#refreshAll"
+                                styleClass="btn btn-secondary"
+                                prefHeight="36"
+                                prefWidth="140"/>
+                    </HBox>
+
+                    <HBox spacing="12">
+                        <VBox spacing="8" prefWidth="180">
+                            <Label text="ID Financement a supprimer" styleClass="form-label"/>
+                            <TextField fx:id="txtDeleteFinancementId" promptText="Ex: 10" styleClass="field"/>
+                        </VBox>
+                        <Button text="🗑️ Supprimer par ID"
+                                onAction="#supprimerFinancementParId"
+                                styleClass="btn btn-danger"
+                                prefHeight="36"
+                                prefWidth="180"/>
+                    </HBox>
+
+                    <HBox spacing="12">
+                        <VBox spacing="8" prefWidth="180">
+                            <Label text="ID Financement a modifier" styleClass="form-label"/>
+                            <TextField fx:id="txtFinancementIdToModify" promptText="Ex: 7" styleClass="field"/>
+                        </VBox>
+                        <Button text="✏️ Modifier par ID"
+                                onAction="#modifierFinancement"
+                                styleClass="btn btn-secondary"
+                                prefHeight="36"
+                                prefWidth="180"/>
+                    </HBox>
+                </VBox>
+
+                <VBox spacing="12" styleClass="card">
+                    <padding>
+                        <Insets top="20" right="20" bottom="20" left="20"/>
+                    </padding>
+
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="🧾" style="-fx-font-size:18px;"/>
+                        <Label text="Table: Offre Financement" styleClass="page-title"/>
+                    </HBox>
+
+                    <TableView fx:id="tableOffres" prefHeight="220" minHeight="220"
+                               VBox.vgrow="ALWAYS"
+                               styleClass="table-card table-projects">
+                        <placeholder>
+                            <Label text="Aucune offre" styleClass="placeholder-label"/>
+                        </placeholder>
+                        <columns>
+                            <TableColumn fx:id="colOffreId" text="ID Offre" prefWidth="80"/>
+                            <TableColumn fx:id="colOffreType" text="Type Offre" prefWidth="130"/>
+                            <TableColumn fx:id="colOffreTaux" text="Taux" prefWidth="90"/>
+                            <TableColumn fx:id="colOffreDuree" text="Durée" prefWidth="110"/>
+                            <TableColumn fx:id="colOffreFinancementId" text="Financement ID" prefWidth="140"/>
+                        </columns>
+                    </TableView>
+
+                    <Separator/>
+
+                    <HBox spacing="12">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <Label text="Type Offre" styleClass="form-label"/>
+                            <TextField fx:id="txtTypeOffre" promptText="Ex: Long terme" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" prefWidth="150">
+                            <Label text="Taux" styleClass="form-label"/>
+                            <TextField fx:id="txtTaux" promptText="\%" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" prefWidth="150">
+                            <Label text="Durée" styleClass="form-label"/>
+                            <TextField fx:id="txtDuree" promptText="Mois" styleClass="field"/>
+                        </VBox>
+                        <VBox spacing="8" prefWidth="180">
+                            <Label text="Financement ID" styleClass="form-label"/>
+                            <TextField fx:id="txtOffreFinancementId" promptText="Ex:3" styleClass="field"/>
+                        </VBox>
+                    </HBox>
+
+                    <HBox spacing="12">
+                        <Button text="➕ Ajouter Offre" onAction="#ajouterOffre" styleClass="btn btn-primary" prefHeight="36" prefWidth="140"/>
+                        <Button text="✏️ Modifier Offre" onAction="#modifierOffre" styleClass="btn btn-secondary" prefHeight="36" prefWidth="140"/>
+                        <Button text="🗑️ Supprimer Offre" onAction="#supprimerOffre" styleClass="btn btn-danger" prefHeight="36" prefWidth="140"/>
+                    </HBox>
+                </VBox>
+
+            </VBox>
+        </ScrollPane>
+
+    </VBox>
+</HBox>

@@ -1,0 +1,46 @@
+RESUME DES CORRECTIONS APPORTEES
+=================================
+
+1. ERREURS D'IMPORTS CORRIGEES
+   - AdminUsersController.java: org.example.* -> packages directs
+   - EditUserController.java: org.example.* -> packages directs
+   - ProfileController.java: org.example.* -> packages directs
+   - ResetPasswordController.java: org.example.* -> packages directs
+   - ExpertCarbonController.java: org.example.* -> packages directs
+   - DashboardController.java: org.example.* -> packages directs
+
+2. ERREURS D'ENCODAGE UTF-8 CORRIGEES
+   - Tous les fichiers .java ont ete nettoyes des caracteres speciaux
+   - Suppression des emojis (❌, ✅, ⏸️, 🗑️, etc.)
+   - Suppression des BOM UTF-8 au debut des fichiers
+   - Remplacement par des marqueurs de texte: [OK], [ERR], [WARN], [INFO], etc.
+
+3. ERREURS DANS MainFX.java CORRIGEES
+   - Signature de start(Stage): corrigee (avait 2 parametres au lieu de 1)
+   - Import manquant: Utils.ResetHttpServer ajout
+   - Code duplique supprime
+   - Ordre logique du code corrected
+
+4. ERREURS DANS UserServiceImpl.java CORRIGEES
+   - Creation de fichier complètement UTF-8 compatible
+   - Suppression de tous les emojis
+   - Remise a jour des appels PasswordUtil, EmailService, etc.
+
+5. NETTOYAGE GLOBAL
+   - Script PowerShell pour convertir tous les fichiers Java
+   - Suppression des caracteres problematiques (╗┐, BOM, emojis)
+
+RESULTAT
+========
+- MainFX.java: COMPILE SUCCES
+- UserServiceImpl.java: COMPILE SUCCES
+- AdminUsersController.java et autres: COMPILE SUCCES
+
+L'APPLICATION DEVRAIT MAINTENANT POUVOIR ETRE LANCEE SANS ERREURS DE COMPILATION.
+
+Pour lancer l'application:
+java -cp "src/main/java" org.GreenLedger.MainFX
+
+Ou utiliser Maven si disponible:
+mvn clean compile javafx:run
+

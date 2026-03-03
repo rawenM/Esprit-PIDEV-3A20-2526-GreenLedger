@@ -10,8 +10,13 @@ public class NavigationContext {
     private String previousPage;
 
     private NavigationContext() {
+<<<<<<< HEAD
         currentPage = "gestioncarbone"; // Default starting page
         previousPage = "gestioncarbone";
+=======
+        currentPage = "fxml/dashboard";
+        previousPage = "fxml/dashboard";
+>>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
     }
 
     public static NavigationContext getInstance() {

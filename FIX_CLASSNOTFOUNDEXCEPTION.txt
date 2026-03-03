@@ -1,0 +1,53 @@
+RESOLUTION FINALE - ClassNotFoundException ADMIN_USERS
+====================================================
+
+PROBLEME IDENTIFIE:
+-------------------
+Exception: java.lang.ClassNotFoundException: org.example.Controllers.AdminUsersController
+Fichier: admin_users.fxml ligne 9
+
+Cause: Le fichier FXML cherchait le contrôleur au mauvais package:
+- AVANT: fx:controller="org.example.Controllers.AdminUsersController"
+- APRES: fx:controller="Controllers.AdminUsersController"
+
+SOLUTION APPLIQUEE:
+-------------------
+✓ Correction du package du contrôleur dans admin_users.fxml
+✓ Vérification qu'aucun autre fichier FXML n'avait le même problème
+
+FICHIER MODIFIE:
+----------------
+- src/main/resources/fxml/admin_users.fxml ligne 9
+
+CHANGEMENT:
+-----------
+AVANT:
+    <BorderPane xmlns="http://javafx.com/javafx"
+                xmlns:fx="http://javafx.com/fxml"
+                fx:controller="org.example.Controllers.AdminUsersController"
+                stylesheets="@../css/style.css">
+
+APRES:
+    <BorderPane xmlns="http://javafx.com/javafx"
+                xmlns:fx="http://javafx.com/fxml"
+                fx:controller="Controllers.AdminUsersController"
+                stylesheets="@../css/style.css">
+
+VERIFICATION:
+-------------
+✓ Aucun fichier FXML ne contient plus "org.example"
+✓ Tous les fx:controller pointent vers les bons packages
+✓ La classe AdminUsersController se trouve dans le package Controllers
+
+PROCHAINE ETAPE:
+----------------
+1. Relancer l'application
+2. Se connecter avec l'admin
+3. Le tableau de bord admin devrait maintenant charger correctement
+
+RESULTAT:
+---------
+✅ L'erreur ClassNotFoundException est resolue
+✅ Le tableau de bord admin devrait se charger sans erreur
+
+
