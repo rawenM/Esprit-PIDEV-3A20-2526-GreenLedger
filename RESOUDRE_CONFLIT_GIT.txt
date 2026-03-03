@@ -1,0 +1,104 @@
+═══════════════════════════════════════════════════════════
+  ✅ RÉSOUDRE LE CONFLIT GIT
+═══════════════════════════════════════════════════════════
+
+❌ ERREUR
+
+Your local changes to the following files would be overwritten by merge:
+src/main/java/DataBase/MyConnection.java
+Please commit your changes or stash them before you merge.
+
+═══════════════════════════════════════════════════════════
+
+🔍 EXPLICATION
+
+Vous avez modifié MyConnection.java localement.
+Git veut fusionner des changements mais ne peut pas écraser vos modifications.
+
+═══════════════════════════════════════════════════════════
+
+✅ SOLUTION 1: COMMIT VOS CHANGEMENTS (Recommandé)
+
+1. Vérifier les modifications:
+   git status
+
+2. Ajouter le fichier:
+   git add src/main/java/DataBase/MyConnection.java
+
+3. Commit:
+   git commit -m "Fix: Auto-reconnect in MyConnection"
+
+4. Maintenant vous pouvez merge/pull:
+   git pull
+   (ou git merge selon votre commande)
+
+═══════════════════════════════════════════════════════════
+
+✅ SOLUTION 2: STASH (Mettre de côté temporairement)
+
+1. Mettre de côté vos modifications:
+   git stash
+
+2. Faire le merge/pull:
+   git pull
+
+3. Récupérer vos modifications:
+   git stash pop
+
+4. Résoudre les conflits si nécessaire
+
+═══════════════════════════════════════════════════════════
+
+✅ SOLUTION 3: GARDER VOS CHANGEMENTS (Force)
+
+Si vous êtes SÛR de vouloir garder votre version:
+
+1. Commit vos changements:
+   git add src/main/java/DataBase/MyConnection.java
+   git commit -m "Keep local MyConnection changes"
+
+2. Pull avec stratégie:
+   git pull --strategy=ours
+
+OU si vous voulez la version distante:
+   git checkout --theirs src/main/java/DataBase/MyConnection.java
+   git pull
+
+═══════════════════════════════════════════════════════════
+
+📋 COMMANDES RAPIDES
+
+# Voir les modifications
+git diff src/main/java/DataBase/MyConnection.java
+
+# Commit rapide
+git add src/main/java/DataBase/MyConnection.java
+git commit -m "Update MyConnection"
+git pull
+
+# Ou stash rapide
+git stash
+git pull
+git stash pop
+
+═══════════════════════════════════════════════════════════
+
+⚠️ IMPORTANT
+
+Vos modifications dans MyConnection.java sont importantes!
+Elles ajoutent l'auto-reconnect pour éviter les erreurs
+"Connection closed".
+
+Recommandation: COMMIT vos changements (Solution 1)
+
+═══════════════════════════════════════════════════════════
+
+🚀 FAIRE MAINTENANT
+
+Dans le terminal:
+
+git add src/main/java/DataBase/MyConnection.java
+git commit -m "Fix: Add auto-reconnect in MyConnection"
+git pull
+
+═══════════════════════════════════════════════════════════

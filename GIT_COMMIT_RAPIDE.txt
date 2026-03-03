@@ -1,0 +1,51 @@
+═══════════════════════════════════════════════════════════
+  🚀 COMMIT RAPIDE - 3 COMMANDES
+═══════════════════════════════════════════════════════════
+
+❌ Erreur: "Your local changes would be overwritten by merge"
+
+✅ Solution: Commit vos changements
+
+═══════════════════════════════════════════════════════════
+
+📋 COPIER-COLLER CES 3 COMMANDES
+
+git add src/main/java/DataBase/MyConnection.java
+
+git commit -m "Fix: Add auto-reconnect in MyConnection"
+
+git pull
+
+═══════════════════════════════════════════════════════════
+
+✅ C'EST TOUT!
+
+Vos modifications sont sauvegardées et le merge peut continuer.
+
+═══════════════════════════════════════════════════════════
+
+📝 ALTERNATIVE: Commit TOUS les fichiers modifiés
+
+git add .
+
+git commit -m "Update: Login with 2 captcha choices + fraud detection fixes"
+
+git pull
+
+═══════════════════════════════════════════════════════════
+
+⚠️ SI VOUS NE VOULEZ PAS COMMIT
+
+Utilisez stash (mettre de côté):
+
+git stash
+
+git pull
+
+git stash pop
+
+═══════════════════════════════════════════════════════════
+
+✅ EXÉCUTEZ LES COMMANDES MAINTENANT!
+
+═══════════════════════════════════════════════════════════
