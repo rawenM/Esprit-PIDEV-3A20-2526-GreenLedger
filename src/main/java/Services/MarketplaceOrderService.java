@@ -74,7 +74,7 @@ public class MarketplaceOrderService {
 
                 // Determine payment flow based on amount
                 boolean requiresEscrow = totalAmount >= ESCROW_THRESHOLD_USD;
-                String initialStatus = requiresEscrow ? "PENDING_VERIFICATION" : "PENDING";
+                String initialStatus = requiresEscrow ? "PENDING" : "PENDING";
                 
                 System.out.println(LOG_TAG + String.format(" Order amount: $%.2f - %s", 
                     totalAmount, requiresEscrow ? "REQUIRES ESCROW" : "INSTANT PAYMENT"));
@@ -116,7 +116,7 @@ public class MarketplaceOrderService {
 
                 if (paymentIntent != null) {
                     // Update order status based on flow type
-                    String newStatus = requiresEscrow ? "PENDING_VERIFICATION" : "PAYMENT_PROCESSING";
+                    String newStatus = requiresEscrow ? "PAYMENT_PROCESSING" : "PAYMENT_PROCESSING";
                     String updateSql = "UPDATE marketplace_orders SET status = ? WHERE id = ?";
                     try (PreparedStatement stmt = conn.prepareStatement(updateSql)) {
                         stmt.setString(1, newStatus);
@@ -245,6 +245,10 @@ public class MarketplaceOrderService {
      * Transfers credits and releases escrow
      */
     public boolean completeOrder(int orderId, String stripeChargeId) {
+        System.out.println(LOG_TAG + " ===== completeOrder() CALLED =====");
+        System.out.println(LOG_TAG + " Order ID: " + orderId);
+        System.out.println(LOG_TAG + " Stripe Charge ID: " + stripeChargeId);
+        
         if (conn == null) {
             System.err.println(LOG_TAG + " ERROR: Database connection is null");
             return false;
@@ -335,13 +339,35 @@ public class MarketplaceOrderService {
                 // Record marketplace_order_batches linkage
                 recordOrderBatches(orderId, buyerWalletId, order.getQuantity());
 
-                // Create escrow record
-                int escrowId = createEscrow(orderId, null, order.getBuyerId(), 
-                    order.getSellerId(), order.getTotalAmountUsd());
+                // Check if escrow is required (only for orders >= $10k)
+                boolean requiresEscrow = order.getTotalAmountUsd() >= ESCROW_THRESHOLD_USD;
+                int escrowId = -1;
+                String finalStatus;
+                
+                if (requiresEscrow) {
+                    // Create escrow record for high-value orders
+                    System.out.println(LOG_TAG + " Order amount $" + order.getTotalAmountUsd() + " >= $" + ESCROW_THRESHOLD_USD + " - CREATING ESCROW");
+                    System.out.println(LOG_TAG + " Creating escrow for order " + orderId);
+                    System.out.println(LOG_TAG + "   Buyer: " + order.getBuyerId() + ", Seller: " + order.getSellerId());
+                    System.out.println(LOG_TAG + "   Amount: $" + order.getTotalAmountUsd());
+                    
+                    escrowId = createEscrow(orderId, null, order.getBuyerId(), 
+                        order.getSellerId(), order.getTotalAmountUsd());
 
-                if (escrowId <= 0) {
-                    conn.rollback();
-                    return false;
+                    System.out.println(LOG_TAG + " Escrow creation returned ID: " + escrowId);
+                    
+                    if (escrowId <= 0) {
+                        System.err.println(LOG_TAG + " ERROR: Escrow creation failed!");
+                        conn.rollback();
+                        return false;
+                    }
+                    
+                    System.out.println(LOG_TAG + " ✓ Escrow created successfully: ID " + escrowId);
+                    finalStatus = "ESCROWED";
+                } else {
+                    // No escrow needed for orders < $10k
+                    System.out.println(LOG_TAG + " Order amount $" + order.getTotalAmountUsd() + " < $" + ESCROW_THRESHOLD_USD + " - NO ESCROW (instant payment)");
+                    finalStatus = "COMPLETED";
                 }
 
                 // Mark listing as sold if quantity depleted
@@ -350,22 +376,38 @@ public class MarketplaceOrderService {
                 }
 
                 // Update order status
-                String sql = "UPDATE marketplace_orders SET status = 'COMPLETED', " +
+                System.out.println(LOG_TAG + " Updating order status to " + finalStatus);
+                String sql = "UPDATE marketplace_orders SET status = ?, " +
                         "stripe_payment_id = ?, completion_date = NOW(), updated_at = NOW() WHERE id = ?";
 
                 try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                    stmt.setString(1, stripeChargeId);
-                    stmt.setInt(2, orderId);
-                    stmt.executeUpdate();
+                    stmt.setString(1, finalStatus);
+                    stmt.setString(2, stripeChargeId);
+                    stmt.setInt(3, orderId);
+                    int rowsUpdated = stmt.executeUpdate();
+                    System.out.println(LOG_TAG + " Order status updated: " + rowsUpdated + " rows affected");
                 }
 
-                // Release escrow to seller
-                releaseEscrowToSeller(escrowId);
+                // Escrow is now HELD and awaiting admin verification (if applicable)
+                // Admin can release manually via UI, or auto-release after 24 hours
+                // Credits transferred to buyer, but seller won't receive payment until escrow is released (for escrow orders)
 
-                // Create transaction fee record
+                // Create transaction fee record (PENDING until escrow releases)
                 recordTransactionFee(orderId, null, order.getSellerId(), 
                     stripeService.calculatePlatformFee(order.getTotalAmountUsd()));
 
+                System.out.println(LOG_TAG + " ===== COMMITTING TRANSACTION =====");
+                System.out.println(LOG_TAG + " Order #" + orderId + " completed successfully");
+                System.out.println(LOG_TAG + "   - Credits transferred to buyer wallet #" + buyerWalletId);
+                if (requiresEscrow) {
+                    System.out.println(LOG_TAG + "   - Escrow #" + escrowId + " created with HELD status");
+                    System.out.println(LOG_TAG + "   - Order status: ESCROWED (awaiting admin release)");
+                } else {
+                    System.out.println(LOG_TAG + "   - No escrow needed (amount < $" + ESCROW_THRESHOLD_USD + ")");
+                    System.out.println(LOG_TAG + "   - Order status: COMPLETED (instant payment)");
+                }
+                System.out.println(LOG_TAG + " ========================================");
+                
                 conn.commit();
                 System.out.println(LOG_TAG + " Order completed: ID " + orderId + 
                     " (Transfer mode: " + transferMode + ")");
@@ -540,34 +582,46 @@ public class MarketplaceOrderService {
      */
     private int createEscrow(Integer orderId, Integer tradeId, int buyerId, 
                             int sellerId, double amountUsd) {
+        System.out.println(LOG_TAG + " [createEscrow] Called with orderId=" + orderId + ", buyerId=" + buyerId + ", sellerId=" + sellerId + ", amount=" + amountUsd);
         try {
-            if (conn == null) return -1;
+            if (conn == null) {
+                System.err.println(LOG_TAG + " [createEscrow] ERROR: Connection is null");
+                return -1;
+            }
 
+            // Note: Only using order_id here. trade_id is for peer trades (handled separately)
             String sql = "INSERT INTO marketplace_escrow " +
-                    "(order_id, trade_id, buyer_id, seller_id, amount_usd, status) " +
-                    "VALUES (?, ?, ?, ?, ?, 'HELD')";
+                    "(order_id, buyer_id, seller_id, amount_usd, status) " +
+                    "VALUES (?, ?, ?, ?, 'HELD')";
 
+            System.out.println(LOG_TAG + " [createEscrow] Executing INSERT into marketplace_escrow");
             try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setObject(1, orderId);
-                stmt.setObject(2, tradeId);
-                stmt.setInt(3, buyerId);
-                stmt.setInt(4, sellerId);
-                stmt.setDouble(5, amountUsd);
+                stmt.setInt(2, buyerId);
+                stmt.setInt(3, sellerId);
+                stmt.setDouble(4, amountUsd);
 
-                stmt.executeUpdate();
+                int rowsAffected = stmt.executeUpdate();
+                System.out.println(LOG_TAG + " [createEscrow] INSERT executed, rows affected: " + rowsAffected);
 
                 try (ResultSet rs = stmt.getGeneratedKeys()) {
                     if (rs.next()) {
                         int escrowId = rs.getInt(1);
-                        System.out.println(LOG_TAG + " Escrow created: ID " + escrowId);
+                        System.out.println(LOG_TAG + " [createEscrow] ✓ Escrow created successfully: ID " + escrowId);
                         return escrowId;
+                    } else {
+                        System.err.println(LOG_TAG + " [createEscrow] ERROR: No generated keys returned!");
                     }
                 }
             }
         } catch (SQLException e) {
-            System.err.println(LOG_TAG + " ERROR creating escrow: " + e.getMessage());
+            System.err.println(LOG_TAG + " [createEscrow] SQL ERROR: " + e.getMessage());
+            System.err.println(LOG_TAG + " [createEscrow] SQL State: " + e.getSQLState());
+            System.err.println(LOG_TAG + " [createEscrow] Error Code: " + e.getErrorCode());
+            e.printStackTrace();
         }
 
+        System.err.println(LOG_TAG + " [createEscrow] Returning -1 (failure)");
         return -1;
     }
 
@@ -614,6 +668,275 @@ public class MarketplaceOrderService {
         } catch (SQLException e) {
             System.err.println(LOG_TAG + " ERROR recording fee: " + e.getMessage());
         }
+    }
+
+    /**
+     * Get all HELD escrows waiting verification
+     */
+    public List<Models.MarketplaceEscrow> getHeldEscrows() {
+        List<Models.MarketplaceEscrow> escrows = new ArrayList<>();
+        try {
+            System.out.println("[ESCROW SERVICE DEBUG] getHeldEscrows() called");
+            System.out.println("[ESCROW SERVICE DEBUG] conn = " + (conn == null ? "NULL" : "Connected"));
+            if (conn == null) {
+                System.out.println("[ESCROW SERVICE DEBUG] Connection is null, returning empty list");
+                return escrows;
+            }
+
+            String sql = "SELECT * FROM marketplace_escrow WHERE status = 'HELD' ORDER BY created_at ASC";
+            System.out.println("[ESCROW SERVICE DEBUG] Executing SQL: " + sql);
+            
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                try (ResultSet rs = stmt.executeQuery()) {
+                    int count = 0;
+                    while (rs.next()) {
+                        Models.MarketplaceEscrow escrow = mapResultToEscrow(rs);
+                        escrows.add(escrow);
+                        count++;
+                        System.out.println("[ESCROW SERVICE DEBUG] Loaded escrow " + count + ": ID=" + escrow.getId() + ", Status=" + escrow.getStatus());
+                    }
+                    System.out.println("[ESCROW SERVICE DEBUG] Query returned " + count + " rows");
+                }
+            }
+            System.out.println("[ESCROW SERVICE DEBUG] Returning " + escrows.size() + " held escrows");
+        } catch (SQLException e) {
+            System.err.println(LOG_TAG + " ERROR fetching held escrows: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return escrows;
+    }
+
+    /**
+     * DEBUG METHOD: Get ALL escrows regardless of status
+     */
+    public void debugPrintAllEscrows() {
+        try {
+            if (conn == null) {
+                System.out.println("[ESCROW DEBUG] Connection is null");
+                return;
+            }
+
+            String sql = "SELECT id, order_id, buyer_id, seller_id, amount_usd, status, created_at FROM marketplace_escrow";
+            System.out.println("[ESCROW DEBUG] Running debug query: " + sql);
+            
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                try (ResultSet rs = stmt.executeQuery()) {
+                    int count = 0;
+                    while (rs.next()) {
+                        count++;
+                        System.out.println(String.format("[ESCROW DEBUG] Row %d: ID=%d, OrderID=%d, BuyerID=%d, SellerID=%d, Amount=%.2f USD, Status=%s, Created=%s",
+                            count,
+                            rs.getInt("id"),
+                            rs.getInt("order_id"),
+                            rs.getInt("buyer_id"),
+                            rs.getInt("seller_id"),
+                            rs.getDouble("amount_usd"),
+                            rs.getString("status"),
+                            rs.getString("created_at")
+                        ));
+                    }
+                    if (count == 0) {
+                        System.out.println("[ESCROW DEBUG] No escrows found in database");
+                    } else {
+                        System.out.println("[ESCROW DEBUG] Total escrows in database: " + count);
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("[ESCROW DEBUG] Error querying escrows: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * DEBUG METHOD: Create a test escrow
+     */
+    public void debugCreateTestEscrow() {
+        try {
+            if (conn == null) {
+                System.out.println("[ESCROW DEBUG] Cannot create test escrow: connection is null");
+                return;
+            }
+
+            String sql = "INSERT INTO marketplace_escrow (order_id, buyer_id, seller_id, amount_usd, status, created_at, hours_held) " +
+                         "VALUES (?, ?, ?, ?, ?, NOW(), 0)";
+            
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, 1);           // order_id
+                stmt.setInt(2, 1);           // buyer_id (admin)
+                stmt.setInt(3, 2);           // seller_id (first user)
+                stmt.setDouble(4, 15000.0);  // amount_usd ($15,000)
+                stmt.setString(5, "HELD");   // status
+                
+                int rows = stmt.executeUpdate();
+                System.out.println("[ESCROW DEBUG] Test escrow created: " + rows + " rows inserted");
+            }
+        } catch (SQLException e) {
+            System.out.println("[ESCROW DEBUG] Could not create test escrow (probably already exists): " + e.getMessage());
+        }
+    }
+
+    /**
+     * Verify and manually release escrow to seller (admin action)
+     */
+    public boolean verifyAndReleaseEscrow(int escrowId) {
+        if (conn == null) return false;
+
+        boolean originalAutoCommit = true;
+        try {
+            originalAutoCommit = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+
+            try {
+                // Get escrow details
+                String selectSql = "SELECT * FROM marketplace_escrow WHERE id = ? AND status = 'HELD'";
+                Models.MarketplaceEscrow escrow = null;
+                try (PreparedStatement stmt = conn.prepareStatement(selectSql)) {
+                    stmt.setInt(1, escrowId);
+                    try (ResultSet rs = stmt.executeQuery()) {
+                        if (rs.next()) {
+                            escrow = mapResultToEscrow(rs);
+                        }
+                    }
+                }
+
+                if (escrow == null) {
+                    System.err.println(LOG_TAG + " ERROR: Escrow not found or not held: " + escrowId);
+                    return false;
+                }
+
+                // Calculate fees and proceeds
+                double platformFee = escrow.getAmountUsd() * 0.03; // 3% fee
+                double sellerProceeds = escrow.getAmountUsd() - platformFee;
+
+                if (escrow.getOrderId() != null) {
+                    // Update order status to COMPLETED
+                    String orderUpdateSql = "UPDATE marketplace_orders SET status = 'COMPLETED', " +
+                            "platform_fee_usd = ?, seller_proceeds_usd = ?, updated_at = NOW() WHERE id = ?";
+                    try (PreparedStatement stmt = conn.prepareStatement(orderUpdateSql)) {
+                        stmt.setDouble(1, platformFee);
+                        stmt.setDouble(2, sellerProceeds);
+                        stmt.setInt(3, escrow.getOrderId());
+                        stmt.executeUpdate();
+                    }
+                }
+
+                // Release escrow
+                String updateSql = "UPDATE marketplace_escrow SET status = 'RELEASED_TO_SELLER', " +
+                        "release_date = NOW() WHERE id = ?";
+                try (PreparedStatement stmt = conn.prepareStatement(updateSql)) {
+                    stmt.setInt(1, escrowId);
+                    stmt.executeUpdate();
+                }
+
+                // Record fee
+                recordTransactionFee(escrow.getOrderId(), null, (int)escrow.getSellerId(), platformFee);
+
+                conn.commit();
+                System.out.println(LOG_TAG + " Escrow verified & released: ID " + escrowId + 
+                    " | Amount: $" + String.format("%.2f", escrow.getAmountUsd()));
+                return true;
+
+            } catch (Exception e) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    System.err.println(LOG_TAG + " ERROR: Rollback failed: " + rollbackEx.getMessage());
+                }
+                System.err.println(LOG_TAG + " ERROR verifying/releasing escrow: " + e.getMessage());
+                return false;
+            }
+        } catch (SQLException e) {
+            System.err.println(LOG_TAG + " ERROR: Database transaction setup failed: " + e.getMessage());
+            return false;
+        } finally {
+            try {
+                if (conn != null && !conn.isClosed()) {
+                    conn.setAutoCommit(originalAutoCommit);
+                }
+            } catch (SQLException e) {
+                System.err.println(LOG_TAG + " ERROR: Failed to restore autocommit state: " + e.getMessage());
+            }
+        }
+    }
+
+    /**
+     * Auto-release escrow after 24 hours
+     * Runs periodically to check and release old held escrows
+     */
+    public void autoReleaseOldEscrows() {
+        try {
+            if (conn == null) return;
+
+            // Find escrows held for more than 24 hours
+            String sql = "SELECT * FROM marketplace_escrow WHERE status = 'HELD' " +
+                    "AND created_at < DATE_SUB(NOW(), INTERVAL 24 HOUR)";
+            List<Models.MarketplaceEscrow> oldEscrows = new ArrayList<>();
+
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                try (ResultSet rs = stmt.executeQuery()) {
+                    while (rs.next()) {
+                        oldEscrows.add(mapResultToEscrow(rs));
+                    }
+                }
+            }
+
+            // Auto-release each old escrow
+            for (Models.MarketplaceEscrow escrow : oldEscrows) {
+                verifyAndReleaseEscrow(escrow.getId());
+            }
+
+            if (!oldEscrows.isEmpty()) {
+                System.out.println(LOG_TAG + " Auto-released " + oldEscrows.size() + " escrows after 24h hold");
+            }
+        } catch (SQLException e) {
+            System.err.println(LOG_TAG + " ERROR in auto-release process: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Refund escrow to buyer (if buyer disputes or requests cancellation)
+     */
+    public boolean refundEscrowToBuyer(int escrowId) {
+        try {
+            if (conn == null) return false;
+
+            String sql = "UPDATE marketplace_escrow SET status = 'REFUNDED_TO_BUYER', " +
+                    "release_date = NOW() WHERE id = ? AND status = 'HELD'";
+            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                stmt.setInt(1, escrowId);
+                int updated = stmt.executeUpdate();
+                if (updated > 0) {
+                    System.out.println(LOG_TAG + " Escrow refunded to buyer: ID " + escrowId);
+                }
+                return updated > 0;
+            }
+        } catch (SQLException e) {
+            System.err.println(LOG_TAG + " ERROR refunding escrow: " + e.getMessage());
+        }
+        return false;
+    }
+
+    /**
+     * Map ResultSet to MarketplaceEscrow
+     */
+    private Models.MarketplaceEscrow mapResultToEscrow(ResultSet rs) throws SQLException {
+        Models.MarketplaceEscrow escrow = new Models.MarketplaceEscrow();
+        escrow.setId(rs.getInt("id"));
+        escrow.setOrderId(rs.getObject("order_id") != null ? rs.getInt("order_id") : null);
+        escrow.setBuyerId((int)rs.getLong("buyer_id"));
+        escrow.setSellerId((int)rs.getLong("seller_id"));
+        escrow.setAmountUsd(rs.getDouble("amount_usd"));
+        escrow.setStatus(rs.getString("status"));
+        java.sql.Timestamp createdTs = rs.getTimestamp("created_at");
+        if (createdTs != null) {
+            escrow.setCreatedAt(createdTs);
+        }
+        java.sql.Timestamp releaseTs = rs.getTimestamp("release_date");
+        if (releaseTs != null) {
+            escrow.setReleaseDate(releaseTs);
+        }
+        return escrow;
     }
 
     /**

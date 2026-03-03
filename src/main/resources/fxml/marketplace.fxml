@@ -131,17 +131,17 @@
 
                                                     <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
                                                         <Label text="Min Price (USD)" styleClass="field-label"/>
-                                                        <Slider fx:id="priceMinSlider" styleClass="custom-slider" showTickLabels="true" showTickMarks="true" snapToTicks="false"/>
+                                                        <Slider fx:id="priceMinSlider" min="0" max="1000" value="0" blockIncrement="10" majorTickUnit="100" minorTickCount="5" showTickMarks="true" showTickLabels="true" snapToTicks="false" maxWidth="Infinity"/>
                                                     </VBox>
 
                                                     <VBox spacing="6" GridPane.columnIndex="2" GridPane.rowIndex="0">
                                                         <Label text="Max Price (USD)" styleClass="field-label"/>
-                                                        <Slider fx:id="priceMaxSlider" styleClass="custom-slider" showTickLabels="true" showTickMarks="true" snapToTicks="false"/>
+                                                        <Slider fx:id="priceMaxSlider" min="0" max="1000" value="1000" blockIncrement="10" majorTickUnit="100" minorTickCount="5" showTickMarks="true" showTickLabels="true" snapToTicks="false" maxWidth="Infinity"/>
                                                     </VBox>
 
                                                     <VBox spacing="6" GridPane.columnIndex="3" GridPane.rowIndex="0" alignment="CENTER" style="-fx-padding: 0 12;">
                                                         <Label text="Price Range" style="-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-font-weight: 600;"/>
-                                                        <Label fx:id="priceRangeLabel" text="0.00 - 100.00" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #10b981;"/>
+                                                        <Label fx:id="priceRangeLabel" text="0.00 - 1000.00" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #10b981;"/>
                                                     </VBox>
                                                 </GridPane>
                                             </VBox>
@@ -162,6 +162,15 @@
                                                                 onAction="#handleBuyClick"
                                                                 style="-fx-padding: 8 16; -fx-font-size: 12px; -fx-background-color: #10b981; -fx-text-fill: #ffffff; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-weight: 600; -fx-cursor: hand;"/>
                                                     </HBox>
+
+                                                    <!-- Escrow Info Banner -->
+                                                    <VBox spacing="4" style="-fx-padding: 10 12; -fx-background-color: #f0fdf4; -fx-border-color: #10b981; -fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6;">
+                                                        <HBox spacing="8" alignment="CENTER_LEFT">
+                                                            <Label text="🔒" style="-fx-font-size: 14px;"/>
+                                                            <Label text="Secure Escrow Protection" style="-fx-font-size: 12px; -fx-font-weight: 600; -fx-text-fill: #15803d;"/>
+                                                        </HBox>
+                                                        <Label text="Orders ≥ $10,000 automatically held in escrow for 24h. Buyer receives credits immediately while payment is verified." style="-fx-font-size: 11px; -fx-text-fill: #4b5563; -fx-wrap-text: true;"/>
+                                                    </VBox>
 
                                                     <TableView fx:id="listingsTable" style="-fx-border-width: 1; -fx-border-color: #e5e7eb; -fx-background-color: #ffffff;" prefHeight="400">
                                                         <columns>

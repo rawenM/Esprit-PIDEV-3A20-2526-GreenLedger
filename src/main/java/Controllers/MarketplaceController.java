@@ -310,23 +310,21 @@ public class MarketplaceController extends BaseController {
         ));
         assetTypeFilter.setValue("All Types");
 
+        // Set default values for price sliders
         priceMinSlider.setMin(0);
-        priceMinSlider.setMax(100);
+        priceMinSlider.setMax(1000);
         priceMinSlider.setValue(0);
-        priceMinSlider.setBlockIncrement(5);
-        priceMinSlider.setMajorTickUnit(20);
-
+        
         priceMaxSlider.setMin(0);
-        priceMaxSlider.setMax(100);
-        priceMaxSlider.setValue(100);
-        priceMaxSlider.setBlockIncrement(5);
-        priceMaxSlider.setMajorTickUnit(20);
+        priceMaxSlider.setMax(1000);
+        priceMaxSlider.setValue(1000);
 
-        // Update label and filter when sliders change
+        // Add listeners to price sliders for validation and filtering
         priceMinSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             // Ensure min doesn't exceed max
             if (newVal.doubleValue() > priceMaxSlider.getValue()) {
                 priceMinSlider.setValue(priceMaxSlider.getValue());
+                return;
             }
             updatePriceLabel();
             loadListings();
@@ -336,6 +334,7 @@ public class MarketplaceController extends BaseController {
             // Ensure max doesn't go below min
             if (newVal.doubleValue() < priceMinSlider.getValue()) {
                 priceMaxSlider.setValue(priceMinSlider.getValue());
+                return;
             }
             updatePriceLabel();
             loadListings();
@@ -348,8 +347,9 @@ public class MarketplaceController extends BaseController {
      * Update price range label
      */
     private void updatePriceLabel() {
-        priceRangeLabel.setText(String.format("$%.2f - $%.2f", 
-            priceMinSlider.getValue(), priceMaxSlider.getValue()));
+        double min = priceMinSlider.getValue();
+        double max = priceMaxSlider.getValue();
+        priceRangeLabel.setText(String.format("$%.2f - $%.2f", min, max));
     }
 
     /**
@@ -361,27 +361,50 @@ public class MarketplaceController extends BaseController {
             try {
                 // Get all active listings
                 List<MarketplaceListing> listings = listingService.getActiveListings();
+                System.out.println(LOG_TAG + " ===== DEBUG: loadListings() START =====");
+                System.out.println(LOG_TAG + " Total active listings from DB: " + listings.size());
                 
                 // Get filter values on JavaFX thread
                 final String assetTypeValue = assetTypeFilter.getValue();
                 final double minPrice = priceMinSlider.getValue();
                 final double maxPrice = priceMaxSlider.getValue();
                 
+                System.out.println(LOG_TAG + " Filter - Asset Type: " + assetTypeValue);
+                System.out.println(LOG_TAG + " Filter - Price Range: $" + minPrice + " - $" + maxPrice);
+                
+                // Debug: Print all listings before filtering
+                for (MarketplaceListing listing : listings) {
+                    System.out.println(LOG_TAG + "   Listing #" + listing.getId() + 
+                        ": " + listing.getAssetType() + 
+                        ", Price: $" + listing.getPricePerUnit() + 
+                        ", Seller: " + listing.getSellerId());
+                }
+                
                 // Apply asset type filter
                 if (assetTypeValue != null && !"All Types".equals(assetTypeValue)) {
+                    int beforeCount = listings.size();
                     listings.removeIf(l -> !assetTypeValue.equals(l.getAssetType()));
+                    System.out.println(LOG_TAG + " Asset type filter: " + beforeCount + " -> " + listings.size());
                 }
                 
                 // Apply price range filter
+                int beforePriceFilter = listings.size();
                 listings.removeIf(l -> {
                     double price = l.getPricePerUnit();
-                    return price < minPrice || price > maxPrice;
+                    boolean filtered = price < minPrice || price > maxPrice;
+                    if (filtered) {
+                        System.out.println(LOG_TAG + " FILTERED OUT Listing #" + l.getId() + 
+                            " - Price $" + price + " outside range");
+                    }
+                    return filtered;
                 });
-
+                System.out.println(LOG_TAG + " Price filter: " + beforePriceFilter + " -> " + listings.size());
+                
+                final int finalCount = listings.size();
                 javafx.application.Platform.runLater(() -> {
                     listingsData.clear();
                     listingsData.addAll(listings);
-                    System.out.println(LOG_TAG + " Loaded " + listings.size() + " listings (filtered from " + listingService.getActiveListings().size() + " total)");
+                    System.out.println(LOG_TAG + " ===== Loaded " + finalCount + " listings to table =====");
                 });
             } catch (Exception e) {
                 System.err.println(LOG_TAG + " ERROR loading listings: " + e.getMessage());

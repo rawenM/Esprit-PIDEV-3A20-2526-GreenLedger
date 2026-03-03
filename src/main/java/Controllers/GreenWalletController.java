@@ -3228,67 +3228,104 @@ public class GreenWalletController extends BaseController {
     private String formatClimatiqResult(EmissionResult result, String scenarioLabel) {
         double co2eKg = result.getCo2eAmount().doubleValue();
         double co2eTonnes = co2eKg / 1000.0;
-
-        JsonObject payload = new JsonObject();
-        payload.addProperty("scenario", scenarioLabel);
-        payload.addProperty("co2e_kg", co2eKg);
-        payload.addProperty("co2e_tonnes", co2eTonnes);
-        payload.addProperty("tier", result.getTier());
-        payload.addProperty("tier_description", result.getTierDescription());
-
-        if (result.getUncertaintyPercent() != null) {
-            payload.addProperty("uncertainty_percent", result.getUncertaintyPercent());
-        }
-
-        if (result.getActivityAmount() != null) {
-            payload.addProperty("activity_amount", result.getActivityAmount());
-        }
-        if (result.getActivityUnit() != null) {
-            payload.addProperty("activity_unit", result.getActivityUnit());
-        }
-        if (result.getCalculationId() != null) {
-            payload.addProperty("calculation_id", result.getCalculationId());
-        }
-
-        if (result.getEmissionFactor() != null) {
-            JsonObject factor = new JsonObject();
-            factor.addProperty("id", result.getEmissionFactor().getId());
-            factor.addProperty("name", result.getEmissionFactor().getName());
-            factor.addProperty("region", result.getEmissionFactor().getRegion());
-            factor.addProperty("year", result.getEmissionFactor().getYear());
-            factor.addProperty("source", result.getEmissionFactor().getSource());
-            factor.addProperty("methodology", result.getEmissionFactor().getMethodology());
-            payload.add("emission_factor", factor);
-        }
-
-        String prettyJson = new GsonBuilder().setPrettyPrinting().create().toJson(payload);
-
+        
+        // Calculate emissions in comparable units
+        double co2eGrams = co2eKg * 1000;
+        double co2ePounds = co2eKg * 2.20462;  // kg to lbs
+        
         StringBuilder sb = new StringBuilder();
-        sb.append("═══════════════════════════════════════════════════\n");
-        sb.append("✅ RÉSULTAT CLIMATIQ\n");
-        sb.append("═══════════════════════════════════════════════════\n\n");
+        sb.append("\n");
+        sb.append("╔════════════════════════════════════════════════════════════╗\n");
+        sb.append("║              ✅ RÉSULTAT CLIMATIQ - EMISSIONS              ║\n");
+        sb.append("╚════════════════════════════════════════════════════════════╝\n\n");
 
-        sb.append("📌 Scénario: ").append(scenarioLabel).append("\n");
-        sb.append(String.format("🌍 Émissions CO₂e: %.3f kg\n", co2eKg));
-        sb.append(String.format("📊 Équivalent: %.6f tonnes\n", co2eTonnes));
+        // Main emissions display
+        sb.append("📌 SCÉNARIO: ").append(scenarioLabel).append("\n\n");
+        
+        sb.append("🌍 ÉMISSIONS CO₂e (Résultats Principaux):\n");
+        sb.append(String.format("   ├─ %.1f kg (kilogrammes)\n", co2eKg));
+        sb.append(String.format("   ├─ %.6f tonnes métriques\n", co2eTonnes));
+        sb.append(String.format("   ├─ %.0f grammes\n", co2eGrams));
+        sb.append(String.format("   └─ %.2f lbs (livres)\n\n", co2ePounds));
 
+        // Emissions context and comparisons
+        sb.append("📊 CONTEXTE & COMPARAISONS:\n");
+        double flightsEquivalent = co2eKg / 0.255;  // 1 hour flight ≈ 0.255 kg
+        double carDrivingEquivalent = co2eKg / 0.21;  // car driving ≈ 0.21 kg/km
+        double treesCO2Sequestered = co2eKg / 21;  // 1 tree sequesters ~21kg CO2/year
+        sb.append(String.format("   ├─ Équivalent à %.1f km de conduite voiture\n", carDrivingEquivalent));
+        sb.append(String.format("   ├─ Équivalent à %.1f heure(s) de vol aérien\n", flightsEquivalent));
+        sb.append(String.format("   └─ Équivalent absorption par %.0f arbre(s)/an\n\n", treesCO2Sequestered));
+
+        // Data quality and uncertainty
+        sb.append("🎯 QUALITÉ DES DONNÉES:\n");
         if (result.getTier() != null) {
-            sb.append("🏷 Tier GHG: ").append(result.getTier()).append(" - ").append(result.getTierDescription()).append("\n");
+            String tierEmoji = getTierEmoji(result.getTier  ());
+            sb.append(String.format("   ├─ Tier GHG: %s %d\n", tierEmoji, result.getTier()));
+            if (result.getTierDescription() != null) {
+                sb.append(String.format("   │  └─ %s\n", result.getTierDescription()));
+            }
         }
-
         if (result.getUncertaintyPercent() != null) {
-            sb.append(String.format("🎯 Incertitude: ±%.1f%%\n", result.getUncertaintyPercent()));
+            String uncertaintyLevel = result.getUncertaintyPercent() < 5 ? "Très fiable ✓✓✓" :
+                                    result.getUncertaintyPercent() < 15 ? "Fiable ✓✓" :
+                                    result.getUncertaintyPercent() < 30 ? "Acceptable ✓" : "À vérifier ⚠";
+            sb.append(String.format("   └─ Incertitude: ±%.1f%% (%s)\n\n", 
+                result.getUncertaintyPercent(), uncertaintyLevel));
+        } else {
+            sb.append("   └─ Incertitude: Non spécifiée\n\n");
         }
 
-        if (result.getEmissionFactor() != null && result.getEmissionFactor().getName() != null) {
-            sb.append("🧾 Facteur: ").append(result.getEmissionFactor().getName()).append("\n");
+        // Activity details
+        if (result.getActivityAmount() != null || result.getActivityUnit() != null) {
+            sb.append("📐 DONNÉES D'ACTIVITÉ:\n");
+            if (result.getActivityAmount() != null) {
+                sb.append(String.format("   ├─ Quantité: %.2f\n", result.getActivityAmount()));
+            }
+            if (result.getActivityUnit() != null) {
+                sb.append(String.format("   └─ Unité: %s\n\n", result.getActivityUnit()));
+            }
         }
 
-        sb.append("\n📦 DÉTAILS JSON\n");
-        sb.append(prettyJson).append("\n");
+        // Emission factor information
+        if (result.getEmissionFactor() != null) {
+            sb.append("🧾 FACTEUR D'ÉMISSION:\n");
+            if (result.getEmissionFactor().getName() != null) {
+                sb.append(String.format("   ├─ Nom: %s\n", result.getEmissionFactor().getName()));
+            }
+            if (result.getEmissionFactor().getRegion() != null) {
+                sb.append(String.format("   ├─ Région: %s\n", result.getEmissionFactor().getRegion()));
+            }
+            if (result.getEmissionFactor().getYear() != null) {
+                sb.append(String.format("   ├─ Année: %d\n", result.getEmissionFactor().getYear()));
+            }
+            if (result.getEmissionFactor().getSource() != null) {
+                sb.append(String.format("   ├─ Source: %s\n", result.getEmissionFactor().getSource()));
+            }
+            if (result.getEmissionFactor().getMethodology() != null) {
+                sb.append(String.format("   └─ Méthodologie: %s\n\n", result.getEmissionFactor().getMethodology()));
+            }
+        }
 
-        sb.append("\n═══════════════════════════════════════════════════\n\n");
+        // Calculation metadata
+        if (result.getCalculationId() != null) {
+            sb.append("🔑 IDENTIFIANTS:\n");
+            sb.append(String.format("   └─ ID Calcul: %s\n\n", result.getCalculationId()));
+        }
+
+        sb.append("╚════════════════════════════════════════════════════════════╝\n");
         return sb.toString();
+    }
+
+    private String getTierEmoji(Integer tier) {
+        if (tier == null) return "❓";
+        return switch (tier) {
+            case 1 -> "🥇";
+            case 2 -> "🥈";
+            case 3 -> "🥉";
+            case 4 -> "⚡";
+            default -> "📊";
+        };
     }
 
     private double convertWeightToKg(double value, String unit) {

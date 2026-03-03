@@ -273,11 +273,24 @@
                                     <Region HBox.hgrow="ALWAYS"/>
                                     <Button text="Effacer" onAction="#onClearApiResults" styleClass="btn btn-secondary" prefHeight="36"/>
                                 </HBox>
-                                <TextArea fx:id="txtApiResults" prefHeight="94" wrapText="true" styleClass="field"
-                                          promptText="Résultats Climatiq ici..."/>
+                                <TextArea fx:id="txtApiResults" prefHeight="140" wrapText="true" styleClass="field"
+                                          promptText="Résultats Climatiq ici..."
+                                          style="-fx-font-family: 'Courier New'; -fx-font-size: 10px; -fx-padding: 12; -fx-background-color: #1e293b; -fx-text-fill: #10b981; -fx-border-color: #10b981; -fx-border-width: 1;"/>
                             </VBox>
 
                         </HBox>
+                        
+                        <!-- ESCROW PROTECTION INFO -->
+                        <VBox spacing="12" style="-fx-padding: 16 20; -fx-background-color: #eff6ff; -fx-border-color: #3b82f6; -fx-border-width: 1; -fx-border-radius: 8; -fx-background-radius: 8; -fx-margin: 12 0 12 0;">
+                            <HBox spacing="12" alignment="CENTER_LEFT">
+                                <Label text="🔒" style="-fx-font-size: 18px;"/>
+                                <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                    <Label text="Escrow Protection Active" style="-fx-font-size: 14px; -fx-font-weight: 700; -fx-text-fill: #1e40af;"/>
+                                    <Label text="Large orders (≥ $10,000 USD) are secured with 24-hour escrow. Buyer receives credits immediately while payment is verified by admin." style="-fx-font-size: 11px; -fx-text-fill: #1e40af; -fx-wrap-text: true;"/>
+                                </VBox>
+                                <Button text="View Escrows" styleClass="btn btn-primary" style="-fx-padding: 8 16; -fx-font-size: 11px;" prefWidth="120"/>
+                            </HBox>
+                        </VBox>
                         
                         <!-- INTERACTIVE MAP + BATCH EXPLORER (SPLIT VIEW) -->
                         <HBox spacing="16" prefHeight="400">

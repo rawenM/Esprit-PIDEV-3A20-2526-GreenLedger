@@ -214,15 +214,13 @@ public class MarketplaceListingService {
                 "price_per_unit = ?, " +
                 "min_price_usd = ?, " +
                 "auto_accept_price_usd = ?, " +
-                "total_price_usd = (quantity_or_id * ?), " +
                 "updated_at = NOW() WHERE id = ?";
 
             try (PreparedStatement stmt = conn.prepareStatement(sql)) {
                 stmt.setDouble(1, newPrice);
                 stmt.setObject(2, minPrice);
                 stmt.setObject(3, autoAcceptPrice);
-                stmt.setDouble(4, newPrice);
-                stmt.setInt(5, listingId);
+                stmt.setInt(4, listingId);
 
                 int updated = stmt.executeUpdate();
                 if (updated > 0) {

@@ -1,6 +1,7 @@
 package org.GreenLedger;
 
 import DataBase.MyConnection;
+import Services.MarketplaceOrderService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -29,6 +30,9 @@ public class MainFX extends Application {
             System.err.println("Verifiez que le serveur de base de donnees est demarr et que l'URL/les identifiants sont corrects.");
             return;
         }
+
+        // Start escrow auto-release background task
+        startEscrowAutoReleaseTask();
 
         // Charger la page de connexion
         URL fxmlUrl = getClass().getResource("/fxml/login.fxml");
@@ -135,11 +139,42 @@ public class MainFX extends Application {
 
     private static Parent loadFXML(String fxml) throws IOException {
         java.net.URL resource = MainFX.class.getResource("/" + fxml + ".fxml");
+        System.out.println("[FXML DEBUG] Loading FXML: " + fxml);
+        System.out.println("[FXML DEBUG] Resource URL: " + resource);
+        System.out.println("[FXML DEBUG] Full path: /" + fxml + ".fxml");
         if (resource == null) {
             throw new IOException("FXML introuvable: /" + fxml + ".fxml");
         }
         FXMLLoader fxmlLoader = new FXMLLoader(resource);
-        return fxmlLoader.load();
+        System.out.println("[FXML DEBUG] FXMLLoader created, about to load...");
+        Parent result = fxmlLoader.load();
+        System.out.println("[FXML DEBUG] FXML loaded successfully");
+        return result;
+    }
+
+    /**
+     * Start background task for auto-releasing escrows after 24 hours
+     */
+    private static void startEscrowAutoReleaseTask() {
+        Thread autoReleaseThread = new Thread(() -> {
+            MarketplaceOrderService orderService = MarketplaceOrderService.getInstance();
+            while (true) {
+                try {
+                    // Check every hour
+                    Thread.sleep(3600000); // 1 hour
+                    System.out.println("[Escrow] Checking for escrows eligible for auto-release...");
+                    orderService.autoReleaseOldEscrows();
+                } catch (InterruptedException e) {
+                    System.out.println("[Escrow] Auto-release task interrupted");
+                    break;
+                } catch (Exception e) {
+                    System.err.println("[Escrow] Error in auto-release task: " + e.getMessage());
+                }
+            }
+        });
+        autoReleaseThread.setDaemon(true);
+        autoReleaseThread.start();
+        System.out.println("[CLEAN] Escrow auto-release task started (checks every hour)");
     }
 
     public static void main(String[] args) {
