@@ -5,13 +5,16 @@ import Models.Wallet;
 import Models.CarbonCreditBatch;
 import Models.OperationWallet;
 import Models.BatchEventType;
-import Models.BatchEventService;
+import Services.BatchEventService;
 import com.google.gson.JsonObject;
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
+import com.google.gson.JsonSerializer;
 
 import java.sql.*;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,6 +24,21 @@ import java.util.List;
 public class WalletService {
 
     private Connection conn;
+    private static final Gson gson = createGsonWithLocalDateTime();
+    
+    // Warning flags - only show schema migration warnings once per session
+    private static boolean lineageViewWarningShown = false;
+    private static boolean parentBatchIdWarningShown = false;
+    
+    /**
+     * Create Gson instance with LocalDateTime support (Java 17+ module compatibility).
+     */
+    private static Gson createGsonWithLocalDateTime() {
+        return new GsonBuilder()
+            .registerTypeAdapter(LocalDateTime.class, (JsonSerializer<LocalDateTime>) (src, typeOfSrc, context) -> 
+                context.serialize(src.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)))
+            .create();
+    }
 
     public WalletService() {
         this.conn = MyConnection.getConnection();
@@ -312,6 +330,11 @@ public class WalletService {
      * Quick issue credits without project (for testing/demo purposes).
      */
     public boolean quickIssueCredits(int walletId, double amount, String description) {
+        return quickIssueCredits(walletId, amount, description, null, null, null);
+    }
+    
+    public boolean quickIssueCredits(int walletId, double amount, String description,
+                                    String calculationAuditId, String verificationStandard, Integer vintageYear) {
         try {
             conn.setAutoCommit(false);
             
@@ -324,8 +347,9 @@ public class WalletService {
             
             // Create batch for traceability (using wallet's owner_id as project substitute)
             int projectId = wallet.getOwnerId() > 0 ? wallet.getOwnerId() : 1;
+            String auditId = calculationAuditId != null ? calculationAuditId : "QUICK_ISSUE";
             int batchId = createCreditBatch(projectId, walletId, amount, 
-                "QUICK_ISSUE", Models.BatchType.PRIMARY);
+                auditId, Models.BatchType.PRIMARY, verificationStandard, vintageYear);
             
             if (batchId <= 0) {
                 conn.rollback();
@@ -343,13 +367,25 @@ public class WalletService {
             // Record transaction with batch linkage
             recordTransaction(walletId, batchId, "ISSUE", amount, description);
             
-            // Record batch event
-            BatchEventService eventService = new BatchEventService();
-            com.google.gson.JsonObject eventData = new com.google.gson.JsonObject();
-            eventData.addProperty("amount", amount);
-            eventData.addProperty("wallet_id", walletId);
-            eventData.addProperty("description", description);
-            eventService.recordEvent(batchId, BatchEventType.ISSUED, eventData, "SYSTEM");
+            // Record batch event (optional - don't fail transaction if event recording fails)
+            try {
+                BatchEventService eventService = new BatchEventService();
+                com.google.gson.JsonObject eventData = new com.google.gson.JsonObject();
+                eventData.addProperty("amount", amount);
+                eventData.addProperty("wallet_id", walletId);
+                eventData.addProperty("description", description);
+                if (verificationStandard != null) {
+                    eventData.addProperty("verification_standard", verificationStandard);
+                }
+                if (vintageYear != null) {
+                    eventData.addProperty("vintage_year", vintageYear);
+                }
+                eventService.recordEvent(batchId, BatchEventType.ISSUED, eventData, "SYSTEM");
+            } catch (Exception eventEx) {
+                // Event recording failed, but batch creation succeeded - log and continue
+                System.err.println("Warning: Batch created but event recording failed: " + eventEx.getMessage());
+                System.err.println("Batch ID " + batchId + " issued successfully without event tracking");
+            }
             
             conn.commit();
             return true;
@@ -537,8 +573,21 @@ public class WalletService {
             return false;
         }
 
+        // Check if we're already in a transaction (autocommit is false)
+        boolean wasInTransaction = false;
         try {
-            conn.setAutoCommit(false);
+            wasInTransaction = !conn.getAutoCommit();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+
+        try {
+            // Only manage transaction if we're not already in one
+            if (!wasInTransaction) {
+                conn.setAutoCommit(false);
+            }
+            
             BatchEventService eventService = new BatchEventService();
             
             // Generate transfer pair ID to link IN/OUT transactions
@@ -575,23 +624,32 @@ public class WalletService {
             String noteIn = String.format("%s (Transfer from Wallet #%s)", referenceNote, safeWalletNumber(fromWallet.getWalletNumber()));
             recordTransferTransaction(toWalletId, null, "TRANSFER_IN", amount, noteIn, transferPairId);
             
-            conn.commit();
+            // Only commit if we started the transaction
+            if (!wasInTransaction) {
+                conn.commit();
+            }
             return true;
             
         } catch (SQLException ex) {
-            try {
-                conn.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
+            // Only rollback if we started the transaction
+            if (!wasInTransaction) {
+                try {
+                    conn.rollback();
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
             System.out.println("Error transferring credits: " + ex.getMessage());
             ex.printStackTrace();
             return false;
         } finally {
-            try {
-                conn.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
+            // Only restore autocommit if we changed it
+            if (!wasInTransaction) {
+                try {
+                    conn.setAutoCommit(true);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                }
             }
         }
     }
@@ -903,7 +961,11 @@ public class WalletService {
             }
         } catch (SQLException ex) {
             // Fallback to simple query if view doesn't exist
-            System.err.println("Error fetching lineage (using fallback): " + ex.getMessage());
+            if (!lineageViewWarningShown) {
+                System.err.println("[Schema Info] Lineage view 'v_batch_full_lineage' not found. Using fallback query (basic lineage).");
+                System.err.println("[Schema Info] Run ADD_BATCH_METADATA_COLUMNS.sql for full lineage support.");
+                lineageViewWarningShown = true;
+            }
             return getBatchLineageFallback(batchId);
         }
         return lineage;
@@ -953,6 +1015,15 @@ public class WalletService {
                 children.add(mapResultSetToBatch(rs));
             }
         } catch (SQLException ex) {
+            // Column parent_batch_id doesn't exist - schema not migrated yet
+            if (ex.getMessage().contains("parent_batch_id") || ex.getMessage().contains("Unknown column")) {
+                if (!parentBatchIdWarningShown) {
+                    System.err.println("[Schema Info] Column 'parent_batch_id' not found. Parent-child batch tracking unavailable.");
+                    System.err.println("[Schema Info] Run ADD_BATCH_METADATA_COLUMNS.sql to enable lineage tracking.");
+                    parentBatchIdWarningShown = true;
+                }
+                return new ArrayList<>(); // Return empty list
+            }
             System.err.println("Error fetching child batches: " + ex.getMessage());
         }
         return children;
@@ -970,7 +1041,6 @@ public class WalletService {
      * @return JSON string with complete provenance data
      */
     public String getBatchProvenance(int batchId) {
-        Gson gson = new Gson();
         JsonObject provenance = new JsonObject();
         
         try {
@@ -980,7 +1050,19 @@ public class WalletService {
                 provenance.addProperty("error", "Batch not found");
                 return gson.toJson(provenance);
             }
-            provenance.add("batch", gson.toJsonTree(batch));
+            
+            // Manually serialize batch to avoid LocalDateTime reflection issues
+            JsonObject batchJson = new JsonObject();
+            batchJson.addProperty("id", batch.getId());
+            batchJson.addProperty("projectId", batch.getProjectId());
+            batchJson.addProperty("walletId", batch.getWalletId());
+            batchJson.addProperty("totalAmount", batch.getTotalAmount());
+            batchJson.addProperty("remainingAmount", batch.getRemainingAmount());
+            batchJson.addProperty("status", batch.getStatus());
+            if (batch.getIssuedAt() != null) {
+                batchJson.addProperty("issuedAt", batch.getIssuedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+            }
+            provenance.add("batch", batchJson);
             
             // 2. Emission calculation (if linked)
             if (batch.getCalculationAuditId() != null) {
@@ -1004,13 +1086,40 @@ public class WalletService {
             // 3. Event timeline
             BatchEventService eventService = new BatchEventService();
             List<Models.BatchEvent> events = eventService.getBatchEvents(batchId);
-            provenance.add("events", gson.toJsonTree(events));
+            JsonArray eventsArray = new JsonArray();
+            for (Models.BatchEvent event : events) {
+                JsonObject eventJson = new JsonObject();
+                eventJson.addProperty("id", event.getId());
+                eventJson.addProperty("batchId", event.getBatchId());
+                if (event.getEventType() != null) {
+                    eventJson.addProperty("eventType", event.getEventType().name());
+                }
+                if (event.getEventDataJson() != null) {
+                    eventJson.addProperty("eventData", event.getEventDataJson());
+                }
+                if (event.getCreatedAt() != null) {
+                    eventJson.addProperty("timestamp", event.getCreatedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                }
+                eventsArray.add(eventJson);
+            }
+            provenance.add("events", eventsArray);
             provenance.addProperty("event_count", events.size());
             provenance.addProperty("chain_valid", eventService.validateEventChain(batchId));
             
             // 4. Lineage
             List<CarbonCreditBatch> lineage = getBatchLineage(batchId);
-            provenance.add("lineage", gson.toJsonTree(lineage));
+            JsonArray lineageArray = new JsonArray();
+            for (CarbonCreditBatch b : lineage) {
+                JsonObject lineageJson = new JsonObject();
+                lineageJson.addProperty("id", b.getId());
+                lineageJson.addProperty("totalAmount", b.getTotalAmount());
+                lineageJson.addProperty("status", b.getStatus());
+                if (b.getIssuedAt() != null) {
+                    lineageJson.addProperty("issuedAt", b.getIssuedAt().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
+                }
+                lineageArray.add(lineageJson);
+            }
+            provenance.add("lineage", lineageArray);
             provenance.addProperty("lineage_depth", batch.getLineageDepth());
             
             // 5. Summary stats
@@ -1064,7 +1173,6 @@ public class WalletService {
         }
         
         // Parse and update JSON array
-        Gson gson = new Gson();
         JsonArray childIds;
         
         if (currentLineage == null || currentLineage.trim().isEmpty()) {
@@ -1111,6 +1219,30 @@ public class WalletService {
         // Fallback to timestamp-based if random fails
         return (int)(System.currentTimeMillis() % 1000000);
     }
+    
+    /**
+     * Generate unique batch serial number.
+     * Format: CC-YYYY-NNNNNN (e.g., CC-2024-000001)
+     */
+    private String generateBatchSerialNumber() {
+        int year = LocalDateTime.now().getYear();
+        String sql = "SELECT MAX(CAST(SUBSTRING(serial_number, 9) AS UNSIGNED)) FROM carbon_credit_batches WHERE serial_number LIKE ?";
+        
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, "CC-" + year + "-%");
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                int maxNumber = rs.getInt(1);
+                return String.format("CC-%d-%06d", year, maxNumber + 1);
+            }
+        } catch (SQLException ex) {
+            // Fallback: use timestamp-based if query fails
+            System.err.println("Warning: Could not query for serial number, using fallback: " + ex.getMessage());
+        }
+        
+        // Fallback: CC-YYYY-HHMMSS
+        return String.format("CC-%d-%06d", year, (int)(System.currentTimeMillis() % 1000000));
+    }
 
     private boolean walletNumberExists(int walletNumber) {
         String sql = "SELECT COUNT(*) FROM wallet WHERE wallet_number = ?";
@@ -1149,11 +1281,27 @@ public class WalletService {
      */
     private int createCreditBatch(int projectId, int walletId, double amount, 
                                  String calculationAuditId, Models.BatchType batchType) {
-        String sql = "INSERT INTO carbon_credit_batches (project_id, wallet_id, total_amount, " +
-                     "remaining_amount, status, calculation_audit_id, batch_type, issued_at) " +
-                     "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        return createCreditBatch(projectId, walletId, amount, calculationAuditId, batchType, null, null);
+    }
+    
+    private int createCreditBatch(int projectId, int walletId, double amount, 
+                                 String calculationAuditId, Models.BatchType batchType,
+                                 String verificationStandard, Integer vintageYear) {
+        // Generate unique serial number
+        String serialNumber = generateBatchSerialNumber();
         
-        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        // Try with full schema first (includes metadata columns)
+        String fullSql = "INSERT INTO carbon_credit_batches (project_id, wallet_id, total_amount, " +
+                         "remaining_amount, status, calculation_audit_id, batch_type, " +
+                         "verification_standard, vintage_year, serial_number, issued_at) " +
+                         "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        
+        // Fallback to basic schema (no metadata columns)
+        String basicSql = "INSERT INTO carbon_credit_batches (project_id, wallet_id, total_amount, " +
+                          "remaining_amount, status, issued_at) " +
+                          "VALUES (?, ?, ?, ?, ?, ?)";
+        
+        try (PreparedStatement ps = conn.prepareStatement(fullSql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, projectId);
             ps.setInt(2, walletId);
             ps.setDouble(3, amount);
@@ -1161,7 +1309,14 @@ public class WalletService {
             ps.setString(5, "AVAILABLE");
             ps.setString(6, calculationAuditId);
             ps.setString(7, batchType != null ? batchType.name() : "PRIMARY");
-            ps.setTimestamp(8, Timestamp.valueOf(LocalDateTime.now()));
+            ps.setString(8, verificationStandard);
+            if (vintageYear != null) {
+                ps.setInt(9, vintageYear);
+            } else {
+                ps.setNull(9, java.sql.Types.INTEGER);
+            }
+            ps.setString(10, serialNumber);
+            ps.setTimestamp(11, Timestamp.valueOf(LocalDateTime.now()));
             
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
@@ -1169,8 +1324,32 @@ public class WalletService {
                 return rs.getInt(1);
             }
         } catch (SQLException ex) {
-            System.out.println("Error creating batch: " + ex.getMessage());
-            ex.printStackTrace();
+            // Check if error is due to missing columns - fallback to basic schema
+            if (ex.getMessage().contains("Unknown column") || ex.getMessage().contains("calculation_audit_id") 
+                || ex.getMessage().contains("verification_standard") || ex.getMessage().contains("vintage_year")
+                || ex.getMessage().contains("batch_type")) {
+                System.out.println("Metadata columns not found, using basic schema...");
+                try (PreparedStatement ps = conn.prepareStatement(basicSql, Statement.RETURN_GENERATED_KEYS)) {
+                    ps.setInt(1, projectId);
+                    ps.setInt(2, walletId);
+                    ps.setDouble(3, amount);
+                    ps.setDouble(4, amount);
+                    ps.setString(5, "AVAILABLE");
+                    ps.setTimestamp(6, Timestamp.valueOf(LocalDateTime.now()));
+                    
+                    ps.executeUpdate();
+                    ResultSet rs = ps.getGeneratedKeys();
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    }
+                } catch (SQLException fallbackEx) {
+                    System.out.println("Error creating batch (fallback): " + fallbackEx.getMessage());
+                    fallbackEx.printStackTrace();
+                }
+            } else {
+                System.out.println("Error creating batch: " + ex.getMessage());
+                ex.printStackTrace();
+            }
         }
         return -1;
     }

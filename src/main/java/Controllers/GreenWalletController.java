@@ -99,6 +99,7 @@ public class GreenWalletController extends BaseController {
     @FXML private Button btnMarketplace;
     @FXML private Button btnTransactions;
     @FXML private Button btnBatches;
+    @FXML private Button btnBatchCarbonTests;
     @FXML private Button btnIssueCredits;
     @FXML private Button btnRetireCredits;
     @FXML private Button btnCreateWallet;
@@ -2341,6 +2342,16 @@ public class GreenWalletController extends BaseController {
     }
 
     @FXML
+    private void onBatchCarbonTests() {
+        try {
+            MainFX.setRoot("BatchCarbonTest");
+        } catch (IOException e) {
+            showError("Erreur", "Impossible d'ouvrir les tests batch/carbone: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    @FXML
     private void onGestionProjets() {
         try {
             MainFX.setRoot("GestionProjet");
@@ -2445,6 +2456,8 @@ public class GreenWalletController extends BaseController {
             double amount = Double.parseDouble(txtIssueAmount.getText());
             String standard = cmbVerificationStandard.getValue();
             String reference = txtIssueReference.getText();
+            String vintageYearText = txtVintageYear.getText();
+            String auditId = txtCalculationAuditId.getText();
 
             if (amount <= 0 || amount > 10000) {
                 showWarning("Montant invalide", "Le montant doit être entre 1 et 10,000 tCO₂");
@@ -2456,10 +2469,30 @@ public class GreenWalletController extends BaseController {
                 return;
             }
 
+            // Parse vintage year (optional)
+            Integer vintageYear = null;
+            if (vintageYearText != null && !vintageYearText.trim().isEmpty()) {
+                try {
+                    vintageYear = Integer.parseInt(vintageYearText.trim());
+                    if (vintageYear < 1990 || vintageYear > 2100) {
+                        showWarning("Année invalide", "L'année millésime doit être entre 1990 et 2100");
+                        return;
+                    }
+                } catch (NumberFormatException e) {
+                    showWarning("Format invalide", "Veuillez entrer une année valide (ex: 2024)");
+                    return;
+                }
+            }
+
             String fullReference = String.format("[%s] %s", standard, 
                 reference.isEmpty() ? "Émission de crédits carbone" : reference);
 
-            boolean success = walletService.quickIssueCredits(currentWallet.getId(), amount, fullReference);
+            // Use audit ID if provided, otherwise null
+            String effectiveAuditId = (auditId != null && !auditId.trim().isEmpty()) ? auditId.trim() : null;
+
+            boolean success = walletService.quickIssueCredits(currentWallet.getId(), amount, fullReference,
+                effectiveAuditId, standard, vintageYear);
+                
             if (success) {
                 showInfo("✔ Succès", String.format("%.2f tCO₂ émis avec succès!", amount));
                 clearIssueForm();

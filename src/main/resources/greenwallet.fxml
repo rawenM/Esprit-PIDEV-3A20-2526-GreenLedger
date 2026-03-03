@@ -49,6 +49,7 @@
             <Button fx:id="btnWalletOverview" text="💳 GreenWallet" styleClass="nav-btn active"/>
             <Button fx:id="btnMarketplace" text="🛒 Marketplace" styleClass="nav-btn" onAction="#onMarketplace"/>
             <Button fx:id="btnBatches" text="📦 Carbon Batches" styleClass="nav-btn"/>
+            <Button fx:id="btnBatchCarbonTests" text="🧪 Tests Batch + Carbon" styleClass="nav-btn" onAction="#onBatchCarbonTests"/>
             <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn"/>
 
             <Separator styleClass="sidebar-sep" style="-fx-margin: 12 0;"/>

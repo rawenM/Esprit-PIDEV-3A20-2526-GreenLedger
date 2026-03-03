@@ -163,7 +163,7 @@ public class MarketplaceController extends BaseController {
                         // Get seller's batches for this listing
                         WalletService walletService = new WalletService();
                         List<CarbonCreditBatch> sellerBatches = walletService.getWalletBatches(
-                            listing.getSellerId()
+                            listing.getWalletId()
                         );
                         
                         String batchSerials = sellerBatches.isEmpty() ? "No batches" :
@@ -593,94 +593,91 @@ public class MarketplaceController extends BaseController {
                     return;
                 }
 
-                double totalAmount = quantity * selected.getPricePerUnit();
+                double pricePerUnit = selected.getPricePerUnit();
+                double subtotal = quantity * pricePerUnit;
+                double platformFee = subtotal * 0.029 + 0.30;
+                double totalAmount = subtotal + platformFee;
                 
-                // Confirm purchase
-                if (!confirmAction(String.format("Purchase %.2f %s for $%.2f?", 
-                        quantity, selected.getAssetType(), totalAmount))) {
-                    return;
-                }
-
-                // Create order first
-                int orderId = orderService.placeOrder(selected.getId(), currentUserId, quantity);
-                if (orderId <= 0) {
-                    showAlert("Error creating order");
-                    return;
-                }
-
-                // Show payment dialog to user
-                PaymentDetails paymentDetails = showPaymentDialog(totalAmount);
-                if (paymentDetails == null) {
-                    showAlert("Payment cancelled. Order #" + orderId + " created but not paid.");
-                    return;
-                }
-
-                // Step 1: Create payment intent
-                System.out.println(LOG_TAG + " Creating Stripe payment intent for order " + orderId);
-                var paymentIntent = stripeService.initiatePayment(
-                    orderId, 
-                    totalAmount, 
-                    currentUserId, 
-                    selected.getSellerId(),
-                    "Carbon Credit Purchase - Order #" + orderId
+                // Confirm purchase with breakdown
+                String confirmMessage = String.format(
+                    "Payment Confirmation\n\n" +
+                    "Quantity: %.2f %s\n" +
+                    "Price per unit: $%.2f\n" +
+                    "Subtotal: $%.2f\n" +
+                    "Platform fee (2.9%% + $0.30): $%.2f\n" +
+                    "Total Amount: $%.2f\n\n" +
+                    "Proceed with Stripe Checkout?",
+                    quantity,
+                    selected.getAssetType(),
+                    pricePerUnit,
+                    subtotal,
+                    platformFee,
+                    totalAmount
                 );
 
-                if (paymentIntent == null) {
-                    showAlert("Error creating payment intent. Order #" + orderId + " created but not paid.");
+                if (!confirmAction(confirmMessage)) {
                     return;
                 }
 
-                System.out.println(LOG_TAG + " Payment intent created: " + paymentIntent.getId());
-
-                // Step 2: Confirm payment with card details
-                String[] expiryParts = paymentDetails.expiryDate.split("/");
-                String expMonth = expiryParts[0].trim();
-                String expYear = expiryParts[1].trim();
-                // Convert 2-digit year to 4-digit if needed
-                if (expYear.length() == 2) {
-                    expYear = "20" + expYear;
+                // Disable buy button during processing
+                if (buyButton != null) {
+                    buyButton.setDisable(true);
                 }
 
-                System.out.println(LOG_TAG + " Confirming payment with card...");
-                paymentIntent = stripeService.confirmPaymentWithCard(
-                    paymentIntent.getId(),
-                    paymentDetails.cardNumber,
-                    expMonth,
-                    expYear,
-                    paymentDetails.cvc
-                );
+                // Process payment asynchronously
+                new Thread(() -> {
+                    try {
+                        // Create order first
+                        int orderId = orderService.placeOrder(selected.getId(), currentUserId, quantity);
+                        if (orderId <= 0) {
+                            Platform.runLater(() -> {
+                                showAlert("Error creating order");
+                                if (buyButton != null) buyButton.setDisable(false);
+                            });
+                            return;
+                        }
 
-                if (paymentIntent != null && "succeeded".equals(paymentIntent.getStatus())) {
-                    // Step 3: Complete order with payment ID
-                    orderService.completeOrder(orderId, paymentIntent.getId());
-                    
-                    showAlert("✓ Purchase successful!\n\n" +
-                             "Order ID: " + orderId + "\n" +
-                             "Payment ID: " + paymentIntent.getId() + "\n" +
-                             "Amount: $" + String.format("%.2f", totalAmount) + "\n" +
-                             "Card: " + maskCardNumber(paymentDetails.cardNumber) + "\n\n" +
-                             "Carbon credits transferred to your wallet!");
-                    
-                    loadOrderHistory();
-                    loadListings();
-                    loadMyListings();
-                } else if (paymentIntent != null) {
-                    // Payment requires additional action or failed
-                    String status = paymentIntent.getStatus();
-                    if ("requires_payment_method".equals(status) || "requires_confirmation".equals(status)) {
-                        showAlert("⚠ Payment could not be processed.\n\n" +
-                                 "Status: " + status + "\n" +
-                                 "Order ID: " + orderId + "\n\n" +
-                                 "Please try again with a different payment method.");
-                    } else {
-                        showAlert("⚠ Payment status: " + status + "\n\n" +
-                                 "Order ID: " + orderId + "\n" +
-                                 "Payment ID: " + paymentIntent.getId() + "\n\n" +
-                                 "Contact support if funds were charged.");
+                        // Create Stripe Checkout session
+                        String checkoutUrl = stripeService.createHostedCheckoutUrl(
+                            orderId,
+                            totalAmount,
+                            currentUserId,
+                            selected.getSellerId(),
+                            quantity,
+                            pricePerUnit
+                        );
+
+                        if (checkoutUrl == null || checkoutUrl.isEmpty()) {
+                            Platform.runLater(() -> {
+                                showAlert("Error creating Stripe checkout session.\nOrder #" + orderId + " created but not paid.");
+                                if (buyButton != null) buyButton.setDisable(false);
+                            });
+                            return;
+                        }
+
+                        Platform.runLater(() -> {
+                            // Open Stripe Checkout in popup
+                            openStripeCheckoutPopup(checkoutUrl, orderId);
+                            
+                            String testModeHint = stripeService.isTestMode()
+                                ? "\n\nTEST MODE: Use card 4242 4242 4242 4242, any future date, any CVC."
+                                : "";
+
+                            showAlert("✅ Stripe Checkout opened!\n\n" +
+                                "Order ID: #" + orderId + "\n" +
+                                "Total Amount: $" + String.format("%.2f", totalAmount) + "\n\n" +
+                                "Complete payment on the Stripe hosted page." + testModeHint);
+                        });
+
+                    } catch (Exception e) {
+                        System.err.println(LOG_TAG + " ERROR in buy flow: " + e.getMessage());
+                        Platform.runLater(() -> {
+                            showAlert("Error processing purchase: " + e.getMessage());
+                            if (buyButton != null) buyButton.setDisable(false);
+                        });
+                        e.printStackTrace();
                     }
-                } else {
-                    showAlert("✗ Payment processing error.\n\nOrder #" + orderId + " created but payment failed.\nNo funds were charged.");
-                }
+                }).start();
                 
             } catch (NumberFormatException e) {
                 showAlert("Invalid quantity");
@@ -688,6 +685,103 @@ public class MarketplaceController extends BaseController {
                 System.err.println(LOG_TAG + " ERROR in buy flow: " + e.getMessage());
                 showAlert("Error processing purchase: " + e.getMessage());
             }
+        }
+    }
+
+    /**
+     * Open Stripe Checkout in a popup WebView window
+     */
+    private void openStripeCheckoutPopup(String checkoutUrl, int orderId) {
+        try {
+            WebView webView = new WebView();
+            webView.getEngine().locationProperty().addListener((obs, oldUrl, newUrl) -> {
+                if (newUrl == null) {
+                    return;
+                }
+
+                // Check for successful payment
+                if (newUrl.contains("/payment/success") && newUrl.contains("session_id=")) {
+                    String sessionId = extractSessionId(newUrl);
+                    if (sessionId == null || sessionId.isEmpty()) {
+                        return;
+                    }
+
+                    new Thread(() -> {
+                        try {
+                            String paymentIntentId = stripeService.getPaidCheckoutPaymentIntent(sessionId);
+                            if (paymentIntentId != null && !paymentIntentId.isEmpty()) {
+                                boolean completed = orderService.completeOrder(orderId, paymentIntentId);
+                                if (completed) {
+                                    Platform.runLater(() -> {
+                                        Stage stage = (Stage) webView.getScene().getWindow();
+                                        stage.close();
+                                        showAlert("✅ Payment successful!\n\n" +
+                                                 "Order #" + orderId + " completed.\n" +
+                                                 "Payment ID: " + paymentIntentId + "\n\n" +
+                                                 "Carbon credits transferred to your wallet!");
+                                        loadOrderHistory();
+                                        loadListings();
+                                        loadMyListings();
+                                        if (buyButton != null) buyButton.setDisable(false);
+                                    });
+                                } else {
+                                    Platform.runLater(() -> {
+                                        showAlert("Payment confirmed, but order finalization failed.\nPlease contact support with order #" + orderId);
+                                        if (buyButton != null) buyButton.setDisable(false);
+                                    });
+                                }
+                            } else {
+                                Platform.runLater(() -> {
+                                    showAlert("Payment not confirmed yet. Please complete checkout first.");
+                                    if (buyButton != null) buyButton.setDisable(false);
+                                });
+                            }
+                        } catch (Exception e) {
+                            Platform.runLater(() -> {
+                                showAlert("Error confirming checkout: " + e.getMessage());
+                                if (buyButton != null) buyButton.setDisable(false);
+                            });
+                        }
+                    }).start();
+                } else if (newUrl.contains("/payment/cancel")) {
+                    // Payment cancelled
+                    Stage stage = (Stage) webView.getScene().getWindow();
+                    stage.close();
+                    showAlert("Payment cancelled.\nOrder #" + orderId + " created but not paid.");
+                    if (buyButton != null) buyButton.setDisable(false);
+                }
+            });
+
+            webView.getEngine().load(checkoutUrl);
+
+            BorderPane root = new BorderPane(webView);
+            Scene scene = new Scene(root, 980, 760);
+
+            Stage popup = new Stage();
+            popup.setTitle("🔒 Secure Stripe Checkout");
+            popup.setScene(scene);
+            popup.initModality(Modality.APPLICATION_MODAL);
+
+            if (buyButton != null && buyButton.getScene() != null) {
+                popup.initOwner(buyButton.getScene().getWindow());
+            }
+
+            popup.setOnCloseRequest(e -> {
+                if (buyButton != null) buyButton.setDisable(false);
+            });
+
+            popup.show();
+        } catch (Exception e) {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle("Stripe Checkout URL");
+            alert.setHeaderText("Unable to open in-app checkout popup. Copy this URL:");
+            TextArea textArea = new TextArea(checkoutUrl);
+            textArea.setWrapText(true);
+            textArea.setPrefHeight(100);
+            textArea.setEditable(false);
+            alert.getDialogPane().setContent(textArea);
+            alert.showAndWait();
+            if (buyButton != null) buyButton.setDisable(false);
         }
     }
 
@@ -706,7 +800,7 @@ public class MarketplaceController extends BaseController {
             // Get seller's batches
             WalletService walletService = new WalletService();
             List<CarbonCreditBatch> sellerBatches = walletService.getWalletBatches(
-                selected.getSellerId()
+                selected.getWalletId()
             );
 
             if (sellerBatches.isEmpty()) {

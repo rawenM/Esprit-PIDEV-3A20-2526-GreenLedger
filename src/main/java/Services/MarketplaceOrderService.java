@@ -1,7 +1,7 @@
 package Services;
 
 import Models.MarketplaceOrder;
-import Models.BatchEventService;
+import Services.BatchEventService;
 import Models.BatchEventType;
 import Models.CarbonCreditBatch;
 import DataBase.MyConnection;
@@ -47,9 +47,15 @@ public class MarketplaceOrderService {
     public int placeOrder(int listingId, int buyerId, double quantity) {
         int orderId = -1;
 
-        try {
-            if (conn == null) return orderId;
+        if (conn == null) {
+            System.err.println(LOG_TAG + " ERROR: Database connection is null");
+            return orderId;
+        }
 
+        boolean originalAutoCommit = true;
+        try {
+            // Save original autocommit state and disable it
+            originalAutoCommit = conn.getAutoCommit();
             conn.setAutoCommit(false);
 
             try {
@@ -131,14 +137,27 @@ public class MarketplaceOrderService {
                 }
 
             } catch (SQLException e) {
-                conn.rollback();
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    System.err.println(LOG_TAG + " ERROR: Rollback failed: " + rollbackEx.getMessage());
+                }
                 System.err.println(LOG_TAG + " ERROR placing order: " + e.getMessage());
+                return orderId;
             }
         } catch (SQLException e) {
-            System.err.println(LOG_TAG + " ERROR: Database connection failed");
+            System.err.println(LOG_TAG + " ERROR: Database transaction setup failed: " + e.getMessage());
+            return orderId;
+        } finally {
+            // Always restore original autocommit state
+            try {
+                if (conn != null && !conn.isClosed()) {
+                    conn.setAutoCommit(originalAutoCommit);
+                }
+            } catch (SQLException e) {
+                System.err.println(LOG_TAG + " ERROR: Failed to restore autocommit state: " + e.getMessage());
+            }
         }
-
-        return orderId;
     }
 
     /**
@@ -148,9 +167,15 @@ public class MarketplaceOrderService {
     public int createOrderFromOffer(int listingId, int buyerId, int sellerId, double quantity, double unitPrice) {
         int orderId = -1;
 
-        try {
-            if (conn == null) return orderId;
+        if (conn == null) {
+            System.err.println(LOG_TAG + " ERROR: Database connection is null");
+            return orderId;
+        }
 
+        boolean originalAutoCommit = true;
+        try {
+            // Save original autocommit state and disable it
+            originalAutoCommit = conn.getAutoCommit();
             conn.setAutoCommit(false);
 
             try {
@@ -192,14 +217,27 @@ public class MarketplaceOrderService {
                 return orderId;
 
             } catch (SQLException e) {
-                conn.rollback();
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    System.err.println(LOG_TAG + " ERROR: Rollback failed: " + rollbackEx.getMessage());
+                }
                 System.err.println(LOG_TAG + " ERROR creating offer order: " + e.getMessage());
+                return orderId;
             }
         } catch (SQLException e) {
-            System.err.println(LOG_TAG + " ERROR: Database connection failed for offer order");
+            System.err.println(LOG_TAG + " ERROR: Database transaction setup failed: " + e.getMessage());
+            return orderId;
+        } finally {
+            // Always restore original autocommit state
+            try {
+                if (conn != null && !conn.isClosed()) {
+                    conn.setAutoCommit(originalAutoCommit);
+                }
+            } catch (SQLException e) {
+                System.err.println(LOG_TAG + " ERROR: Failed to restore autocommit state: " + e.getMessage());
+            }
         }
-
-        return orderId;
     }
 
     /**
@@ -207,9 +245,15 @@ public class MarketplaceOrderService {
      * Transfers credits and releases escrow
      */
     public boolean completeOrder(int orderId, String stripeChargeId) {
-        try {
-            if (conn == null) return false;
+        if (conn == null) {
+            System.err.println(LOG_TAG + " ERROR: Database connection is null");
+            return false;
+        }
 
+        boolean originalAutoCommit = true;
+        try {
+            // Save original autocommit state and disable it
+            originalAutoCommit = conn.getAutoCommit();
             conn.setAutoCommit(false);
 
             try {
@@ -328,16 +372,29 @@ public class MarketplaceOrderService {
                 return true;
 
             } catch (Exception e) {
-                conn.rollback();
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    System.err.println(LOG_TAG + " ERROR: Rollback failed: " + rollbackEx.getMessage());
+                }
                 System.err.println(LOG_TAG + " ERROR completing order: " + e.getMessage());
                 e.printStackTrace();
+                return false;
             }
         } catch (SQLException e) {
-            System.err.println(LOG_TAG + " ERROR: Database connection failed");
+            System.err.println(LOG_TAG + " ERROR: Database transaction setup failed: " + e.getMessage());
             e.printStackTrace();
+            return false;
+        } finally {
+            // Always restore original autocommit state
+            try {
+                if (conn != null && !conn.isClosed()) {
+                    conn.setAutoCommit(originalAutoCommit);
+                }
+            } catch (SQLException e) {
+                System.err.println(LOG_TAG + " ERROR: Failed to restore autocommit state: " + e.getMessage());
+            }
         }
-
-        return false;
     }
 
     /**
