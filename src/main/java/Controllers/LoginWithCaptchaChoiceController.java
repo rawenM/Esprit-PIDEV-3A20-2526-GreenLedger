@@ -397,12 +397,17 @@ public class LoginWithCaptchaChoiceController {
                 case ADMIN -> "/fxml/admin_users.fxml";
                 case INVESTISSEUR -> "/fxml/investisseur_dashboard.fxml";
                 case PORTEUR_PROJET -> "/fxml/porteur_projet_dashboard.fxml";
-                case EXPERT_CARBONE -> "/fxml/expert_carbone_dashboard.fxml";
+                case EXPERT_CARBONE -> "/expertProjet.fxml";
                 default -> "/fxml/dashboard.fxml";
             };
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
+
+            if (user.getTypeUtilisateur() == Models.TypeUtilisateur.EXPERT_CARBONE) {
+                ExpertProjetController controller = loader.getController();
+                controller.setCurrentUser(user);
+            }
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             Scene scene = new Scene(root);

@@ -28,6 +28,7 @@ public class ProjetController {
     private final Services.EvaluationService evaluationService = new Services.EvaluationService();
     private final ObservableList<Projet> data = FXCollections.observableArrayList();
     private java.util.Set<Integer> evaluatedProjectIds = java.util.Collections.emptySet();
+    private User currentUser;
 
     @FXML private TableView<Projet> table;
     @FXML private TableColumn<Projet, Number> colId;
@@ -112,8 +113,18 @@ public class ProjetController {
         refresh();
     }
 
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+        try {
+            SessionManager.getInstance().setCurrentUser(user);
+        } catch (Exception ignore) {
+            // Session update is best-effort.
+        }
+        applyProfile();
+    }
+
     private void applyProfile() {
-        Models.User user = Utils.SessionManager.getInstance().getCurrentUser();
+        Models.User user = currentUser != null ? currentUser : Utils.SessionManager.getInstance().getCurrentUser();
         if (user == null) {
             return;
         }

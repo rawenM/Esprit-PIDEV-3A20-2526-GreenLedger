@@ -1677,6 +1677,8 @@ public class GreenWalletController extends BaseController {
                 } else {
                     showError("Erreur", "Impossible de transférer les crédits");
                 }
+            } catch (NumberFormatException e) {
+                showError("Erreur", "Veuillez entrer des valeurs numériques valides");
             } catch (Exception e) {
                 showError("Erreur lors du transfert", e.getMessage());
             }
@@ -2706,5 +2708,116 @@ public class GreenWalletController extends BaseController {
         alert.setHeaderText(null);
         alert.setContentText(content);
         alert.showAndWait();
+    }
+
+    @FXML
+    private void onConfirmCreateWallet() {
+        try {
+            User user = SessionManager.getInstance().getCurrentUser();
+            Integer userId = getCurrentUserIdAsInt(user);
+            if (userId == null) {
+                showWarning("Session invalide", "Utilisateur non connecte.");
+                return;
+            }
+            String name = txtCreateWalletName != null ? txtCreateWalletName.getText().trim() : "";
+            if (name.isEmpty()) {
+                showWarning("Nom requis", "Veuillez saisir un nom de wallet.");
+                return;
+            }
+            String numberText = txtCreateWalletNumber != null ? txtCreateWalletNumber.getText().trim() : "";
+            Integer walletNumber = null;
+            if (!numberText.isEmpty()) {
+                try {
+                    walletNumber = Integer.parseInt(numberText);
+                } catch (NumberFormatException ex) {
+                    showWarning("Numero invalide", "Le numero de wallet doit etre un entier.");
+                    return;
+                }
+            }
+            double credits = 0.0;
+            if (txtCreateWalletCredits != null && txtCreateWalletCredits.getText() != null) {
+                String raw = txtCreateWalletCredits.getText().trim();
+                if (!raw.isEmpty()) {
+                    try {
+                        credits = Double.parseDouble(raw);
+                    } catch (NumberFormatException ex) {
+                        showWarning("Credits invalides", "Le montant doit etre numerique.");
+                        return;
+                    }
+                }
+            }
+
+            Wallet wallet = new Wallet();
+            wallet.setName(name);
+            wallet.setOwnerType("ENTERPRISE");
+            wallet.setOwnerId(userId);
+            wallet.setAvailableCredits(credits);
+            wallet.setRetiredCredits(0.0);
+            if (walletNumber != null) {
+                wallet.setWalletNumber(walletNumber);
+            }
+
+            int createdId = walletService.createWallet(wallet);
+            if (createdId <= 0) {
+                showError("Erreur", "Creation du wallet echouee.");
+                return;
+            }
+
+            showInfo("Wallet cree", "Le wallet a ete cree avec succes.");
+            if (txtCreateWalletName != null) txtCreateWalletName.clear();
+            if (txtCreateWalletNumber != null) txtCreateWalletNumber.clear();
+            if (txtCreateWalletCredits != null) txtCreateWalletCredits.setText("0");
+            hideSlidePanel(createWalletPanel);
+            loadWallets();
+        } catch (Exception ex) {
+            showError("Erreur", ex.getMessage());
+        }
+    }
+
+    @FXML
+    private void onConfirmEditWallet() {
+        if (currentWallet == null) {
+            showWarning("Aucun wallet", "Selectionnez un wallet a modifier.");
+            return;
+        }
+        String name = txtEditWalletName != null ? txtEditWalletName.getText().trim() : "";
+        if (name.isEmpty()) {
+            showWarning("Nom requis", "Veuillez saisir un nom.");
+            return;
+        }
+        currentWallet.setName(name);
+        boolean ok = walletService.updateWallet(currentWallet);
+        if (!ok) {
+            showError("Erreur", "Mise a jour du wallet echouee.");
+            return;
+        }
+        showInfo("Wallet mis a jour", "Le wallet a ete mis a jour.");
+        hideSlidePanel(editWalletPanel);
+        loadWallets();
+    }
+
+    @FXML
+    private void onConfirmDeleteWallet() {
+        if (currentWallet == null) {
+            showWarning("Aucun wallet", "Selectionnez un wallet a supprimer.");
+            return;
+        }
+        if (chkDeleteWalletConfirm != null && !chkDeleteWalletConfirm.isSelected()) {
+            showWarning("Confirmation requise", "Veuillez confirmer la suppression.");
+            return;
+        }
+        boolean ok = walletService.deleteWallet(currentWallet.getId());
+        if (!ok) {
+            showError("Erreur", "Suppression impossible (credits existants ou erreur)." );
+            return;
+        }
+        showInfo("Wallet supprime", "Le wallet a ete supprime avec succes.");
+        hideSlidePanel(deleteWalletPanel);
+        loadWallets();
+    }
+
+    @FXML
+    private void onCloseDeleteWalletPanel() {
+        hideSlidePanel(deleteWalletPanel);
     }
 }

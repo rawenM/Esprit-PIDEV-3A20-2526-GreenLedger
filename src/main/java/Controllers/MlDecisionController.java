@@ -384,59 +384,58 @@ public class MlDecisionController extends BaseController {
         String baseUrl = System.getenv().getOrDefault("ML_API_BASE_URL", "http://localhost:8082");
         String endpoint = baseUrl.endsWith("/") ? baseUrl + "analyze-project" : baseUrl + "/analyze-project";
 
-        try {
-            HttpRequest req = HttpRequest.newBuilder()
-                    .uri(URI.create(endpoint))
-                    .header("Content-Type", "application/json")
-                    .header("Accept", "application/json")
-                    .timeout(Duration.ofSeconds(8))
-                    .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8))
-                    .build();
+        HttpRequest req = HttpRequest.newBuilder()
+                .uri(URI.create(endpoint))
+                .header("Content-Type", "application/json")
+                .header("Accept", "application/json")
+                .timeout(Duration.ofSeconds(8))
+                .POST(HttpRequest.BodyPublishers.ofString(payload, StandardCharsets.UTF_8))
+                .build();
 
-            HttpClient client = HttpClient.newHttpClient();
-            HttpResponse<String> resp = client.send(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8));
-            String body = resp.body() == null ? "" : resp.body().trim();
+        HttpClient client = HttpClient.newHttpClient();
+        client.sendAsync(req, HttpResponse.BodyHandlers.ofString(StandardCharsets.UTF_8))
+                .thenAccept(resp -> {
+                    String body = resp.body() == null ? "" : resp.body().trim();
+                    if (resp.statusCode() != 200 || body.isEmpty()) {
+                        javafx.application.Platform.runLater(() -> setStatus(""));
+                        return;
+                    }
 
-            if (resp.statusCode() != 200) {
-                setStatus("");
-                return;
-            }
+                    String jsonBody = body;
+                    if (!jsonBody.startsWith("{")) {
+                        int start = jsonBody.indexOf('{');
+                        int end = jsonBody.lastIndexOf('}');
+                        if (start >= 0 && end > start) {
+                            jsonBody = jsonBody.substring(start, end + 1).trim();
+                        }
+                    }
 
-            if (body.isEmpty()) {
-                setStatus("");
-                return;
-            }
+                    if (!jsonBody.startsWith("{")) {
+                        javafx.application.Platform.runLater(() -> setStatus(""));
+                        return;
+                    }
 
-            String jsonBody = body;
-            if (!jsonBody.startsWith("{")) {
-                int start = jsonBody.indexOf('{');
-                int end = jsonBody.lastIndexOf('}');
-                if (start >= 0 && end > start) {
-                    jsonBody = jsonBody.substring(start, end + 1).trim();
-                }
-            }
+                    Map<String, Object> parsed = new Gson().fromJson(jsonBody, new TypeToken<Map<String, Object>>(){}.getType());
+                    int esgScore = getInt(parsed.get("predicted_esg_score"), 0);
+                    int credibility = getInt(parsed.get("credibility_score"), 0);
+                    String carbonRisk = String.valueOf(parsed.getOrDefault("carbon_risk", "N/A"));
+                    String recommendations = String.valueOf(parsed.getOrDefault("recommendations", ""));
 
-            if (!jsonBody.startsWith("{")) {
-                setStatus("");
-                return;
-            }
+                    String decision = deriveDecision(esgScore, carbonRisk);
+                    CarbonAuditController.storeMlDecision(selectedProjet.getId(), decision);
 
-            Map<String, Object> parsed = new Gson().fromJson(jsonBody, new TypeToken<Map<String, Object>>(){}.getType());
-            int esgScore = getInt(parsed.get("predicted_esg_score"), 0);
-            int credibility = getInt(parsed.get("credibility_score"), 0);
-            String carbonRisk = String.valueOf(parsed.getOrDefault("carbon_risk", "N/A"));
-            String recommendations = String.valueOf(parsed.getOrDefault("recommendations", ""));
-
-            String decision = deriveDecision(esgScore, carbonRisk);
-            CarbonAuditController.storeMlDecision(selectedProjet.getId(), decision);
-            updateDecision(decision, String.valueOf(Math.max(0.0, Math.min(1.0, credibility / 100.0))));
-            updateRecommendationsText(recommendations);
-            setStatus("ML termine");
-            persistSnapshot(buildSnapshot(decision, credibility / 100.0));
-            System.out.println("[ML] Training completed");
-        } catch (Exception ex) {
-            setStatus("");
-        }
+                    javafx.application.Platform.runLater(() -> {
+                        updateDecision(decision, String.valueOf(Math.max(0.0, Math.min(1.0, credibility / 100.0))));
+                        updateRecommendationsText(recommendations);
+                        setStatus("ML termine");
+                        persistSnapshot(buildSnapshot(decision, credibility / 100.0));
+                    });
+                    System.out.println("[ML] Training completed");
+                })
+                .exceptionally(ex -> {
+                    javafx.application.Platform.runLater(() -> setStatus(""));
+                    return null;
+                });
     }
 
     private java.util.List<java.util.Map<String, Object>> buildCriteriaPayload(List<EvaluationResult> results) {

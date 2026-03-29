@@ -24,8 +24,8 @@ public class EvaluationService {
 
     public void ajouter(Evaluation e) {
         String sql = "INSERT INTO evaluation(observations_globales, score_final, est_valide, id_projet) VALUES (?,?,?,?)";
-        try {
-            PreparedStatement ps = conn.prepareStatement(sql);
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, e.getObservations());
             ps.setDouble(2, e.getScoreGlobal());
             ps.setBoolean(3, decisionToFlag(e.getDecision()));
@@ -153,12 +153,10 @@ public class EvaluationService {
 
     public int ajouterAvecCriteres(Evaluation e, java.util.List<Models.EvaluationResult> criteres) {
         String sqlEval = "INSERT INTO evaluation(observations_globales, score_final, est_valide, id_projet) VALUES (?,?,?,?)";
-        boolean previousAutoCommit = true;
-        try {
-            previousAutoCommit = conn.getAutoCommit();
+        try (Connection conn = MyConnection.getConnection()) {
             conn.setAutoCommit(false);
 
-            int evaluationId;
+            Integer evaluationId = null;
             try (PreparedStatement psEval = conn.prepareStatement(sqlEval, Statement.RETURN_GENERATED_KEYS)) {
                 psEval.setString(1, e.getObservations());
                 psEval.setDouble(2, e.getScoreGlobal());
@@ -166,33 +164,61 @@ public class EvaluationService {
                 psEval.setInt(4, e.getIdProjet());
                 psEval.executeUpdate();
                 try (ResultSet rs = psEval.getGeneratedKeys()) {
-                    if (!rs.next()) {
-                        conn.rollback();
-                        return -1;
+                    if (rs.next()) {
+                        evaluationId = rs.getInt(1);
                     }
-                    evaluationId = rs.getInt(1);
                 }
             }
 
-            Services.CritereImpactService critereService = new Services.CritereImpactService();
-            critereService.ajouterResultats(evaluationId, criteres);
+            if (evaluationId == null) {
+                evaluationId = fetchLatestEvaluationId(conn, e.getIdProjet());
+                if (evaluationId == null) {
+                    conn.rollback();
+                    setLastError(new SQLException("No id_evaluation generated"), "ajouter evaluation avec criteres");
+                    return -1;
+                }
+            }
 
+            insertResultats(conn, evaluationId, criteres);
             conn.commit();
+            lastErrorMessage = null;
             return evaluationId;
         } catch (SQLException ex) {
-            try {
-                conn.rollback();
-            } catch (SQLException ignore) {
-                // ignore rollback failures
-            }
+            setLastError(ex, "ajouter evaluation avec criteres");
             System.out.println(ex.getMessage());
             return -1;
-        } finally {
-            try {
-                conn.setAutoCommit(previousAutoCommit);
-            } catch (SQLException ignore) {
-                // ignore restore failures
+        }
+    }
+
+    private Integer fetchLatestEvaluationId(Connection conn, int projetId) throws SQLException {
+        String sql = "SELECT MAX(id_evaluation) AS id_eval FROM evaluation WHERE id_projet=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, projetId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    int id = rs.getInt("id_eval");
+                    return id > 0 ? id : null;
+                }
             }
+        }
+        return null;
+    }
+
+    private void insertResultats(Connection conn, int evaluationId, java.util.List<Models.EvaluationResult> criteres) throws SQLException {
+        if (criteres == null || criteres.isEmpty()) {
+            return;
+        }
+        String sql = "INSERT INTO evaluation_resultat(id_evaluation, id_critere, est_respecte, note, commentaire_expert) VALUES (?,?,?,?,?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            for (Models.EvaluationResult c : criteres) {
+                ps.setInt(1, evaluationId);
+                ps.setInt(2, c.getIdCritere());
+                ps.setBoolean(3, c.isEstRespecte());
+                ps.setInt(4, c.getNote());
+                ps.setString(5, c.getCommentaireExpert());
+                ps.addBatch();
+            }
+            ps.executeBatch();
         }
     }
 

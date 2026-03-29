@@ -18,26 +18,7 @@
 
         <Separator styleClass="sidebar-sep"/>
 
-<<<<<<< HEAD
         <Button text="← Retour" styleClass="btn btn-secondary" onAction="#onBack"/>
-
-        <Button text="📁 Gestion Projets" styleClass="nav-btn" onAction="#onGestionProjets"/>
-        <Button fx:id="btnGreenWallet" text="💳 GreenWallet" styleClass="nav-btn" onAction="#onGreenWallet"/>
-        <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn" style="-fx-padding: 10 12;" onAction="#onSettings"/>
-=======
-<<<<<<< HEAD
-        <Button text="📁 Gestion Projets" styleClass="nav-btn"/>
-        <Button text="📊 Audit Carbone" styleClass="nav-btn"/>
-        <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn" style="-fx-padding: 10 12;"/>
->>>>>>> yassine_antar
-
-        <Region VBox.vgrow="ALWAYS"/>
-    </VBox>
-
-    <!-- Content -->
-=======
-        <Button text="← Retour" styleClass="btn btn-secondary" onAction="#onBack"/>
-
         <Button text="📁 Gestion Projets" styleClass="nav-btn" onAction="#onGestionProjets"/>
         <Button fx:id="btnGreenWallet" text="💳 GreenWallet" styleClass="nav-btn" onAction="#onGreenWallet"/>
         <Button fx:id="btnSettings" text="⚙ Settings" styleClass="nav-btn" style="-fx-padding: 10 12;" onAction="#onSettings"/>
@@ -45,22 +26,12 @@
         <Region VBox.vgrow="ALWAYS"/>
     </VBox>
 
-
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
     <VBox spacing="0" HBox.hgrow="ALWAYS" styleClass="content-area">
 
         <!-- Header + Stats -->
         <VBox spacing="14">
             <padding>
-<<<<<<< HEAD
                 <Insets top="12" right="32" bottom="12" left="32"/>
-=======
-<<<<<<< HEAD
-                <Insets top="28" right="32" bottom="12" left="32"/>
-=======
-                <Insets top="12" right="32" bottom="12" left="32"/>
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
             </padding>
 
             <HBox alignment="CENTER_LEFT" spacing="10">
@@ -89,11 +60,6 @@
                     <Label fx:id="lblLocked" text="0" styleClass="stat-value accent-green"/>
                     <Label text="🔒" style="-fx-font-size: 18px;"/>
                 </VBox>
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-=======
->>>>>>> yassine_antar
 
                 <VBox spacing="6" styleClass="stat-card" HBox.hgrow="ALWAYS"
                       onMouseClicked="#onGreenWallet" style="-fx-cursor: hand;">
@@ -101,10 +67,6 @@
                     <Label fx:id="lblWalletAvailable" text="0.00 tCO₂" styleClass="stat-value accent-blue"/>
                     <Label text="💳" style="-fx-font-size: 18px;"/>
                 </VBox>
-<<<<<<< HEAD
-=======
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
->>>>>>> yassine_antar
             </HBox>
         </VBox>
 
@@ -126,23 +88,6 @@
                         <Label text="Liste des projets" styleClass="page-title"/>
                     </HBox>
 
-<<<<<<< HEAD
-                    <TableView fx:id="table" prefHeight="520"
-                               VBox.vgrow="ALWAYS"
-                               styleClass="table-card table-projects">
-                        <placeholder>
-                            <Label text="Aucun projet" styleClass="placeholder-label"/>
-                        </placeholder>
-                        <columns>
-                            <TableColumn fx:id="colId" text="ID" prefWidth="70" styleClass="col-center"/>
-                            <TableColumn fx:id="colTitre" text="Titre" prefWidth="320" styleClass="col-left"/>
-                            <TableColumn fx:id="colStatut" text="Statut" prefWidth="160" styleClass="col-center"/>
-                            <TableColumn fx:id="colBudget" text="Budget" prefWidth="160" styleClass="col-center"/>
-                            <TableColumn fx:id="colEvaluation" text="Evaluation" prefWidth="160" styleClass="col-center"/>
-                        </columns>
-                    </TableView>
-=======
-                    <!-- StackPane pour placer le bouton Assistant en bas à droite -->
                     <StackPane VBox.vgrow="ALWAYS">
 
                         <TableView fx:id="table" prefHeight="520"
@@ -169,20 +114,9 @@
                         </StackPane.margin>
 
                     </StackPane>
-
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
                 </VBox>
 
             </VBox>
         </ScrollPane>
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-
->>>>>>> yassine_antar
     </VBox>
 </HBox>
-=======
-    </VBox>
-</HBox>
->>>>>>> f3559248f463304c68513eb2c92f99791d2c4657

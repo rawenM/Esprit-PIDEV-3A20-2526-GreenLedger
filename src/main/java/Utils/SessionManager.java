@@ -43,5 +43,11 @@ public class SessionManager {
         currentUser = null;
         token = null;
     }
-}
 
+    public synchronized void setCurrentUser(User user) {
+        this.currentUser = user;
+        if (user != null && this.token == null) {
+            this.token = java.util.UUID.randomUUID().toString();
+        }
+    }
+}

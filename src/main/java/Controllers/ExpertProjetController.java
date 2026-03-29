@@ -82,6 +82,8 @@ public class ExpertProjetController extends BaseController {
     private final ProjetService projetService = new ProjetService();
     private final EvaluationService evaluationService = new EvaluationService();
 
+    private User currentUser;
+
     @FXML
     public void initialize() {
         super.initialize();
@@ -340,5 +342,17 @@ public class ExpertProjetController extends BaseController {
 
     private String resolveBackTarget() {
         return "fxml/dashboard";
+    }
+
+    public void setCurrentUser(User user) {
+        this.currentUser = user;
+        if (user != null) {
+            if (lblProfileName != null) {
+                lblProfileName.setText(user.getNomComplet());
+            }
+            if (lblProfileType != null && user.getTypeUtilisateur() != null) {
+                lblProfileType.setText(user.getTypeUtilisateur().getLibelle());
+            }
+        }
     }
 }
