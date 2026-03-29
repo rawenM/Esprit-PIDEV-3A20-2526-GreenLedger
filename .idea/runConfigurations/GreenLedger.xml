@@ -23,7 +23,7 @@
     </envs>
     <option name="MAIN_CLASS_NAME" value="org.GreenLedger.MainFX" />
     <module name="workshopjdbc3a" />
-    <option name="VM_PARAMETERS" value="--module-path &quot;C:\Users\mouna\.m2\repository\org\openjfx\javafx-controls\20.0.2;C:\Users\mouna\.m2\repository\org\openjfx\javafx-graphics\20.0.2;C:\Users\mouna\.m2\repository\org\openjfx\javafx-base\20.0.2;C:\Users\mouna\.m2\repository\org\openjfx\javafx-fxml\20.0.2&quot; --add-modules javafx.controls,javafx.fxml " />
+    <option name="VM_PARAMETERS" value="--module-path &quot;C:\Users\Mega-PC\.m2\repository\org\openjfx\javafx-controls\20.0.2;C:\Users\Mega-PC\.m2\repository\org\openjfx\javafx-graphics\20.0.2;C:\Users\Mega-PC\.m2\repository\org\openjfx\javafx-base\20.0.2;C:\Users\Mega-PC\.m2\repository\org\openjfx\javafx-fxml\20.0.2;C:\Users\Mega-PC\.m2\repository\org\openjfx\javafx-web\20.0.2;C:\Users\Mega-PC\.m2\repository\org\openjfx\javafx-media\20.0.2;C:\Users\Mega-PC\.m2\repository\org\openjfx\javafx-swing\20.0.2&quot; --add-modules javafx.controls,javafx.fxml,javafx.web,javafx.media,javafx.swing " />
     <method v="2">
       <option name="Make" enabled="true" />
     </method>

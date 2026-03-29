@@ -620,7 +620,7 @@ public class CarbonAuditController extends BaseController {
             }
 
             // Lancer l'IA d'abord pour obtenir la decision avant la creation.
-            handleMlPredict();
+            // handleMlPredict();
 
             Evaluation evaluation = readEvaluationFromForm(false);
             if (evaluation == null) {
@@ -634,14 +634,14 @@ public class CarbonAuditController extends BaseController {
             if (resolveDecision(false, evaluation.getIdProjet()) == null) {
                 String localDecision = computeLocalDecision(resultats);
                 if (localDecision != null) {
-                    lastMlDecision = localDecision;
-                    storeMlDecision(evaluation.getIdProjet(), localDecision);
+                    String normalized = mapMlDecision(localDecision);
+                    lastMlDecision = normalized;
+                    storeMlDecision(evaluation.getIdProjet(), normalized);
+                    evaluation.setDecision(normalized);
                 }
             }
-            if (resolveDecision(false, evaluation.getIdProjet()) == null) {
-                showError("L'evaluation ML est indisponible. Une decision locale n'a pas pu etre calculee.");
-                return;
-            }
+
+            // Do not block creation if ML is unavailable.
 
             evaluation.setScoreGlobal(calculateScore(resultats));
             if (txtScoreFinal != null) {
@@ -971,6 +971,7 @@ public class CarbonAuditController extends BaseController {
             showError("Decision indisponible. Verifiez les notes des criteres.");
             return null;
         }
+        decision = mapMlDecision(decision);
 
         Evaluation evaluation = new Evaluation(observations, 0, decision, idProjet);
         if (requireId) {
@@ -1654,14 +1655,30 @@ public class CarbonAuditController extends BaseController {
             javafx.scene.control.TextArea commentField = (javafx.scene.control.TextArea) row.getProperties().get("commentField");
             javafx.scene.control.CheckBox respectBox = (javafx.scene.control.CheckBox) row.getProperties().get("respectBox");
 
-            if (noteField == null || commentField == null) {
+            if (noteField == null) {
                 continue;
             }
 
-            Integer note = requireNote(noteField.getText());
-            String commentaire = requireLength(commentField, "Commentaire technique", 8, 250);
-            if (idCritere == null || note == null || commentaire == null) {
+            String rawNote = noteField.getText() != null ? noteField.getText().trim() : "";
+            if (rawNote.isEmpty()) {
+                // Skip untouched criteria instead of blocking the whole evaluation.
+                continue;
+            }
+
+            Integer note = requireNote(rawNote);
+            if (idCritere == null || note == null) {
                 return null;
+            }
+
+            String commentaire = "Sans commentaire";
+            if (commentField != null) {
+                String raw = commentField.getText() != null ? commentField.getText().trim() : "";
+                if (!raw.isEmpty()) {
+                    commentaire = requireLength(commentField, "Commentaire technique", 8, 250);
+                    if (commentaire == null) {
+                        return null;
+                    }
+                }
             }
 
             EvaluationResult result = new EvaluationResult();
@@ -2235,3 +2252,5 @@ public class CarbonAuditController extends BaseController {
         return null;
     }
 }
+
+

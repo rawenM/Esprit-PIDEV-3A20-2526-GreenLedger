@@ -32,21 +32,11 @@ public class MyConnection {
     public static Connection getConnection() {
         MyConnection instance = MyConnection.getInstance();
         try {
-            // Vérifier si la connexion est fermée et la rouvrir si nécessaire
-            if (instance.conn == null || instance.conn.isClosed()) {
-                System.out.println("[DB] Reconnexion à la base de données...");
-                instance.conn = DriverManager.getConnection(instance.url, instance.user, instance.pwd);
-                System.out.println("[DB] Reconnexion réussie!");
-            }
+            return DriverManager.getConnection(instance.url, instance.user, instance.pwd);
         } catch (SQLException e) {
-            System.err.println("[DB] Erreur lors de la reconnexion: " + e.getMessage());
-            try {
-                instance.conn = DriverManager.getConnection(instance.url, instance.user, instance.pwd);
-            } catch (SQLException ex) {
-                System.err.println("[DB] Impossible de se reconnecter: " + ex.getMessage());
-            }
+            System.err.println("[DB] Erreur lors de l'ouverture de connexion: " + e.getMessage());
+            return null;
         }
-        return instance.conn;
     }
 
     // Fermer la connexion (déconseillé pour le singleton)
@@ -55,14 +45,9 @@ public class MyConnection {
             try {
                 conn.close();
                 System.out.println("[DB] Connexion fermée");
-                // Réinitialiser l'instance pour forcer une reconnexion
                 conn = null;
             } catch (SQLException e) {
-<<<<<<< HEAD
-                System.err.println("[DB] Erreur lors de la fermeture de la connexion");
-=======
-                System.err.println("[CLEAN] Erreur lors de la fermeture de la connexion: " + e.getMessage());
->>>>>>> b5568a3f031b93946a6d9ea413ef7fb6e276b59c
+                System.err.println("[DB] Erreur lors de la fermeture de la connexion: " + e.getMessage());
                 e.printStackTrace();
             }
         }

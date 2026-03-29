@@ -449,19 +449,19 @@ public class LoginController {
                 switchScene(stage, root, "Gestion des Utilisateurs - " + user.getNomComplet());
 
             } else if (user.getTypeUtilisateur() == Models.TypeUtilisateur.EXPERT_CARBONE) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/expertProjet.fxml"));
                 Parent root = loader.load();
 
-                DashboardController controller = loader.getController();
+                ExpertProjetController controller = loader.getController();
                 controller.setCurrentUser(user);
 
                 switchScene(stage, root, "Expert Carbone - " + user.getNomComplet());
 
             } else if (user.getTypeUtilisateur() == Models.TypeUtilisateur.PORTEUR_PROJET) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard.fxml"));
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/GestionProjet.fxml"));
                 Parent root = loader.load();
 
-                DashboardController controller = loader.getController();
+                ProjetController controller = loader.getController();
                 controller.setCurrentUser(user);
 
                 switchScene(stage, root, "Porteur de Projet - " + user.getNomComplet());

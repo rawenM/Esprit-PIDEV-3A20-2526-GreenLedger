@@ -1,6 +1,5 @@
 package Controllers;
 
-
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -453,6 +452,9 @@ public class DashboardController {
      */
     @FXML
     private void handleProfile(ActionEvent event) {
+        if (!ensureCurrentUser()) {
+            return;
+        }
         try {
             MainFX.setRoot("editProfile");
 
@@ -467,7 +469,7 @@ public class DashboardController {
      */
     @FXML
     private void handleProjects(ActionEvent event) {
-        if (currentUser == null || currentUser.getTypeUtilisateur() == null) {
+        if (!ensureCurrentUser() || currentUser.getTypeUtilisateur() == null) {
             return;
         }
         TypeUtilisateur type = currentUser.getTypeUtilisateur();
@@ -493,12 +495,15 @@ public class DashboardController {
      */
     @FXML
     private void handleInvestments(ActionEvent event) {
+        if (!ensureCurrentUser()) {
+            return;
+        }
         try {
-            if (currentUser != null && currentUser.getTypeUtilisateur() == TypeUtilisateur.EXPERT_CARBONE) {
+            if (currentUser.getTypeUtilisateur() == TypeUtilisateur.EXPERT_CARBONE) {
                 MainFX.setRoot("gestionCarbone");
                 return;
             }
-            if (currentUser != null && currentUser.getTypeUtilisateur() == TypeUtilisateur.PORTEUR_PROJET) {
+            if (currentUser.getTypeUtilisateur() == TypeUtilisateur.PORTEUR_PROJET) {
                 Evaluation latest = getLatestEvaluation();
                 if (latest != null) {
                     ProjectEvaluationViewController.setCurrentProjet(latest.getIdProjet(), latest.getTitreProjet());
@@ -519,6 +524,9 @@ public class DashboardController {
      */
     @FXML
     private void handleSettings(ActionEvent event) {
+        if (!ensureCurrentUser()) {
+            return;
+        }
         try {
             MainFX.setRoot("settings");
         } catch (IOException e) {
@@ -531,8 +539,11 @@ public class DashboardController {
      */
     @FXML
     private void handleAdvancedFinancing(ActionEvent event) {
+        if (!ensureCurrentUser()) {
+            return;
+        }
         try {
-            if (currentUser != null && currentUser.getTypeUtilisateur() == TypeUtilisateur.INVESTISSEUR) {
+            if (currentUser.getTypeUtilisateur() == TypeUtilisateur.INVESTISSEUR) {
                 MainFX.setRoot("financement");
             } else {
                 showAlert("Information",
@@ -548,10 +559,17 @@ public class DashboardController {
 
     @FXML
     private void handleComprehensiveTests(ActionEvent event) {
+        if (!ensureCurrentUser()) {
+            return;
+        }
+        if (!fxmlExists("fxml/comprehensive_tests")) {
+            showAlert("Information", "Ecran de tests indisponible.", Alert.AlertType.INFORMATION);
+            return;
+        }
         try {
-            MainFX.setRoot("ComprehensiveTest");
+            MainFX.setRoot("fxml/comprehensive_tests");
         } catch (IOException e) {
-            showAlert("Erreur", "Impossible de charger le panneau de tests complets", Alert.AlertType.ERROR);
+            showAlert("Erreur", "Impossible de charger les tests complets", Alert.AlertType.ERROR);
             e.printStackTrace();
         }
     }
@@ -592,6 +610,13 @@ public class DashboardController {
      */
     @FXML
     private void handleLogout(ActionEvent event) {
+        if (!ensureCurrentUser()) {
+            try {
+                MainFX.setRoot("fxml/login");
+            } catch (IOException ignored) {
+            }
+            return;
+        }
         Alert confirmation = new Alert(Alert.AlertType.CONFIRMATION);
         confirmation.setTitle("Déconnexion");
         confirmation.setHeaderText("Voulez-vous vraiment vous déconnecter ?");
@@ -657,5 +682,25 @@ public class DashboardController {
     private Evaluation getLatestEvaluation() {
         java.util.List<Evaluation> items = evaluationService.afficher();
         return (items == null || items.isEmpty()) ? null : items.get(0);
+    }
+
+    private boolean ensureCurrentUser() {
+        if (currentUser != null) {
+            return true;
+        }
+        try {
+            currentUser = SessionManager.getInstance().getCurrentUser();
+        } catch (Exception ex) {
+            System.err.println("[CLEAN] Erreur recuperation session: " + ex.getMessage());
+        }
+        if (currentUser == null) {
+            showAlert("Session", "Session expirée. Veuillez vous reconnecter.", Alert.AlertType.WARNING);
+            return false;
+        }
+        return true;
+    }
+
+    private boolean fxmlExists(String fxml) {
+        return getClass().getResource("/" + fxml + ".fxml") != null;
     }
 }
