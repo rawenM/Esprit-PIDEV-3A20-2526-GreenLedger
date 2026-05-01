@@ -17,7 +17,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ProjetCreateController {
+public class ProjetCreateController extends BaseController {
 
     @FXML private TextField tfTitre;
     @FXML private TextField tfBudgetMontant;
@@ -50,17 +50,7 @@ public class ProjetCreateController {
     // ===============================
     @FXML
     private void onBack() {
-        // ✅ Navigation standard (si MainFX existe)
-        try {
-            org.GreenLedger.MainFX.setRoot("GestionProjet"); // ton accueil
-            return;
-        } catch (Exception ignored) {}
-
-        // ✅ Fallback: fermer seulement si c'est une fenêtre secondaire
-        try {
-            Stage stage = (Stage) tfTitre.getScene().getWindow();
-            if (stage.getOwner() != null) stage.close();
-        } catch (Exception ignored) {}
+        navigateBack();
     }
 
     // ===============================

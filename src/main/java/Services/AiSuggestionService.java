@@ -24,6 +24,7 @@ public class AiSuggestionService {
     private final ScoringService scoringService;
     private final PolicyEngine policyEngine;
     private final NlpMlService nlp = NlpMlService.getInstance();
+    private final OpenRouterService openRouter = new OpenRouterService();
 
     // DB access to enrich criterion context (nom + description + poids)
     private final CritereImpactService critereService = new CritereImpactService();
@@ -224,28 +225,87 @@ public class AiSuggestionService {
     }
 
     /**
-     * Recommandations par critère, formatées "NomCritere: Recommandation"
+     * Recommandations par critère — tries OpenRouter AI first, falls back to heuristics.
+     * Returns pipe-separated string for ML pipeline, or list for UI display.
      */
     public List<String> criterionRecommendations(List<EvaluationResult> criteres) {
+        // Try OpenRouter AI
+        if (openRouter.isAvailable()) {
+            try {
+                List<String> criteriaLines = buildCriteriaLines(criteres);
+                double score = scoringService.calculateScore(criteres);
+                String decision = score >= APPROVE_THRESHOLD ? "APPROVED"
+                                : score >= WARN_THRESHOLD    ? "REVISION_REQUIRED"
+                                : "REJECTED";
+                String aiResult = openRouter.generateRecommendations(
+                    null, decision, (int) Math.round(score), "MEDIUM", 0.0, 0.0, criteriaLines);
+                if (aiResult != null && !aiResult.isBlank()) {
+                    // Split pipe-separated back to list for UI
+                    List<String> recs = java.util.Arrays.stream(aiResult.split("\\s*\\|\\s*"))
+                        .filter(s -> !s.isBlank())
+                        .limit(6)
+                        .collect(Collectors.toList());
+                    if (!recs.isEmpty()) return recs;
+                }
+            } catch (Exception e) {
+                System.err.println("[AiSuggestion] OpenRouter failed, using heuristics: " + e.getMessage());
+            }
+        }
+
+        // Heuristic fallback
         List<String> res = new ArrayList<>();
         Map<Integer, Models.CritereReference> idx = getRefIndex();
-
         for (EvaluationResult r : criteres) {
             Models.CritereReference ref = idx.get(r.getIdCritere());
             int poids = ref != null ? Math.max(1, ref.getPoids()) : 1;
-            String name = r.getNomCritere() != null ? r.getNomCritere() : (ref != null ? ref.getNomCritere() : ("Critère #" + r.getIdCritere()));
-
+            String name = r.getNomCritere() != null ? r.getNomCritere()
+                        : (ref != null ? ref.getNomCritere() : ("Critère #" + r.getIdCritere()));
             String context = buildContextText(r);
             String pillar = nlp.classifyPillar(context);
             String subtopic = detectSubtopic(context, pillar);
+            res.add(specificSolution(pillar, subtopic, r.getNote(), r.isEstRespecte(), poids, name));
+        }
+        return res.stream().limit(5).collect(Collectors.toList());
+    }
 
-            // Build severity-aware, solution-oriented recommendation
-            String line = specificSolution(pillar, subtopic, r.getNote(), r.isEstRespecte(), poids, name);
-            res.add(line);
+    /**
+     * Generate pipe-separated recommendations string for DB storage (used by ExpertWorkflowService).
+     */
+    public String generateRecommendationsForPipeline(
+            String projectName, String decision, int esgScore,
+            String carbonRisk, double totalTco2, double fraudRisk,
+            List<EvaluationResult> criteres) {
+
+        // Try OpenRouter AI
+        if (openRouter.isAvailable()) {
+            try {
+                List<String> criteriaLines = buildCriteriaLines(criteres);
+                String aiResult = openRouter.generateRecommendations(
+                    projectName, decision, esgScore, carbonRisk, totalTco2, fraudRisk, criteriaLines);
+                if (aiResult != null && !aiResult.isBlank()) {
+                    System.out.println("[AiSuggestion] Using OpenRouter recommendations");
+                    return aiResult;
+                }
+            } catch (Exception e) {
+                System.err.println("[AiSuggestion] OpenRouter pipeline failed: " + e.getMessage());
+            }
         }
 
-        // Condense output to 5 lines max in UI
-        return res.stream().limit(5).collect(Collectors.toList());
+        // Heuristic fallback — pipe-separated
+        List<String> recs = buildRecommendationsWithMl(criteres);
+        return String.join(" | ", recs);
+    }
+
+    private List<String> buildCriteriaLines(List<EvaluationResult> criteres) {
+        List<String> lines = new ArrayList<>();
+        Map<Integer, Models.CritereReference> idx = getRefIndex();
+        for (EvaluationResult r : criteres) {
+            Models.CritereReference ref = idx.get(r.getIdCritere());
+            String name = r.getNomCritere() != null ? r.getNomCritere()
+                        : (ref != null ? ref.getNomCritere() : ("Critère #" + r.getIdCritere()));
+            lines.add(name + ": " + r.getNote() + "/10" + (r.isEstRespecte() ? " ✓" : " ✗"));
+        }
+        return lines;
     }
 
     // NLP mots-clés pour topics globaux (statistiques simples)

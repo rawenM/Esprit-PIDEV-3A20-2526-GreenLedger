@@ -321,4 +321,22 @@ public class FraudDetectionService {
         FraudDetectionResult result = analyzeRegistration(user);
         return result.isFraudulent();
     }
+
+    /** Stub for project-level fraud lookup (used by ProjectStatusService, CarbonCreditDispatchService) */
+    public FraudDetectionResult getLatestResultForProject(int projectId) {
+        FraudDetectionResult result = new FraudDetectionResult();
+        result.setRiskScore(0.0);
+        result.setFraudulent(false);
+        return result;
+    }
+
+    public FraudDetectionResult getLatestResultForProject(Integer projectId) {
+        if (projectId == null) return getLatestResultForProject(0);
+        return getLatestResultForProject(projectId.intValue());
+    }
+
+    /** Stub: analyse a project by id */
+    public FraudDetectionResult analyzeProject(Integer projectId) {
+        return getLatestResultForProject(projectId);
+    }
 }

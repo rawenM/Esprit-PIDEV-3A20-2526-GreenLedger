@@ -130,7 +130,7 @@ public class InvestorFinancingController extends BaseController {
             case INVESTISSEUR:
             default:
                 applyNavLabels("GreenLedger Investisseur", "💰 Gestion des investissements");
-                configureNavButton(btnNavDashboard, "📊 Tableau de bord", () -> navigate("fxml/dashboard"));
+                configureNavButton(btnNavDashboard, "📊 Tableau de bord", () -> navigate("fxml/investisseur_shell"));
                 configureNavButton(btnNavInvestments, "💰 Investissements", this::handleGoInvestments);
                 configureNavButton(btnNavFinancement, "💳 Financement avancé", () -> navigate("financement"));
                 configureNavButton(btnNavSettings, "⚙️ Paramètres", () -> navigate("settings"));
@@ -307,14 +307,7 @@ public class InvestorFinancingController extends BaseController {
     }
     @FXML
     private void handleBack() {
-        try {
-            TypeUtilisateur type = currentUser != null ? currentUser.getTypeUtilisateur() : null;
-            if (type == TypeUtilisateur.EXPERT_CARBONE)       org.GreenLedger.MainFX.setRoot("expertProjet");
-            else if (type == TypeUtilisateur.PORTEUR_PROJET)  org.GreenLedger.MainFX.setRoot("GestionProjet");
-            else if (type == TypeUtilisateur.ADMIN)           org.GreenLedger.MainFX.setRoot("fxml/admin_users");
-            else                                               org.GreenLedger.MainFX.setRoot("fxml/dashboard");
-        } catch (IOException ex) {            showError("Erreur", "Impossible de retourner au tableau de bord");
-        }
+        navigateBack();
     }
 
     @FXML
@@ -323,7 +316,7 @@ public class InvestorFinancingController extends BaseController {
         if (type == TypeUtilisateur.EXPERT_CARBONE)       navigate("expertProjet");
         else if (type == TypeUtilisateur.PORTEUR_PROJET)  navigate("GestionProjet");
         else if (type == TypeUtilisateur.ADMIN)           navigate("fxml/admin_users");
-        else                                               navigate("fxml/dashboard");
+        else                                               navigate("fxml/investisseur_shell");
     }
 
     @FXML

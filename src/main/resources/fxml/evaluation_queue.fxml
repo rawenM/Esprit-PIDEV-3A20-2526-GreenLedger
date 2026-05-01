@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.EvaluationQueueController"
+            prefHeight="760" prefWidth="1200" styleClass="page">
+
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="topbar">
+            <padding><Insets top="12" right="24" bottom="12" left="24"/></padding>
+            <Button text="← Retour" onAction="#onBack"
+                    style="-fx-background-color:#F3F4F6;-fx-text-fill:#374151;-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:6;-fx-padding:7 14;-fx-cursor:hand;-fx-border-color:#E5E7EB;-fx-border-width:1;-fx-border-radius:6;"/>
+            <Separator orientation="VERTICAL"/>
+            <Label text="File d'évaluation"
+                   style="-fx-font-size:18px;-fx-font-weight:800;-fx-text-fill:#1A2E26;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="🔄" onAction="#onRefresh"
+                    style="-fx-background-color:#F3F4F6;-fx-text-fill:#374151;-fx-font-size:13px;-fx-background-radius:6;-fx-padding:7 10;-fx-cursor:hand;"/>
+        </HBox>
+    </top>
+
+    <center>
+        <ScrollPane fitToWidth="true" style="-fx-background:#F7F9F8;-fx-background-color:#F7F9F8;">
+            <VBox spacing="20">
+                <padding><Insets top="24" right="28" bottom="28" left="28"/></padding>
+
+                <!-- Page title + subtitle -->
+                <VBox spacing="4">
+                    <Label text="File d'évaluation"
+                           style="-fx-font-size:22px;-fx-font-weight:800;-fx-text-fill:#1A2E26;"/>
+                    <Label text="Sélectionnez un projet soumis pour lancer une évaluation."
+                           style="-fx-font-size:12px;-fx-text-fill:#6B7F77;"/>
+                </VBox>
+
+                <!-- 4 KPI cards matching screenshot 2 -->
+                <HBox spacing="16">
+                    <!-- PROJETS SOUMIS -->
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="📋" style="-fx-font-size:18px;"/>
+                            <Label text="PROJETS SOUMIS" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#6B7F77;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="○" style="-fx-text-fill:#D1D5DB;"/>
+                        </HBox>
+                        <Label fx:id="lblPending" text="—"
+                               style="-fx-font-size:36px;-fx-font-weight:800;-fx-text-fill:#1A2E26;"/>
+                    </VBox>
+                    <!-- SUR CETTE PAGE -->
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="📄" style="-fx-font-size:18px;"/>
+                            <Label text="SUR CETTE PAGE" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#6B7F77;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="○" style="-fx-text-fill:#D1D5DB;"/>
+                        </HBox>
+                        <Label fx:id="lblOnPage" text="—"
+                               style="-fx-font-size:36px;-fx-font-weight:800;-fx-text-fill:#1A2E26;"/>
+                    </VBox>
+                    <!-- FRAUDE SUSPECTE -->
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="🚨" style="-fx-font-size:18px;"/>
+                            <Label text="FRAUDE SUSPECTE" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#6B7F77;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="○" style="-fx-text-fill:#D1D5DB;"/>
+                        </HBox>
+                        <Label fx:id="lblFraudCount" text="—"
+                               style="-fx-font-size:36px;-fx-font-weight:800;-fx-text-fill:#EF4444;"/>
+                    </VBox>
+                    <!-- À VÉRIFIER -->
+                    <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="⚠️" style="-fx-font-size:18px;"/>
+                            <Label text="À VÉRIFIER" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#6B7F77;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label text="○" style="-fx-text-fill:#D1D5DB;"/>
+                        </HBox>
+                        <Label fx:id="lblToVerify" text="—"
+                               style="-fx-font-size:36px;-fx-font-weight:800;-fx-text-fill:#F59E0B;"/>
+                    </VBox>
+                </HBox>
+
+                <!-- Table card -->
+                <VBox styleClass="card" spacing="12">
+                    <HBox alignment="CENTER_LEFT" spacing="12">
+                        <Label text="Projets soumis"
+                               style="-fx-font-size:15px;-fx-font-weight:700;-fx-text-fill:#1A2E26;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label fx:id="lblPageCount" text=""
+                               style="-fx-font-size:11px;-fx-text-fill:#6B7F77;"/>
+                        <TextField fx:id="txtSearch" promptText="🔍 Rechercher…" prefWidth="200"
+                                   style="-fx-background-radius:6;-fx-border-radius:6;-fx-border-color:#E0E5E3;-fx-border-width:1;-fx-padding:6 10;-fx-font-size:12px;"/>
+                    </HBox>
+
+                    <TableView fx:id="tableQueue" prefHeight="400"
+                               style="-fx-background-color:transparent;-fx-border-color:#E0E5E3;-fx-border-radius:8;-fx-background-radius:8;">
+                        <columns>
+                            <TableColumn fx:id="colNom"         text="PROJET"       prefWidth="200"/>
+                            <TableColumn fx:id="colDescription" text="DESCRIPTION"  prefWidth="240"/>
+                            <TableColumn fx:id="colStatut"      text="STATUT"       prefWidth="100" style="-fx-alignment:CENTER;"/>
+                            <TableColumn fx:id="colFraud"       text="FRAUDE"       prefWidth="120" style="-fx-alignment:CENTER;"/>
+                            <TableColumn fx:id="colMlDecision"  text="SUGGEST ML"   prefWidth="130" style="-fx-alignment:CENTER;"/>
+                            <TableColumn fx:id="colAction"      text="ACTION"       prefWidth="100" style="-fx-alignment:CENTER;"/>
+                        </columns>
+                        <placeholder>
+                            <VBox alignment="CENTER" spacing="10">
+                                <Label text="🎉" style="-fx-font-size:40px;"/>
+                                <Label text="Aucun projet en attente"
+                                       style="-fx-font-size:14px;-fx-font-weight:700;-fx-text-fill:#6B7F77;"/>
+                            </VBox>
+                        </placeholder>
+                    </TableView>
+
+                    <!-- Pagination -->
+                    <HBox alignment="CENTER" spacing="8">
+                        <Button fx:id="btnPrev" text="◀ Précédent" onAction="#onPrevPage"
+                                style="-fx-background-color:#F3F4F6;-fx-text-fill:#374151;-fx-font-size:12px;-fx-background-radius:6;-fx-padding:7 14;-fx-cursor:hand;"/>
+                        <Label fx:id="lblPageInfo" text="Page 1 / 1"
+                               style="-fx-font-size:12px;-fx-text-fill:#6B7F77;-fx-padding:0 12;"/>
+                        <Button fx:id="btnNext" text="Suivant ▶" onAction="#onNextPage"
+                                style="-fx-background-color:#F3F4F6;-fx-text-fill:#374151;-fx-font-size:12px;-fx-background-radius:6;-fx-padding:7 14;-fx-cursor:hand;"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+        </ScrollPane>
+    </center>
+</BorderPane>

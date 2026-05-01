@@ -5,10 +5,17 @@ import Models.MlPrediction;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 
 public class MlPredictionService {
+
+    private static final String SELECT_BASE =
+            "SELECT id, evaluation_id, project_id, predicted_esg_score, credibility_score, " +
+            "carbon_risk, decision, recommendations, model_version, created_by_user_id, created_at " +
+            "FROM ml_predictions ";
 
     public void insert(MlPrediction prediction) {
         if (prediction == null) return;
@@ -44,6 +51,69 @@ public class MlPredictionService {
         } catch (SQLException ex) {
             System.err.println("[ML] insert failed: " + ex.getMessage());
         }
+    }
+
+    public MlPrediction findLatestByProject(int projectId) {
+        String sql = SELECT_BASE + "WHERE project_id=? ORDER BY created_at DESC, id DESC LIMIT 1";
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, projectId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println("[ML] findLatestByProject failed: " + ex.getMessage());
+        }
+        return null;
+    }
+
+    public MlPrediction findLatestByEvaluation(int evaluationId) {
+        String sql = SELECT_BASE + "WHERE evaluation_id=? ORDER BY created_at DESC, id DESC LIMIT 1";
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, evaluationId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println("[ML] findLatestByEvaluation failed: " + ex.getMessage());
+        }
+        return null;
+    }
+
+    private MlPrediction mapRow(ResultSet rs) throws SQLException {
+        MlPrediction p = new MlPrediction();
+
+        long id = rs.getLong("id");
+        p.setId(rs.wasNull() ? null : id);
+
+        int evalId = rs.getInt("evaluation_id");
+        p.setEvaluationId(rs.wasNull() ? null : evalId);
+
+        int projectId = rs.getInt("project_id");
+        p.setProjectId(rs.wasNull() ? null : projectId);
+
+        int esg = rs.getInt("predicted_esg_score");
+        p.setPredictedEsgScore(rs.wasNull() ? null : esg);
+
+        int credibility = rs.getInt("credibility_score");
+        p.setCredibilityScore(rs.wasNull() ? null : credibility);
+
+        p.setCarbonRisk(rs.getString("carbon_risk"));
+        p.setDecision(rs.getString("decision"));
+        p.setRecommendations(rs.getString("recommendations"));
+        p.setModelVersion(rs.getString("model_version"));
+
+        long createdBy = rs.getLong("created_by_user_id");
+        p.setCreatedByUserId(rs.wasNull() ? null : createdBy);
+
+        Timestamp createdAt = rs.getTimestamp("created_at");
+        p.setCreatedAt(createdAt);
+        return p;
     }
 }
 

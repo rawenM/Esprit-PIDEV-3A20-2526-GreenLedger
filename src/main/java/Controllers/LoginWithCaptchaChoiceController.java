@@ -395,19 +395,16 @@ public class LoginWithCaptchaChoiceController {
         try {
             String fxmlPath = switch (user.getTypeUtilisateur()) {
                 case ADMIN -> "/fxml/admin_users.fxml";
-                case INVESTISSEUR -> "/fxml/investisseur_dashboard.fxml";
-                case PORTEUR_PROJET -> "/fxml/porteur_projet_dashboard.fxml";
-                case EXPERT_CARBONE -> "/expertProjet.fxml";
-                default -> "/fxml/dashboard.fxml";
+                case INVESTISSEUR -> "/fxml/investisseur_shell.fxml";
+                case PORTEUR_PROJET -> "/fxml/porteur_shell.fxml";
+                case EXPERT_CARBONE -> "/fxml/expert_shell.fxml";
+                default -> "/fxml/investisseur_shell.fxml";
             };
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
 
-            if (user.getTypeUtilisateur() == Models.TypeUtilisateur.EXPERT_CARBONE) {
-                ExpertProjetController controller = loader.getController();
-                controller.setCurrentUser(user);
-            }
+            // No special controller init needed — all shells use BaseController/SessionManager
 
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
             Scene scene = new Scene(root);

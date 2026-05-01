@@ -126,11 +126,7 @@ public class RoleShellController extends BaseController {
 
     @FXML
     private void onBack() {
-        try {
-            org.GreenLedger.MainFX.setRoot("fxml/dashboard");
-        } catch (Exception ex) {
-            System.err.println("[ERROR] Navigation error: " + ex.getMessage());
-        }
+        navigateBack();
     }
 
     @FXML

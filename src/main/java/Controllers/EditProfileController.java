@@ -100,19 +100,11 @@ public class EditProfileController extends BaseController {
 
     private String resolveHomeForSession() {
         User user = SessionManager.getInstance().getCurrentUser();
-        if (user == null) {
-            return "main";
-        }
-        if (user.isAdmin()) {
-            return "fxml/admin_users";
-        }
-        if (user.getTypeUtilisateur() == Models.TypeUtilisateur.EXPERT_CARBONE) {
-            return "expertProjet";
-        }
-        if (user.getTypeUtilisateur() == Models.TypeUtilisateur.PORTEUR_PROJET) {
-            return "GestionProjet";
-        }
-        return "fxml/dashboard";
+        if (user == null) return "main";
+        if (user.isAdmin()) return "fxml/admin_users";
+        if (user.getTypeUtilisateur() == Models.TypeUtilisateur.EXPERT_CARBONE) return "fxml/expert_shell";
+        if (user.getTypeUtilisateur() == Models.TypeUtilisateur.PORTEUR_PROJET) return "fxml/porteur_shell";
+        return "fxml/investisseur_shell";
     }
 
     private String safeTrim(String value) {

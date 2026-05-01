@@ -1,269 +1,300 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
-<?import javafx.scene.text.Text?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx/20.0.2"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controllers.InvestorFinancingController"
-            prefHeight="600" prefWidth="900"
-            styleClass="page">
+<HBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.InvestorFinancingController"
+      prefHeight="780" prefWidth="1320"
+      style="-fx-background-color:#F8FAFC;">
 
-    <left>
-        <VBox prefWidth="220" spacing="10" styleClass="sidebar">
+  <!-- ═══════════════════════════════════════
+       SIDEBAR — Dark Slate #0F172A
+       ═══════════════════════════════════════ -->
+  <VBox prefWidth="240" minWidth="240" maxWidth="240" spacing="0"
+        style="-fx-background-color:#0F172A;">
+
+    <!-- Brand -->
+    <VBox style="-fx-padding:22 18 18 18;-fx-spacing:4;-fx-border-color:rgba(255,255,255,0.1);-fx-border-width:0 0 1 0;">
+      <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="GL"
+               style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:13px;-fx-font-weight:800;-fx-background-radius:8;-fx-min-width:36;-fx-min-height:36;-fx-max-width:36;-fx-max-height:36;-fx-alignment:CENTER;"/>
+        <VBox spacing="1">
+          <Label text="GreenLedger"
+                 style="-fx-font-size:14px;-fx-font-weight:800;-fx-text-fill:white;"/>
+          <Label fx:id="lblSidebarTitle" text="Investisseur"
+                 style="-fx-font-size:9px;-fx-text-fill:rgba(16,185,129,0.75);-fx-font-weight:600;"/>
+        </VBox>
+      </HBox>
+    </VBox>
+
+    <!-- Nav section: PRINCIPAL -->
+    <VBox style="-fx-padding:16 14 6 14;">
+      <Label text="PRINCIPAL"
+             style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.25);"/>
+    </VBox>
+    <VBox spacing="2" style="-fx-padding:0 10 0 10;">
+      <Button fx:id="btnNavDashboard" text="  Tableau de bord" onAction="#handleGoDashboard"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+      <Button fx:id="btnNavInvestments" text="  Investissements" onAction="#handleGoInvestments"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;-fx-effect:dropshadow(gaussian,rgba(5,150,105,0.35),12,0,0,3);"/>
+      <Button fx:id="btnNavFinancement" text="  Financement avancé" onAction="#handleGoFinancement"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+      <Button fx:id="btnNavSettings" text="  Paramètres" onAction="#handleGoSettings"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+    </VBox>
+
+    <Region VBox.vgrow="ALWAYS"/>
+
+    <!-- Profile footer -->
+    <VBox style="-fx-background-color:#070F1A;-fx-padding:14;-fx-spacing:10;-fx-border-color:rgba(255,255,255,0.1);-fx-border-width:1 0 0 0;">
+      <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="I"
+               style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:800;-fx-background-radius:20;-fx-min-width:38;-fx-min-height:38;-fx-max-width:38;-fx-max-height:38;-fx-alignment:CENTER;"/>
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+          <Label fx:id="lblProfileName"
+                 style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:white;"/>
+          <Label fx:id="lblProfileType"
+                 style="-fx-font-size:9px;-fx-text-fill:rgba(16,185,129,0.6);"/>
+        </VBox>
+      </HBox>
+      <Button text="Modifier profil" onAction="#handleEditProfile"
+              maxWidth="Infinity"
+              style="-fx-background-color:#1E293B;-fx-text-fill:rgba(255,255,255,0.8);-fx-font-size:11px;-fx-font-weight:600;-fx-background-radius:7;-fx-padding:7 10;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+    </VBox>
+  </VBox>
+
+  <!-- ═══════════════════════════════════════
+       MAIN CONTENT AREA
+       ═══════════════════════════════════════ -->
+  <VBox HBox.hgrow="ALWAYS" spacing="0" style="-fx-background-color:#F8FAFC;">
+
+    <!-- Top bar -->
+    <HBox alignment="CENTER_LEFT" spacing="14"
+          style="-fx-background-color:white;-fx-padding:14 28;-fx-border-color:#E2E8F0;-fx-border-width:0 0 1 0;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.04),8,0,0,2);">
+      <Label fx:id="lblPageTitle" text="Gestion des Investissements"
+             style="-fx-font-size:17px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+      <Region HBox.hgrow="ALWAYS"/>
+      <Button text="Retour" onAction="#handleBack"
+              style="-fx-background-color:#F8FAFC;-fx-text-fill:#334155;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:10;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-padding:9 18;-fx-cursor:hand;-fx-background-insets:0;"/>
+    </HBox>
+
+    <!-- Scrollable body -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background:#F8FAFC;-fx-background-color:#F8FAFC;-fx-border-width:0;">
+      <VBox spacing="24">
+        <padding><Insets top="28" right="32" bottom="32" left="32"/></padding>
+
+        <!-- ── HERO BANNER ── -->
+        <VBox spacing="16"
+              style="-fx-background-color:linear-gradient(to bottom right,#059669,#10b981,#14b8a6);-fx-background-radius:18;-fx-padding:24 28;-fx-effect:dropshadow(gaussian,rgba(5,150,105,0.18),40,0,0,18);">
+          <HBox alignment="CENTER_LEFT" spacing="20">
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+              <!-- Role badge -->
+              <HBox>
+                <Label text="INVESTISSEUR"
+                       style="-fx-background-color:rgba(255,255,255,0.15);-fx-border-color:rgba(255,255,255,0.30);-fx-border-width:1;-fx-background-radius:999;-fx-border-radius:999;-fx-padding:5 12;-fx-text-fill:white;-fx-font-size:10px;-fx-font-weight:700;"/>
+              </HBox>
+              <Label text="Gestion des Investissements"
+                     style="-fx-font-size:24px;-fx-font-weight:800;-fx-text-fill:white;"/>
+              <Label text="Suivez vos investissements, explorez les offres de financement et gérez votre portefeuille."
+                     style="-fx-font-size:12px;-fx-text-fill:rgba(255,255,255,0.80);" wrapText="true"/>
+            </VBox>
+            <!-- Stat chips -->
+            <HBox spacing="12">
+              <VBox alignment="CENTER" spacing="4"
+                    style="-fx-background-color:rgba(255,255,255,0.12);-fx-border-color:rgba(255,255,255,0.18);-fx-border-width:1;-fx-background-radius:14;-fx-border-radius:14;-fx-padding:16 18;">
+                <Label text="INVESTISSEMENTS"
+                       style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.84);"/>
+                <Label fx:id="lblTotalInvestments" text="—"
+                       style="-fx-font-size:26px;-fx-font-weight:800;-fx-text-fill:white;"/>
+              </VBox>
+              <VBox alignment="CENTER" spacing="4"
+                    style="-fx-background-color:rgba(255,255,255,0.12);-fx-border-color:rgba(255,255,255,0.18);-fx-border-width:1;-fx-background-radius:14;-fx-border-radius:14;-fx-padding:16 18;">
+                <Label text="MONTANT TOTAL"
+                       style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.84);"/>
+                <Label fx:id="lblTotalAmount" text="—"
+                       style="-fx-font-size:20px;-fx-font-weight:800;-fx-text-fill:white;"/>
+              </VBox>
+              <VBox alignment="CENTER" spacing="4"
+                    style="-fx-background-color:rgba(255,255,255,0.12);-fx-border-color:rgba(255,255,255,0.18);-fx-border-width:1;-fx-background-radius:14;-fx-border-radius:14;-fx-padding:16 18;">
+                <Label text="PROJETS SUIVIS"
+                       style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.84);"/>
+                <Label fx:id="lblProjectsFollowed" text="—"
+                       style="-fx-font-size:26px;-fx-font-weight:800;-fx-text-fill:white;"/>
+              </VBox>
+            </HBox>
+          </HBox>
+        </VBox>
+
+        <!-- ── MES INVESTISSEMENTS TABLE ── -->
+        <VBox spacing="0"
+              style="-fx-background-color:white;-fx-background-radius:16;-fx-border-radius:16;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.06),8,0,0,2);">
+
+          <!-- Card header -->
+          <HBox alignment="CENTER_LEFT" spacing="12"
+                style="-fx-padding:18 24;-fx-border-color:#E2E8F0;-fx-border-width:0 0 1 0;">
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+              <Label text="Mes Investissements"
+                     style="-fx-font-size:15px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+              <Label text="Historique de vos placements actifs"
+                     style="-fx-font-size:11px;-fx-text-fill:#64748B;"/>
+            </VBox>
+            <Button text="Actualiser" onAction="#refreshInvestments"
+                    style="-fx-background-color:#F8FAFC;-fx-text-fill:#334155;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:10;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-padding:9 16;-fx-cursor:hand;-fx-background-insets:0;"/>
+          </HBox>
+
+          <!-- Table -->
+          <TableView fx:id="tableMyInvestments" prefHeight="220" VBox.vgrow="ALWAYS"
+                     style="-fx-background-color:transparent;-fx-border-width:0;-fx-table-cell-border-color:transparent;">
+            <placeholder>
+              <VBox alignment="CENTER" spacing="8" style="-fx-padding:40;">
+                <Label text="Aucun investissement enregistré"
+                       style="-fx-font-size:13px;-fx-text-fill:#94A3B8;-fx-font-weight:500;"/>
+              </VBox>
+            </placeholder>
+            <columns>
+              <TableColumn fx:id="colInvProjetId" text="PROJET ID"  prefWidth="100"
+                           style="-fx-font-size:11px;-fx-font-weight:800;-fx-text-fill:#64748B;"/>
+              <TableColumn fx:id="colInvMontant"  text="MONTANT (EUR)" prefWidth="150"
+                           style="-fx-font-size:11px;-fx-font-weight:800;-fx-text-fill:#64748B;"/>
+              <TableColumn fx:id="colInvDate"     text="DATE D'INVESTISSEMENT" prefWidth="200"
+                           style="-fx-font-size:11px;-fx-font-weight:800;-fx-text-fill:#64748B;"/>
+              <TableColumn fx:id="colInvStatut"   text="STATUT"     prefWidth="120"
+                           style="-fx-font-size:11px;-fx-font-weight:800;-fx-text-fill:#64748B;"/>
+            </columns>
+          </TableView>
+
+          <!-- Currency conversion panel -->
+          <VBox fx:id="conversionPanel" spacing="10"
+                style="-fx-background-color:#F0F9FF;-fx-border-color:#BAE6FD;-fx-border-width:1 0 0 0;-fx-padding:16 24;"
+                visible="false" managed="false">
             <HBox alignment="CENTER_LEFT" spacing="8">
-                <padding>
-                    <Insets top="16" right="12" bottom="16" left="12"/>
-                </padding>
-                <Label text="💼" style="-fx-font-size:18px;"/>
-                <Label fx:id="lblSidebarTitle" text="GreenLedger Investisseur" styleClass="sidebar-title"/>
+              <Label text="Conversion en temps réel"
+                     style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:#0369A1;"/>
+              <Label fx:id="lblConversionStatus" text=""
+                     style="-fx-font-size:10px;-fx-text-fill:#94A3B8;"/>
             </HBox>
-            <Separator styleClass="sidebar-sep"/>
-            <Button fx:id="btnNavDashboard" text="📊 Tableau de bord" onAction="#handleGoDashboard" styleClass="nav-btn"/>
-            <Button fx:id="btnNavInvestments" text="💰 Investissements" onAction="#handleGoInvestments" styleClass="nav-btn nav-btn-active"/>
-            <Button fx:id="btnNavFinancement" text="💳 Financement avancé" onAction="#handleGoFinancement" styleClass="nav-btn"/>
-            <Button fx:id="btnNavSettings" text="⚙️ Paramètres" onAction="#handleGoSettings" styleClass="nav-btn"/>
-            <Region VBox.vgrow="ALWAYS"/>
-            <VBox spacing="2" alignment="TOP_LEFT" style="-fx-padding: 10 0 0 12;">
-                <Label fx:id="lblProfileName" styleClass="page-title"/>
-                <Label fx:id="lblProfileType" styleClass="page-subtitle"/>
-                <Button text="✏️ Modifier profil" styleClass="btn-secondary" onAction="#handleEditProfile"/>
-            </VBox>
-        </VBox>
-    </left>
-
-    <top>
-        <VBox styleClass="topbar">
-            <HBox alignment="CENTER_LEFT" spacing="20">
-                <padding>
-                    <Insets top="16" right="24" bottom="16" left="24"/>
-                </padding>
-                <Label fx:id="lblPageTitle" text="💰 Gestion des Investissements"
-                       styleClass="page-title"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button text="← Retour"
-                        onAction="#handleBack"
-                        styleClass="btn btn-secondary"/>
+            <HBox spacing="12" alignment="CENTER_LEFT">
+              <VBox spacing="2" style="-fx-background-color:white;-fx-background-radius:8;-fx-padding:10 16;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-border-radius:8;">
+                <Label text="TND" style="-fx-font-size:10px;-fx-font-weight:700;-fx-text-fill:#64748B;"/>
+                <Label fx:id="lblTND" text="—" style="-fx-font-size:16px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+              </VBox>
+              <Label text="=" style="-fx-font-size:18px;-fx-text-fill:#94A3B8;"/>
+              <VBox spacing="2" style="-fx-background-color:white;-fx-background-radius:8;-fx-padding:10 16;-fx-border-color:#059669;-fx-border-width:1;-fx-border-radius:8;">
+                <Label text="EUR" style="-fx-font-size:10px;-fx-font-weight:700;-fx-text-fill:#059669;"/>
+                <Label fx:id="lblEUR" text="—" style="-fx-font-size:16px;-fx-font-weight:800;-fx-text-fill:#065F46;"/>
+                <Label fx:id="lblEURRate" text="" style="-fx-font-size:9px;-fx-text-fill:#94A3B8;"/>
+              </VBox>
+              <VBox spacing="2" style="-fx-background-color:white;-fx-background-radius:8;-fx-padding:10 16;-fx-border-color:#3B82F6;-fx-border-width:1;-fx-border-radius:8;">
+                <Label text="USD" style="-fx-font-size:10px;-fx-font-weight:700;-fx-text-fill:#3B82F6;"/>
+                <Label fx:id="lblUSD" text="—" style="-fx-font-size:16px;-fx-font-weight:800;-fx-text-fill:#1E40AF;"/>
+                <Label fx:id="lblUSDRate" text="" style="-fx-font-size:9px;-fx-text-fill:#94A3B8;"/>
+              </VBox>
+              <VBox spacing="2" style="-fx-background-color:white;-fx-background-radius:8;-fx-padding:10 16;-fx-border-color:#8B5CF6;-fx-border-width:1;-fx-border-radius:8;">
+                <Label text="GBP" style="-fx-font-size:10px;-fx-font-weight:700;-fx-text-fill:#8B5CF6;"/>
+                <Label fx:id="lblGBP" text="—" style="-fx-font-size:16px;-fx-font-weight:800;-fx-text-fill:#5B21B6;"/>
+                <Label fx:id="lblGBPRate" text="" style="-fx-font-size:9px;-fx-text-fill:#94A3B8;"/>
+              </VBox>
             </HBox>
+          </VBox>
         </VBox>
-    </top>
 
-    <center>
-        <ScrollPane fitToWidth="true" styleClass="content-area">
-            <VBox spacing="20" styleClass="content-area">
-                <padding>
-                    <Insets top="30" right="30" bottom="30" left="30"/>
-                </padding>
+        <!-- ── OFFRES DE FINANCEMENT ── -->
+        <VBox spacing="0"
+              style="-fx-background-color:white;-fx-background-radius:16;-fx-border-radius:16;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.06),8,0,0,2);">
 
-                <!-- Statistiques Investisseur -->
-                <VBox spacing="15">
-                    <Label text="📊 Mes Investissements"
-                           styleClass="section-title"/>
-
-                    <HBox spacing="20">
-                        <!-- Total Investments -->
-                           <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="stat-card">
-                            <Label text="Nombre d'investissements"
-                                styleClass="stat-title"/>
-                            <Label fx:id="lblTotalInvestments" text="0"
-                                styleClass="stat-value accent-blue"/>
-                        </VBox>
-
-                        <!-- Total Amount -->
-                           <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="stat-card">
-                            <Label text="Montant total investi"
-                                styleClass="stat-title"/>
-                            <Label fx:id="lblTotalAmount" text="0 EUR"
-                                styleClass="stat-value accent-green"/>
-                        </VBox>
-
-                        <!-- Projects Followed -->
-                           <VBox alignment="CENTER" spacing="10" HBox.hgrow="ALWAYS" styleClass="stat-card">
-                            <Label text="Projets suivis"
-                                styleClass="stat-title"/>
-                            <Label fx:id="lblProjectsFollowed" text="0"
-                                styleClass="stat-value accent-amber"/>
-                        </VBox>
-                    </HBox>
-                </VBox>
-
-                <Separator/>
-
-                <!-- Mes Investissements Table -->
-                <VBox spacing="12" styleClass="card">
-                    <HBox alignment="CENTER_LEFT" spacing="8">
-                        <Label text="📋 Mes Investissements"
-                               styleClass="section-title"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Button text="🔄 Actualiser"
-                                onAction="#refreshInvestments"
-                                styleClass="btn btn-secondary"
-                                prefWidth="120"/>
-                    </HBox>
-
-                    <TableView fx:id="tableMyInvestments" prefHeight="250" VBox.vgrow="ALWAYS" styleClass="table-card">
-                        <placeholder>
-                            <VBox alignment="CENTER" spacing="8">
-                                <padding>
-                                    <Insets top="30" right="12" bottom="30" left="12"/>
-                                </padding>
-                                <Label text="📋"/>
-                                <Label text="Aucun investissement actuellement"
-                                       styleClass="placeholder-label"/>
-                            </VBox>
-                        </placeholder>
-                        <columns>
-                            <TableColumn fx:id="colInvProjetId" text="Projet ID" prefWidth="90"/>
-                            <TableColumn fx:id="colInvMontant" text="Montant (EUR)" prefWidth="120"/>
-                            <TableColumn fx:id="colInvDate" text="Date d'investissement" prefWidth="150"/>
-                            <TableColumn fx:id="colInvStatut" text="Statut" prefWidth="100"/>
-                        </columns>
-                    </TableView>
-
-                    <VBox fx:id="conversionPanel" spacing="8"
-                          style="-fx-background-color: #f0f4ff; -fx-background-radius: 8; -fx-padding: 12 16 12 16; -fx-border-color: #dce3f0; -fx-border-radius: 8;"
-                          visible="false"
-                          managed="false">
-                        <HBox alignment="CENTER_LEFT" spacing="8">
-                            <Label text="💱" style="-fx-font-size:14px;"/>
-                            <Label text="Conversion en temps réel" style="-fx-font-weight:bold; -fx-font-size:12px; -fx-text-fill:#1e3a5f;"/>
-                            <Label fx:id="lblConversionStatus" text="" style="-fx-font-size:10px; -fx-text-fill:#94a3b8;"/>
-                        </HBox>
-
-                        <HBox spacing="16" alignment="CENTER_LEFT">
-                            <!-- TND (base) -->
-                            <VBox spacing="2" style="-fx-background-color:white; -fx-background-radius:6; -fx-padding: 8 14 8 14; -fx-border-color:#dce3f0; -fx-border-radius:6;">
-                                <Label text="TND" style="-fx-font-size:10px; -fx-font-weight:bold; -fx-text-fill:#64748b;"/>
-                                <Label fx:id="lblTND" text="—" style="-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:#0f172a;"/>
-                            </VBox>
-
-                            <Label text="=" style="-fx-font-size:16px; -fx-text-fill:#94a3b8;"/>
-
-                            <!-- EUR -->
-                            <VBox spacing="2" style="-fx-background-color:white; -fx-background-radius:6; -fx-padding: 8 14 8 14; -fx-border-color:#10b981; -fx-border-radius:6;">
-                                <Label text="🇪🇺 EUR" style="-fx-font-size:10px; -fx-font-weight:bold; -fx-text-fill:#10b981;"/>
-                                <Label fx:id="lblEUR" text="—" style="-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:#065f46;"/>
-                                <Label fx:id="lblEURRate" text="" style="-fx-font-size:9px; -fx-text-fill:#94a3b8;"/>
-                            </VBox>
-
-                            <!-- USD -->
-                            <VBox spacing="2" style="-fx-background-color:white; -fx-background-radius:6; -fx-padding: 8 14 8 14; -fx-border-color:#3b82f6; -fx-border-radius:6;">
-                                <Label text="🇺🇸 USD" style="-fx-font-size:10px; -fx-font-weight:bold; -fx-text-fill:#3b82f6;"/>
-                                <Label fx:id="lblUSD" text="—" style="-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:#1e40af;"/>
-                                <Label fx:id="lblUSDRate" text="" style="-fx-font-size:9px; -fx-text-fill:#94a3b8;"/>
-                            </VBox>
-
-                            <!-- GBP -->
-                            <VBox spacing="2" style="-fx-background-color:white; -fx-background-radius:6; -fx-padding: 8 14 8 14; -fx-border-color:#8b5cf6; -fx-border-radius:6;">
-                                <Label text="🇬🇧 GBP" style="-fx-font-size:10px; -fx-font-weight:bold; -fx-text-fill:#8b5cf6;"/>
-                                <Label fx:id="lblGBP" text="—" style="-fx-font-size:15px; -fx-font-weight:bold; -fx-text-fill:#5b21b6;"/>
-                                <Label fx:id="lblGBPRate" text="" style="-fx-font-size:9px; -fx-text-fill:#94a3b8;"/>
-                            </VBox>
-                        </HBox>
-                    </VBox>
-                </VBox>
-
-                <Separator/>
-
-                <!-- Offres de Financement Disponibles -->
-                <VBox spacing="12" styleClass="card">
-                    <HBox alignment="CENTER_LEFT" spacing="8">
-                        <Label text="🧾 Offres de Financement Disponibles"
-                               styleClass="section-title"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Button text="🔄 Actualiser"
-                                onAction="#refreshOffers"
-                                styleClass="btn btn-secondary"
-                                prefWidth="120"/>
-                    </HBox>
-
-                    <TableView fx:id="tableFinancingOffers" prefHeight="220" styleClass="table-card">
-                        <placeholder>
-                            <VBox alignment="CENTER" spacing="8">
-                                <padding>
-                                    <Insets top="30" right="12" bottom="30" left="12"/>
-                                </padding>
-                                <Label text="📋"/>
-                                <Label text="Aucune offre disponible"
-                                       styleClass="placeholder-label"/>
-                            </VBox>
-                        </placeholder>
-                        <columns>
-                            <TableColumn fx:id="colOffreType" text="Type d'offre" prefWidth="120"/>
-                            <TableColumn fx:id="colOffreTaux" text="Taux (%)" prefWidth="80"/>
-                            <TableColumn fx:id="colOffreDuree" text="Durée (mois)" prefWidth="100"/>
-                            <TableColumn fx:id="colOffreFinId" text="Financement ID" prefWidth="110"/>
-                        </columns>
-                    </TableView>
-
-                    <HBox spacing="10">
-                        <VBox spacing="8" HBox.hgrow="ALWAYS">
-                            <Label text="Sélectionner un projet"
-                                   styleClass="form-label"/>
-                            <ComboBox fx:id="cmbProjectSelection"
-                                      styleClass="field"
-                                      promptText="Choisir un projet..."
-                                      prefWidth="200"/>
-                        </VBox>
-                        <VBox spacing="8" HBox.hgrow="ALWAYS">
-                            <Label text="Montant à investir (EUR)"
-                                   styleClass="form-label"/>
-                            <TextField fx:id="txtInvestmentAmount"
-                                       styleClass="field"
-                                       promptText="Ex: 5000"
-                                       prefWidth="200"/>
-                        </VBox>
-                        <VBox spacing="8">
-                            <Label text="" styleClass="form-label"/>
-                            <Button text="💳 Investir"
-                                    onAction="#handleNewInvestment"
-                                    styleClass="btn btn-primary"
-                                    prefWidth="120"
-                                    prefHeight="35"/>
-                        </VBox>
-                    </HBox>
-                </VBox>
-
-                <Separator/>
-
-                <!-- Actions Rapides -->
-                <VBox spacing="15">
-                    <Label text="Actions Rapides"
-                       styleClass="section-title"/>
-                    <HBox spacing="15">
-                        <Button text="📊 Voir tous les projets"
-                                onAction="#handleViewAllProjects"
-                                prefWidth="200"
-                                prefHeight="45"
-                        styleClass="btn btn-secondary"/>
-                        <Button text="📈 Voir les performances"
-                                onAction="#handleViewPerformance"
-                                prefWidth="200"
-                                prefHeight="45"
-                        styleClass="btn btn-secondary"/>
-                        <Button text="⚠️ Signaler un problème"
-                                onAction="#handleReportIssue"
-                                prefWidth="200"
-                                prefHeight="45"
-                        styleClass="btn btn-secondary"/>
-                        <!---->
-                        <Region HBox.hgrow="ALWAYS"/>
-                    </HBox>
-                </VBox>
-
+          <!-- Card header -->
+          <HBox alignment="CENTER_LEFT" spacing="12"
+                style="-fx-padding:18 24;-fx-border-color:#E2E8F0;-fx-border-width:0 0 1 0;">
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+              <Label text="Offres de Financement Disponibles"
+                     style="-fx-font-size:15px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+              <Label text="Explorez les opportunités d'investissement disponibles"
+                     style="-fx-font-size:11px;-fx-text-fill:#64748B;"/>
             </VBox>
-        </ScrollPane>
-    </center>
+            <Button text="Actualiser" onAction="#refreshOffers"
+                    style="-fx-background-color:#F8FAFC;-fx-text-fill:#334155;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:10;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-padding:9 16;-fx-cursor:hand;-fx-background-insets:0;"/>
+          </HBox>
 
-    <bottom>
-        <HBox alignment="CENTER" styleClass="topbar">
-            <padding>
-                <Insets top="12" right="12" bottom="12" left="12"/>
-            </padding>
-            <Text text="© 2025 Plateforme Énergie Renouvelable - Module Gestion Investissements"
-                  styleClass="muted-note"/>
-        </HBox>
-    </bottom>
-</BorderPane>
+          <!-- Table -->
+          <TableView fx:id="tableFinancingOffers" prefHeight="200"
+                     style="-fx-background-color:transparent;-fx-border-width:0;-fx-table-cell-border-color:transparent;">
+            <placeholder>
+              <VBox alignment="CENTER" spacing="8" style="-fx-padding:40;">
+                <Label text="Aucune offre disponible"
+                       style="-fx-font-size:13px;-fx-text-fill:#94A3B8;-fx-font-weight:500;"/>
+              </VBox>
+            </placeholder>
+            <columns>
+              <TableColumn fx:id="colOffreType"  text="TYPE D'OFFRE"    prefWidth="160"
+                           style="-fx-font-size:11px;-fx-font-weight:800;-fx-text-fill:#64748B;"/>
+              <TableColumn fx:id="colOffreTaux"  text="TAUX (%)"        prefWidth="100"
+                           style="-fx-font-size:11px;-fx-font-weight:800;-fx-text-fill:#64748B;"/>
+              <TableColumn fx:id="colOffreDuree" text="DURÉE (MOIS)"    prefWidth="120"
+                           style="-fx-font-size:11px;-fx-font-weight:800;-fx-text-fill:#64748B;"/>
+              <TableColumn fx:id="colOffreFinId" text="FINANCEMENT ID"  prefWidth="130"
+                           style="-fx-font-size:11px;-fx-font-weight:800;-fx-text-fill:#64748B;"/>
+            </columns>
+          </TableView>
+
+          <!-- Investment form -->
+          <VBox spacing="16"
+                style="-fx-padding:20 24;-fx-background-color:#F8FAFC;-fx-background-radius:0 0 16 16;-fx-border-color:#E2E8F0;-fx-border-width:1 0 0 0;">
+            <Label text="Nouvel Investissement"
+                   style="-fx-font-size:13px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+            <HBox spacing="16" alignment="BOTTOM_LEFT">
+              <VBox spacing="7" HBox.hgrow="ALWAYS">
+                <Label text="PROJET"
+                       style="-fx-font-size:11px;-fx-font-weight:700;-fx-text-fill:#334155;"/>
+                <ComboBox fx:id="cmbProjectSelection" promptText="Choisir un projet..."
+                          maxWidth="Infinity"
+                          style="-fx-background-color:white;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-background-radius:10;-fx-border-radius:10;-fx-padding:10 14;-fx-font-size:13px;-fx-cursor:hand;"/>
+              </VBox>
+              <VBox spacing="7" HBox.hgrow="ALWAYS">
+                <Label text="MONTANT À INVESTIR (EUR)"
+                       style="-fx-font-size:11px;-fx-font-weight:700;-fx-text-fill:#334155;"/>
+                <TextField fx:id="txtInvestmentAmount" promptText="Ex: 5000"
+                           style="-fx-background-color:white;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-background-radius:10;-fx-border-radius:10;-fx-padding:12 14;-fx-font-size:13px;"/>
+              </VBox>
+              <VBox spacing="7">
+                <Label text=" " style="-fx-font-size:11px;"/>
+                <Button text="Investir" onAction="#handleNewInvestment"
+                        prefWidth="130" prefHeight="44"
+                        style="-fx-background-color:linear-gradient(to bottom right,#059669,#047857);-fx-text-fill:white;-fx-font-size:13px;-fx-font-weight:700;-fx-background-radius:10;-fx-border-radius:10;-fx-cursor:hand;-fx-background-insets:0;-fx-effect:dropshadow(gaussian,rgba(5,150,105,0.18),18,0,0,8);"/>
+              </VBox>
+            </HBox>
+          </VBox>
+        </VBox>
+
+        <!-- ── ACTIONS RAPIDES ── -->
+        <VBox spacing="0"
+              style="-fx-background-color:white;-fx-background-radius:16;-fx-border-radius:16;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.06),8,0,0,2);">
+          <HBox alignment="CENTER_LEFT"
+                style="-fx-padding:18 24;-fx-border-color:#E2E8F0;-fx-border-width:0 0 1 0;">
+            <Label text="Actions Rapides"
+                   style="-fx-font-size:15px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+          </HBox>
+          <HBox spacing="12" style="-fx-padding:20 24;">
+            <Button text="Voir tous les projets" onAction="#handleViewAllProjects"
+                    prefHeight="44"
+                    style="-fx-background-color:#F8FAFC;-fx-text-fill:#334155;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:10;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-padding:0 20;-fx-cursor:hand;-fx-background-insets:0;"/>
+            <Button text="Voir les performances" onAction="#handleViewPerformance"
+                    prefHeight="44"
+                    style="-fx-background-color:#F8FAFC;-fx-text-fill:#334155;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:10;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-padding:0 20;-fx-cursor:hand;-fx-background-insets:0;"/>
+            <Button text="Signaler un problème" onAction="#handleReportIssue"
+                    prefHeight="44"
+                    style="-fx-background-color:#FFF1F2;-fx-text-fill:#F43F5E;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:10;-fx-border-color:#FECDD3;-fx-border-width:1;-fx-padding:0 20;-fx-cursor:hand;-fx-background-insets:0;"/>
+          </HBox>
+        </VBox>
+
+      </VBox>
+    </ScrollPane>
+  </VBox>
+
+</HBox>

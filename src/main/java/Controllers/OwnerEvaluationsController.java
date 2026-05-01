@@ -19,7 +19,7 @@ import org.GreenLedger.MainFX;
 import java.io.IOException;
 import java.sql.Timestamp;
 
-public class OwnerEvaluationsController {
+public class OwnerEvaluationsController extends BaseController {
 
     private static Integer currentEntrepriseId;
 
@@ -52,23 +52,7 @@ public class OwnerEvaluationsController {
 
     @FXML
     private void onBack() {
-        try {
-            MainFX.setRoot(resolveBackTarget());
-        } catch (IOException e) {
-            showError("Navigation impossible: " + e.getMessage());
-        }
-    }
-
-    private String resolveBackTarget() {
-        User user = SessionManager.getInstance().getCurrentUser();
-        if (user != null && user.getTypeUtilisateur() == TypeUtilisateur.PORTEUR_PROJET) {
-            return "fxml/dashboard";
-        }
-        String previous = NavigationContext.getInstance().getPreviousPage();
-        if (previous != null && !previous.isBlank()) {
-            return previous;
-        }
-        return "GestionProjet";
+        navigateBack();
     }
 
     @FXML

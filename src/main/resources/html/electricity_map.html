@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Electricity Maps — Intensité Carbone</title>
+
+<!-- Leaflet CSS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+         background:#0f172a; color:#f1f5f9; overflow:hidden; }
+
+  #map { width:100%; height:310px; background:#0f172a; }
+
+  /* Legend bar */
+  #legend {
+    display:flex; align-items:center; gap:16px;
+    padding:7px 14px; background:#1e293b;
+    border-top:1px solid #334155; font-size:11px; color:#94a3b8;
+    flex-wrap:wrap;
+  }
+  #legend span { display:flex; align-items:center; gap:5px; }
+  .dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
+  .dot-low    { background:#22c55e; }
+  .dot-medium { background:#eab308; }
+  .dot-high   { background:#f97316; }
+  .dot-vhigh  { background:#ef4444; }
+  .dot-na     { background:#475569; }
+  #legend .proj-marker { color:#22c55e; font-weight:700; font-size:13px; }
+
+  /* Table */
+  #table-wrap {
+    background:#1e293b; border-top:1px solid #334155;
+    max-height:160px; overflow-y:auto;
+  }
+  table { width:100%; border-collapse:collapse; font-size:11px; }
+  thead th {
+    padding:6px 12px; text-align:left; color:#64748b;
+    font-weight:600; text-transform:uppercase; font-size:10px;
+    border-bottom:1px solid #334155; position:sticky; top:0;
+    background:#1e293b; z-index:1;
+  }
+  tbody tr { border-bottom:1px solid #1e293b; }
+  tbody tr:hover { background:#0f172a; }
+  tbody td { padding:6px 12px; color:#e2e8f0; }
+  .badge {
+    display:inline-block; padding:2px 8px; border-radius:4px;
+    font-size:10px; font-weight:700;
+  }
+  .badge-low    { background:#dcfce7; color:#166534; }
+  .badge-medium { background:#fef9c3; color:#854d0e; }
+  .badge-high   { background:#ffedd5; color:#9a3412; }
+  .badge-vhigh  { background:#fee2e2; color:#991b1b; }
+  .badge-na     { background:#1e293b; color:#64748b; border:1px solid #334155; }
+  .proj-tag {
+    display:inline-block; margin-left:6px; padding:1px 6px;
+    background:#dcfce7; color:#166534; border-radius:3px;
+    font-size:9px; font-weight:700;
+  }
+  #footer-note {
+    padding:5px 14px; font-size:10px; color:#475569;
+    background:#0f172a; border-top:1px solid #1e293b;
+  }
+  .loading { display:flex; align-items:center; justify-content:center;
+             height:310px; color:#475569; font-size:13px; }
+</style>
+</head>
+<body>
+
+<div id="map"><div class="loading" id="loading-msg">Chargement de la carte…</div></div>
+<div id="legend">
+  <strong style="color:#e2e8f0;font-size:11px;">Intensité CO₂ :</strong>
+  <span><span class="dot dot-low"></span> Faible (&lt;150)</span>
+  <span><span class="dot dot-medium"></span> Moyen (150–300)</span>
+  <span><span class="dot dot-high"></span> Élevé (300–500)</span>
+  <span><span class="dot dot-vhigh"></span> Très élevé (&gt;500)</span>
+  <span><span class="dot dot-na"></span> Données indisponibles</span>
+  <span style="margin-left:auto;" class="proj-marker">● Localisation projet</span>
+</div>
+
+<div id="table-wrap">
+  <table>
+    <thead>
+      <tr>
+        <th>PAYS</th><th>CODE</th><th>INTENSITÉ CO₂</th><th>LOAD</th><th>NIVEAU</th>
+      </tr>
+    </thead>
+    <tbody id="table-body">
+      <tr><td colspan="5" style="color:#475569;text-align:center;padding:16px;">Chargement…</td></tr>
+    </tbody>
+  </table>
+</div>
+<div id="footer-note" id="footer-note"></div>
+
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ── Zone data: [name, zone, lat, lon] ──────────────────────────────────────
+var ZONES = [
+  ["Tunisia",      "TN",          33.89,   9.54],
+  ["France",       "FR",          46.23,   2.21],
+  ["Germany",      "DE",          51.17,  10.45],
+  ["Spain",        "ES",          40.46,  -3.75],
+  ["Italy",        "IT",          41.87,  12.57],
+  ["Morocco",      "MA",          31.79,  -7.09],
+  ["Algeria",      "DZ",          28.03,   1.66],
+  ["Egypt",        "EG",          26.82,  30.80],
+  ["UK",           "GB",          55.38,  -3.44],
+  ["Portugal",     "PT",          39.40,  -8.22],
+  ["Netherlands",  "NL",          52.13,   5.29],
+  ["Belgium",      "BE",          50.50,   4.47],
+  ["Poland",       "PL",          51.92,  19.15],
+  ["Sweden",       "SE",          60.13,  18.64],
+  ["Norway",       "NO",          60.47,   8.47],
+  ["Switzerland",  "CH",          46.82,   8.23],
+  ["Austria",      "AT",          47.52,  14.55],
+  ["Greece",       "GR",          39.07,  21.82],
+  ["Turkey",       "TR",          38.96,  35.24],
+  ["Saudi Arabia", "SA",          23.89,  45.08],
+  ["UAE",          "AE",          23.42,  53.85],
+  ["India",        "IN",          20.59,  78.96],
+  ["China",        "CN",          35.86, 104.20],
+  ["Japan",        "JP",          36.20, 138.25],
+  ["Australia",    "AU",         -25.27, 133.78],
+  ["USA",          "US-CAL-CISO", 36.78,-119.42],
+  ["Brazil",       "BR",         -14.24, -51.93],
+  ["Canada",       "CA-ON",       51.25, -85.32]
+];
+
+var map, markers = {}, projectZone = "TN";
+var zoneData = {}; // zone → {intensity, level, load}
+
+// ── Colour helpers ─────────────────────────────────────────────────────────
+function intensityColor(v) {
+  if (v === null || v === undefined) return "#475569";
+  if (v < 150)  return "#22c55e";
+  if (v < 300)  return "#eab308";
+  if (v < 500)  return "#f97316";
+  return "#ef4444";
+}
+function levelLabel(v) {
+  if (v === null || v === undefined) return "—";
+  if (v < 150)  return "Très faible";
+  if (v < 300)  return "Faible";
+  if (v < 500)  return "Élevé";
+  return "Très élevé";
+}
+function levelBadge(v) {
+  if (v === null || v === undefined) return '<span class="badge badge-na">—</span>';
+  if (v < 150)  return '<span class="badge badge-low">Très faible</span>';
+  if (v < 300)  return '<span class="badge badge-low">Faible</span>';
+  if (v < 500)  return '<span class="badge badge-high">Élevé</span>';
+  return '<span class="badge badge-vhigh">Très élevé</span>';
+}
+
+// ── Circle marker factory ──────────────────────────────────────────────────
+function makeMarker(lat, lon, zone, intensity, isProject) {
+  var color  = intensityColor(intensity);
+  var radius = isProject ? 14 : 8;
+  var weight = isProject ? 3  : 1;
+  var label  = intensity !== null ? Math.round(intensity) + "" : "?";
+
+  var m = L.circleMarker([lat, lon], {
+    radius: radius, fillColor: color, color: isProject ? "#fff" : color,
+    weight: weight, opacity: 1, fillOpacity: isProject ? 1 : 0.75
+  });
+
+  var tip = zone + (intensity !== null ? ": " + Math.round(intensity) + " gCO₂/kWh" : ": N/A");
+  if (isProject) tip = "📍 Projet — " + tip;
+  m.bindTooltip(tip, {permanent: false, direction:"top", className:"leaflet-tooltip"});
+
+  if (isProject) {
+    m.bindPopup(
+      '<b style="color:#22c55e">📍 Localisation projet</b><br>' +
+      'Zone: <b>' + zone + '</b><br>' +
+      (intensity !== null ? 'Intensité: <b>' + Math.round(intensity) + ' gCO₂eq/kWh</b><br>' +
+       'Niveau: <b>' + levelLabel(intensity) + '</b>' : 'Données indisponibles'),
+      {maxWidth: 200}
+    );
+  }
+  return m;
+}
+
+// ── Init map ───────────────────────────────────────────────────────────────
+function initMap() {
+  document.getElementById("loading-msg").style.display = "none";
+
+  map = L.map("map", {
+    center: [20, 10], zoom: 2,
+    zoomControl: true, attributionControl: true,
+    scrollWheelZoom: true
+  });
+
+  L.tileLayer("https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png", {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OSM</a> © <a href="https://carto.com/">CARTO</a>',
+    subdomains: "abcd", maxZoom: 19
+  }).addTo(map);
+
+  // Place placeholder markers for all zones
+  ZONES.forEach(function(z) {
+    var m = makeMarker(z[2], z[3], z[1], null, z[1] === projectZone);
+    m.addTo(map);
+    markers[z[1]] = {marker: m, lat: z[2], lon: z[3], name: z[0]};
+  });
+}
+
+// ── Update a zone with real data ───────────────────────────────────────────
+function updateZone(zone, intensity, load) {
+  zoneData[zone] = {intensity: intensity, load: load};
+  var entry = markers[zone];
+  if (!entry) return;
+  var isProject = (zone === projectZone);
+  if (entry.marker) { entry.marker.remove(); }
+  var m = makeMarker(entry.lat, entry.lon, zone, intensity, isProject);
+  m.addTo(map);
+  markers[zone].marker = m;
+  if (isProject) {
+    m.openPopup();
+    map.setView([entry.lat, entry.lon], 4, {animate: true});
+  }
+  refreshTable();
+}
+
+// ── Set project zone (called from Java) ───────────────────────────────────
+function setProjectZone(zone) {
+  projectZone = zone;
+  // Re-render all markers to update project highlight
+  ZONES.forEach(function(z) {
+    var entry = markers[z[1]];
+    if (!entry) return;
+    var d = zoneData[z[1]];
+    var intensity = d ? d.intensity : null;
+    if (entry.marker) entry.marker.remove();
+    var m = makeMarker(z[2], z[3], z[1], intensity, z[1] === zone);
+    m.addTo(map);
+    markers[z[1]].marker = m;
+  });
+  // Pan to project zone
+  var proj = markers[zone];
+  if (proj) map.setView([proj.lat, proj.lon], 4, {animate: true});
+  refreshTable();
+}
+
+// ── Refresh data table ─────────────────────────────────────────────────────
+function refreshTable() {
+  var rows = [];
+  ZONES.forEach(function(z) {
+    var d = zoneData[z[1]];
+    var intensity = d ? d.intensity : null;
+    var load = d ? d.load : null;
+    var isProj = z[1] === projectZone;
+    rows.push({name: z[0], zone: z[1], intensity: intensity, load: load, isProj: isProj});
+  });
+  // Sort: project first, then by intensity asc
+  rows.sort(function(a, b) {
+    if (a.isProj && !b.isProj) return -1;
+    if (!a.isProj && b.isProj) return 1;
+    var ai = a.intensity !== null ? a.intensity : 9999;
+    var bi = b.intensity !== null ? b.intensity : 9999;
+    return ai - bi;
+  });
+
+  var html = "";
+  rows.forEach(function(r) {
+    var intStr = r.intensity !== null ? Math.round(r.intensity) + " gCO₂/kWh" : "—";
+    var loadStr = r.load !== null ? r.load + " MW" : "—";
+    var projTag = r.isProj ? '<span class="proj-tag">projet</span>' : "";
+    html += "<tr>" +
+      "<td>" + r.name + projTag + "</td>" +
+      "<td>" + r.zone + "</td>" +
+      "<td>" + intStr + "</td>" +
+      "<td>" + loadStr + "</td>" +
+      "<td>" + levelBadge(r.intensity) + "</td>" +
+      "</tr>";
+  });
+  document.getElementById("table-body").innerHTML = html || '<tr><td colspan="5" style="color:#475569;text-align:center">Aucune donnée</td></tr>';
+}
+
+// ── Footer note ────────────────────────────────────────────────────────────
+function setFooterNote(note) {
+  document.getElementById("footer-note").textContent = note || "";
+}
+
+// ── Entry point called from Java ───────────────────────────────────────────
+function loadData(zonesJson, projZone) {
+  projectZone = projZone || "TN";
+  var data = JSON.parse(zonesJson);
+  data.forEach(function(d) {
+    updateZone(d.zone, d.intensity, d.load || null);
+  });
+  setProjectZone(projectZone);
+}
+
+// ── Init on load ───────────────────────────────────────────────────────────
+window.onload = function() { initMap(); };
+</script>
+</body>
+</html>
