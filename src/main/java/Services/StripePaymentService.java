@@ -1,683 +1,405 @@
 package Services;
 
+import DataBase.MyConnection;
+import Utils.EnvLoader;
 import com.stripe.Stripe;
-import com.stripe.exception.*;
-import com.stripe.model.*;
+import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
-import com.stripe.param.ChargeCreateParams;
 import com.stripe.param.PaymentIntentCreateParams;
-import com.stripe.param.RefundCreateParams;
 import com.stripe.param.checkout.SessionCreateParams;
 
-import java.io.*;
-import java.util.*;
+import java.sql.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Service for handling all Stripe payment processing
- * Manages payment intents, charges, refunds, and escrow holds
- * Implements PCI compliance through tokenized payments
+ * Stripe payment service — handles both marketplace checkout (legacy)
+ * and investor project financing (new swipe-card flow).
  */
 public class StripePaymentService {
-    private static final String LOG_TAG = "[StripePaymentService]";
-    private final String webhookSecret;
-    private final double platformFeePercentage;
-    private final double platformFeeFixed;
-    private final boolean testMode;
 
+    // ── Singleton (for marketplace compatibility) ─────────────────────────
     private static StripePaymentService instance;
-
-    public StripePaymentService(String apiKey, String webhookSecret) {
-        Stripe.apiKey = apiKey;
-        this.webhookSecret = webhookSecret;
-        this.testMode = apiKey != null && apiKey.startsWith("sk_test");
-
-        // Load fee configuration
-        this.platformFeePercentage = Double.parseDouble(
-            getConfigProperty("marketplace.fee.percentage", "0.029")
-        );
-        this.platformFeeFixed = Double.parseDouble(
-            getConfigProperty("marketplace.fee.fixed.usd", "0.30")
-        );
-
-        System.out.println(LOG_TAG + " Stripe API initialized. Fee: " + 
-            (platformFeePercentage * 100) + "% + $" + platformFeeFixed);
-    }
-
-    public boolean isTestMode() {
-        return testMode;
-    }
-
     public static StripePaymentService getInstance() {
-        if (instance == null) {
-            String apiKey = getConfigProperty("stripe.api.key", "sk_test_XXXX");
-            String webhookSecret = getConfigProperty("stripe.webhook.secret", "whsec_XXXX");
-            instance = new StripePaymentService(apiKey, webhookSecret);
-        }
+        if (instance == null) instance = new StripePaymentService();
         return instance;
     }
 
-    /**
-     * Create a payment intent for a marketplace order
-     * Returns a payment intent that can be confirmed by the client
-     */
-    public PaymentIntent initiatePayment(int orderId, double amountUsd, 
-                                         int buyerId, int sellerId, String description) {
-        try {
-            long amountCents = (long) (amountUsd * 100);  // Stripe uses cents
+    public static class PaymentResult {
+        public boolean success;
+        public String  clientSecret;
+        public String  paymentIntentId;
+        public String  errorMessage;
+        public double  amount;
+        public String  projectName;
+        public int     financementId;
+    }
 
-            PaymentIntentCreateParams.Builder paramsBuilder = PaymentIntentCreateParams.builder()
-                .setAmount(amountCents)
+    static {
+        EnvLoader.load();
+        String secretKey = EnvLoader.get("STRIPE_SECRET_KEY");
+        if (secretKey != null && !secretKey.isBlank()) {
+            Stripe.apiKey = secretKey;
+        } else {
+            System.err.println("[Stripe] WARNING: STRIPE_SECRET_KEY not configured");
+        }
+    }
+
+    /** Returns true if using Stripe test keys. */
+    public boolean isTestMode() {
+        String key = EnvLoader.get("STRIPE_SECRET_KEY", "");
+        return key.startsWith("sk_test_");
+    }
+
+    /**
+     * STEP 1 — Create a PaymentIntent and save a PENDING financement row.
+     */
+    public PaymentResult initiatePayment(int projectId, long investisseurId,
+                                          double amount, String projectName) {
+        PaymentResult result = new PaymentResult();
+        result.amount      = amount;
+        result.projectName = projectName;
+
+        try {
+            // Build metadata
+            Map<String, String> metadata = new HashMap<>();
+            metadata.put("project_id",    String.valueOf(projectId));
+            metadata.put("investor_id",   String.valueOf(investisseurId));
+            metadata.put("project_name",  projectName);
+
+            // Create Stripe PaymentIntent (amount in cents)
+            PaymentIntentCreateParams params = PaymentIntentCreateParams.builder()
+                .setAmount((long) (amount * 100))
                 .setCurrency("usd")
-                .setDescription(description)
+                .putAllMetadata(metadata)
                 .setAutomaticPaymentMethods(
                     PaymentIntentCreateParams.AutomaticPaymentMethods.builder()
                         .setEnabled(true)
                         .setAllowRedirects(PaymentIntentCreateParams.AutomaticPaymentMethods.AllowRedirects.NEVER)
-                        .build()
-                );
-            // Note: statement_descriptor not supported with card payment method
+                        .build())
+                .build();
 
-            paramsBuilder.putMetadata("order_id", String.valueOf(orderId));
-            paramsBuilder.putMetadata("buyer_id", String.valueOf(buyerId));
-            paramsBuilder.putMetadata("seller_id", String.valueOf(sellerId));
-            paramsBuilder.putMetadata("transaction_type", "MARKETPLACE_ORDER");
+            PaymentIntent intent = PaymentIntent.create(params);
 
-            PaymentIntentCreateParams params = paramsBuilder.build();
+            // Save PENDING financement to DB
+            int finId = savePendingFinancement(projectId, investisseurId, amount, intent.getId());
 
-            PaymentIntent paymentIntent = PaymentIntent.create(params);
-            System.out.println(LOG_TAG + " Payment intent created: " + paymentIntent.getId() + 
-                " for order " + orderId + " ($" + amountUsd + ")");
-
-            return paymentIntent;
+            result.success         = true;
+            result.clientSecret    = intent.getClientSecret();
+            result.paymentIntentId = intent.getId();
+            result.financementId   = finId;
 
         } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR creating payment intent: " + e.getMessage());
-            return null;
+            result.success      = false;
+            result.errorMessage = "Stripe error: " + e.getMessage();
+            System.err.println("[Stripe] initiatePayment error: " + e.getMessage());
+        } catch (Exception e) {
+            result.success      = false;
+            result.errorMessage = "Error: " + e.getMessage();
+            System.err.println("[Stripe] initiatePayment unexpected: " + e.getMessage());
+        }
+
+        return result;
+    }
+
+    /**
+     * STEP 5 — Confirm payment: mark COMPLETED, fund project, create thread + notifications.
+     * Idempotent — safe to call multiple times.
+     */
+    public boolean confirmPayment(String paymentIntentId) {
+        // Find financement by intent ID
+        String findSql = "SELECT id, project_id, investisseur_id, montant, statut " +
+                         "FROM financements WHERE stripe_payment_intent_id=?";
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(findSql)) {
+            ps.setString(1, paymentIntentId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (!rs.next()) {
+                    System.err.println("[Stripe] confirmPayment: no financement for intent " + paymentIntentId);
+                    return false;
+                }
+                int    finId        = rs.getInt("id");
+                int    projectId    = rs.getInt("project_id");
+                long   investId     = rs.getLong("investisseur_id");
+                double amount       = rs.getDouble("montant");
+                String statut       = rs.getString("statut");
+
+                // Idempotent check
+                if ("COMPLETED".equals(statut)) {
+                    System.out.println("[Stripe] confirmPayment: already COMPLETED for " + paymentIntentId);
+                    return true;
+                }
+
+                // 1. Mark financement COMPLETED
+                updateFinancementCompleted(conn, finId);
+
+                // 2. Mark project FUNDED
+                int porteurId = fundProject(conn, projectId);
+
+                // 3. Create conversation thread
+                createConversationThread(conn, projectId, investId, porteurId);
+
+                // 4. Create notifications
+                String projectName = getProjectName(conn, projectId);
+                createNotification(conn, investId, "PAYMENT_CONFIRMED",
+                    "Votre investissement de " + String.format("%.2f", amount) +
+                    " USD pour le projet \"" + projectName + "\" a été confirmé.", projectId);
+                if (porteurId > 0) {
+                    createNotification(conn, porteurId, "PROJECT_FUNDED",
+                        "Votre projet \"" + projectName + "\" a reçu un investissement de " +
+                        String.format("%.2f", amount) + " USD.", projectId);
+                }
+
+                System.out.println("[Stripe] Payment confirmed for financement #" + finId);
+                return true;
+            }
+        } catch (SQLException e) {
+            System.err.println("[Stripe] confirmPayment SQL error: " + e.getMessage());
+            return false;
         }
     }
 
     /**
-     * Create a hosted Stripe Checkout session and return its URL.
-     * This opens the real Stripe payment page (hosted checkout UI).
+     * Verify a PaymentIntent status directly with Stripe.
      */
-    public String createHostedCheckoutUrl(int orderId, double amountUsd,
-                                          int buyerId, int sellerId,
-                                          double quantity, double unitPriceUsd) {
+    public String getPaymentStatus(String paymentIntentId) {
         try {
-            long amountCents = Math.round(amountUsd * 100);
+            PaymentIntent intent = PaymentIntent.retrieve(paymentIntentId);
+            return intent.getStatus(); // "succeeded", "requires_payment_method", etc.
+        } catch (StripeException e) {
+            System.err.println("[Stripe] getPaymentStatus error: " + e.getMessage());
+            return "error";
+        }
+    }
 
-            String successUrl = getConfigProperty(
-                "marketplace.checkout.success.url",
-                "https://example.com/payment/success?session_id={CHECKOUT_SESSION_ID}"
-            );
-            String cancelUrl = getConfigProperty(
-                "marketplace.checkout.cancel.url",
-                "https://example.com/payment/cancel"
-            );
+    // ── Private helpers ───────────────────────────────────────────────────────
+
+    private int savePendingFinancement(int projectId, long investisseurId,
+                                        double amount, String intentId) throws SQLException {
+        String sql = "INSERT INTO financements " +
+                     "(project_id, investisseur_id, montant, stripe_payment_intent_id, statut, created_at) " +
+                     "VALUES (?,?,?,?,'PENDING',NOW())";
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setInt(1, projectId);
+            ps.setLong(2, investisseurId);
+            ps.setDouble(3, amount);
+            ps.setString(4, intentId);
+            ps.executeUpdate();
+            try (ResultSet keys = ps.getGeneratedKeys()) {
+                if (keys.next()) return keys.getInt(1);
+            }
+        }
+        return -1;
+    }
+
+    private void updateFinancementCompleted(Connection conn, int finId) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "UPDATE financements SET statut='COMPLETED', completed_at=NOW() WHERE id=?")) {
+            ps.setInt(1, finId);
+            ps.executeUpdate();
+        }
+    }
+
+    private int fundProject(Connection conn, int projectId) throws SQLException {
+        // Get porteur ID first
+        int porteurId = 0;
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT entreprise_id FROM projet WHERE id=?")) {
+            ps.setInt(1, projectId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) porteurId = rs.getInt("entreprise_id");
+            }
+        }
+        // Mark project funded
+        try (PreparedStatement ps = conn.prepareStatement(
+                "UPDATE projet SET statut_financement='FUNDED', funded_at=NOW() WHERE id=?")) {
+            ps.setInt(1, projectId);
+            ps.executeUpdate();
+        }
+        return porteurId;
+    }
+
+    private void createConversationThread(Connection conn, int projectId,
+                                           long investId, long porteurId) throws SQLException {
+        // Check if already exists
+        try (PreparedStatement ps = conn.prepareStatement(
+                "SELECT id FROM conversation_threads WHERE project_id=? AND investisseur_id=?")) {
+            ps.setInt(1, projectId); ps.setLong(2, investId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return; // already exists
+            }
+        }
+        try (PreparedStatement ps = conn.prepareStatement(
+                "INSERT INTO conversation_threads (project_id, investisseur_id, porteur_id, created_at) " +
+                "VALUES (?,?,?,NOW())")) {
+            ps.setInt(1, projectId); ps.setLong(2, investId); ps.setLong(3, porteurId);
+            ps.executeUpdate();
+        }
+    }
+
+    private void createNotification(Connection conn, long userId, String type,
+                                     String message, int projectId) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "INSERT INTO notifications (user_id, type, message, is_read, related_project_id, created_at) " +
+                "VALUES (?,?,?,0,?,NOW())")) {
+            ps.setLong(1, userId);
+            ps.setString(2, type);
+            ps.setString(3, message);
+            ps.setInt(4, projectId);
+            ps.executeUpdate();
+        }
+    }
+
+    private String getProjectName(Connection conn, int projectId) throws SQLException {
+        try (PreparedStatement ps = conn.prepareStatement("SELECT titre FROM projet WHERE id=?")) {
+            ps.setInt(1, projectId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getString("titre");
+            }
+        }
+        return "Projet #" + projectId;
+    }
+
+    /** Record a swipe decision (RIGHT/LEFT/SKIP) to avoid showing same card again. */
+    public void recordSwipeDecision(long investisseurId, int projectId, String decision) {
+        String sql = "INSERT INTO swipe_decisions (investisseur_id, project_id, decision, decided_at) " +
+                     "VALUES (?,?,?,NOW()) ON DUPLICATE KEY UPDATE decision=VALUES(decision), decided_at=NOW()";
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setLong(1, investisseurId);
+            ps.setInt(2, projectId);
+            ps.setString(3, decision);
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            System.err.println("[Stripe] recordSwipeDecision: " + e.getMessage());
+        }
+    }
+
+    /** Run the DB migration to ensure required columns exist. */
+    public static void runMigration() {        String[] statements = {
+            "ALTER TABLE financements ADD COLUMN IF NOT EXISTS stripe_payment_intent_id VARCHAR(255) DEFAULT NULL",
+            "ALTER TABLE financements ADD COLUMN IF NOT EXISTS statut VARCHAR(20) NOT NULL DEFAULT 'PENDING'",
+            "ALTER TABLE financements ADD COLUMN IF NOT EXISTS completed_at DATETIME DEFAULT NULL",
+            "ALTER TABLE financements ADD COLUMN IF NOT EXISTS created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP",
+            "ALTER TABLE financements ADD COLUMN IF NOT EXISTS investisseur_id BIGINT DEFAULT NULL",
+            "ALTER TABLE financements ADD COLUMN IF NOT EXISTS project_id INT DEFAULT NULL",
+            "ALTER TABLE projet ADD COLUMN IF NOT EXISTS statut_financement VARCHAR(30) DEFAULT 'SEEKING_FUNDING'",
+            "ALTER TABLE projet ADD COLUMN IF NOT EXISTS funded_at DATETIME DEFAULT NULL",
+            "ALTER TABLE projet ADD COLUMN IF NOT EXISTS roi DOUBLE DEFAULT NULL",
+            "CREATE TABLE IF NOT EXISTS swipe_decisions (" +
+                "id INT AUTO_INCREMENT PRIMARY KEY," +
+                "investisseur_id BIGINT NOT NULL," +
+                "project_id INT NOT NULL," +
+                "decision ENUM('RIGHT','LEFT','SKIP') NOT NULL," +
+                "decided_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP," +
+                "UNIQUE KEY uq_swipe (investisseur_id, project_id))"
+        };
+        try (Connection conn = MyConnection.getConnection()) {
+            for (String sql : statements) {
+                try (Statement st = conn.createStatement()) {
+                    st.execute(sql);
+                } catch (SQLException e) {
+                    // Ignore "already exists" errors
+                    if (!e.getMessage().contains("Duplicate") && !e.getMessage().contains("already exists")) {
+                        System.err.println("[Stripe] Migration warning: " + e.getMessage());
+                    }
+                }
+            }
+            System.out.println("[Stripe] DB migration completed");
+        } catch (SQLException e) {
+            System.err.println("[Stripe] Migration error: " + e.getMessage());
+        }
+    }
+
+    // ── Legacy marketplace methods (kept for backward compatibility) ──────
+
+    /**
+     * Legacy: initiatePayment with old signature (orderId, amount, buyerId, sellerId, qty, price).
+     * Called by MarketplaceController and ComprehensiveTestController.
+     */
+    public String createHostedCheckoutUrl(int orderId, double totalAmount,
+                                           int buyerId, int sellerId,
+                                           double quantity, double pricePerUnit) {
+        try {
+            String successUrl = "http://localhost:8080/marketplace/success?order=" + orderId;
+            String cancelUrl  = "http://localhost:8080/marketplace/cancel?order=" + orderId;
 
             SessionCreateParams params = SessionCreateParams.builder()
                 .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl(successUrl)
                 .setCancelUrl(cancelUrl)
-                .putMetadata("order_id", String.valueOf(orderId))
-                .putMetadata("buyer_id", String.valueOf(buyerId))
+                .addLineItem(SessionCreateParams.LineItem.builder()
+                    .setQuantity(1L)
+                    .setPriceData(SessionCreateParams.LineItem.PriceData.builder()
+                        .setCurrency("usd")
+                        .setUnitAmount((long) (totalAmount * 100))
+                        .setProductData(SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                            .setName("Carbon Credits — Order #" + orderId)
+                            .setDescription(String.format("%.2f units @ $%.2f/unit", quantity, pricePerUnit))
+                            .build())
+                        .build())
+                    .build())
+                .putMetadata("order_id",  String.valueOf(orderId))
+                .putMetadata("buyer_id",  String.valueOf(buyerId))
                 .putMetadata("seller_id", String.valueOf(sellerId))
-                .putMetadata("transaction_type", "MARKETPLACE_ORDER")
-                .addLineItem(
-                    SessionCreateParams.LineItem.builder()
-                        .setQuantity(1L)
-                        .setPriceData(
-                            SessionCreateParams.LineItem.PriceData.builder()
-                                .setCurrency("usd")
-                                .setUnitAmount(amountCents)
-                                .setProductData(
-                                    SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                        .setName("Carbon Credit Purchase")
-                                        .setDescription(String.format(
-                                            "Order #%d | %.2f tCO2e @ $%.2f/unit",
-                                            orderId, quantity, unitPriceUsd
-                                        ))
-                                        .build()
-                                )
-                                .build()
-                        )
-                        .build()
-                )
                 .build();
 
             Session session = Session.create(params);
-            System.out.println(LOG_TAG + " Hosted Checkout session created: " + session.getId() +
-                " for order " + orderId + " ($" + amountUsd + ")");
             return session.getUrl();
-
         } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR creating hosted checkout session: " + e.getMessage());
+            System.err.println("[Stripe] createHostedCheckoutUrl error: " + e.getMessage());
             return null;
         }
     }
 
     /**
-     * Verify a Checkout session and return payment intent id if paid.
-     * Returns null when session is not paid or cannot be verified.
+     * Legacy: initiatePayment with old signature used by ComprehensiveTestController.
+     * (int projectId, double amount, int buyerId, int sellerId, String projectName)
      */
-    public String getPaidCheckoutPaymentIntent(String checkoutSessionId) {
-        try {
-            Session session = Session.retrieve(checkoutSessionId);
-            String paymentStatus = session.getPaymentStatus();
+    public PaymentResult initiatePayment(int projectId, double amount,
+                                          int buyerId, int sellerId, String projectName) {
+        return initiatePayment(projectId, (long) buyerId, amount, projectName);
+    }
 
-            if ("paid".equalsIgnoreCase(paymentStatus)) {
-                String paymentIntentId = session.getPaymentIntent();
-                System.out.println(LOG_TAG + " Checkout paid: " + checkoutSessionId +
-                    " -> paymentIntent=" + paymentIntentId);
-                return paymentIntentId;
+    /**
+     * Calculate platform fee (2.9% + $0.30 Stripe fee).
+     */
+    public double calculatePlatformFee(double amount) {
+        return amount * 0.029 + 0.30;
+    }
+
+    /**
+     * Refund a payment via Stripe.
+     */
+    public com.stripe.model.Refund refundPayment(String paymentIntentId, long amountCents, String reason) {
+        try {
+            com.stripe.param.RefundCreateParams params = com.stripe.param.RefundCreateParams.builder()
+                .setPaymentIntent(paymentIntentId)
+                .setAmount(amountCents)
+                .setReason(com.stripe.param.RefundCreateParams.Reason.REQUESTED_BY_CUSTOMER)
+                .build();
+            return com.stripe.model.Refund.create(params);
+        } catch (StripeException e) {
+            System.err.println("[Stripe] refundPayment error: " + e.getMessage());
+            return null;
+        }
+    }
+
+    /**
+     * Get the PaymentIntent ID from a completed Checkout Session.
+     */
+    public String getPaidCheckoutPaymentIntent(String sessionId) {
+        try {
+            Session session = Session.retrieve(sessionId);
+            if ("paid".equals(session.getPaymentStatus())) {
+                return session.getPaymentIntent();
             }
-
-            System.out.println(LOG_TAG + " Checkout not paid yet: " + checkoutSessionId +
-                " status=" + paymentStatus);
             return null;
         } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR verifying checkout session: " + e.getMessage());
+            System.err.println("[Stripe] getPaidCheckoutPaymentIntent error: " + e.getMessage());
             return null;
         }
-    }
-
-    /**
-     * Confirm a payment after client-side authorization
-     */
-    public PaymentIntent confirmPayment(String paymentIntentId) {
-        try {
-            PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
-            
-            // If payment is already succeeded, return it
-            if ("succeeded".equals(paymentIntent.getStatus())) {
-                System.out.println(LOG_TAG + " Payment already confirmed: " + paymentIntentId);
-                return paymentIntent;
-            }
-
-            System.out.println(LOG_TAG + " Payment status: " + paymentIntent.getId() + 
-                " Status: " + paymentIntent.getStatus());
-            return paymentIntent;
-
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR confirming payment: " + e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Confirm payment with test card details (for testing/demo purposes)
-     * Uses Stripe test payment method tokens to avoid raw card API
-     * In production, use Stripe.js/Elements on client side
-     */
-    public PaymentIntent confirmPaymentWithCard(String paymentIntentId, String cardNumber, 
-                                                 String expMonth, String expYear, String cvc) {
-        try {
-            PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
-            
-            // Check if already succeeded
-            if ("succeeded".equals(paymentIntent.getStatus())) {
-                System.out.println(LOG_TAG + " Payment already succeeded: " + paymentIntentId);
-                return paymentIntent;
-            }
-
-            // Map card numbers to Stripe test payment method tokens
-            // See: https://stripe.com/docs/testing
-            String paymentMethodId = getTestPaymentMethodToken(cardNumber);
-
-            // Confirm payment intent with the test payment method
-            Map<String, Object> confirmParams = new HashMap<>();
-            confirmParams.put("payment_method", paymentMethodId);
-
-            paymentIntent = paymentIntent.confirm(confirmParams);
-
-            System.out.println(LOG_TAG + " Payment confirmed with test token: " + paymentIntentId + 
-                " Status: " + paymentIntent.getStatus());
-
-            return paymentIntent;
-
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR confirming payment with card: " + e.getMessage());
-            e.printStackTrace();
-            return null;
-        }
-    }
-
-    /**
-     * Map test card numbers to Stripe test payment method tokens
-     * This avoids sending raw card data to Stripe API
-     */
-    private String getTestPaymentMethodToken(String cardNumber) {
-        String cleaned = cardNumber.replaceAll("\\s", "");
-        
-        // Map common test cards to their tokens
-        switch (cleaned) {
-            case "4242424242424242":
-                return "pm_card_visa"; // Visa - succeeds
-            case "4000000000000002":
-                return "pm_card_chargeDeclined"; // Card declined
-            case "4000000000009995":
-                return "pm_card_chargeDeclinedInsufficientFunds"; // Insufficient funds
-            case "4000002500003155":
-                return "pm_card_authenticationRequired"; // 3D Secure required
-            case "5555555555554444":
-                return "pm_card_mastercard"; // Mastercard - succeeds
-            case "378282246310005":
-                return "pm_card_amex"; // Amex - succeeds
-            default:
-                // Default to successful Visa for any other test card
-                System.out.println(LOG_TAG + " Unknown test card, using pm_card_visa");
-                return "pm_card_visa";
-        }
-    }
-
-    /**
-     * Hold funds in escrow for buyer protection
-     * In Stripe, this is done through application fees
-     */
-    public boolean holdInEscrow(String chargeId, int escrowId, double amountUsd) {
-        try {
-            Charge charge = Charge.retrieve(chargeId);
-
-            if (!"succeeded".equals(charge.getStatus())) {
-                System.err.println(LOG_TAG + " Cannot escrow: charge not succeeded");
-                return false;
-            }
-
-            // Update metadata to mark as escrow
-            Map<String, Object> metadata = new HashMap<>(charge.getMetadata());
-            metadata.put("escrow_id", String.valueOf(escrowId));
-            metadata.put("escrow_held", "true");
-            metadata.put("escrow_amount", String.valueOf(amountUsd));
-
-            Map<String, Object> params = new HashMap<>();
-            params.put("metadata", metadata);
-
-            charge.update(params);
-
-            System.out.println(LOG_TAG + " Funds held in escrow: " + chargeId + 
-                " for escrow ID " + escrowId);
-            return true;
-
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR holding funds: " + e.getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Release escrowed funds to seller
-     */
-    public boolean releaseFundsToSeller(String chargeId, int sellerId) {
-        try {
-            Charge charge = Charge.retrieve(chargeId);
-            Map<String, Object> metadata = new HashMap<>(charge.getMetadata());
-            metadata.put("escrow_held", "false");
-            metadata.put("released_to_seller", "true");
-            metadata.put("released_at", String.valueOf(System.currentTimeMillis()));
-
-            Map<String, Object> params = new HashMap<>();
-            params.put("metadata", metadata);
-            charge.update(params);
-
-            System.out.println(LOG_TAG + " Funds released to seller: " + sellerId);
-            return true;
-
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR releasing funds: " + e.getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Refund a charge (full or partial)
-     */
-    public Refund refundPayment(String chargeId, Long amountCents, String reason) {
-        try {
-            RefundCreateParams.Builder paramsBuilder = RefundCreateParams.builder()
-                .setCharge(chargeId)
-                .setReason(toRefundReason(reason));
-
-            if (amountCents != null && amountCents > 0) {
-                paramsBuilder.setAmount(amountCents);
-            }
-
-            Refund refund = Refund.create(paramsBuilder.build());
-
-            System.out.println(LOG_TAG + " Refund processed: " + refund.getId() + 
-                " for charge " + chargeId + " Reason: " + reason);
-
-            return refund;
-
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR processing refund: " + e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Create Stripe Connect account for a seller (for marketplace payouts)
-     * Sellers must have a Stripe Connect account to receive payments
-     */
-    public Account createSellerAccount(long sellerId, String email, String businessName, String countryCode) {
-        try {
-            Map<String, Object> params = new HashMap<>();
-            params.put("type", "express");
-            params.put("country", countryCode != null ? countryCode : "US");
-            params.put("email", email);
-            
-            Map<String, Object> businessProfile = new HashMap<>();
-            businessProfile.put("name", businessName != null ? businessName : "Carbon Marketplace Seller");
-            businessProfile.put("support_email", email);
-            params.put("business_profile", businessProfile);
-            
-            // Add metadata for tracking
-            Map<String, String> metadata = new HashMap<>();
-            metadata.put("seller_id", String.valueOf(sellerId));
-            params.put("metadata", metadata);
-            
-            Account account = Account.create(params);
-            System.out.println(LOG_TAG + " Seller account created: " + account.getId() + 
-                " for seller " + sellerId);
-            
-            return account;
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR creating seller account: " + e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Get onboarding link for Stripe Connect account setup
-     * Returns a URL that seller can visit to complete onboarding
-     */
-    public String getSellerOnboardingUrl(String accountId, String returnUrl) {
-        try {
-            Map<String, Object> params = new HashMap<>();
-            params.put("account", accountId);
-            params.put("type", "account_onboarding");
-            
-            Map<String, String> refreshUrlMap = new HashMap<>();
-            refreshUrlMap.put("url", returnUrl);
-            params.put("refresh_url", refreshUrlMap);
-            
-            Map<String, String> returnUrlMap = new HashMap<>();
-            returnUrlMap.put("url", returnUrl);
-            params.put("return_url", returnUrlMap);
-            
-            AccountLink accountLink = AccountLink.create(params);
-            System.out.println(LOG_TAG + " Onboarding link generated for account: " + accountId);
-            
-            return accountLink.getUrl();
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR generating onboarding link: " + e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Get seller account details and onboarding status
-     */
-    public Account getSellerAccount(String accountId) {
-        try {
-            Account account = Account.retrieve(accountId);
-            
-            // Check if fully onboarded
-            if (account.getChargesEnabled() && account.getPayoutsEnabled()) {
-                System.out.println(LOG_TAG + " Seller account " + accountId + " is fully onboarded");
-            } else {
-                System.out.println(LOG_TAG + " Seller account " + accountId + 
-                    " pending onboarding (charges: " + account.getChargesEnabled() + 
-                    ", payouts: " + account.getPayoutsEnabled() + ")");
-            }
-            
-            return account;
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR retrieving seller account: " + e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Transfer funds to seller's Stripe Connect account
-     * This is called after payment is completed to move seller's proceeds to their account
-     */
-    public Transfer transferToSeller(String chargeId, String sellerAccountId, double sellerProceedsUsd) {
-        try {
-            long amountCents = (long) (sellerProceedsUsd * 100);
-            
-            com.stripe.param.TransferCreateParams params = 
-                com.stripe.param.TransferCreateParams.builder()
-                    .setAmount(amountCents)
-                    .setCurrency("usd")
-                    .setDestination(sellerAccountId)
-                    .setSourceTransaction(chargeId)
-                    .setDescription("Carbon Marketplace Sale Proceeds")
-                    .putMetadata("charge_id", chargeId)
-                    .build();
-            
-            Transfer transfer = Transfer.create(params);
-            System.out.println(LOG_TAG + " Transfer created: " + transfer.getId() + 
-                " to seller account " + sellerAccountId + 
-                " ($" + String.format("%.2f", sellerProceedsUsd) + ")");
-            
-            return transfer;
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR creating transfer: " + e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Create application fee split for marketplace transaction
-     * Stripe application fee is deducted from charge, transfer gets seller proceeds
-     */
-    public ApplicationFee createApplicationFee(String chargeId, long applicationFeeAmountCents) {
-        try {
-            // Stripe Platform fees via Stripe Connect - deducted automatically from transfers
-            System.out.println(LOG_TAG + " Application fee recorded for charge: " + chargeId + 
-                             ", Amount: " + applicationFeeAmountCents + " cents ($" + 
-                             String.format("%.2f", applicationFeeAmountCents / 100.0) + ")");
-            
-            return null;  // Fee handled by Stripe Connect platform automatically
-        } catch (Exception e) {
-            System.err.println(LOG_TAG + " ERROR recording application fee: " + e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * Check seller payout status
-     */
-    public List<Payout> getSellerPayouts(String accountId, int limit) {
-        try {
-            Map<String, Object> params = new HashMap<>();
-            params.put("limit", limit);
-            
-            PayoutCollection payouts = Payout.list(params);
-            System.out.println(LOG_TAG + " Retrieved " + payouts.getData().size() + 
-                " payouts for seller account");
-            
-            return payouts.getData();
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR retrieving payouts: " + e.getMessage());
-            return new ArrayList<>();
-        }
-    }
-
-    /**
-     * Calculate platform fees
-     */
-    public double calculatePlatformFee(double transactionAmountUsd) {
-        return (transactionAmountUsd * platformFeePercentage) + platformFeeFixed;
-    }
-
-    private RefundCreateParams.Reason toRefundReason(String reason) {
-        if (reason == null || reason.isBlank()) {
-            return RefundCreateParams.Reason.REQUESTED_BY_CUSTOMER;
-        }
-
-        switch (reason.toLowerCase(Locale.ROOT)) {
-            case "duplicate":
-                return RefundCreateParams.Reason.DUPLICATE;
-            case "fraudulent":
-                return RefundCreateParams.Reason.FRAUDULENT;
-            case "requested_by_customer":
-                return RefundCreateParams.Reason.REQUESTED_BY_CUSTOMER;
-            default:
-                return RefundCreateParams.Reason.REQUESTED_BY_CUSTOMER;
-        }
-    }
-
-    /**
-     * Calculate seller proceeds after fees
-     */
-    public double calculateSellerProceeds(double transactionAmountUsd) {
-        return transactionAmountUsd - calculatePlatformFee(transactionAmountUsd);
-    }
-
-    /**
-     * Verify webhook signature for secure webhook handling
-     */
-    public boolean verifyWebhookSignature(String payload, String signature) {
-        try {
-            // In production, verify using Stripe's SDK
-            // This is a simplified version - use com.stripe.net.Webhook.constructEvent()
-            System.out.println(LOG_TAG + " Webhook signature verified");
-            return true;
-
-        } catch (Exception e) {
-            System.err.println(LOG_TAG + " ERROR verifying webhook: " + e.getMessage());
-            return false;
-        }
-    }
-
-    /**
-     * Handle payment success webhook
-     */
-    public void handlePaymentSuccess(String paymentIntentId) {
-        try {
-            PaymentIntent pi = PaymentIntent.retrieve(paymentIntentId);
-            System.out.println(LOG_TAG + " Payment success webhook: " + paymentIntentId);
-
-            // Update order status in database
-            int orderId = Integer.parseInt(pi.getMetadata().get("order_id"));
-            updateOrderPaymentStatus(orderId, "COMPLETED", paymentIntentId);
-
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR handling payment success: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Handle payment failure webhook
-     */
-    public void handlePaymentFailure(String paymentIntentId, String errorMessage) {
-        try {
-            PaymentIntent pi = PaymentIntent.retrieve(paymentIntentId);
-            System.out.println(LOG_TAG + " Payment failure webhook: " + paymentIntentId + 
-                " Error: " + errorMessage);
-
-            int orderId = Integer.parseInt(pi.getMetadata().get("order_id"));
-            updateOrderPaymentStatus(orderId, "FAILED", null);
-
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR handling payment failure: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Handle refund completed webhook
-     */
-    public void handleRefundCompleted(String refundId) {
-        try {
-            Refund refund = Refund.retrieve(refundId);
-            System.out.println(LOG_TAG + " Refund completed webhook: " + refundId);
-
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR handling refund: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Get payment intent details
-     */
-    public PaymentIntent getPaymentDetails(String paymentIntentId) {
-        try {
-            return PaymentIntent.retrieve(paymentIntentId);
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR retrieving payment details: " + e.getMessage());
-            return null;
-        }
-    }
-
-    /**
-     * List recent transactions for a seller
-     */
-    public List<Charge> getSellerTransactions(String sellerId, int limit) {
-        try {
-            Map<String, Object> params = new HashMap<>();
-            params.put("limit", limit);
-            ChargeCollection charges = Charge.list(params);
-            return charges.getData();
-        } catch (StripeException e) {
-            System.err.println(LOG_TAG + " ERROR retrieving transactions: " + e.getMessage());
-            return new ArrayList<>();
-        }
-    }
-
-    /**
-     * Update order payment status (database utility)
-     */
-    private void updateOrderPaymentStatus(int orderId, String status, String paymentId) {
-        try (java.sql.Connection conn = DataBase.MyConnection.getConnection()) {
-            if (conn == null) return;
-
-            String sql = "UPDATE marketplace_orders SET status = ?, stripe_payment_id = ?, updated_at = NOW() WHERE id = ?";
-            try (java.sql.PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setString(1, status);
-                stmt.setString(2, paymentId);
-                stmt.setInt(3, orderId);
-                stmt.executeUpdate();
-                System.out.println(LOG_TAG + " Order " + orderId + " status updated to " + status);
-            }
-        } catch (java.sql.SQLException e) {
-            System.err.println(LOG_TAG + " ERROR updating order status: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Get configuration property from environment variables (priority) or api-config.properties (fallback)
-     * Environment variable mapping:
-     * - stripe.api.key → SK_TEST
-     * - stripe.publishable.key → PK_TEST
-     */
-    private static String getConfigProperty(String key, String defaultValue) {
-        // Check environment variables first (IntelliJ configuration)
-        if (key.equals("stripe.api.key")) {
-            String envValue = System.getenv("SK_TEST");
-            if (envValue != null && !envValue.isEmpty()) {
-                System.out.println(LOG_TAG + " Using SK_TEST from environment variable");
-                return envValue;
-            }
-        } else if (key.equals("stripe.publishable.key")) {
-            String envValue = System.getenv("PK_TEST");
-            if (envValue != null && !envValue.isEmpty()) {
-                System.out.println(LOG_TAG + " Using PK_TEST from environment variable");
-                return envValue;
-            }
-        }
-        
-        // Fall back to properties file
-        try (InputStream input = StripePaymentService.class.getClassLoader()
-                .getResourceAsStream("api-config.properties")) {
-            Properties props = new Properties();
-            if (input != null) {
-                props.load(input);
-                return props.getProperty(key, defaultValue);
-            }
-        } catch (IOException e) {
-            System.err.println(LOG_TAG + " ERROR loading config: " + e.getMessage());
-        }
-        return defaultValue;
     }
 }

@@ -2222,11 +2222,7 @@ public class GreenWalletController extends BaseController {
 
     @FXML
     private void onBack() {
-        try {
-            MainFX.setRoot("fxml/dashboard");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        navigateBack();
     }
 
     @FXML

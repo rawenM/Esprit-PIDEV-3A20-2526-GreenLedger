@@ -25,6 +25,13 @@ import com.google.common.eventbus.Subscribe;
 public class EventBusManager {
     
     private static final EventBus eventBus = new EventBus("GreenWalletEventBus");
+    private static final EventBusManager INSTANCE = new EventBusManager();
+
+    /** Singleton accessor for code that calls getInstance().post() */
+    public static EventBusManager getInstance() { return INSTANCE; }
+
+    /** Instance post — delegates to the static eventBus directly */
+    public void postEvent(Object event) { eventBus.post(event); }
     
     /**
      * Register subscriber to receive events.

@@ -3,7 +3,6 @@ package Controllers;
 import Models.*;
 import Services.*;
 import Utils.SessionManager;
-import com.stripe.model.PaymentIntent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -1687,7 +1686,7 @@ public class MarketplaceController extends BaseController {
             System.out.println("[MarketplaceController] Starting test payment: $" + amountUsd);
             
             // Initiate Stripe payment
-            PaymentIntent paymentIntent = stripeService.initiatePayment(
+            StripePaymentService.PaymentResult paymentResult = stripeService.initiatePayment(
                 0,  // orderId (0 for test)
                 amountUsd,
                 buyerId,
@@ -1695,9 +1694,9 @@ public class MarketplaceController extends BaseController {
                 "GreenWallet Test Carbon Credit Purchase"
             );
             
-            if (paymentIntent != null) {
-                String status = paymentIntent.getStatus();
-                String id = paymentIntent.getId();
+            if (paymentResult != null && paymentResult.success) {
+                String status = "requires_payment_method";
+                String id = paymentResult.paymentIntentId;
                 
                 showAlert("✓ Test Payment Intent Created!\n\n" +
                          "Payment ID: " + id + "\n" +
@@ -1719,10 +1718,6 @@ public class MarketplaceController extends BaseController {
 
     @FXML
     private void handleBack() {
-        try {
-            org.GreenLedger.MainFX.setRoot("greenwallet");
-        } catch (IOException e) {
-            showAlert("Error navigating back: " + e.getMessage());
-        }
+        navigateBack();
     }
 }

@@ -1,0 +1,287 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.web.WebView?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.EvaluationFormController"
+            prefHeight="800" prefWidth="1280"
+            style="-fx-background-color:#F7F9F8;">
+
+    <!-- ══ TOP BAR ══ -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="12"
+              style="-fx-background-color:white;-fx-padding:14 28;-fx-border-color:#E2E8F0;-fx-border-width:0 0 1 0;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.04),8,0,0,2);">
+            <Label text="GREENLEDGER EXPERT"
+                   style="-fx-font-size:10px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
+            <Label text="›" style="-fx-text-fill:#CBD5E1;"/>
+            <Label text="Évaluation projet"
+                   style="-fx-font-size:10px;-fx-font-weight:600;-fx-text-fill:#64748B;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <HBox alignment="CENTER_LEFT" spacing="6"
+                  style="-fx-background-color:#F8FAFC;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-border-radius:10;-fx-background-radius:10;-fx-padding:8 14;">
+                <Label text="🔍" style="-fx-font-size:11px;-fx-text-fill:#94A3B8;"/>
+                <Label text="Rechercher..." style="-fx-font-size:11px;-fx-text-fill:#94A3B8;"/>
+            </HBox>
+            <Button text="🔔"
+                    style="-fx-background-color:#F8FAFC;-fx-text-fill:#334155;-fx-font-size:13px;-fx-background-radius:10;-fx-padding:8 12;-fx-cursor:hand;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-background-insets:0;"/>
+            <HBox spacing="8" alignment="CENTER_LEFT"
+                  style="-fx-background-color:#F8FAFC;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-border-radius:10;-fx-background-radius:10;-fx-padding:8 14;">
+                <Label text="E"
+                       style="-fx-font-size:12px;-fx-font-weight:800;-fx-background-color:#059669;-fx-text-fill:white;-fx-background-radius:10;-fx-min-width:28;-fx-min-height:28;-fx-max-width:28;-fx-max-height:28;-fx-alignment:CENTER;"/>
+                <VBox spacing="1">
+                    <Label fx:id="lblUserName" text="Expert Carbone"
+                           style="-fx-font-size:11px;-fx-font-weight:700;-fx-text-fill:#0F172A;"/>
+                    <Label text="Expert Carbone"
+                           style="-fx-font-size:9px;-fx-text-fill:#64748B;"/>
+                </VBox>
+            </HBox>
+        </HBox>
+    </top>
+
+    <!-- ══ BODY: sidebar + content ══ -->
+    <center>
+        <HBox spacing="0" style="-fx-background-color:#F7F9F8;">
+
+            <!-- ── SIDEBAR ── -->
+            <VBox prefWidth="240" minWidth="240" maxWidth="240" spacing="0"
+                  style="-fx-background-color:#0F172A;">
+                <!-- Brand -->
+                <VBox style="-fx-padding:22 18 18 18;-fx-spacing:4;-fx-border-color:rgba(255,255,255,0.1);-fx-border-width:0 0 1 0;">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="GL" style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:13px;-fx-font-weight:800;-fx-background-radius:8;-fx-min-width:36;-fx-min-height:36;-fx-max-width:36;-fx-max-height:36;-fx-alignment:CENTER;"/>
+                        <VBox spacing="1">
+                            <Label text="GreenLedger" style="-fx-font-size:14px;-fx-font-weight:800;-fx-text-fill:white;"/>
+                            <Label text="Expert Carbone" style="-fx-font-size:9px;-fx-text-fill:rgba(16,185,129,0.75);-fx-font-weight:600;"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+                <!-- Nav -->
+                <VBox style="-fx-padding:16 14 6 14;">
+                    <Label text="ÉVALUATIONS" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.25);"/>
+                </VBox>
+                <VBox spacing="2" style="-fx-padding:0 10 0 10;">
+                    <Button text="  Mes évaluations" onAction="#onBack"
+                            maxWidth="Infinity" alignment="CENTER_LEFT"
+                            style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+                    <Button text="  Dashboard évaluations" onAction="#onDashboard"
+                            maxWidth="Infinity" alignment="CENTER_LEFT"
+                            style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+                </VBox>
+                <VBox style="-fx-padding:14 14 6 14;">
+                    <Label text="PROFIL" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.25);"/>
+                </VBox>
+                <VBox spacing="2" style="-fx-padding:0 10 0 10;">
+                    <Button text="  Modifier profil" onAction="#onEditProfile"
+                            maxWidth="Infinity" alignment="CENTER_LEFT"
+                            style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+                </VBox>
+                <Region VBox.vgrow="ALWAYS"/>
+                <!-- Profile footer -->
+                <VBox style="-fx-background-color:#070F1A;-fx-padding:14;-fx-spacing:10;-fx-border-color:rgba(255,255,255,0.1);-fx-border-width:1 0 0 0;">
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <Label text="E" style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:800;-fx-background-radius:20;-fx-min-width:38;-fx-min-height:38;-fx-max-width:38;-fx-max-height:38;-fx-alignment:CENTER;"/>
+                        <VBox spacing="2" HBox.hgrow="ALWAYS">
+                            <Label fx:id="lblProfileName" style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:white;"/>
+                            <Label fx:id="lblProfileType" style="-fx-font-size:9px;-fx-text-fill:rgba(16,185,129,0.6);"/>
+                        </VBox>
+                    </HBox>
+                    <HBox spacing="6">
+                        <Button text="Profil" onAction="#onEditProfile" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                                style="-fx-background-color:#1E293B;-fx-text-fill:rgba(255,255,255,0.8);-fx-font-size:11px;-fx-font-weight:600;-fx-background-radius:7;-fx-padding:7 10;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+                        <Button text="Quitter" onAction="#onLogout"
+                                style="-fx-background-color:rgba(244,63,94,0.15);-fx-text-fill:#f43f5e;-fx-font-size:11px;-fx-font-weight:600;-fx-background-radius:7;-fx-padding:7 10;-fx-cursor:hand;-fx-border-color:rgba(244,63,94,0.3);-fx-border-width:1;-fx-background-insets:0;"/>
+                    </HBox>
+                </VBox>
+            </VBox>
+
+            <!-- ── MAIN CONTENT ── -->
+            <ScrollPane fitToWidth="true" HBox.hgrow="ALWAYS"
+                        style="-fx-background:#F7F9F8;-fx-background-color:#F7F9F8;">
+                <VBox spacing="24">
+                    <padding><Insets top="28" right="32" bottom="32" left="32"/></padding>
+
+                    <!-- ── HEADER: badge + title + analyse button ── -->
+                    <HBox alignment="TOP_LEFT" spacing="20">
+                        <VBox spacing="8" HBox.hgrow="ALWAYS">
+                            <!-- Decision badge -->
+                            <Label fx:id="lblDecisionBadge" text="● EN COURS"
+                                   style="-fx-background-color:#FEF3C7;-fx-text-fill:#92400E;-fx-font-size:10px;-fx-font-weight:700;-fx-background-radius:4;-fx-padding:3 10;"/>
+                            <!-- Title -->
+                            <Label fx:id="lblTitle" text="Évaluation ESG"
+                                   style="-fx-font-size:24px;-fx-font-weight:800;-fx-text-fill:#111827;"/>
+                            <!-- Subtitle -->
+                            <Label text="Vue analytique complète des scores, prédiction ML, recommandations et fraude dans une carte analytique cohérente."
+                                   style="-fx-font-size:12px;-fx-text-fill:#6B7280;" wrapText="true"/>
+                        </VBox>
+                        <!-- Score + Analyse button -->
+                        <VBox spacing="10" alignment="TOP_RIGHT" minWidth="200">
+                            <!-- Score badge -->
+                            <HBox alignment="CENTER_RIGHT">
+                                <VBox alignment="CENTER" spacing="2"
+                                      style="-fx-background-color:#1F2937;-fx-background-radius:12;-fx-padding:12 20;">
+                                    <Label fx:id="lblScoreBig" text="—"
+                                           style="-fx-font-size:32px;-fx-font-weight:800;-fx-text-fill:white;"/>
+                                    <Label text="/10"
+                                           style="-fx-font-size:11px;-fx-text-fill:rgba(255,255,255,0.5);"/>
+                                    <Label fx:id="lblScoreLabel" text="ML"
+                                           style="-fx-font-size:9px;-fx-text-fill:rgba(255,255,255,0.4);"/>
+                                </VBox>
+                            </HBox>
+                            <!-- Analyse button -->
+                            <Button fx:id="btnAnalyse" text="⚡ Relancer l'analyse ML" onAction="#onRunMl"
+                                    style="-fx-background-color:linear-gradient(to bottom right,#059669,#047857);-fx-text-fill:white;-fx-font-size:13px;-fx-font-weight:700;-fx-background-radius:10;-fx-padding:11 22;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;-fx-effect:dropshadow(gaussian,rgba(5,150,105,0.18),12,0,0,4);"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- ── RECOMMENDATIONS PANEL ── -->
+                    <VBox spacing="14"
+                          style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:1;-fx-border-radius:12;-fx-background-radius:12;-fx-padding:20 24;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.04),8,0,0,2);">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Système de recommandations projet"
+                                   style="-fx-font-size:14px;-fx-font-weight:700;-fx-text-fill:#111827;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="lblRecoStatus" text=""
+                                   style="-fx-font-size:10px;-fx-font-weight:700;-fx-background-radius:4;-fx-padding:2 8;"/>
+                        </HBox>
+                        <!-- 2-column grid of recommendation cards -->
+                        <GridPane fx:id="gridRecos" hgap="14" vgap="12"/>
+                    </VBox>
+
+                    <!-- ── 5 KPI CARDS ── -->
+                    <HBox spacing="14">
+                        <!-- PROJET -->
+                        <VBox HBox.hgrow="ALWAYS" spacing="6"
+                              style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:1;-fx-border-radius:10;-fx-background-radius:10;-fx-padding:16 18;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.04),6,0,0,1);">
+                            <HBox alignment="CENTER_LEFT" spacing="6">
+                                <Label text="📁" style="-fx-font-size:13px;"/>
+                                <Label text="PROJET"
+                                       style="-fx-font-size:8px;-fx-font-weight:700;-fx-text-fill:#9CA3AF;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="○" style="-fx-text-fill:#E5E7EB;-fx-font-size:10px;"/>
+                            </HBox>
+                            <Label fx:id="lblKpiProjet" text="—"
+                                   style="-fx-font-size:14px;-fx-font-weight:700;-fx-text-fill:#111827;"/>
+                            <Label fx:id="lblKpiProjetSub" text=""
+                                   style="-fx-font-size:9px;-fx-text-fill:#6B7280;" wrapText="true"/>
+                        </VBox>
+                        <!-- ÉMISSIONS TOTALES -->
+                        <VBox HBox.hgrow="ALWAYS" spacing="6"
+                              style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:1;-fx-border-radius:10;-fx-background-radius:10;-fx-padding:16 18;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.04),6,0,0,1);">
+                            <HBox alignment="CENTER_LEFT" spacing="6">
+                                <Label text="📊" style="-fx-font-size:13px;"/>
+                                <Label text="ÉMISSIONS TOTALES"
+                                       style="-fx-font-size:8px;-fx-font-weight:700;-fx-text-fill:#9CA3AF;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="○" style="-fx-text-fill:#E5E7EB;-fx-font-size:10px;"/>
+                            </HBox>
+                            <Label fx:id="lblKpiEmissions" text="—"
+                                   style="-fx-font-size:18px;-fx-font-weight:800;-fx-text-fill:#111827;"/>
+                            <Label fx:id="lblKpiEmissionsSub" text=""
+                                   style="-fx-font-size:9px;-fx-text-fill:#6B7280;"/>
+                        </VBox>
+                        <!-- DÉCISION ML -->
+                        <VBox HBox.hgrow="ALWAYS" spacing="6"
+                              style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:1;-fx-border-radius:10;-fx-background-radius:10;-fx-padding:16 18;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.04),6,0,0,1);">
+                            <HBox alignment="CENTER_LEFT" spacing="6">
+                                <Label text="🤖" style="-fx-font-size:13px;"/>
+                                <Label text="DÉCISION ML"
+                                       style="-fx-font-size:8px;-fx-font-weight:700;-fx-text-fill:#9CA3AF;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="○" style="-fx-text-fill:#E5E7EB;-fx-font-size:10px;"/>
+                            </HBox>
+                            <Label fx:id="lblKpiDecision" text="—"
+                                   style="-fx-font-size:16px;-fx-font-weight:800;"/>
+                            <Label fx:id="lblKpiDecisionSub" text=""
+                                   style="-fx-font-size:9px;-fx-text-fill:#6B7280;"/>
+                        </VBox>
+                        <!-- RECOMMANDATIONS -->
+                        <VBox HBox.hgrow="ALWAYS" spacing="6"
+                              style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:1;-fx-border-radius:10;-fx-background-radius:10;-fx-padding:16 18;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.04),6,0,0,1);">
+                            <HBox alignment="CENTER_LEFT" spacing="6">
+                                <Label text="💡" style="-fx-font-size:13px;"/>
+                                <Label text="RECOMMANDATIONS"
+                                       style="-fx-font-size:8px;-fx-font-weight:700;-fx-text-fill:#9CA3AF;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="○" style="-fx-text-fill:#E5E7EB;-fx-font-size:10px;"/>
+                            </HBox>
+                            <Label fx:id="lblKpiRecos" text="—"
+                                   style="-fx-font-size:18px;-fx-font-weight:800;-fx-text-fill:#111827;"/>
+                            <Label fx:id="lblKpiRecosSub" text=""
+                                   style="-fx-font-size:9px;-fx-text-fill:#6B7280;"/>
+                        </VBox>
+                        <!-- FRAUDE DÉTECT. -->
+                        <VBox HBox.hgrow="ALWAYS" spacing="6"
+                              style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:1;-fx-border-radius:10;-fx-background-radius:10;-fx-padding:16 18;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.04),6,0,0,1);">
+                            <HBox alignment="CENTER_LEFT" spacing="6">
+                                <Label text="🚨" style="-fx-font-size:13px;"/>
+                                <Label text="FRAUDE DÉTECT."
+                                       style="-fx-font-size:8px;-fx-font-weight:700;-fx-text-fill:#9CA3AF;"/>
+                                <Region HBox.hgrow="ALWAYS"/>
+                                <Label text="○" style="-fx-text-fill:#E5E7EB;-fx-font-size:10px;"/>
+                            </HBox>
+                            <Label fx:id="lblKpiFraud" text="—"
+                                   style="-fx-font-size:16px;-fx-font-weight:800;"/>
+                            <Label fx:id="lblKpiFraudSub" text=""
+                                   style="-fx-font-size:9px;-fx-text-fill:#6B7280;"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- ── ELECTRICITY MAPS ── -->
+                    <VBox spacing="10"
+                          style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:1;-fx-border-radius:12;-fx-background-radius:12;-fx-padding:16 20;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.04),8,0,0,2);">
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="🗺" style="-fx-font-size:16px;"/>
+                            <Label text="Intensité carbone mondiale — Electricity Maps"
+                                   style="-fx-font-size:13px;-fx-font-weight:700;-fx-text-fill:#111827;"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="lblElectricityCountry" text=""
+                                   style="-fx-background-color:#D1FAE5;-fx-text-fill:#065F46;-fx-font-size:10px;-fx-font-weight:700;-fx-background-radius:4;-fx-padding:3 10;"/>
+                        </HBox>
+                        <Label fx:id="lblMapInfo" text="Contexte électrique comparatif pour le projet"
+                               style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                        <!-- Leaflet map rendered in WebView -->
+                        <WebView fx:id="mapWebView" prefHeight="560" maxHeight="560"
+                                 style="-fx-border-radius:8;-fx-background-radius:8;"/>
+                    </VBox>
+
+                    <!-- ── CRITERIA SCORING ── -->
+                    <VBox spacing="14"
+                          style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:1;-fx-border-radius:12;-fx-background-radius:12;-fx-padding:20 24;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.04),8,0,0,2);">
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="⚖️ Critères d'évaluation"
+                                   style="-fx-font-size:14px;-fx-font-weight:700;-fx-text-fill:#111827;"/>
+                        </HBox>
+                        <Label text="Attribuez une note (0-10) et un commentaire pour chaque critère"
+                               style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                        <Separator style="-fx-opacity:0.4;"/>
+                        <VBox fx:id="boxCriteria" spacing="10"/>
+                    </VBox>
+
+                    <!-- ── OBSERVATIONS ── -->
+                    <VBox spacing="10"
+                          style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:1;-fx-border-radius:12;-fx-background-radius:12;-fx-padding:20 24;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.04),8,0,0,2);">
+                        <Label text="📋 Observations globales"
+                               style="-fx-font-size:14px;-fx-font-weight:700;-fx-text-fill:#111827;"/>
+                        <TextArea fx:id="txtObservations" wrapText="true" prefHeight="100"
+                                  promptText="Commentaires généraux sur le projet…"
+                                  style="-fx-font-size:13px;-fx-border-color:#E5E7EB;-fx-border-radius:8;-fx-background-radius:8;-fx-padding:10;-fx-background-color:#F9FAFB;"/>
+                    </VBox>
+
+                    <!-- ── SUBMIT ROW ── -->
+                    <HBox spacing="12" alignment="CENTER_RIGHT">
+                        <Button text="← File d'évaluation" onAction="#onBack"
+                                style="-fx-background-color:#F8FAFC;-fx-text-fill:#334155;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:10;-fx-padding:10 18;-fx-cursor:hand;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-background-insets:0;"/>
+                        <Button text="⚡ Analyser API + ML" onAction="#onRunMl"
+                                style="-fx-background-color:#F8FAFC;-fx-text-fill:#334155;-fx-font-size:13px;-fx-font-weight:700;-fx-background-radius:10;-fx-padding:10 22;-fx-cursor:hand;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-background-insets:0;"/>
+                        <Button text="💾 Soumettre l'évaluation" onAction="#onSubmit"
+                                style="-fx-background-color:linear-gradient(to bottom right,#059669,#047857);-fx-text-fill:white;-fx-font-size:13px;-fx-font-weight:700;-fx-background-radius:10;-fx-padding:10 22;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;-fx-effect:dropshadow(gaussian,rgba(5,150,105,0.18),12,0,0,4);"/>
+                    </HBox>
+
+                </VBox>
+            </ScrollPane>
+        </HBox>
+    </center>
+</BorderPane>

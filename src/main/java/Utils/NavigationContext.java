@@ -9,6 +9,11 @@ public class NavigationContext {
     private String currentPage;
     private String previousPage;
 
+    // Context data passed between screens
+    private Integer currentProjectId;
+    private Integer currentUserId;
+    private Integer currentEvaluationId;
+
     private NavigationContext() {
         currentPage = "fxml/dashboard";
         previousPage = "fxml/dashboard";
@@ -21,39 +26,25 @@ public class NavigationContext {
         return instance;
     }
 
-    /**
-     * Navigate to a new page, updating current and previous page tracking.
-     * @param newPage The page to navigate to
-     */
     public void navigateTo(String newPage) {
-        // Only update previous page if we're not navigating back to the same page
         if (!newPage.equals(currentPage)) {
             previousPage = currentPage;
             currentPage = newPage;
         }
     }
 
-    /**
-     * Get the current page name.
-     * @return Current page FXML name (without .fxml extension)
-     */
-    public String getCurrentPage() {
-        return currentPage;
-    }
+    public String getCurrentPage()   { return currentPage; }
+    public String getPreviousPage()  { return previousPage; }
+    public void   setCurrentPage(String page) { currentPage = page; }
 
-    /**
-     * Get the previous page name for back navigation.
-     * @return Previous page FXML name (without .fxml extension)
-     */
-    public String getPreviousPage() {
-        return previousPage;
-    }
+    // ── Context data helpers ──────────────────────────────────────────────
 
-    /**
-     * Set the current page directly (useful for initialization).
-     * @param page The page to set as current
-     */
-    public void setCurrentPage(String page) {
-        currentPage = page;
-    }
+    public Integer getCurrentProjectId()              { return currentProjectId; }
+    public void    setCurrentProjectId(Integer id)    { this.currentProjectId = id; }
+
+    public Integer getCurrentUserId()                 { return currentUserId; }
+    public void    setCurrentUserId(Integer id)       { this.currentUserId = id; }
+
+    public Integer getCurrentEvaluationId()           { return currentEvaluationId; }
+    public void    setCurrentEvaluationId(Integer id) { this.currentEvaluationId = id; }
 }

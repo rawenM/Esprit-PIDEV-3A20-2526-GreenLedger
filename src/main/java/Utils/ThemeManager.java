@@ -17,6 +17,7 @@ public class ThemeManager {
     private final Preferences prefs;
     
     // Available themes
+    public static final String THEME_GREENLEDGER = "greenledger"; // GreenLedger Front Office (default)
     public static final String THEME_LIGHT = "light";
     public static final String THEME_DARK = "dark";
     public static final String THEME_FOREST = "forest";
@@ -26,7 +27,7 @@ public class ThemeManager {
     
     private ThemeManager() {
         prefs = Preferences.userNodeForPackage(ThemeManager.class);
-        currentTheme = prefs.get("theme", THEME_LIGHT);
+        currentTheme = prefs.get("theme", THEME_GREENLEDGER);
     }
     
     public static ThemeManager getInstance() {
@@ -121,7 +122,7 @@ public class ThemeManager {
      * Get list of all available themes.
      */
     public List<String> getAvailableThemes() {
-        return Arrays.asList(THEME_LIGHT, THEME_DARK, THEME_FOREST, THEME_OCEAN, THEME_CLASSIC, THEME_PURPLE);
+        return Arrays.asList(THEME_GREENLEDGER, THEME_LIGHT, THEME_DARK, THEME_FOREST, THEME_OCEAN, THEME_CLASSIC, THEME_PURPLE);
     }
     
     /**
@@ -129,6 +130,7 @@ public class ThemeManager {
      */
     public List<String> getThemeDisplayNames() {
         return Arrays.asList(
+            "GreenLedger Front Office",
             "Light Theme",
             "Dark Theme",
             "Earth Theme",
@@ -143,16 +145,17 @@ public class ThemeManager {
      */
     public String themeFromDisplayName(String displayName) {
         if (displayName == null) {
-            return THEME_LIGHT;
+            return THEME_GREENLEDGER;
         }
         switch (displayName.toLowerCase()) {
+            case "greenledger front office": return THEME_GREENLEDGER;
             case "light theme": return THEME_LIGHT;
             case "dark theme": return THEME_DARK;
             case "earth theme": return THEME_FOREST;
             case "cool theme": return THEME_OCEAN;
             case "greenledger classic": return THEME_CLASSIC;
             case "purple theme": return THEME_PURPLE;
-            default: return THEME_LIGHT;
+            default: return THEME_GREENLEDGER;
         }
     }
     
@@ -160,25 +163,14 @@ public class ThemeManager {
      * Convert theme ID to display name.
      */
     public String getDisplayName(String theme) {
-        if (THEME_LIGHT.equals(theme)) {
-            return "Light Theme";
-        }
-        if (THEME_DARK.equals(theme)) {
-            return "Dark Theme";
-        }
-        if (THEME_FOREST.equals(theme)) {
-            return "Earth Theme";
-        }
-        if (THEME_OCEAN.equals(theme)) {
-            return "Cool Theme";
-        }
-        if (THEME_CLASSIC.equals(theme)) {
-            return "GreenLedger Classic";
-        }
-        if (THEME_PURPLE.equals(theme)) {
-            return "Purple Theme";
-        }
-        return "Light Theme";
+        if (THEME_GREENLEDGER.equals(theme)) return "GreenLedger Front Office";
+        if (THEME_LIGHT.equals(theme))       return "Light Theme";
+        if (THEME_DARK.equals(theme))        return "Dark Theme";
+        if (THEME_FOREST.equals(theme))      return "Earth Theme";
+        if (THEME_OCEAN.equals(theme))       return "Cool Theme";
+        if (THEME_CLASSIC.equals(theme))     return "GreenLedger Classic";
+        if (THEME_PURPLE.equals(theme))      return "Purple Theme";
+        return "GreenLedger Front Office";
     }
     
     private boolean isValidTheme(String theme) {

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.PorteurAssistantController"
+            prefHeight="700" prefWidth="900"
+            style="-fx-background-color:#F7F9F8;">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="12"
+              style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:0 0 1 0;-fx-padding:10 20;">
+            <Button text="← Retour" onAction="#onBack"
+                    style="-fx-background-color:#F3F4F6;-fx-text-fill:#374151;-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:6;-fx-padding:7 14;-fx-cursor:hand;-fx-border-color:#E5E7EB;-fx-border-width:1;"/>
+            <Label text="Assistant IA GreenLedger"
+                   style="-fx-font-size:16px;-fx-font-weight:800;-fx-text-fill:#1A2E26;"/>
+            <Label text="Gemini AI" style="-fx-font-size:10px;-fx-text-fill:#6B7280;-fx-background-color:#F3F4F6;-fx-background-radius:4;-fx-padding:2 8;"/>
+        </HBox>
+    </top>
+    <center>
+        <VBox spacing="0" style="-fx-background-color:#F7F9F8;">
+            <!-- Chat history -->
+            <ScrollPane fx:id="scrollChat" fitToWidth="true" VBox.vgrow="ALWAYS"
+                        style="-fx-background:#F7F9F8;-fx-background-color:#F7F9F8;">
+                <VBox fx:id="boxChat" spacing="12">
+                    <padding><Insets top="20" right="28" bottom="20" left="28"/></padding>
+                    <!-- Welcome message -->
+                    <HBox spacing="10" alignment="TOP_LEFT">
+                        <Label text="AI" style="-fx-background-color:#2D5F3F;-fx-text-fill:white;-fx-font-size:10px;-fx-font-weight:700;-fx-background-radius:14;-fx-min-width:28;-fx-min-height:28;-fx-alignment:CENTER;"/>
+                        <VBox spacing="4" maxWidth="600"
+                              style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:1;-fx-border-radius:10;-fx-background-radius:10;-fx-padding:12 16;">
+                            <Label text="Bonjour ! Je suis votre assistant strategique GreenLedger."
+                                   style="-fx-font-size:13px;-fx-text-fill:#1A2E26;" wrapText="true"/>
+                            <Label text="Je peux vous aider avec vos KPI, votre strategie de financement, les risques et les prochaines actions."
+                                   style="-fx-font-size:12px;-fx-text-fill:#6B7280;" wrapText="true"/>
+                        </VBox>
+                    </HBox>
+                </VBox>
+            </ScrollPane>
+
+            <!-- Input area -->
+            <HBox spacing="10" alignment="CENTER"
+                  style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:1 0 0 0;-fx-padding:14 24;">
+                <TextArea fx:id="txtInput" promptText="Posez votre question..."
+                          prefHeight="60" wrapText="true" HBox.hgrow="ALWAYS"
+                          style="-fx-font-size:13px;-fx-border-color:#D1D5DB;-fx-border-radius:8;-fx-background-radius:8;-fx-padding:8 12;"/>
+                <VBox spacing="6" alignment="CENTER">
+                    <Button fx:id="btnSend" text="Envoyer" onAction="#onSend"
+                            style="-fx-background-color:#2D5F3F;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:10 18;-fx-cursor:hand;" prefWidth="100"/>
+                    <Button text="Effacer" onAction="#onClear"
+                            style="-fx-background-color:#F3F4F6;-fx-text-fill:#374151;-fx-font-size:11px;-fx-background-radius:8;-fx-padding:6 18;-fx-cursor:hand;" prefWidth="100"/>
+                </VBox>
+            </HBox>
+        </VBox>
+    </center>
+</BorderPane>

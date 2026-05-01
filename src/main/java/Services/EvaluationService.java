@@ -9,7 +9,6 @@ import java.util.List;
 
 public class EvaluationService {
 
-    private final Connection conn = MyConnection.getConnection();
     private String lastErrorMessage;
 
     public String getLastErrorMessage() {
@@ -21,6 +20,10 @@ public class EvaluationService {
         int code = ex.getErrorCode();
         this.lastErrorMessage = context + " | SQLState=" + state + " | Code=" + code + " | " + ex.getMessage();
     }
+
+    // Aliases used by new controllers
+    public List<Evaluation> getAllEvaluations() { return afficher(); }
+    public void insert(Evaluation e) { ajouter(e); }
 
     public void ajouter(Evaluation e) {
         String sql = "INSERT INTO evaluation(observations_globales, score_final, est_valide, id_projet) VALUES (?,?,?,?)";
@@ -43,9 +46,9 @@ public class EvaluationService {
         String sql = "SELECT e.*, p.titre AS titre_projet FROM evaluation e " +
                 "LEFT JOIN projet p ON p.id = e.id_projet " +
                 "ORDER BY e.date_evaluation DESC";
-        try {
-            Statement st = conn.createStatement();
-            ResultSet rs = st.executeQuery(sql);
+        try (Connection conn = MyConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 Evaluation e = new Evaluation();
                 e.setIdEvaluation(rs.getInt("id_evaluation"));
@@ -82,8 +85,8 @@ public class EvaluationService {
 
     public void modifier(Evaluation e) {
         String sql = "UPDATE evaluation SET observations_globales=?, score_final=?, est_valide=?, id_projet=? WHERE id_evaluation=?";
-        try {
-            PreparedStatement ps = conn.prepareStatement(sql);
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, e.getObservations());
             ps.setDouble(2, e.getScoreGlobal());
             ps.setBoolean(3, decisionToFlag(e.getDecision()));
@@ -102,7 +105,8 @@ public class EvaluationService {
                 "JOIN projet p ON p.id = e.id_projet " +
                 "WHERE p.entreprise_id = ? " +
                 "ORDER BY e.date_evaluation DESC";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, entrepriseId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -130,7 +134,8 @@ public class EvaluationService {
                 "JOIN projet p ON p.id = e.id_projet " +
                 "WHERE e.id_projet = ? " +
                 "ORDER BY e.date_evaluation DESC";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, projetId);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -225,7 +230,9 @@ public class EvaluationService {
     public java.util.Set<Integer> getProjetIdsWithEvaluations() {
         java.util.Set<Integer> ids = new java.util.HashSet<>();
         String sql = "SELECT DISTINCT id_projet FROM evaluation";
-        try (Statement st = conn.createStatement(); ResultSet rs = st.executeQuery(sql)) {
+        try (Connection conn = MyConnection.getConnection();
+             Statement st = conn.createStatement();
+             ResultSet rs = st.executeQuery(sql)) {
             while (rs.next()) {
                 ids.add(rs.getInt("id_projet"));
             }
@@ -267,11 +274,11 @@ public class EvaluationService {
         if (decision == null) {
             return false;
         }
-        String value = decision.trim().toLowerCase();
-        return value.contains("approuve") || value.contains("accepte") || value.contains("approve") || value.contains("accept");
+        String value = decision.trim().toUpperCase();
+        return value.contains("APPROV") || value.contains("ACCEPT");
     }
 
     private String flagToDecision(boolean valid) {
-        return valid ? "Approuve" : "Rejete";
+        return valid ? "APPROVED" : "REJECTED";
     }
 }

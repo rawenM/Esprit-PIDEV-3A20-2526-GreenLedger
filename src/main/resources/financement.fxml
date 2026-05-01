@@ -5,32 +5,66 @@
 <HBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.FinancementController"
-      spacing="0" styleClass="page">
+      prefHeight="780" prefWidth="1320"
+      style="-fx-background-color:#F8FAFC;">
 
-    <VBox prefWidth="220" styleClass="sidebar">
-        <HBox alignment="CENTER_LEFT" spacing="8">
-            <Label text="💼" style="-fx-font-size:20px;"/>
-            <Label text="GreenLedger Financement" styleClass="sidebar-title"/>
-        </HBox>
-
-        <Separator styleClass="sidebar-sep"/>
-
-        <Button fx:id="btnDashboard" text="📊 Tableau de bord" onAction="#handleGoDashboard" styleClass="nav-btn"/>
-        <Button fx:id="btnFinancement" text="💳 Financement" onAction="#handleGoFinancement" styleClass="nav-btn nav-btn-active"/>
-        <Button fx:id="btnOffres" text="🧾 Offres" onAction="#handleGoInvestments" styleClass="nav-btn"/>
-        <Button fx:id="btnAgent" text="🤖 Agent de risque" onAction="#handleGoRiskAgent" styleClass="nav-btn"/>
-
-        <Separator styleClass="sidebar-sep"/>
-
-        <Button fx:id="btnNewFinancement" text="➕ Nouveau Financement" onAction="#btnNewFinancement_click" styleClass="nav-btn"/>
-        <Button fx:id="btnNewOffre" text="➕ Nouvelle Offre" onAction="#btnNewOffre_click" styleClass="nav-btn"/>
-        <Button fx:id="btnRefresh" text="🔄 Actualiser" styleClass="nav-btn" onAction="#refreshAll"/>
-        <Button fx:id="btnNavSettings" text="⚙️ Paramètres" onAction="#handleGoSettings" styleClass="nav-btn"/>
-
-        <Region VBox.vgrow="ALWAYS"/>
+  <!-- ═══ SIDEBAR ═══ -->
+  <VBox prefWidth="240" minWidth="240" maxWidth="240" spacing="0"
+        style="-fx-background-color:#0F172A;">
+    <VBox style="-fx-padding:22 18 18 18;-fx-spacing:4;-fx-border-color:rgba(255,255,255,0.1);-fx-border-width:0 0 1 0;">
+      <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="GL" style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:13px;-fx-font-weight:800;-fx-background-radius:8;-fx-min-width:36;-fx-min-height:36;-fx-max-width:36;-fx-max-height:36;-fx-alignment:CENTER;"/>
+        <VBox spacing="1">
+          <Label text="GreenLedger" style="-fx-font-size:14px;-fx-font-weight:800;-fx-text-fill:white;"/>
+          <Label text="Porteur de Projet" style="-fx-font-size:9px;-fx-text-fill:rgba(16,185,129,0.75);-fx-font-weight:600;"/>
+        </VBox>
+      </HBox>
     </VBox>
+    <VBox style="-fx-padding:16 14 6 14;">
+      <Label text="NAVIGATION" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.25);"/>
+    </VBox>
+    <VBox spacing="2" style="-fx-padding:0 10 0 10;">
+      <Button fx:id="btnDashboard" text="  Tableau de bord" onAction="#handleGoDashboard"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+      <Button fx:id="btnFinancement" text="  Financement" onAction="#handleGoFinancement"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;-fx-effect:dropshadow(gaussian,rgba(5,150,105,0.35),12,0,0,3);"/>
+      <Button text="  Mes projets" onAction="#handleGoProjects"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+      <Button text="  Mes évaluations" onAction="#handleGoEvaluations"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+    </VBox>
+    <VBox style="-fx-padding:14 14 6 14;">
+      <Label text="COMMUNICATION" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.25);"/>
+    </VBox>
+    <VBox spacing="2" style="-fx-padding:0 10 0 10;">
+      <Button text="  Messages" onAction="#handleGoMessages"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+    </VBox>
+    <Region VBox.vgrow="ALWAYS"/>
+    <VBox style="-fx-background-color:#070F1A;-fx-padding:14;-fx-spacing:10;-fx-border-color:rgba(255,255,255,0.1);-fx-border-width:1 0 0 0;">
+      <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="P" style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:800;-fx-background-radius:20;-fx-min-width:38;-fx-min-height:38;-fx-max-width:38;-fx-max-height:38;-fx-alignment:CENTER;"/>
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+          <Label fx:id="lblProfileName" style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:white;"/>
+          <Label fx:id="lblProfileType" style="-fx-font-size:9px;-fx-text-fill:rgba(16,185,129,0.6);"/>
+        </VBox>
+      </HBox>
+      <HBox spacing="6">
+        <Button text="Profil" onAction="#handleEditProfile" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                style="-fx-background-color:#1E293B;-fx-text-fill:rgba(255,255,255,0.8);-fx-font-size:11px;-fx-font-weight:600;-fx-background-radius:7;-fx-padding:7 10;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+        <Button text="Quitter" onAction="#handleLogout"
+                style="-fx-background-color:rgba(244,63,94,0.15);-fx-text-fill:#f43f5e;-fx-font-size:11px;-fx-font-weight:600;-fx-background-radius:7;-fx-padding:7 10;-fx-cursor:hand;-fx-border-color:rgba(244,63,94,0.3);-fx-border-width:1;-fx-background-insets:0;"/>
+      </HBox>
+    </VBox>
+  </VBox>
 
-    <VBox spacing="0" HBox.hgrow="ALWAYS" styleClass="content-area">
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <VBox spacing="0" HBox.hgrow="ALWAYS" style="-fx-background-color:#F8FAFC;">
 
         <HBox spacing="16" alignment="CENTER_LEFT">
             <padding>

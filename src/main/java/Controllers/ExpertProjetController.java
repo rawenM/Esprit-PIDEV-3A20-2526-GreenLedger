@@ -333,15 +333,7 @@ public class ExpertProjetController extends BaseController {
 
     @FXML
     private void handleBack() {
-        try {
-            MainFX.setRoot(resolveBackTarget());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String resolveBackTarget() {
-        return "fxml/dashboard";
+        navigateBack();
     }
 
     public void setCurrentUser(User user) {

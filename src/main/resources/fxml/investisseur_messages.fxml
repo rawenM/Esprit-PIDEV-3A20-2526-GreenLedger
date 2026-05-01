@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.InvestisseurMessagesController"
+            prefHeight="780" prefWidth="1200"
+            style="-fx-background-color:#F8FAFC;">
+  <top>
+    <VBox spacing="0">
+      <!-- Gradient header -->
+      <HBox alignment="CENTER_LEFT" spacing="14"
+            style="-fx-background-color:#10b981;-fx-padding:18 28;">
+        <Button text="Retour" onAction="#onBack"
+                style="-fx-background-color:rgba(255,255,255,0.2);-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:7;-fx-padding:7 14;-fx-cursor:hand;"/>
+        <VBox spacing="3" HBox.hgrow="ALWAYS">
+          <Label text="Project Communications"
+                 style="-fx-font-size:18px;-fx-font-weight:800;-fx-text-fill:white;"/>
+          <Label text="Stay connected with your sustainable investments"
+                 style="-fx-font-size:11px;-fx-text-fill:rgba(255,255,255,0.7);"/>
+        </VBox>
+        <VBox alignment="CENTER_RIGHT" spacing="4">
+          <Label fx:id="lblTotalInvestment" text=""
+                 style="-fx-background-color:rgba(255,255,255,0.2);-fx-text-fill:white;-fx-font-size:11px;-fx-font-weight:700;-fx-background-radius:6;-fx-padding:4 12;"/>
+          <HBox spacing="12">
+            <Label fx:id="lblActiveProjects" text=""
+                   style="-fx-font-size:10px;-fx-text-fill:rgba(255,255,255,0.8);"/>
+            <Label fx:id="lblUnreadTotal" text=""
+                   style="-fx-font-size:10px;-fx-text-fill:rgba(255,255,255,0.8);"/>
+          </HBox>
+        </VBox>
+      </HBox>
+    </VBox>
+  </top>
+  <center>
+    <HBox spacing="0" style="-fx-background-color:#F8FAFC;">
+      <!-- Thread list -->
+      <VBox prefWidth="360" spacing="0"
+            style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-width:0 1 0 0;">
+        <Label text="Conversations"
+               style="-fx-font-size:13px;-fx-font-weight:700;-fx-text-fill:#0F172A;-fx-padding:14 18 10 18;"/>
+        <Separator/>
+        <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                    style="-fx-background:white;-fx-background-color:white;">
+          <VBox fx:id="boxThreads" spacing="0"/>
+        </ScrollPane>
+      </VBox>
+
+      <!-- Chat area -->
+      <VBox HBox.hgrow="ALWAYS" spacing="0">
+        <HBox fx:id="boxChatHeader" alignment="CENTER_LEFT" spacing="12"
+              style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-width:0 0 1 0;-fx-padding:14 20;"
+              visible="false" managed="false">
+          <VBox spacing="2" HBox.hgrow="ALWAYS">
+            <Label fx:id="lblChatProject" text=""
+                   style="-fx-font-size:14px;-fx-font-weight:700;-fx-text-fill:#0F172A;"/>
+            <Label fx:id="lblChatPorteur" text=""
+                   style="-fx-font-size:11px;-fx-text-fill:#64748B;"/>
+          </VBox>
+          <Label fx:id="lblChatInvestment" text=""
+                 style="-fx-background-color:#D1FAE5;-fx-text-fill:#10b981;-fx-font-size:10px;-fx-font-weight:700;-fx-background-radius:6;-fx-padding:4 10;"/>
+        </HBox>
+
+        <ScrollPane fx:id="scrollMessages" fitToWidth="true" VBox.vgrow="ALWAYS"
+                    style="-fx-background:#F8FAFC;-fx-background-color:#F8FAFC;">
+          <VBox fx:id="boxMessages" spacing="10">
+            <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+            <Label fx:id="lblNoThread" text="Selectionnez une conversation"
+                   style="-fx-font-size:14px;-fx-text-fill:#94A3B8;-fx-alignment:CENTER;" maxWidth="Infinity"/>
+          </VBox>
+        </ScrollPane>
+
+        <HBox fx:id="boxInput" spacing="10" alignment="CENTER"
+              style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-width:1 0 0 0;-fx-padding:12 20;"
+              visible="false" managed="false">
+          <TextArea fx:id="txtMessage" promptText="Ecrire un message..."
+                    prefHeight="60" wrapText="true" HBox.hgrow="ALWAYS"
+                    style="-fx-font-size:13px;-fx-border-color:#E2E8F0;-fx-border-radius:8;-fx-background-radius:8;-fx-padding:8 12;"/>
+          <Button text="Envoyer" onAction="#onSendMessage"
+                  style="-fx-background-color:#10b981;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:10 18;-fx-cursor:hand;"/>
+        </HBox>
+      </VBox>
+    </HBox>
+  </center>
+</BorderPane>

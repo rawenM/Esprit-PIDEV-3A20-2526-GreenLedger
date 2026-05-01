@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.InvestisseurPortfolioController"
+            prefHeight="780" prefWidth="1100"
+            style="-fx-background-color:#F8FAFC;">
+  <top>
+    <HBox alignment="CENTER_LEFT" spacing="14"
+          style="-fx-background-color:#10b981;-fx-padding:16 28;">
+      <Button text="Retour" onAction="#onBack"
+              style="-fx-background-color:rgba(255,255,255,0.2);-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:7;-fx-padding:7 14;-fx-cursor:hand;"/>
+      <Label text="My Investments"
+             style="-fx-font-size:18px;-fx-font-weight:800;-fx-text-fill:white;"/>
+      <Region HBox.hgrow="ALWAYS"/>
+      <!-- 3 stat cards -->
+      <HBox spacing="12">
+        <VBox alignment="CENTER" spacing="2"
+              style="-fx-background-color:rgba(255,255,255,0.15);-fx-border-radius:8;-fx-background-radius:8;-fx-padding:8 16;">
+          <Label text="PROJETS" style="-fx-font-size:8px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.7);"/>
+          <Label fx:id="lblTotalProjects" text="—" style="-fx-font-size:18px;-fx-font-weight:800;-fx-text-fill:white;"/>
+        </VBox>
+        <VBox alignment="CENTER" spacing="2"
+              style="-fx-background-color:rgba(255,255,255,0.15);-fx-border-radius:8;-fx-background-radius:8;-fx-padding:8 16;">
+          <Label text="TOTAL INVESTI" style="-fx-font-size:8px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.7);"/>
+          <Label fx:id="lblTotalInvested" text="—" style="-fx-font-size:18px;-fx-font-weight:800;-fx-text-fill:white;"/>
+        </VBox>
+        <VBox alignment="CENTER" spacing="2"
+              style="-fx-background-color:rgba(255,255,255,0.15);-fx-border-radius:8;-fx-background-radius:8;-fx-padding:8 16;">
+          <Label text="CREDITS CARBONE" style="-fx-font-size:8px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.7);"/>
+          <Label fx:id="lblTotalCredits" text="—" style="-fx-font-size:18px;-fx-font-weight:800;-fx-text-fill:white;"/>
+        </VBox>
+      </HBox>
+    </HBox>
+  </top>
+  <center>
+    <ScrollPane fitToWidth="true" style="-fx-background:#F8FAFC;-fx-background-color:#F8FAFC;">
+      <VBox spacing="20">
+        <padding><Insets top="24" right="28" bottom="28" left="28"/></padding>
+        <Label fx:id="lblEmpty" text="Aucun investissement pour le moment."
+               style="-fx-font-size:14px;-fx-text-fill:#94A3B8;-fx-padding:20 0;"/>
+        <!-- Project cards injected programmatically -->
+        <FlowPane fx:id="flowCards" hgap="16" vgap="16"/>
+      </VBox>
+    </ScrollPane>
+  </center>
+</BorderPane>

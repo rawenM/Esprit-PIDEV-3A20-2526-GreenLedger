@@ -438,43 +438,45 @@ public class LoginController {
 
     private void navigateToDashboard(ActionEvent event, User user) {
         try {
+            // Store user in session
+            Utils.SessionManager.getInstance().setCurrentUser(user);
+
             Stage stage = (Stage) ((Node) event.getSource()).getScene().getWindow();
-            if (user.isAdmin()) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/admin_users.fxml"));
-                Parent root = loader.load();
 
-                AdminUsersController controller = loader.getController();
-                controller.setCurrentUser(user);
+            // Role-based redirect (matches Symfony SecurityController::loginRedirect)
+            String fxml;
+            String title;
 
-                switchScene(stage, root, "Gestion des Utilisateurs - " + user.getNomComplet());
+            switch (user.getTypeUtilisateur()) {
+                case ADMIN:
+                    // → /admin/users
+                    fxml  = "/fxml/admin_shell.fxml";
+                    title = "Administration — " + user.getNomComplet();
+                    break;
 
-            } else if (user.getTypeUtilisateur() == Models.TypeUtilisateur.EXPERT_CARBONE) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/expertProjet.fxml"));
-                Parent root = loader.load();
+                case EXPERT_CARBONE:
+                    // → /expert/evaluations/dashboard
+                    fxml  = "/fxml/expert_shell.fxml";
+                    title = "Expert Carbone — " + user.getNomComplet();
+                    break;
 
-                ExpertProjetController controller = loader.getController();
-                controller.setCurrentUser(user);
+                case PORTEUR_PROJET:
+                    // → /front-office/projects
+                    fxml  = "/fxml/porteur_shell.fxml";
+                    title = "Porteur de Projet — " + user.getNomComplet();
+                    break;
 
-                switchScene(stage, root, "Expert Carbone - " + user.getNomComplet());
-
-            } else if (user.getTypeUtilisateur() == Models.TypeUtilisateur.PORTEUR_PROJET) {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/GestionProjet.fxml"));
-                Parent root = loader.load();
-
-                ProjetController controller = loader.getController();
-                controller.setCurrentUser(user);
-
-                switchScene(stage, root, "Porteur de Projet - " + user.getNomComplet());
-
-            } else {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/dashboard.fxml"));
-                Parent root = loader.load();
-
-                DashboardController controller = loader.getController();
-                controller.setCurrentUser(user);
-
-                switchScene(stage, root, user.getTypeUtilisateur().getLibelle() + " - " + user.getNomComplet());
+                case INVESTISSEUR:
+                default:
+                    // → /front-office/wallet
+                    fxml  = "/fxml/investisseur_shell.fxml";
+                    title = "Investisseur — " + user.getNomComplet();
+                    break;
             }
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource(fxml));
+            Parent root = loader.load();
+            switchScene(stage, root, title);
 
         } catch (IOException e) {
             showError("Erreur lors du chargement du tableau de bord");

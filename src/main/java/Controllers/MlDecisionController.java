@@ -127,8 +127,8 @@ public class MlDecisionController extends BaseController {
         if (evals == null || evals.isEmpty()) {
             return null;
         }
-        evals.sort(Comparator.comparingInt(Evaluation::getIdEvaluation));
-        return evals.get(evals.size() - 1);
+        // afficherParProjet orders by date_evaluation DESC — first element is the latest
+        return evals.get(0);
     }
 
     private void updateSummary(List<EvaluationResult> results) {
@@ -574,16 +574,7 @@ public class MlDecisionController extends BaseController {
 
     @FXML
     private void handleBack() {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/gestionCarbone.fxml"));
-            Parent root = loader.load();
-            Scene scene = lblProjectName != null ? lblProjectName.getScene() : null;
-            if (scene != null) {
-                scene.setRoot(root);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        navigateBack();
     }
 
     private Integer parseEsgLabel(String text) {

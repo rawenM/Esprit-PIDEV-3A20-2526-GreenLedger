@@ -1,77 +1,224 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx/20.0.2"
-            xmlns:fx="http://javafx.com/fxml/1"
-            fx:controller="Controllers.RoleShellController"
-            fx:id="root"
-            userData="PORTEUR_PROJET"
-            prefHeight="600" prefWidth="900"
-            styleClass="page">
+<HBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.PorteurShellController"
+      prefHeight="780" prefWidth="1320"
+      style="-fx-background-color:#F8FAFC;">
 
-    <left>
-        <VBox prefWidth="220" spacing="10" styleClass="sidebar">
+  <!-- SIDEBAR -->
+  <VBox prefWidth="240" minWidth="240" maxWidth="240" spacing="0"
+        style="-fx-background-color:#0F172A;">
+    <VBox style="-fx-padding:22 18 18 18;-fx-spacing:4;-fx-border-color:rgba(255,255,255,0.1);-fx-border-width:0 0 1 0;">
+      <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="GL" style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:13px;-fx-font-weight:800;-fx-background-radius:8;-fx-min-width:36;-fx-min-height:36;-fx-max-width:36;-fx-max-height:36;-fx-alignment:CENTER;"/>
+        <VBox spacing="1">
+          <Label text="GreenLedger" style="-fx-font-size:14px;-fx-font-weight:800;-fx-text-fill:white;"/>
+          <Label text="Porteur de Projet" style="-fx-font-size:9px;-fx-text-fill:rgba(16,185,129,0.75);-fx-font-weight:600;"/>
+        </VBox>
+      </HBox>
+    </VBox>
+    <VBox style="-fx-padding:16 14 6 14;">
+      <Label text="PRINCIPAL" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.25);"/>
+    </VBox>
+    <VBox spacing="2" style="-fx-padding:0 10 0 10;">
+      <Button fx:id="btnDashboard" text="  Tableau de bord" onAction="#onDashboard"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;-fx-effect:dropshadow(gaussian,rgba(5,150,105,0.35),12,0,0,3);"/>
+      <Button fx:id="btnProjets" text="  Mes projets" onAction="#onProjets"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+      <Button fx:id="btnNewProjet" text="  Nouveau projet" onAction="#onNewProjet"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+      <Button fx:id="btnEvaluations" text="  Mes évaluations" onAction="#onEvaluations"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+      <Button fx:id="btnFinancing" text="  Financement" onAction="#onFinancing"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+      <Button fx:id="btnWallet" text="  Wallet crédits" onAction="#onWallet"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+    </VBox>
+    <VBox style="-fx-padding:14 14 6 14;">
+      <Label text="COMMUNICATION" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.25);"/>
+    </VBox>
+    <VBox spacing="2" style="-fx-padding:0 10 0 10;">
+      <Button fx:id="btnMessages" text="  Messages" onAction="#onMessages"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+      <Button fx:id="btnAssistant" text="  Assistant IA" onAction="#onAssistant"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+      <Button text="  Notifications" onAction="#onNotifications"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+    </VBox>
+    <Region VBox.vgrow="ALWAYS"/>
+    <VBox style="-fx-background-color:#070F1A;-fx-padding:14;-fx-spacing:10;-fx-border-color:rgba(255,255,255,0.1);-fx-border-width:1 0 0 0;">
+      <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="P" style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:800;-fx-background-radius:20;-fx-min-width:38;-fx-min-height:38;-fx-max-width:38;-fx-max-height:38;-fx-alignment:CENTER;"/>
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+          <Label fx:id="lblProfileName" style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:white;"/>
+          <Label fx:id="lblProfileType" style="-fx-font-size:9px;-fx-text-fill:rgba(16,185,129,0.6);"/>
+        </VBox>
+      </HBox>
+      <HBox spacing="6">
+        <Button text="Profil" onAction="#onEditProfile" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                style="-fx-background-color:#1E293B;-fx-text-fill:rgba(255,255,255,0.8);-fx-font-size:11px;-fx-font-weight:600;-fx-background-radius:7;-fx-padding:7 10;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+        <Button text="Quitter" onAction="#onLogout"
+                style="-fx-background-color:rgba(244,63,94,0.15);-fx-text-fill:#f43f5e;-fx-font-size:11px;-fx-font-weight:600;-fx-background-radius:7;-fx-padding:7 10;-fx-cursor:hand;-fx-border-color:rgba(244,63,94,0.3);-fx-border-width:1;-fx-background-insets:0;"/>
+      </HBox>
+    </VBox>
+  </VBox>
+
+  <!-- MAIN CONTENT -->
+  <VBox HBox.hgrow="ALWAYS" spacing="0" style="-fx-background-color:#F8FAFC;">
+    <!-- Top bar -->
+    <HBox alignment="CENTER_LEFT" spacing="14"
+          style="-fx-background-color:white;-fx-padding:14 28;-fx-border-color:#E2E8F0;-fx-border-width:0 0 1 0;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.04),8,0,0,2);">
+      <Label fx:id="lblPageTitle" text="Tableau de bord"
+             style="-fx-font-size:17px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+      <Region HBox.hgrow="ALWAYS"/>
+      <Label fx:id="lblUnreadBadge" text=""
+             style="-fx-background-color:#f43f5e;-fx-text-fill:white;-fx-font-size:9px;-fx-font-weight:700;-fx-background-radius:10;-fx-padding:2 7;"/>
+      <Button text="+ Nouveau projet" onAction="#onNewProjet"
+              style="-fx-background-color:linear-gradient(to bottom right,#059669,#047857);-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:9 18;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;-fx-effect:dropshadow(gaussian,rgba(5,150,105,0.18),12,0,0,4);"/>
+    </HBox>
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background:#F8FAFC;-fx-background-color:#F8FAFC;-fx-border-width:0;">
+      <VBox spacing="24">
+        <padding><Insets top="28" right="32" bottom="32" left="32"/></padding>
+
+        <!-- HERO BANNER -->
+        <VBox spacing="16"
+              style="-fx-background-color:linear-gradient(to bottom right,#059669,#10b981,#14b8a6);-fx-background-radius:18;-fx-padding:24 28;-fx-effect:dropshadow(gaussian,rgba(5,150,105,0.18),40,0,0,18);">
+          <HBox alignment="CENTER_LEFT" spacing="20">
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+              <HBox>
+                <Label text="PORTEUR DE PROJET"
+                       style="-fx-background-color:rgba(255,255,255,0.15);-fx-border-color:rgba(255,255,255,0.30);-fx-border-width:1;-fx-background-radius:999;-fx-border-radius:999;-fx-padding:5 12;-fx-text-fill:white;-fx-font-size:10px;-fx-font-weight:700;"/>
+              </HBox>
+              <Label text="Tableau de bord Projets"
+                     style="-fx-font-size:24px;-fx-font-weight:800;-fx-text-fill:white;"/>
+              <Label text="Gérez vos projets verts, suivez vos évaluations et attirez des investisseurs."
+                     style="-fx-font-size:12px;-fx-text-fill:rgba(255,255,255,0.80);" wrapText="true"/>
+            </VBox>
+            <VBox alignment="CENTER" spacing="4"
+                  style="-fx-background-color:rgba(255,255,255,0.12);-fx-border-color:rgba(255,255,255,0.18);-fx-border-width:1;-fx-background-radius:14;-fx-border-radius:14;-fx-padding:16 22;">
+              <Label text="SCORE SANTÉ" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.84);"/>
+              <Label fx:id="lblHealthScore" text="—" style="-fx-font-size:28px;-fx-font-weight:800;-fx-text-fill:white;"/>
+              <Label text="/ 100" style="-fx-font-size:10px;-fx-text-fill:rgba(255,255,255,0.5);"/>
+            </VBox>
+          </HBox>
+        </VBox>
+
+        <!-- KPI CARDS -->
+        <HBox spacing="16">
+          <VBox HBox.hgrow="ALWAYS" spacing="10"
+                style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-border-radius:16;-fx-background-radius:16;-fx-padding:20 22;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.06),8,0,0,2);">
             <HBox alignment="CENTER_LEFT" spacing="8">
-                <padding>
-                    <Insets top="16" right="12" bottom="16" left="12"/>
-                </padding>
-                <Label text="📁" style="-fx-font-size:18px;"/>
-                <Label fx:id="lblSidebarTitle" text="GreenLedger Projet" styleClass="sidebar-title"/>
+              <Label text="P" style="-fx-background-color:#DCFCE7;-fx-text-fill:#059669;-fx-font-size:11px;-fx-font-weight:800;-fx-background-radius:8;-fx-min-width:32;-fx-min-height:32;-fx-max-width:32;-fx-max-height:32;-fx-alignment:CENTER;"/>
+              <Label text="PROJETS" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
             </HBox>
-            <Separator styleClass="sidebar-sep"/>
-            <Button fx:id="btnNavPrimary" text="📁 Mes projets" onAction="#onPrimary" styleClass="nav-btn nav-btn-active"/>
-            <Button fx:id="btnNavSecondary" text="➕ Nouveau projet" onAction="#onSecondary" styleClass="nav-btn"/>
-            <Button fx:id="btnNavTertiary" text="📊 Mes evaluations" onAction="#onTertiary" styleClass="nav-btn"/>
-            <Button fx:id="btnNavSettings" text="⚙️ Parametres" onAction="#onSettings" styleClass="nav-btn"/>
-            <Button text="🚪 Deconnexion" onAction="#onLogout" styleClass="nav-btn"/>
-            <Region VBox.vgrow="ALWAYS"/>
-            <VBox spacing="2" alignment="TOP_LEFT" style="-fx-padding: 10 0 0 12;">
-                <Label fx:id="lblProfileName" styleClass="page-title"/>
-                <Label fx:id="lblProfileType" styleClass="page-subtitle"/>
-                <Button text="✏️ Modifier profil" styleClass="btn-secondary" onAction="#onEditProfile"/>
-            </VBox>
-        </VBox>
-    </left>
-
-    <top>
-        <VBox styleClass="topbar">
-            <HBox alignment="CENTER_LEFT" spacing="20">
-                <padding>
-                    <Insets top="16" right="24" bottom="16" left="24"/>
-                </padding>
-                <Label fx:id="lblPageTitle" text="📁 Gestion des projets" styleClass="page-title"/>
-                <Region HBox.hgrow="ALWAYS"/>
-                <Button text="← Retour" onAction="#onBack" styleClass="btn btn-secondary"/>
+            <Label fx:id="statProjets" text="—" style="-fx-font-size:32px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+            <Label text="Total créés" style="-fx-font-size:10px;-fx-text-fill:#94A3B8;"/>
+          </VBox>
+          <VBox HBox.hgrow="ALWAYS" spacing="10"
+                style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-border-radius:16;-fx-background-radius:16;-fx-padding:20 22;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.06),8,0,0,2);">
+            <HBox alignment="CENTER_LEFT" spacing="8">
+              <Label text="A" style="-fx-background-color:#DCFCE7;-fx-text-fill:#10b981;-fx-font-size:11px;-fx-font-weight:800;-fx-background-radius:8;-fx-min-width:32;-fx-min-height:32;-fx-max-width:32;-fx-max-height:32;-fx-alignment:CENTER;"/>
+              <Label text="APPROUVÉS" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
             </HBox>
+            <Label fx:id="statApprouves" text="—" style="-fx-font-size:32px;-fx-font-weight:800;-fx-text-fill:#10b981;"/>
+            <Label text="Projets validés" style="-fx-font-size:10px;-fx-text-fill:#94A3B8;"/>
+          </VBox>
+          <VBox HBox.hgrow="ALWAYS" spacing="10"
+                style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-border-radius:16;-fx-background-radius:16;-fx-padding:20 22;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.06),8,0,0,2);">
+            <HBox alignment="CENTER_LEFT" spacing="8">
+              <Label text="F" style="-fx-background-color:#FEF3C7;-fx-text-fill:#f59e0b;-fx-font-size:11px;-fx-font-weight:800;-fx-background-radius:8;-fx-min-width:32;-fx-min-height:32;-fx-max-width:32;-fx-max-height:32;-fx-alignment:CENTER;"/>
+              <Label text="FINANCEMENTS" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
+            </HBox>
+            <Label fx:id="statFinancements" text="—" style="-fx-font-size:32px;-fx-font-weight:800;-fx-text-fill:#f59e0b;"/>
+            <Label text="Investissements reçus" style="-fx-font-size:10px;-fx-text-fill:#94A3B8;"/>
+          </VBox>
+          <VBox HBox.hgrow="ALWAYS" spacing="10"
+                style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-border-radius:16;-fx-background-radius:16;-fx-padding:20 22;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.06),8,0,0,2);">
+            <HBox alignment="CENTER_LEFT" spacing="8">
+              <Label text="C" style="-fx-background-color:#DCFCE7;-fx-text-fill:#059669;-fx-font-size:11px;-fx-font-weight:800;-fx-background-radius:8;-fx-min-width:32;-fx-min-height:32;-fx-max-width:32;-fx-max-height:32;-fx-alignment:CENTER;"/>
+              <Label text="CRÉDITS VERTS" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
+            </HBox>
+            <Label fx:id="statCredits" text="—" style="-fx-font-size:32px;-fx-font-weight:800;-fx-text-fill:#059669;"/>
+            <Label text="Crédits disponibles" style="-fx-font-size:10px;-fx-text-fill:#94A3B8;"/>
+          </VBox>
+        </HBox>
+
+        <!-- QUICK ACTIONS -->
+        <VBox spacing="0"
+              style="-fx-background-color:white;-fx-background-radius:16;-fx-border-radius:16;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.06),8,0,0,2);">
+          <HBox alignment="CENTER_LEFT" style="-fx-padding:18 24;-fx-border-color:#E2E8F0;-fx-border-width:0 0 1 0;">
+            <Label text="Actions rapides" style="-fx-font-size:15px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+          </HBox>
+          <HBox spacing="12" style="-fx-padding:20 24;">
+            <Button text="+ Nouveau projet" onAction="#onNewProjet"
+                    prefHeight="42"
+                    style="-fx-background-color:linear-gradient(to bottom right,#059669,#047857);-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:9;-fx-padding:0 20;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;-fx-effect:dropshadow(gaussian,rgba(5,150,105,0.18),12,0,0,4);"/>
+            <Button text="Mes évaluations" onAction="#onEvaluations"
+                    prefHeight="42"
+                    style="-fx-background-color:#F8FAFC;-fx-text-fill:#334155;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:9;-fx-padding:0 20;-fx-cursor:hand;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-background-insets:0;"/>
+            <Button text="Messages" onAction="#onMessages"
+                    prefHeight="42"
+                    style="-fx-background-color:#F8FAFC;-fx-text-fill:#334155;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:9;-fx-padding:0 20;-fx-cursor:hand;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-background-insets:0;"/>
+            <Button text="Assistant IA" onAction="#onAssistant"
+                    prefHeight="42"
+                    style="-fx-background-color:#EFF6FF;-fx-text-fill:#3B82F6;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:9;-fx-padding:0 20;-fx-cursor:hand;-fx-border-color:#BFDBFE;-fx-border-width:1;-fx-background-insets:0;"/>
+            <Button text="Financement" onAction="#onFinancing"
+                    prefHeight="42"
+                    style="-fx-background-color:#FFFBEB;-fx-text-fill:#D97706;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:9;-fx-padding:0 20;-fx-cursor:hand;-fx-border-color:#FDE68A;-fx-border-width:1;-fx-background-insets:0;"/>
+          </HBox>
         </VBox>
-    </top>
 
-    <center>
-        <ScrollPane fitToWidth="true" styleClass="content-area">
-            <VBox spacing="20" styleClass="content-area">
-                <padding>
-                    <Insets top="30" right="30" bottom="30" left="30"/>
-                </padding>
-
-                <VBox spacing="10" styleClass="card">
-                    <Label text="Actions rapides" styleClass="section-title"/>
-                    <HBox spacing="12">
-                        <Button text="📁 Mes projets" onAction="#onPrimary" styleClass="btn btn-secondary" prefWidth="160"/>
-                        <Button text="➕ Nouveau projet" onAction="#onSecondary" styleClass="btn btn-secondary" prefWidth="180"/>
-                        <Button text="📊 Mes evaluations" onAction="#onTertiary" styleClass="btn btn-secondary" prefWidth="180"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                    </HBox>
-                </VBox>
-
-                <VBox spacing="10" styleClass="card">
-                    <Label text="Astuce" styleClass="section-title"/>
-                    <Label text="Soumettez vos projets et suivez les evaluations associees." styleClass="page-subtitle"/>
-                </VBox>
+        <!-- RECENT PROJECTS TABLE -->
+        <VBox spacing="0"
+              style="-fx-background-color:white;-fx-background-radius:16;-fx-border-radius:16;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.06),8,0,0,2);">
+          <HBox alignment="CENTER_LEFT" spacing="12"
+                style="-fx-padding:18 24;-fx-border-color:#E2E8F0;-fx-border-width:0 0 1 0;">
+            <VBox spacing="2" HBox.hgrow="ALWAYS">
+              <Label text="Mes projets récents"
+                     style="-fx-font-size:15px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+              <Label text="Vos 5 derniers projets créés"
+                     style="-fx-font-size:11px;-fx-text-fill:#64748B;"/>
             </VBox>
-        </ScrollPane>
-    </center>
-</BorderPane>
+            <Button text="Voir tous" onAction="#onProjets"
+                    style="-fx-background-color:transparent;-fx-text-fill:#059669;-fx-font-size:11px;-fx-font-weight:700;-fx-cursor:hand;-fx-padding:6 12;-fx-border-color:rgba(5,150,105,0.3);-fx-border-width:1;-fx-border-radius:8;-fx-background-radius:8;-fx-background-insets:0;"/>
+          </HBox>
+          <TableView fx:id="tableProjets" prefHeight="260"
+                     style="-fx-background-color:transparent;-fx-border-width:0;-fx-table-cell-border-color:transparent;">
+            <placeholder>
+              <VBox alignment="CENTER" spacing="12" style="-fx-padding:40;">
+                <Label text="Aucun projet créé"
+                       style="-fx-font-size:13px;-fx-text-fill:#94A3B8;-fx-font-weight:500;"/>
+                <Button text="+ Créer votre premier projet" onAction="#onNewProjet"
+                        style="-fx-background-color:linear-gradient(to bottom right,#059669,#047857);-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:9;-fx-padding:10 20;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+              </VBox>
+            </placeholder>
+            <columns>
+              <TableColumn fx:id="colTitre"   text="TITRE"   prefWidth="260" style="-fx-font-size:11px;-fx-font-weight:800;-fx-text-fill:#64748B;"/>
+              <TableColumn fx:id="colStatut"  text="STATUT"  prefWidth="130" style="-fx-font-size:11px;-fx-font-weight:800;-fx-text-fill:#64748B;-fx-alignment:CENTER;"/>
+              <TableColumn fx:id="colEsg"     text="ESG"     prefWidth="80"  style="-fx-font-size:11px;-fx-font-weight:800;-fx-text-fill:#64748B;-fx-alignment:CENTER;"/>
+              <TableColumn fx:id="colDate"    text="DATE"    prefWidth="120" style="-fx-font-size:11px;-fx-font-weight:800;-fx-text-fill:#64748B;-fx-alignment:CENTER;"/>
+              <TableColumn fx:id="colActions" text="ACTIONS" prefWidth="220" style="-fx-font-size:11px;-fx-font-weight:800;-fx-text-fill:#64748B;"/>
+            </columns>
+          </TableView>
+        </VBox>
 
+      </VBox>
+    </ScrollPane>
+  </VBox>
+
+</HBox>

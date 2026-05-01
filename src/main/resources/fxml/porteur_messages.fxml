@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.PorteurMessagesController"
+            prefHeight="760" prefWidth="1200"
+            style="-fx-background-color:#F7F9F8;">
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="12"
+              style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:0 0 1 0;-fx-padding:10 20;">
+            <Button text="← Retour" onAction="#onBack"
+                    style="-fx-background-color:#F3F4F6;-fx-text-fill:#374151;-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:6;-fx-padding:7 14;-fx-cursor:hand;-fx-border-color:#E5E7EB;-fx-border-width:1;"/>
+            <Label text="Messages" style="-fx-font-size:16px;-fx-font-weight:800;-fx-text-fill:#1A2E26;"/>
+            <Label fx:id="lblUnreadTotal" text=""
+                   style="-fx-background-color:#EF4444;-fx-text-fill:white;-fx-font-size:10px;-fx-font-weight:700;-fx-background-radius:10;-fx-padding:2 7;"/>
+        </HBox>
+    </top>
+    <center>
+        <HBox spacing="0" style="-fx-background-color:#F7F9F8;">
+            <!-- Thread list -->
+            <VBox prefWidth="340" spacing="0"
+                  style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:0 1 0 0;">
+                <Label text="Conversations" style="-fx-font-size:13px;-fx-font-weight:700;-fx-text-fill:#1A2E26;-fx-padding:14 16 10 16;"/>
+                <Separator/>
+                <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                            style="-fx-background:white;-fx-background-color:white;">
+                    <VBox fx:id="boxThreads" spacing="0"/>
+                </ScrollPane>
+            </VBox>
+
+            <!-- Message area -->
+            <VBox HBox.hgrow="ALWAYS" spacing="0">
+                <!-- Thread header -->
+                <HBox fx:id="boxThreadHeader" alignment="CENTER_LEFT" spacing="12"
+                      style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:0 0 1 0;-fx-padding:12 20;"
+                      visible="false" managed="false">
+                    <VBox spacing="2" HBox.hgrow="ALWAYS">
+                        <Label fx:id="lblThreadProject" text=""
+                               style="-fx-font-size:14px;-fx-font-weight:700;-fx-text-fill:#1A2E26;"/>
+                        <Label fx:id="lblThreadInvestor" text=""
+                               style="-fx-font-size:11px;-fx-text-fill:#6B7280;"/>
+                    </VBox>
+                    <Label fx:id="lblInvestmentBadge" text=""
+                           style="-fx-font-size:10px;-fx-font-weight:700;-fx-background-radius:4;-fx-padding:3 8;"/>
+                </HBox>
+
+                <!-- Messages scroll -->
+                <ScrollPane fx:id="scrollMessages" fitToWidth="true" VBox.vgrow="ALWAYS"
+                            style="-fx-background:#F7F9F8;-fx-background-color:#F7F9F8;">
+                    <VBox fx:id="boxMessages" spacing="10">
+                        <padding><Insets top="16" right="20" bottom="16" left="20"/></padding>
+                        <Label fx:id="lblNoThread" text="Selectionnez une conversation"
+                               style="-fx-font-size:14px;-fx-text-fill:#9CA3AF;-fx-alignment:CENTER;" maxWidth="Infinity"/>
+                    </VBox>
+                </ScrollPane>
+
+                <!-- Input area -->
+                <HBox fx:id="boxInput" spacing="10" alignment="CENTER"
+                      style="-fx-background-color:white;-fx-border-color:#E5E7EB;-fx-border-width:1 0 0 0;-fx-padding:12 20;"
+                      visible="false" managed="false">
+                    <TextArea fx:id="txtMessage" promptText="Ecrire un message..."
+                              prefHeight="60" wrapText="true" HBox.hgrow="ALWAYS"
+                              style="-fx-font-size:13px;-fx-border-color:#D1D5DB;-fx-border-radius:8;-fx-background-radius:8;-fx-padding:8 12;"/>
+                    <Button text="Envoyer" onAction="#onSendMessage"
+                            style="-fx-background-color:#2D5F3F;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:10 18;-fx-cursor:hand;"/>
+                </HBox>
+            </VBox>
+        </HBox>
+    </center>
+</BorderPane>

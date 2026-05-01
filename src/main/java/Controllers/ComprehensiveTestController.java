@@ -7,7 +7,6 @@ import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.FileChooser;
-import com.stripe.model.PaymentIntent;
 
 import java.io.File;
 import java.io.PrintWriter;
@@ -439,18 +438,19 @@ public class ComprehensiveTestController {
     private void testCreatePaymentIntent() {
         runTest("Create Stripe Payment Intent", () -> {
             double amount = parseDouble(txtPaymentAmount.getText());
-            
-            PaymentIntent intent = stripeService.initiatePayment(
+
+            StripePaymentService.PaymentResult result = stripeService.initiatePayment(
                 9999, amount, 1, 2, "Test payment"
             );
-            
-            if (intent != null) {
+
+            if (result != null && result.success) {
                 log("✓ Payment Intent created");
-                log("  ID: " + intent.getId());
+                log("  ID: " + result.paymentIntentId);
                 log("  Amount: $" + amount);
-                log("  Status: " + intent.getStatus());
+                log("  Status: requires_payment_method");
                 return true;
             }
+            log("✗ Failed: " + (result != null ? result.errorMessage : "null result"));
             return false;
         });
     }

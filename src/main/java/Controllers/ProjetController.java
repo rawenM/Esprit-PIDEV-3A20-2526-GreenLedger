@@ -21,7 +21,7 @@ import Utils.SessionManager;
 
 import java.util.List;
 
-public class ProjetController {
+public class ProjetController extends BaseController {
 
     private final ProjetService service = new ProjetService();
     private final WalletService walletService = new WalletService();
@@ -180,11 +180,7 @@ public class ProjetController {
 
     @FXML
     private void onBack() {
-        try {
-            MainFX.setRoot("fxml/dashboard");
-        } catch (Exception ex) {
-            showError("Navigation impossible: " + ex.getMessage());
-        }
+        navigateBack();
     }
 
     private void refresh() {

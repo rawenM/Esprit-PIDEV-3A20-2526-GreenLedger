@@ -5,10 +5,17 @@ import Models.MlDecisionSnapshot;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.sql.Types;
 
 public class MlDecisionSnapshotService {
+
+    private static final String SELECT_BASE =
+            "SELECT id, project_id, evaluation_id, project_name, decision, confidence, score, compliance, " +
+            "min_note, esg_score, factors, explanation, recommendations, created_by_user_id, created_at " +
+            "FROM ml_decision_snapshots ";
 
     public void insert(MlDecisionSnapshot snapshot) {
         if (snapshot == null) return;
@@ -56,6 +63,80 @@ public class MlDecisionSnapshotService {
         } catch (SQLException ex) {
             System.err.println("[ML] snapshot insert failed: " + ex.getMessage());
         }
+    }
+
+    public MlDecisionSnapshot findLatestByProject(int projectId) {
+        String sql = SELECT_BASE + "WHERE project_id=? ORDER BY created_at DESC, id DESC LIMIT 1";
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, projectId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println("[ML] snapshot findLatestByProject failed: " + ex.getMessage());
+        }
+        return null;
+    }
+
+    public MlDecisionSnapshot findLatestByEvaluation(int evaluationId) {
+        String sql = SELECT_BASE + "WHERE evaluation_id=? ORDER BY created_at DESC, id DESC LIMIT 1";
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, evaluationId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        } catch (SQLException ex) {
+            System.err.println("[ML] snapshot findLatestByEvaluation failed: " + ex.getMessage());
+        }
+        return null;
+    }
+
+    private MlDecisionSnapshot mapRow(ResultSet rs) throws SQLException {
+        MlDecisionSnapshot s = new MlDecisionSnapshot();
+
+        long id = rs.getLong("id");
+        s.setId(rs.wasNull() ? null : id);
+
+        int projectId = rs.getInt("project_id");
+        s.setProjectId(rs.wasNull() ? null : projectId);
+
+        int evaluationId = rs.getInt("evaluation_id");
+        s.setEvaluationId(rs.wasNull() ? null : evaluationId);
+
+        s.setProjectName(rs.getString("project_name"));
+        s.setDecision(rs.getString("decision"));
+
+        double confidence = rs.getDouble("confidence");
+        s.setConfidence(rs.wasNull() ? null : confidence);
+
+        double score = rs.getDouble("score");
+        s.setScore(rs.wasNull() ? null : score);
+
+        double compliance = rs.getDouble("compliance");
+        s.setCompliance(rs.wasNull() ? null : compliance);
+
+        int minNote = rs.getInt("min_note");
+        s.setMinNote(rs.wasNull() ? null : minNote);
+
+        int esgScore = rs.getInt("esg_score");
+        s.setEsgScore(rs.wasNull() ? null : esgScore);
+
+        s.setFactors(rs.getString("factors"));
+        s.setExplanation(rs.getString("explanation"));
+        s.setRecommendations(rs.getString("recommendations"));
+
+        long createdBy = rs.getLong("created_by_user_id");
+        s.setCreatedByUserId(rs.wasNull() ? null : createdBy);
+
+        Timestamp createdAt = rs.getTimestamp("created_at");
+        s.setCreatedAt(createdAt);
+        return s;
     }
 }
 

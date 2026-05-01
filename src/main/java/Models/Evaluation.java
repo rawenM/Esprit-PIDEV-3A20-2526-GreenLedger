@@ -36,6 +36,16 @@ public class Evaluation {
     public String getDecision() { return decision; }
     public void setDecision(String decision) { this.decision = decision; }
 
+    // Symfony-compatible: null=pending, TRUE=approved, FALSE=rejected
+    public Boolean getEstValide() {
+        if (decision == null) return null;
+        return "APPROVED".equalsIgnoreCase(decision) || "APPROUVE".equalsIgnoreCase(decision);
+    }
+    public void setEstValide(Boolean v) {
+        if (v == null) this.decision = null;
+        else this.decision = v ? "APPROVED" : "REJECTED";
+    }
+
     public int getIdProjet() { return idProjet; }
     public void setIdProjet(int idProjet) { this.idProjet = idProjet; }
 

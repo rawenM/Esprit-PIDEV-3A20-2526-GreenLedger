@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.geometry.Insets?>
+
+<BorderPane xmlns="http://javafx.com/javafx/20.0.2"
+            xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="Controllers.AdminShellController"
+            prefHeight="700" prefWidth="1100"
+            styleClass="page">
+
+    <!-- ── Sidebar ── -->
+    <left>
+        <VBox prefWidth="230" spacing="6" styleClass="sidebar">
+            <padding><Insets top="16" right="10" bottom="16" left="10"/></padding>
+
+            <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="🛡️" style="-fx-font-size:20px;"/>
+                <Label text="GreenLedger Admin" styleClass="sidebar-title"/>
+            </HBox>
+            <Separator styleClass="sidebar-sep"/>
+
+            <Button fx:id="btnUsers"       text="👥 Utilisateurs"        onAction="#onUsers"       styleClass="nav-btn nav-btn-active"/>
+            <Button fx:id="btnAudit"       text="📋 Journal d'audit"     onAction="#onAudit"       styleClass="nav-btn"/>
+            <Button fx:id="btnProjets"     text="📁 Projets"             onAction="#onProjets"     styleClass="nav-btn"/>
+            <Button fx:id="btnEvaluations" text="📊 Évaluations"         onAction="#onEvaluations" styleClass="nav-btn"/>
+            <Button fx:id="btnFraud"       text="🚨 Fraude"              onAction="#onFraud"       styleClass="nav-btn"/>
+            <Button fx:id="btnCredits"     text="🌿 Crédits verts"       onAction="#onCredits"     styleClass="nav-btn"/>
+            <Button fx:id="btnCriteres"    text="📐 Critères"            onAction="#onCriteres"    styleClass="nav-btn"/>
+            <Button fx:id="btnWallet"      text="💼 Wallets"             onAction="#onWallet"      styleClass="nav-btn"/>
+
+            <Region VBox.vgrow="ALWAYS"/>
+            <Separator styleClass="sidebar-sep"/>
+            <VBox spacing="3" style="-fx-padding:8 0 0 4;">
+                <Label fx:id="lblProfileName" styleClass="page-title"/>
+                <Label fx:id="lblProfileType" styleClass="page-subtitle"/>
+                <Button text="✏️ Profil"       onAction="#onEditProfile" styleClass="btn-secondary"/>
+                <Button text="🚪 Déconnexion"  onAction="#onLogout"      styleClass="nav-btn"/>
+            </VBox>
+        </VBox>
+    </left>
+
+    <!-- ── Top bar ── -->
+    <top>
+        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="topbar">
+            <padding><Insets top="12" right="24" bottom="12" left="24"/></padding>
+            <Button fx:id="btnBack" text="← Retour" onAction="#onBack"
+                    style="-fx-background-color:#F3F4F6; -fx-text-fill:#374151; -fx-font-size:12px; -fx-font-weight:600; -fx-background-radius:6; -fx-padding:7 14; -fx-cursor:hand; -fx-border-color:#E5E7EB; -fx-border-width:1; -fx-border-radius:6;"/>
+            <Separator orientation="VERTICAL" style="-fx-padding:0 4;"/>
+            <Label fx:id="lblPageTitle" text="🛡️ Administration" styleClass="page-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Label fx:id="lblNotifBadge" text="" styleClass="badge-danger"/>
+            <Button text="🔔" onAction="#onNotifications" styleClass="btn-icon"/>
+        </HBox>
+    </top>
+
+    <!-- ── Content area (swapped by navigation) ── -->
+    <center>
+        <StackPane fx:id="contentArea">
+            <!-- Default: user management -->
+            <ScrollPane fitToWidth="true" styleClass="content-area">
+                <VBox spacing="20" styleClass="content-area">
+                    <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
+
+                    <!-- Stats row -->
+                    <HBox spacing="16">
+                        <VBox styleClass="card stat-card" prefWidth="160">
+                            <Label text="👥 Utilisateurs" styleClass="stat-label"/>
+                            <Label fx:id="statTotal"     text="—" styleClass="stat-value"/>
+                        </VBox>
+                        <VBox styleClass="card stat-card" prefWidth="160">
+                            <Label text="✅ Actifs"       styleClass="stat-label"/>
+                            <Label fx:id="statActifs"    text="—" styleClass="stat-value"/>
+                        </VBox>
+                        <VBox styleClass="card stat-card" prefWidth="160">
+                            <Label text="⏳ En attente"  styleClass="stat-label"/>
+                            <Label fx:id="statAttente"   text="—" styleClass="stat-value"/>
+                        </VBox>
+                        <VBox styleClass="card stat-card" prefWidth="160">
+                            <Label text="🚨 Fraude"      styleClass="stat-label"/>
+                            <Label fx:id="statFraud"     text="—" styleClass="stat-value"/>
+                        </VBox>
+                    </HBox>
+
+                    <!-- Search + actions -->
+                    <HBox spacing="10" alignment="CENTER_LEFT">
+                        <TextField fx:id="txtSearch" promptText="🔍 Rechercher un utilisateur…" prefWidth="280"/>
+                        <ComboBox fx:id="cmbType"   promptText="Type"   prefWidth="140"/>
+                        <ComboBox fx:id="cmbStatut" promptText="Statut" prefWidth="140"/>
+                        <Button text="Rechercher" onAction="#onSearch" styleClass="btn btn-primary"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Button text="➕ Nouvel utilisateur" onAction="#onNewUser"   styleClass="btn btn-primary"/>
+                        <Button text="📥 Export CSV"         onAction="#onExportCsv" styleClass="btn btn-secondary"/>
+                    </HBox>
+
+                    <!-- User table -->
+                    <TableView fx:id="tableUsers" prefHeight="380" styleClass="card">
+                        <columns>
+                            <TableColumn fx:id="colId"     text="ID"     prefWidth="50"/>
+                            <TableColumn fx:id="colNom"    text="Nom"    prefWidth="140"/>
+                            <TableColumn fx:id="colEmail"  text="Email"  prefWidth="200"/>
+                            <TableColumn fx:id="colType"   text="Type"   prefWidth="130"/>
+                            <TableColumn fx:id="colStatut" text="Statut" prefWidth="100"/>
+                            <TableColumn fx:id="colFraud"  text="Fraude" prefWidth="80"/>
+                            <TableColumn fx:id="colActions" text="Actions" prefWidth="180"/>
+                        </columns>
+                    </TableView>
+                </VBox>
+            </ScrollPane>
+        </StackPane>
+    </center>
+</BorderPane>

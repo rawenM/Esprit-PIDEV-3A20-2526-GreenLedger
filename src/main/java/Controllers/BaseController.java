@@ -1,6 +1,7 @@
 package Controllers;
 
 import Utils.ThemeManager;
+import Utils.NavigationContext;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
@@ -61,8 +62,37 @@ public abstract class BaseController {
     }
 
     /**
+     * Navigate to the previous page using NavigationContext history.
+     * Falls back to the role-appropriate shell if no history exists.
+     */
+    protected void navigateBack() {
+        String prev = NavigationContext.getInstance().getPreviousPage();
+        String curr = NavigationContext.getInstance().getCurrentPage();
+
+        if (prev != null && !prev.isEmpty() && !prev.equals(curr)) {
+            try {
+                org.GreenLedger.MainFX.setRoot(prev);
+                return;
+            } catch (Exception ignored) {}
+        }
+
+        // Fallback: go to role shell
+        User user = SessionManager.getInstance().getCurrentUser();
+        String fallback = "fxml/login";
+        if (user != null && user.getTypeUtilisateur() != null) {
+            switch (user.getTypeUtilisateur()) {
+                case ADMIN          -> fallback = "fxml/admin_shell";
+                case EXPERT_CARBONE -> fallback = "fxml/expert_shell";
+                case PORTEUR_PROJET -> fallback = "fxml/porteur_shell";
+                case INVESTISSEUR   -> fallback = "fxml/investisseur_shell";
+            }
+        }
+        try { org.GreenLedger.MainFX.setRoot(fallback); }
+        catch (Exception e) { System.err.println("[Back] Navigation failed: " + e.getMessage()); }
+    }
+
+    /**
      * Helper method to populate profile labels from the current session user.
-     * Child controllers can use this to show profile info at the top.
      */
     protected void applyProfile(Label nameLabel, Label typeLabel) {
         if (nameLabel == null || typeLabel == null) {

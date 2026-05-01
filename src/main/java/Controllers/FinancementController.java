@@ -77,6 +77,7 @@ public class FinancementController extends BaseController {
 
         loadFinancements();
         loadOffres();
+        applyProfile(lblProfileName, lblProfileType);
 
         tableFinancement.getSelectionModel().selectedItemProperty().addListener((obs, o, n) -> {
             if (n != null) {
@@ -309,12 +310,15 @@ public class FinancementController extends BaseController {
      */
     @FXML
     private void handleGoDashboard() {
+        Models.User user = Utils.SessionManager.getInstance().getCurrentUser();
+        String target = "fxml/investisseur_shell";
+        if (user != null && user.getTypeUtilisateur() == Models.TypeUtilisateur.PORTEUR_PROJET) {
+            target = "fxml/porteur_shell";
+        }
         try {
-            org.GreenLedger.MainFX.setRoot("fxml/dashboard");
+            org.GreenLedger.MainFX.setRoot(target);
         } catch (IOException ex) {
             System.err.println("[ERROR] Navigation error: " + ex.getMessage());
-            ex.printStackTrace();
-            showError("Erreur", "Impossible de naviguer au tableau de bord");
         }
     }
 
@@ -351,8 +355,7 @@ public class FinancementController extends BaseController {
     @FXML
     private void handleGoSettings() {
         try {
-            // Navigate to settings - using dashboard as fallback
-            org.GreenLedger.MainFX.setRoot("fxml/dashboard");
+            org.GreenLedger.MainFX.setRoot("settings");
         } catch (IOException ex) {
             System.err.println("[ERROR] Navigation error: " + ex.getMessage());
             ex.printStackTrace();
@@ -493,6 +496,33 @@ public class FinancementController extends BaseController {
     @FXML
     private void GoDashboard() {
         try { org.GreenLedger.MainFX.setRoot("Investment_dashboard"); }
+        catch (IOException e) { e.printStackTrace(); }
+    }
+
+    // ── Sidebar fields & navigation (Porteur de Projet) ───────────────────
+    @FXML private javafx.scene.control.Label lblProfileName;
+    @FXML private javafx.scene.control.Label lblProfileType;
+    @FXML private javafx.scene.control.ComboBox<?> cmbProjetSelector;
+
+    @FXML private void handleGoProjects()    {
+        try { org.GreenLedger.MainFX.setRoot("fxml/porteur_projets"); }
+        catch (IOException e) { e.printStackTrace(); }
+    }
+    @FXML private void handleGoEvaluations() {
+        try { org.GreenLedger.MainFX.setRoot("ownerEvaluations"); }
+        catch (IOException e) { e.printStackTrace(); }
+    }
+    @FXML private void handleGoMessages()    {
+        try { org.GreenLedger.MainFX.setRoot("fxml/porteur_messages"); }
+        catch (IOException e) { e.printStackTrace(); }
+    }
+    @FXML private void handleEditProfile()   {
+        try { org.GreenLedger.MainFX.setRoot("editProfile"); }
+        catch (IOException e) { e.printStackTrace(); }
+    }
+    @FXML private void handleLogout() {
+        Utils.SessionManager.getInstance().invalidate();
+        try { org.GreenLedger.MainFX.setRoot("fxml/login"); }
         catch (IOException e) { e.printStackTrace(); }
     }
 }

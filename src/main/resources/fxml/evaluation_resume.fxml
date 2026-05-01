@@ -1,0 +1,213 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.web.WebView?>
+<?import javafx.geometry.Insets?>
+
+<HBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.EvaluationResumeController"
+      prefHeight="780" prefWidth="1320"
+      style="-fx-background-color:#F8FAFC;">
+
+  <!-- ═══ SIDEBAR ═══ -->
+  <VBox prefWidth="240" minWidth="240" maxWidth="240" spacing="0"
+        style="-fx-background-color:#0F172A;">
+    <VBox style="-fx-padding:22 18 18 18;-fx-spacing:4;-fx-border-color:rgba(255,255,255,0.1);-fx-border-width:0 0 1 0;">
+      <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="GL" style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:13px;-fx-font-weight:800;-fx-background-radius:8;-fx-min-width:36;-fx-min-height:36;-fx-max-width:36;-fx-max-height:36;-fx-alignment:CENTER;"/>
+        <VBox spacing="1">
+          <Label text="GreenLedger" style="-fx-font-size:14px;-fx-font-weight:800;-fx-text-fill:white;"/>
+          <Label text="Expert Carbone" style="-fx-font-size:9px;-fx-text-fill:rgba(16,185,129,0.75);-fx-font-weight:600;"/>
+        </VBox>
+      </HBox>
+    </VBox>
+    <VBox style="-fx-padding:16 14 6 14;">
+      <Label text="ÉVALUATIONS" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.25);"/>
+    </VBox>
+    <VBox spacing="2" style="-fx-padding:0 10 0 10;">
+      <Button text="  Mes évaluations" onAction="#onBack"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+      <Button text="  Dashboard évaluations" onAction="#onDashboard"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+    </VBox>
+    <VBox style="-fx-padding:14 14 6 14;">
+      <Label text="PROFIL" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.25);"/>
+    </VBox>
+    <VBox spacing="2" style="-fx-padding:0 10 0 10;">
+      <Button text="  Modifier profil" onAction="#onEditProfile"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+    </VBox>
+    <Region VBox.vgrow="ALWAYS"/>
+    <VBox style="-fx-background-color:#070F1A;-fx-padding:14;-fx-spacing:10;-fx-border-color:rgba(255,255,255,0.1);-fx-border-width:1 0 0 0;">
+      <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="E" style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:800;-fx-background-radius:20;-fx-min-width:38;-fx-min-height:38;-fx-max-width:38;-fx-max-height:38;-fx-alignment:CENTER;"/>
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+          <Label fx:id="lblProfileName" style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:white;"/>
+          <Label fx:id="lblProfileType" style="-fx-font-size:9px;-fx-text-fill:rgba(16,185,129,0.6);"/>
+        </VBox>
+      </HBox>
+      <HBox spacing="6">
+        <Button text="Profil" onAction="#onEditProfile" HBox.hgrow="ALWAYS" maxWidth="Infinity"
+                style="-fx-background-color:#1E293B;-fx-text-fill:rgba(255,255,255,0.8);-fx-font-size:11px;-fx-font-weight:600;-fx-background-radius:7;-fx-padding:7 10;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+        <Button text="Quitter" onAction="#onLogout"
+                style="-fx-background-color:rgba(244,63,94,0.15);-fx-text-fill:#f43f5e;-fx-font-size:11px;-fx-font-weight:600;-fx-background-radius:7;-fx-padding:7 10;-fx-cursor:hand;-fx-border-color:rgba(244,63,94,0.3);-fx-border-width:1;-fx-background-insets:0;"/>
+      </HBox>
+    </VBox>
+  </VBox>
+
+  <!-- ═══ MAIN CONTENT ═══ -->
+  <VBox HBox.hgrow="ALWAYS" spacing="0" style="-fx-background-color:#F8FAFC;">
+
+    <!-- Top bar -->
+    <HBox alignment="CENTER_LEFT" spacing="12"
+          style="-fx-background-color:white;-fx-padding:14 28;-fx-border-color:#E2E8F0;-fx-border-width:0 0 1 0;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.04),8,0,0,2);">
+      <Button text="Retour" onAction="#onBack"
+              style="-fx-background-color:#F8FAFC;-fx-text-fill:#334155;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:10;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-padding:9 16;-fx-cursor:hand;-fx-background-insets:0;"/>
+      <VBox spacing="2">
+        <Label fx:id="lblTitle"
+               style="-fx-font-size:16px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+        <Label fx:id="lblSubtitle" text="Vue des résultats, signature et export PDF"
+               style="-fx-font-size:10px;-fx-text-fill:#64748B;"/>
+      </VBox>
+      <Region HBox.hgrow="ALWAYS"/>
+      <Button fx:id="btnDownloadPdf" text="Télécharger PDF" onAction="#onDownloadPdf"
+              style="-fx-background-color:#DBEAFE;-fx-text-fill:#1D4ED8;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:10;-fx-border-color:#BFDBFE;-fx-border-width:1;-fx-padding:9 18;-fx-cursor:hand;-fx-background-insets:0;"/>
+      <Button fx:id="btnSign" text="Re-signer" onAction="#onSign"
+              style="-fx-background-color:#F8FAFC;-fx-text-fill:#334155;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:10;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-padding:9 18;-fx-cursor:hand;-fx-background-insets:0;"/>
+      <Button fx:id="btnRelaunch" text="Relancer l'analyse" onAction="#onRelaunch"
+              style="-fx-background-color:linear-gradient(to bottom right,#059669,#047857);-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:10;-fx-padding:9 18;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;-fx-effect:dropshadow(gaussian,rgba(5,150,105,0.18),12,0,0,4);"/>
+    </HBox>
+
+    <!-- Scrollable body -->
+    <StackPane VBox.vgrow="ALWAYS">
+      <ScrollPane fitToWidth="true"
+                  style="-fx-background:#F8FAFC;-fx-background-color:#F8FAFC;-fx-border-width:0;">
+        <VBox spacing="24">
+          <padding><Insets top="28" right="32" bottom="32" left="32"/></padding>
+
+          <!-- Unsigned warning banner -->
+          <HBox fx:id="boxUnsignedBanner" spacing="10" alignment="CENTER_LEFT"
+                style="-fx-background-color:#FFFBEB;-fx-border-color:#FDE68A;-fx-border-width:1;-fx-border-radius:10;-fx-background-radius:10;-fx-padding:14 18;">
+            <Label text="⚠" style="-fx-font-size:16px;"/>
+            <VBox spacing="2">
+              <Label text="Signature de l'évaluation requise"
+                     style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:#92400E;"/>
+              <Label text="Cette évaluation n'a pas encore été signée électroniquement. Cliquez sur 'Re-signer' pour valider."
+                     style="-fx-font-size:11px;-fx-text-fill:#92400E;" wrapText="true"/>
+            </VBox>
+          </HBox>
+
+          <!-- Signed confirmation banner -->
+          <HBox fx:id="boxSignedBanner" spacing="10" alignment="CENTER_LEFT"
+                style="-fx-background-color:#F0FDF4;-fx-border-color:#A7F3D0;-fx-border-width:1;-fx-border-radius:10;-fx-background-radius:10;-fx-padding:14 18;"
+                visible="false" managed="false">
+            <Label text="✅" style="-fx-font-size:16px;"/>
+            <VBox spacing="2">
+              <Label fx:id="lblSignedBy"
+                     style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:#065F46;"/>
+              <Label fx:id="lblSignedHash"
+                     style="-fx-font-size:9px;-fx-text-fill:#065F46;" wrapText="true"/>
+            </VBox>
+          </HBox>
+
+          <!-- KPI CARDS -->
+          <HBox spacing="16">
+            <VBox HBox.hgrow="ALWAYS" spacing="8"
+                  style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-border-radius:16;-fx-background-radius:16;-fx-padding:20 22;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.06),8,0,0,2);">
+              <Label text="SCORE ESG" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
+              <Label fx:id="lblScore" text="—"
+                     style="-fx-font-size:32px;-fx-font-weight:800;-fx-text-fill:#059669;"/>
+              <Label text="/ 10" style="-fx-font-size:10px;-fx-text-fill:#94A3B8;"/>
+            </VBox>
+            <VBox HBox.hgrow="ALWAYS" spacing="8"
+                  style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-border-radius:16;-fx-background-radius:16;-fx-padding:20 22;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.06),8,0,0,2);">
+              <Label text="DÉCISION" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
+              <Label fx:id="lblDecision" text="—"
+                     style="-fx-font-size:20px;-fx-font-weight:800;"/>
+            </VBox>
+            <VBox HBox.hgrow="ALWAYS" spacing="8"
+                  style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-border-radius:16;-fx-background-radius:16;-fx-padding:20 22;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.06),8,0,0,2);">
+              <Label text="ÉMISSIONS TOTALES" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
+              <Label fx:id="lblEmissions" text="—"
+                     style="-fx-font-size:22px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+              <Label fx:id="lblEmissionsSub" text="" style="-fx-font-size:9px;-fx-text-fill:#64748B;"/>
+            </VBox>
+            <VBox HBox.hgrow="ALWAYS" spacing="8"
+                  style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-border-radius:16;-fx-background-radius:16;-fx-padding:20 22;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.06),8,0,0,2);">
+              <Label text="FRAUDE" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
+              <Label fx:id="lblFraud" text="—"
+                     style="-fx-font-size:22px;-fx-font-weight:800;"/>
+              <Label fx:id="lblFraudSub" text="" style="-fx-font-size:9px;-fx-text-fill:#64748B;"/>
+            </VBox>
+          </HBox>
+
+          <!-- Signature display card -->
+          <VBox fx:id="boxSignatureDisplay" spacing="12"
+                style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-border-radius:16;-fx-background-radius:16;-fx-padding:20 24;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.06),8,0,0,2);"
+                visible="false" managed="false">
+            <Label text="Signature Électronique"
+                   style="-fx-font-size:15px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+            <WebView fx:id="signatureWebView" prefHeight="140" maxHeight="140"
+                     style="-fx-border-color:#E2E8F0;-fx-border-radius:10;-fx-background-radius:10;"/>
+            <Label fx:id="lblSigHash" text=""
+                   style="-fx-font-size:9px;-fx-text-fill:#94A3B8;" wrapText="true"/>
+          </VBox>
+
+        </VBox>
+      </ScrollPane>
+
+      <!-- SIGNATURE DIALOG OVERLAY -->
+      <StackPane fx:id="signatureOverlay" visible="false" managed="false"
+                 style="-fx-background-color:rgba(0,0,0,0.45);">
+        <VBox alignment="CENTER" spacing="0" maxWidth="520"
+              style="-fx-background-color:white;-fx-border-radius:16;-fx-background-radius:16;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.25),40,0,0,10);">
+          <HBox alignment="CENTER_LEFT" spacing="10"
+                style="-fx-padding:18 24 14 24;-fx-border-color:#E2E8F0;-fx-border-width:0 0 1 0;">
+            <Label text="Signature électronique"
+                   style="-fx-font-size:16px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="✕" onAction="#onCancelSign"
+                    style="-fx-background-color:transparent;-fx-text-fill:#94A3B8;-fx-font-size:14px;-fx-cursor:hand;-fx-padding:2 6;-fx-background-insets:0;"/>
+          </HBox>
+          <VBox spacing="16" style="-fx-padding:24;">
+            <VBox spacing="6">
+              <Label text="NOM DU SIGNATAIRE *"
+                     style="-fx-font-size:10px;-fx-font-weight:700;-fx-text-fill:#334155;"/>
+              <TextField fx:id="txtSignerName" promptText="Prénom Nom"
+                         style="-fx-background-color:white;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-background-radius:10;-fx-border-radius:10;-fx-padding:11 14;-fx-font-size:13px;"/>
+            </VBox>
+            <VBox spacing="6">
+              <HBox alignment="CENTER_LEFT">
+                <Label text="DESSINEZ VOTRE SIGNATURE *"
+                       style="-fx-font-size:10px;-fx-font-weight:700;-fx-text-fill:#334155;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Effacer" onAction="#onClearSignature"
+                        style="-fx-background-color:transparent;-fx-text-fill:#64748B;-fx-font-size:11px;-fx-cursor:hand;-fx-padding:2 6;-fx-background-insets:0;"/>
+              </HBox>
+              <WebView fx:id="signatureCanvas" prefHeight="160" maxHeight="160"
+                       style="-fx-border-color:#CBD5E1;-fx-border-radius:10;-fx-background-radius:10;"/>
+            </VBox>
+            <HBox spacing="8" alignment="CENTER_LEFT"
+                  style="-fx-background-color:#EFF6FF;-fx-border-color:#BFDBFE;-fx-border-width:1;-fx-border-radius:10;-fx-background-radius:10;-fx-padding:10 14;">
+              <Label text="ℹ" style="-fx-font-size:13px;-fx-text-fill:#1D4ED8;"/>
+              <Label text="La signature sera intégrée dans le rapport PDF avec un hash SHA-256 de vérification."
+                     style="-fx-font-size:10px;-fx-text-fill:#1D4ED8;" wrapText="true"/>
+            </HBox>
+            <HBox spacing="10" alignment="CENTER_RIGHT">
+              <Button text="Annuler" onAction="#onCancelSign"
+                      style="-fx-background-color:#F8FAFC;-fx-text-fill:#334155;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:10;-fx-padding:10 20;-fx-cursor:hand;-fx-border-color:#CBD5E1;-fx-border-width:1;-fx-background-insets:0;"/>
+              <Button text="Valider la signature" onAction="#onConfirmSign"
+                      style="-fx-background-color:linear-gradient(to bottom right,#059669,#047857);-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:10;-fx-padding:10 20;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;-fx-effect:dropshadow(gaussian,rgba(5,150,105,0.18),12,0,0,4);"/>
+            </HBox>
+          </VBox>
+        </VBox>
+      </StackPane>
+    </StackPane>
+
+  </VBox>
+
+</HBox>
