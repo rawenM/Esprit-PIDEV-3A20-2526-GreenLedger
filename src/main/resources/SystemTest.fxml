@@ -9,7 +9,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.geometry.Insets?>
 
-<BorderPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.SystemTestController">
+<BorderPane xmlns="http://javafx.com/javafx/20.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controllers.SystemTestController"
+            stylesheets="@../themes/admin-backoffice.css">
     <top>
         <Label text="Green Wallet + Batch + Marketplace Integration Test Console" style="-fx-font-size: 16px; -fx-font-weight: bold;" BorderPane.alignment="CENTER">
             <BorderPane.margin>

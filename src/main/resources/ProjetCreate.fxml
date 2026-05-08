@@ -8,7 +8,8 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.ProjetCreateController"
       spacing="0"
-      styleClass="page">
+      styleClass="page"
+            stylesheets="@../themes/app-base.css">
 
     <VBox spacing="16" styleClass="content-area">
         <padding>

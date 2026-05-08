@@ -7,7 +7,8 @@
 <VBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.ProjectEvaluationViewController"
-      spacing="14" alignment="TOP_LEFT" styleClass="page">
+      spacing="14" alignment="TOP_LEFT" styleClass="page"
+            stylesheets="@../themes/admin-backoffice.css">
     <padding>
         <Insets top="18" right="18" bottom="18" left="18"/>
     </padding>

@@ -1,0 +1,968 @@
+/* ═══════════════════════════════════════════════════════════
+   GREENLEDGER  ·  ADMIN BACK-OFFICE THEME
+   Matches the original PHP/Tailwind design
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Global ─────────────────────────────────────────────── */
+.root {
+    -fx-font-family: 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+    -fx-font-size: 13px;
+    -fx-background-color: #f5f7fa;
+}
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+.gl-sidebar {
+    -fx-background-color: #091125;
+    -fx-border-width: 0;
+}
+
+/* Brand row */
+.gl-brand {
+    -fx-background-color: transparent;
+}
+
+.gl-brand-mark {
+    -fx-background-color: linear-gradient(to bottom right, #14b8a6, #0ea5e9);
+    -fx-background-radius: 9;
+    -fx-border-radius: 9;
+    -fx-padding: 7 11 7 11;
+    -fx-font-size: 13px;
+    -fx-font-weight: 800;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.45), 10, 0, 0, 3);
+}
+
+.gl-brand-name {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f8fafc;
+}
+
+.gl-brand-sub {
+    -fx-font-size: 9px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #4f46e5;
+    -fx-letter-spacing: 0.12em;
+}
+
+/* Section labels */
+.gl-nav-section {
+    -fx-font-size: 9.5px;
+    -fx-font-weight: 700;
+    -fx-text-fill: rgba(148,163,184,0.55);
+    -fx-padding: 14 0 5 20;
+}
+
+/* Nav buttons */
+.gl-nav-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(203,213,225,0.82);
+    -fx-font-size: 12.5px;
+    -fx-font-weight: 500;
+    -fx-padding: 10 18 10 20;
+    -fx-cursor: hand;
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 0 0 0 2;
+    -fx-border-color: transparent;
+    -fx-alignment: CENTER_LEFT;
+    -fx-pref-width: 260;
+    -fx-max-width: 260;
+    -fx-effect: none;
+}
+
+.gl-nav-btn:hover {
+    -fx-background-color: rgba(30,41,59,0.76);
+    -fx-text-fill: #e2e8f0;
+    -fx-border-color: rgba(148,163,184,0.32);
+    -fx-translate-y: 0;
+}
+
+.gl-nav-active {
+    -fx-background-color: rgba(14,165,233,0.15) !important;
+    -fx-text-fill: #e0f2fe !important;
+    -fx-font-weight: 600 !important;
+    -fx-border-color: #0ea5e9 !important;
+    -fx-border-width: 0 0 0 2 !important;
+}
+
+.gl-nav-active:hover {
+    -fx-background-color: rgba(14,165,233,0.20) !important;
+}
+
+/* Separator */
+.gl-sep .line {
+    -fx-border-color: rgba(255,255,255,0.08);
+    -fx-border-width: 1;
+}
+
+/* Bottom links */
+.gl-side-actions {
+    -fx-background-color: transparent;
+}
+
+.gl-side-link {
+    -fx-background-color: transparent;
+    -fx-text-fill: rgba(148,163,184,0.75);
+    -fx-font-size: 12px;
+    -fx-padding: 9 14 9 14;
+    -fx-cursor: hand;
+    -fx-background-radius: 7;
+    -fx-border-width: 0;
+    -fx-alignment: CENTER_LEFT;
+    -fx-pref-width: 236;
+    -fx-effect: none;
+}
+
+.gl-side-link:hover {
+    -fx-background-color: rgba(30,41,59,0.6);
+    -fx-text-fill: #e2e8f0;
+    -fx-translate-y: 0;
+}
+
+.gl-logout {
+    -fx-text-fill: #f87171 !important;
+}
+
+.gl-logout:hover {
+    -fx-background-color: rgba(248,113,113,0.1) !important;
+    -fx-text-fill: #fca5a5 !important;
+}
+
+/* ── Top Bar ─────────────────────────────────────────────── */
+.gl-topbar {
+    -fx-background-color: #ffffff;
+    -fx-border-color: transparent transparent rgba(208,218,232,0.5) transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-min-height: 62;
+    -fx-pref-height: 62;
+}
+
+.gl-breadcrumb {
+    -fx-font-size: 11px;
+    -fx-text-fill: #5f6b81;
+    -fx-font-weight: 400;
+}
+
+.gl-topbar-title {
+    -fx-font-size: 17px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #161d2c;
+}
+
+.gl-icon-btn {
+    -fx-background-color: transparent;
+    -fx-text-fill: #5f6b81;
+    -fx-font-size: 16px;
+    -fx-padding: 8;
+    -fx-cursor: hand;
+    -fx-background-radius: 8;
+    -fx-border-width: 0;
+    -fx-effect: none;
+}
+
+.gl-icon-btn:hover {
+    -fx-background-color: #ecf1f7;
+    -fx-translate-y: 0;
+}
+
+.gl-avatar {
+    -fx-background-color: linear-gradient(to bottom right, #0ea5e9, #0284c7);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 9 11 9 11;
+    -fx-font-size: 12px;
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+    -fx-min-width: 36;
+    -fx-min-height: 36;
+}
+
+.gl-user-name {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #161d2c;
+}
+
+.gl-user-role {
+    -fx-font-size: 11px;
+    -fx-text-fill: #5f6b81;
+}
+
+/* ── Scroll & Content ────────────────────────────────────── */
+.gl-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-border-width: 0;
+}
+
+.gl-scroll > .viewport {
+    -fx-background-color: #f5f7fa;
+}
+
+.gl-content {
+    -fx-background-color: transparent;
+}
+
+/* ── KPI Cards ───────────────────────────────────────────── */
+.gl-kpi-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-border-color: #d0dae8;
+    -fx-padding: 18 20 18 20;
+    -fx-spacing: 6;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.05), 2, 0, 0, 1),
+                dropshadow(gaussian, rgba(15,23,42,0.34), 40, 0, 0, -30);
+}
+
+.gl-kpi-green  { -fx-background-color: rgba(22,130,96,0.07);  -fx-border-color: rgba(22,130,96,0.18); }
+.gl-kpi-amber  { -fx-background-color: rgba(194,132,45,0.07); -fx-border-color: rgba(194,132,45,0.18); }
+.gl-kpi-red    { -fx-background-color: rgba(196,67,67,0.07);  -fx-border-color: rgba(196,67,67,0.18); }
+.gl-kpi-orange { -fx-background-color: rgba(249,115,22,0.06); -fx-border-color: rgba(249,115,22,0.18); }
+
+.gl-kpi-label {
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #5f6b81;
+}
+
+.gl-kpi-value {
+    -fx-font-size: 28px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #161d2c;
+}
+
+.gl-kpi-green-val  { -fx-text-fill: #168260; }
+.gl-kpi-amber-val  { -fx-text-fill: #c2842d; }
+.gl-kpi-red-val    { -fx-text-fill: #c44343; }
+.gl-kpi-orange-val { -fx-text-fill: #ea580c; }
+
+/* ── Surface (white card) ────────────────────────────────── */
+.gl-surface {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-border-color: #d0dae8;
+    -fx-effect: dropshadow(gaussian, rgba(15,23,42,0.05), 2, 0, 0, 1),
+                dropshadow(gaussian, rgba(15,23,42,0.34), 40, 0, 0, -30);
+}
+
+/* ── Search bar inputs ───────────────────────────────────── */
+.gl-field {
+    -fx-background-color: #f5f7fa;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-border-color: #d0dae8;
+    -fx-padding: 9 13 9 13;
+    -fx-font-size: 13px;
+    -fx-text-fill: #161d2c;
+    -fx-prompt-text-fill: #9ca3af;
+}
+
+.gl-field:focused {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #0ea5e9;
+    -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.18), 6, 0, 0, 0);
+}
+
+.gl-combo {
+    -fx-background-color: #f5f7fa;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-border-color: #d0dae8;
+    -fx-padding: 7 12 7 12;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
+}
+
+.gl-combo:focused {
+    -fx-border-color: #0ea5e9;
+}
+
+.gl-combo .list-cell {
+    -fx-text-fill: #161d2c;
+    -fx-background-color: #ffffff;
+}
+
+.gl-hint {
+    -fx-font-size: 11px;
+    -fx-text-fill: #5f6b81;
+    -fx-font-style: italic;
+}
+
+/* ── Buttons ─────────────────────────────────────────────── */
+.gl-btn-search {
+    -fx-background-color: #059669;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 0;
+    -fx-padding: 9 20 9 20;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: none;
+}
+
+.gl-btn-search:hover {
+    -fx-background-color: #047857;
+    -fx-translate-y: 0;
+}
+
+.gl-btn-primary {
+    -fx-background-color: linear-gradient(to bottom right, #059669, #10b981);
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 0;
+    -fx-padding: 9 18 9 18;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(5,150,105,0.25), 8, 0, 0, 3);
+}
+
+.gl-btn-primary:hover {
+    -fx-background-color: linear-gradient(to bottom right, #047857, #059669);
+    -fx-translate-y: 0;
+}
+
+.gl-btn-danger {
+    -fx-background-color: #c44343;
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 0;
+    -fx-padding: 9 18 9 18;
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: none;
+}
+
+.gl-btn-danger:hover {
+    -fx-background-color: #a83232;
+    -fx-translate-y: 0;
+}
+
+.gl-btn-ghost {
+    -fx-background-color: transparent;
+    -fx-text-fill: #5f6b81;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-border-color: #d0dae8;
+    -fx-padding: 9 18 9 18;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+    -fx-cursor: hand;
+    -fx-effect: none;
+}
+
+.gl-btn-ghost:hover {
+    -fx-background-color: #ecf1f7;
+    -fx-translate-y: 0;
+}
+
+/* small action buttons inside table */
+.gl-btn-view {
+    -fx-background-color: transparent;
+    -fx-text-fill: #13667a;
+    -fx-border-color: #d0dae8;
+    -fx-border-width: 1;
+    -fx-background-radius: 7;
+    -fx-border-radius: 7;
+    -fx-padding: 5 10 5 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: none;
+}
+
+.gl-btn-view:hover {
+    -fx-background-color: #ecf1f7;
+    -fx-translate-y: 0;
+}
+
+.gl-btn-edit {
+    -fx-background-color: #ecf1f7;
+    -fx-text-fill: #161d2c;
+    -fx-border-width: 0;
+    -fx-background-radius: 7;
+    -fx-border-radius: 7;
+    -fx-padding: 5 10 5 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: none;
+}
+
+.gl-btn-edit:hover {
+    -fx-background-color: #d0dae8;
+    -fx-translate-y: 0;
+}
+
+.gl-btn-toggle {
+    -fx-background-color: rgba(22,130,96,0.1);
+    -fx-text-fill: #168260;
+    -fx-border-width: 0;
+    -fx-background-radius: 7;
+    -fx-border-radius: 7;
+    -fx-padding: 5 10 5 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: none;
+}
+
+.gl-btn-toggle:hover {
+    -fx-background-color: rgba(22,130,96,0.18);
+    -fx-translate-y: 0;
+}
+
+.gl-btn-toggle-block {
+    -fx-background-color: rgba(196,67,67,0.1);
+    -fx-text-fill: #c44343;
+    -fx-border-width: 0;
+    -fx-background-radius: 7;
+    -fx-border-radius: 7;
+    -fx-padding: 5 10 5 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: none;
+}
+
+.gl-btn-toggle-block:hover {
+    -fx-background-color: rgba(196,67,67,0.18);
+    -fx-translate-y: 0;
+}
+
+.gl-btn-danger {
+    -fx-background-color: transparent;
+    -fx-text-fill: #c44343;
+    -fx-border-color: rgba(196,67,67,0.35);
+    -fx-border-width: 1;
+    -fx-background-radius: 7;
+    -fx-border-radius: 7;
+    -fx-padding: 5 10 5 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: none;
+}
+
+.gl-btn-danger:hover {
+    -fx-background-color: rgba(196,67,67,0.08);
+    -fx-translate-y: 0;
+}
+
+/* ── Table ───────────────────────────────────────────────── */
+.gl-table-header {
+    -fx-background-color: #f5f7fa;
+    -fx-background-radius: 14 14 0 0;
+    -fx-border-color: transparent transparent #d0dae8 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.gl-table-count {
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #5f6b81;
+}
+
+.gl-table {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 0 0 14 14;
+    -fx-border-width: 0;
+    -fx-table-cell-border-color: transparent;
+    -fx-font-size: 13px;
+}
+
+.gl-table .column-header-background {
+    -fx-background-color: #f5f7fa;
+}
+
+.gl-table .column-header {
+    -fx-background-color: transparent;
+    -fx-padding: 11 12 11 12;
+    -fx-border-color: transparent transparent #d0dae8 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #5f6b81;
+}
+
+.gl-table .table-cell {
+    -fx-text-fill: #161d2c;
+    -fx-font-size: 13px;
+    -fx-padding: 11 12 11 12;
+    -fx-border-color: transparent transparent #ecf1f7 transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.gl-table .table-row-cell {
+    -fx-background-color: #ffffff;
+    -fx-border-width: 0;
+}
+
+.gl-table .table-row-cell:hover {
+    -fx-background-color: rgba(236,241,247,0.6);
+}
+
+.gl-table .table-row-cell:selected {
+    -fx-background-color: rgba(14,165,233,0.07);
+}
+
+.gl-table .table-row-cell:selected .table-cell {
+    -fx-text-fill: #161d2c;
+    -fx-font-weight: 400;
+}
+
+/* ── Badges ──────────────────────────────────────────────── */
+/* Role badges */
+.badge-investisseur {
+    -fx-background-color: rgba(22,130,96,0.1);
+    -fx-text-fill: #168260;
+    -fx-background-radius: 6;
+    -fx-padding: 3 9 3 9;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.badge-porteur {
+    -fx-background-color: rgba(194,132,45,0.1);
+    -fx-text-fill: #c2842d;
+    -fx-background-radius: 6;
+    -fx-padding: 3 9 3 9;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.badge-expert {
+    -fx-background-color: rgba(59,130,246,0.1);
+    -fx-text-fill: #1d4ed8;
+    -fx-background-radius: 6;
+    -fx-padding: 3 9 3 9;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.badge-admin {
+    -fx-background-color: rgba(139,92,246,0.1);
+    -fx-text-fill: #6d28d9;
+    -fx-background-radius: 6;
+    -fx-padding: 3 9 3 9;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+/* Status badges */
+.badge-active {
+    -fx-background-color: rgba(22,130,96,0.1);
+    -fx-text-fill: #168260;
+    -fx-background-radius: 999;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.badge-attente {
+    -fx-background-color: rgba(194,132,45,0.1);
+    -fx-text-fill: #c2842d;
+    -fx-background-radius: 999;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.badge-bloque {
+    -fx-background-color: rgba(196,67,67,0.1);
+    -fx-text-fill: #c44343;
+    -fx-background-radius: 999;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+.badge-suspendu {
+    -fx-background-color: rgba(95,107,129,0.1);
+    -fx-text-fill: #5f6b81;
+    -fx-background-radius: 999;
+    -fx-padding: 3 10 3 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+}
+
+/* Avatar initials */
+.gl-user-avatar {
+    -fx-background-color: linear-gradient(to bottom right, #059669, #10b981);
+    -fx-background-radius: 999;
+    -fx-border-radius: 999;
+    -fx-padding: 8 10 8 10;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: white;
+    -fx-min-width: 32;
+    -fx-min-height: 32;
+    -fx-alignment: CENTER;
+}
+
+/* Fraud score */
+.fraud-high {
+    -fx-text-fill: #c44343;
+    -fx-font-weight: 700;
+}
+
+.fraud-low {
+    -fx-text-fill: #5f6b81;
+}
+
+/* ── Pending section ─────────────────────────────────────── */
+.gl-pending-box {
+    -fx-background-color: rgba(194,132,45,0.07);
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+    -fx-border-width: 1;
+    -fx-border-color: rgba(194,132,45,0.3);
+}
+
+.gl-pending-icon {
+    -fx-font-size: 16px;
+    -fx-text-fill: #c2842d;
+}
+
+.gl-pending-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #c2842d;
+}
+
+.gl-pending-row {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-border-color: rgba(194,132,45,0.2);
+    -fx-padding: 10 14 10 14;
+}
+
+.gl-pending-name {
+    -fx-font-size: 13px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #161d2c;
+}
+
+.gl-pending-email {
+    -fx-font-size: 11px;
+    -fx-text-fill: #5f6b81;
+}
+
+.gl-btn-activate {
+    -fx-background-color: rgba(22,130,96,0.1);
+    -fx-text-fill: #168260;
+    -fx-border-width: 0;
+    -fx-background-radius: 7;
+    -fx-border-radius: 7;
+    -fx-padding: 6 14 6 14;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: none;
+}
+
+.gl-btn-activate:hover {
+    -fx-background-color: rgba(22,130,96,0.18);
+    -fx-translate-y: 0;
+}
+
+.gl-btn-reject {
+    -fx-background-color: transparent;
+    -fx-text-fill: #c44343;
+    -fx-border-color: rgba(196,67,67,0.3);
+    -fx-border-width: 1;
+    -fx-background-radius: 7;
+    -fx-border-radius: 7;
+    -fx-padding: 6 14 6 14;
+    -fx-font-size: 12px;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+    -fx-effect: none;
+}
+
+.gl-btn-reject:hover {
+    -fx-background-color: rgba(196,67,67,0.08);
+    -fx-translate-y: 0;
+}
+
+/* ── Scrollbar ───────────────────────────────────────────── */
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #d0dae8;
+    -fx-background-radius: 4;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: #9ca3af;
+}
+
+.scroll-bar .track {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* ── KPI Indicator (inside audit page) ──────────────────── */
+.gl-kpi-indicator {
+    -fx-background-color: rgba(14,165,233,0.06);
+    -fx-background-radius: 10;
+    -fx-border-radius: 10;
+    -fx-border-width: 1;
+    -fx-border-color: rgba(14,165,233,0.15);
+    -fx-padding: 14 16 14 16;
+    -fx-spacing: 6;
+}
+
+/* ── Misc ────────────────────────────────────────────────── */
+.gl-surface .separator .line {
+    -fx-border-color: #d0dae8;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   AUDIT LOG — DARK THEME OVERRIDES
+   ═══════════════════════════════════════════════════════════ */
+
+/* Page background — dark */
+.gl-audit-page {
+    -fx-background-color: #0f172a;
+}
+
+/* Dark scroll */
+.gl-dark-scroll {
+    -fx-background-color: #0f172a;
+    -fx-background: #0f172a;
+    -fx-border-width: 0;
+}
+
+.gl-dark-scroll > .viewport {
+    -fx-background-color: #0f172a;
+}
+
+/* Dark card */
+.gl-dark-card {
+    -fx-background-color: #1e293b;
+    -fx-background-radius: 12;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-border-color: rgba(148,163,184,0.1);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.35), 12, 0, 0, 4);
+}
+
+/* Card title & subtitle */
+.gl-audit-title {
+    -fx-font-size: 20px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f1f5f9;
+}
+
+.gl-dark-card-title {
+    -fx-font-size: 14px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #e2e8f0;
+}
+
+.gl-dark-card-sub {
+    -fx-font-size: 11px;
+    -fx-text-fill: #64748b;
+}
+
+/* Indicator boxes inside Indicateurs clés */
+.gl-dark-indicator {
+    -fx-background-color: rgba(14,165,233,0.07);
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-border-color: rgba(14,165,233,0.12);
+    -fx-padding: 12 14 12 14;
+    -fx-spacing: 4;
+    -fx-pref-width: 120;
+}
+
+.gl-dark-ind-label {
+    -fx-font-size: 10px;
+    -fx-font-weight: 600;
+    -fx-text-fill: #64748b;
+}
+
+.gl-dark-ind-val {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #e2e8f0;
+}
+
+.gl-dark-ind-val-blue {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #38bdf8;
+}
+
+.gl-dark-ind-val-green {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #34d399;
+}
+
+.gl-dark-ind-val-red {
+    -fx-font-size: 24px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #f87171;
+}
+
+/* Dark inputs */
+.gl-dark-field {
+    -fx-background-color: #0f172a;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-border-color: rgba(148,163,184,0.2);
+    -fx-padding: 8 12 8 12;
+    -fx-font-size: 13px;
+    -fx-text-fill: #e2e8f0;
+    -fx-prompt-text-fill: #475569;
+}
+
+.gl-dark-field:focused {
+    -fx-border-color: #0ea5e9;
+    -fx-effect: dropshadow(gaussian, rgba(14,165,233,0.2), 4, 0, 0, 0);
+}
+
+.gl-dark-combo {
+    -fx-background-color: #0f172a;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-border-color: rgba(148,163,184,0.2);
+    -fx-padding: 6 10 6 10;
+    -fx-font-size: 13px;
+    -fx-text-fill: #e2e8f0;
+    -fx-cursor: hand;
+}
+
+.gl-dark-combo .list-cell {
+    -fx-background-color: #1e293b;
+    -fx-text-fill: #e2e8f0;
+}
+
+/* Dark ghost button */
+.gl-dark-btn-ghost {
+    -fx-background-color: transparent;
+    -fx-text-fill: #94a3b8;
+    -fx-background-radius: 8;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-border-color: rgba(148,163,184,0.2);
+    -fx-padding: 8 16 8 16;
+    -fx-font-size: 12px;
+    -fx-font-weight: 500;
+    -fx-cursor: hand;
+    -fx-effect: none;
+}
+
+.gl-dark-btn-ghost:hover {
+    -fx-background-color: rgba(148,163,184,0.08);
+    -fx-text-fill: #e2e8f0;
+    -fx-translate-y: 0;
+}
+
+/* Dark table header bar */
+.gl-dark-table-header {
+    -fx-background-color: rgba(148,163,184,0.05);
+    -fx-border-color: transparent transparent rgba(148,163,184,0.1) transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+/* Dark table */
+.gl-dark-table {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+    -fx-table-cell-border-color: transparent;
+    -fx-font-size: 13px;
+}
+
+.gl-dark-table .column-header-background {
+    -fx-background-color: rgba(148,163,184,0.05);
+}
+
+.gl-dark-table .column-header {
+    -fx-background-color: transparent;
+    -fx-padding: 10 12 10 12;
+    -fx-border-color: transparent transparent rgba(148,163,184,0.1) transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-font-size: 11px;
+    -fx-font-weight: 700;
+    -fx-text-fill: #64748b;
+}
+
+.gl-dark-table .table-cell {
+    -fx-text-fill: #cbd5e1;
+    -fx-font-size: 13px;
+    -fx-padding: 11 12 11 12;
+    -fx-border-color: transparent transparent rgba(148,163,184,0.06) transparent;
+    -fx-border-width: 0 0 1 0;
+    -fx-background-color: transparent;
+    -fx-alignment: CENTER_LEFT;
+}
+
+.gl-dark-table .table-row-cell {
+    -fx-background-color: transparent;
+    -fx-border-width: 0;
+}
+
+.gl-dark-table .table-row-cell:hover {
+    -fx-background-color: rgba(148,163,184,0.06);
+}
+
+.gl-dark-table .table-row-cell:selected {
+    -fx-background-color: rgba(14,165,233,0.12);
+}
+
+.gl-dark-table .table-row-cell:selected .table-cell {
+    -fx-text-fill: #e2e8f0;
+}
+
+/* Scrollbar dark */
+.gl-dark-scroll .scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.gl-dark-scroll .scroll-bar .thumb {
+    -fx-background-color: rgba(148,163,184,0.2);
+    -fx-background-radius: 4;
+}
+
+.gl-dark-scroll .scroll-bar .thumb:hover {
+    -fx-background-color: rgba(148,163,184,0.35);
+}
+
+.gl-dark-scroll .scroll-bar .track {
+    -fx-background-color: transparent;
+}
+
+.gl-dark-scroll .scroll-bar .increment-button,
+.gl-dark-scroll .scroll-bar .decrement-button {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}

@@ -8,7 +8,8 @@
 <HBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.InvestmentDashboardController"
-      spacing="0" styleClass="page">
+      spacing="0" styleClass="page"
+            stylesheets="@../themes/app-base.css">
 
     <!-- SIDEBAR -->
     <VBox prefWidth="220" styleClass="sidebar">

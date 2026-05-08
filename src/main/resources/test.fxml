@@ -13,6 +13,7 @@
 <HBox xmlns="http://javafx.com/javafx/23.0.1"
 =======
 <HBox xmlns="http://javafx.com/javafx/20.0.2"
+            stylesheets="@../themes/admin-backoffice.css"
 >>>>>>> f3559248f463304c68513eb2c92f99791d2c4657
 >>>>>>> yassine_antar
       xmlns:fx="http://javafx.com/fxml/1"

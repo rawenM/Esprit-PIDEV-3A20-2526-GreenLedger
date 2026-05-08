@@ -10,7 +10,8 @@
       fx:controller="Controllers.PuzzleCaptchaController"
       spacing="10"
       alignment="CENTER"
-      style="-fx-background-color: #f5f5f5; -fx-padding: 15; -fx-background-radius: 8;">
+      style="-fx-background-color: #f5f5f5; -fx-padding: 15; -fx-background-radius: 8;"
+            stylesheets="@../themes/app-base.css">
     
     <!-- Titre -->
     <Label text="Vérification CAPTCHA" 

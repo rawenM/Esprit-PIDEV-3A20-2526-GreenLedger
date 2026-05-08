@@ -7,7 +7,8 @@
 <BorderPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="Controllers.AdminUsersController"
-            styleClass="page">
+            styleClass="page"
+            stylesheets="@../themes/admin-backoffice.css">
 
     <!-- LEFT: Admin Navigation -->
     <left>

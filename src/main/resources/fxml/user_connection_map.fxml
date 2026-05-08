@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+
+<VBox xmlns="http://javafx.com/javafx/20.0.2" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.UserConnectionMapController"
+      spacing="0"
+      stylesheets="@../themes/admin-backoffice.css">
+
+    <padding><Insets top="28" right="28" bottom="16" left="28"/></padding>
+
+    <!-- ── Header ── -->
+    <HBox alignment="CENTER_LEFT" spacing="12">
+        <padding><Insets bottom="14"/></padding>
+        <Label text="Localisation des utilisateurs" styleClass="gl-topbar-title"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label fx:id="locatedUsersLabel" text="— utilisateur(s) localisé(s)"
+               styleClass="gl-kpi-label" style="-fx-text-fill:#0ea5e9; -fx-font-weight:600;"/>
+        <Button text="← Retour liste" onAction="#handleBackToList" styleClass="gl-btn-ghost"/>
+    </HBox>
+
+    <!-- Subtitle -->
+    <Label text="Basées sur l'adresse renseignée lors de l'inscription"
+           styleClass="gl-kpi-label" style="-fx-padding: 0 0 12 0;"/>
+
+    <!-- ── Legend bar ── -->
+    <HBox alignment="CENTER_LEFT" spacing="20" style="-fx-padding: 0 0 10 0;">
+        <Label text="Légende :" styleClass="gl-kpi-label"/>
+        <HBox spacing="6" alignment="CENTER_LEFT">
+            <Label text="●" style="-fx-text-fill:#10B981; -fx-font-size:16px;"/>
+            <Label text="Investisseur" styleClass="gl-kpi-label"/>
+        </HBox>
+        <HBox spacing="6" alignment="CENTER_LEFT">
+            <Label text="●" style="-fx-text-fill:#F59E0B; -fx-font-size:16px;"/>
+            <Label text="Porteur de Projet" styleClass="gl-kpi-label"/>
+        </HBox>
+        <HBox spacing="6" alignment="CENTER_LEFT">
+            <Label text="●" style="-fx-text-fill:#3B82F6; -fx-font-size:16px;"/>
+            <Label text="Expert Carbone" styleClass="gl-kpi-label"/>
+        </HBox>
+        <HBox spacing="6" alignment="CENTER_LEFT">
+            <Label text="●" style="-fx-text-fill:#8B5CF6; -fx-font-size:16px;"/>
+            <Label text="Administrateur" styleClass="gl-kpi-label"/>
+        </HBox>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Label text="Source : adresse d'inscription — Moteur : OpenStreetMap"
+               styleClass="gl-kpi-label"/>
+    </HBox>
+
+    <!-- ── Map (full remaining height) ── -->
+    <VBox styleClass="gl-surface" VBox.vgrow="ALWAYS" spacing="0">
+        <WebView fx:id="mapWebView" VBox.vgrow="ALWAYS" prefHeight="520"/>
+    </VBox>
+
+    <!-- Hidden stats labels (used by controller) -->
+    <Label fx:id="totalUsersLabel"   visible="false" managed="false"/>
+    <Label fx:id="countriesLabel"    visible="false" managed="false"/>
+
+</VBox>

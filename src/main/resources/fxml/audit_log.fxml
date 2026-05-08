@@ -3,84 +3,131 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import javafx.scene.text.Text?>
+<?import javafx.scene.web.WebView?>
 
-<VBox xmlns="http://javafx.com/javafx/20.0.2" xmlns:fx="http://javafx.com/fxml/1" 
-      fx:controller="Controllers.AuditLogController" 
-      spacing="20" style="-fx-background-color: #f5f5f5; -fx-padding: 20;">
+<VBox xmlns="http://javafx.com/javafx/20.0.2" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.AuditLogController"
+      spacing="0"
+      styleClass="gl-audit-page"
+      stylesheets="@../themes/admin-backoffice.css">
 
-    <!-- En-tête -->
-    <HBox alignment="CENTER_LEFT" spacing="15">
-        <Text text="📋 Journal d'Activité" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-fill: #2c3e50;"/>
-        <Region HBox.hgrow="ALWAYS"/>
-        <Button text="🔄 Actualiser" onAction="#handleRefresh" 
-                style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 5;"/>
-        <Button text="🗑️ Nettoyer (30j+)" onAction="#handleCleanOld" 
-                style="-fx-background-color: #e74c3c; -fx-text-fill: white; -fx-font-size: 14px; -fx-padding: 10 20; -fx-background-radius: 5;"/>
-    </HBox>
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="gl-dark-scroll">
+        <VBox spacing="20">
+            <padding><Insets top="28" right="28" bottom="28" left="28"/></padding>
 
-    <!-- Statistiques -->
-    <HBox spacing="15" alignment="CENTER">
-        <VBox alignment="CENTER" spacing="5" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
-            <Text text="Total Logs" style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
-            <Label fx:id="totalLogsLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #2c3e50;"/>
+            <!-- ── Header ── -->
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <Label text="Journal d'audit" styleClass="gl-audit-title"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="↻ Actualiser"       onAction="#handleRefresh"  styleClass="gl-btn-primary"/>
+                <Button text="🗑 Nettoyer (30j+)"  onAction="#handleCleanOld" styleClass="gl-btn-danger"/>
+            </HBox>
+
+            <!-- ── 3 Charts row ── -->
+            <HBox spacing="16">
+
+                <!-- Chart 1: Actions par type -->
+                <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <padding><Insets top="16" right="16" bottom="4" left="16"/></padding>
+                    <Label text="Actions par type"                      styleClass="gl-dark-card-title"/>
+                    <Label text="Répartition des opérations effectuées" styleClass="gl-dark-card-sub"/>
+                    <WebView fx:id="chartActionsType" prefHeight="210"/>
+                </VBox>
+
+                <!-- Chart 2: Taux de succès -->
+                <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <padding><Insets top="16" right="16" bottom="4" left="16"/></padding>
+                    <Label text="Taux de succès"                        styleClass="gl-dark-card-title"/>
+                    <Label text="Succès vs échecs des opérations"       styleClass="gl-dark-card-sub"/>
+                    <WebView fx:id="chartSuccessRate" prefHeight="210"/>
+                </VBox>
+
+                <!-- Chart 3: Activité 7 jours -->
+                <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <padding><Insets top="16" right="16" bottom="4" left="16"/></padding>
+                    <Label text="Activité — 7 derniers jours"           styleClass="gl-dark-card-title"/>
+                    <Label text="Nombre d'actions par jour"             styleClass="gl-dark-card-sub"/>
+                    <WebView fx:id="chartActivity" prefHeight="210"/>
+                </VBox>
+
+            </HBox>
+
+            <!-- ── Bottom row: Navigateurs + Indicateurs clés ── -->
+            <HBox spacing="16">
+
+                <!-- Navigateurs utilisés -->
+                <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <padding><Insets top="16" right="16" bottom="4" left="16"/></padding>
+                    <Label text="Navigateurs utilisés"       styleClass="gl-dark-card-title"/>
+                    <Label text="Répartition par navigateur" styleClass="gl-dark-card-sub"/>
+                    <WebView fx:id="chartBrowsers" prefHeight="190"/>
+                </VBox>
+
+                <!-- Indicateurs clés -->
+                <VBox styleClass="gl-dark-card" prefWidth="300" spacing="12">
+                    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                    <Label text="Indicateurs clés" styleClass="gl-dark-card-title"/>
+                    <GridPane hgap="10" vgap="10">
+                        <VBox styleClass="gl-dark-indicator" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                            <Label text="Total actions"    styleClass="gl-dark-ind-label"/>
+                            <Label fx:id="totalLogsLabel"  text="—" styleClass="gl-dark-ind-val-blue"/>
+                        </VBox>
+                        <VBox styleClass="gl-dark-indicator" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                            <Label text="Taux de succès"    styleClass="gl-dark-ind-label"/>
+                            <Label fx:id="successRateLabel" text="—" styleClass="gl-dark-ind-val-green"/>
+                        </VBox>
+                        <VBox styleClass="gl-dark-indicator" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                            <Label text="USER_LOGIN"       styleClass="gl-dark-ind-label"/>
+                            <Label fx:id="todayLogsLabel"  text="—" styleClass="gl-dark-ind-val"/>
+                        </VBox>
+                        <VBox styleClass="gl-dark-indicator" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                            <Label text="USER_LOGIN_FAILED"  styleClass="gl-dark-ind-label"/>
+                            <Label fx:id="failedLogsLabel"   text="—" styleClass="gl-dark-ind-val-red"/>
+                        </VBox>
+                    </GridPane>
+                </VBox>
+
+            </HBox>
+
+            <!-- ── Filters ── -->
+            <VBox styleClass="gl-dark-card" spacing="12">
+                <padding><Insets top="14" right="16" bottom="14" left="16"/></padding>
+                <HBox spacing="10" alignment="CENTER_LEFT">
+                    <ComboBox fx:id="filterTypeCombo"   promptText="Tous"              prefWidth="160" styleClass="gl-dark-combo"/>
+                    <ComboBox fx:id="filterStatusCombo" promptText="Tous"              prefWidth="140" styleClass="gl-dark-combo"/>
+                    <TextField fx:id="filterEmailField" promptText="Email utilisateur" prefWidth="200" styleClass="gl-dark-field"/>
+                    <DatePicker fx:id="filterDatePicker" promptText="Date"             prefWidth="150"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="Filtrer"          onAction="#handleFilter"       styleClass="gl-btn-search"/>
+                    <Button text="✕ Réinitialiser"  onAction="#handleResetFilters" styleClass="gl-dark-btn-ghost"/>
+                </HBox>
+            </VBox>
+
+            <!-- ── Table ── -->
+            <VBox styleClass="gl-dark-card" spacing="0">
+                <HBox styleClass="gl-dark-table-header" alignment="CENTER_LEFT">
+                    <padding><Insets top="12" right="16" bottom="12" left="16"/></padding>
+                    <Label fx:id="pageLabel" text="Page 1 / 1" styleClass="gl-dark-card-sub"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="◀ Précédent" fx:id="prevButton" onAction="#handlePrevious" styleClass="gl-dark-btn-ghost"/>
+                    <Label text="  "/>
+                    <Button text="Suivant ▶"   fx:id="nextButton" onAction="#handleNext"     styleClass="gl-dark-btn-ghost"/>
+                </HBox>
+
+                <TableView fx:id="auditLogTable" prefHeight="380" styleClass="gl-dark-table">
+                    <columns>
+                        <TableColumn fx:id="idColumn"          text="ID"               prefWidth="55"/>
+                        <TableColumn fx:id="dateColumn"        text="Date/Heure"        prefWidth="145"/>
+                        <TableColumn fx:id="actionTypeColumn"  text="Type d'Action"     prefWidth="160"/>
+                        <TableColumn fx:id="userEmailColumn"   text="Email Utilisateur" prefWidth="200"/>
+                        <TableColumn fx:id="descriptionColumn" text="Description"       prefWidth="200"/>
+                        <TableColumn fx:id="statusColumn"      text="Statut"            prefWidth="100"/>
+                        <TableColumn fx:id="ipAddressColumn"   text="Adresse IP"        prefWidth="110"/>
+                        <TableColumn fx:id="detailsColumn"     text="Détails"           prefWidth="70"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
         </VBox>
-        
-        <VBox alignment="CENTER" spacing="5" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
-            <Text text="Aujourd'hui" style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
-            <Label fx:id="todayLogsLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #27ae60;"/>
-        </VBox>
-        
-        <VBox alignment="CENTER" spacing="5" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
-            <Text text="Échecs" style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
-            <Label fx:id="failedLogsLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #e74c3c;"/>
-        </VBox>
-        
-        <VBox alignment="CENTER" spacing="5" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 2);" HBox.hgrow="ALWAYS">
-            <Text text="Avertissements" style="-fx-font-size: 12px; -fx-fill: #7f8c8d;"/>
-            <Label fx:id="warningLogsLabel" text="0" style="-fx-font-size: 24px; -fx-font-weight: bold; -fx-text-fill: #f39c12;"/>
-        </VBox>
-    </HBox>
-
-    <!-- Filtres -->
-    <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 10;">
-        <Label text="Filtrer par:" style="-fx-font-weight: bold;"/>
-        
-        <ComboBox fx:id="filterTypeCombo" promptText="Type d'action" prefWidth="200"/>
-        <ComboBox fx:id="filterStatusCombo" promptText="Statut" prefWidth="150"/>
-        <TextField fx:id="filterEmailField" promptText="Email utilisateur" prefWidth="200"/>
-        <DatePicker fx:id="filterDatePicker" promptText="Date" prefWidth="150"/>
-        
-        <Region HBox.hgrow="ALWAYS"/>
-        
-        <Button text="🔍 Filtrer" onAction="#handleFilter" 
-                style="-fx-background-color: #27ae60; -fx-text-fill: white; -fx-padding: 8 15; -fx-background-radius: 5;"/>
-        <Button text="✖ Réinitialiser" onAction="#handleResetFilters" 
-                style="-fx-background-color: #95a5a6; -fx-text-fill: white; -fx-padding: 8 15; -fx-background-radius: 5;"/>
-    </HBox>
-
-    <!-- Tableau -->
-    <TableView fx:id="auditLogTable" VBox.vgrow="ALWAYS" 
-               style="-fx-background-color: white; -fx-background-radius: 10;">
-        <columns>
-            <TableColumn fx:id="idColumn" text="ID" prefWidth="60"/>
-            <TableColumn fx:id="dateColumn" text="Date/Heure" prefWidth="150"/>
-            <TableColumn fx:id="actionTypeColumn" text="Type d'Action" prefWidth="180"/>
-            <TableColumn fx:id="userEmailColumn" text="Email Utilisateur" prefWidth="200"/>
-            <TableColumn fx:id="descriptionColumn" text="Description" prefWidth="250"/>
-            <TableColumn fx:id="statusColumn" text="Statut" prefWidth="100"/>
-            <TableColumn fx:id="ipAddressColumn" text="Adresse IP" prefWidth="120"/>
-            <TableColumn fx:id="detailsColumn" text="Détails" prefWidth="80"/>
-        </columns>
-    </TableView>
-
-    <!-- Pagination -->
-    <HBox alignment="CENTER" spacing="10">
-        <Button text="◀ Précédent" fx:id="prevButton" onAction="#handlePrevious" 
-                style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 8 15; -fx-background-radius: 5;"/>
-        <Label fx:id="pageLabel" text="Page 1 / 1" style="-fx-font-size: 14px; -fx-font-weight: bold;"/>
-        <Button text="Suivant ▶" fx:id="nextButton" onAction="#handleNext" 
-                style="-fx-background-color: #3498db; -fx-text-fill: white; -fx-padding: 8 15; -fx-background-radius: 5;"/>
-    </HBox>
-
+    </ScrollPane>
 </VBox>

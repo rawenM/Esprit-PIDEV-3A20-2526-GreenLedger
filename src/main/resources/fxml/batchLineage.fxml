@@ -7,7 +7,8 @@
 
 <VBox xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" 
       fx:controller="Controllers.BatchLineageController"
-      spacing="15" style="-fx-background-color: #f5f7fa;">
+      spacing="15" style="-fx-background-color: #f5f7fa;"
+            stylesheets="@../themes/app-base.css">
     
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>
