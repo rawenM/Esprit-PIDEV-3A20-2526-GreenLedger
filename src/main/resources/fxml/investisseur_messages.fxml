@@ -7,7 +7,8 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="Controllers.InvestisseurMessagesController"
             prefHeight="780" prefWidth="1200"
-            style="-fx-background-color:#F8FAFC;">
+            style="-fx-background-color:#F8FAFC;"
+            stylesheets="@../themes/app-base.css">
   <top>
     <VBox spacing="0">
       <!-- Gradient header -->

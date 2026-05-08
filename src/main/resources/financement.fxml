@@ -6,7 +6,8 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.FinancementController"
       prefHeight="780" prefWidth="1320"
-      style="-fx-background-color:#F8FAFC;">
+      style="-fx-background-color:#F8FAFC;"
+            stylesheets="@../themes/app-base.css">
 
   <!-- ═══ SIDEBAR ═══ -->
   <VBox prefWidth="240" minWidth="240" maxWidth="240" spacing="0"

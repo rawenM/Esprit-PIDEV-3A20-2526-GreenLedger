@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="Controllers.ProjectFraudScoringController"
+      spacing="20"
+      styleClass="content-area"
+      stylesheets="@../themes/admin-backoffice.css">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+    
+    <!-- Page Header -->
+    <VBox spacing="8">
+        <Label text="🚨 Scoring de Fraude des Projets" styleClass="page-title"/>
+        <Label text="Surveillance et détection des projets suspects" styleClass="page-subtitle"/>
+    </VBox>
+    
+    <!-- Overview Metrics -->
+    <HBox spacing="16">
+        <VBox styleClass="metric-card" prefWidth="200">
+            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+            <Label text="PROJETS ANALYSÉS" styleClass="metric-label"/>
+            <Label fx:id="totalProjectsLabel" text="—" styleClass="metric-value"/>
+        </VBox>
+        
+        <VBox styleClass="metric-card" prefWidth="200">
+            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+            <Label text="PROJETS SUSPECTS" styleClass="metric-label"/>
+            <Label fx:id="suspectedProjectsLabel" text="—" styleClass="metric-value" style="-fx-text-fill: #DC2626;"/>
+        </VBox>
+        
+        <VBox styleClass="metric-card" prefWidth="200">
+            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+            <Label text="PROJETS PROPRES" styleClass="metric-label"/>
+            <Label fx:id="cleanProjectsLabel" text="—" styleClass="metric-value" style="-fx-text-fill: #10B981;"/>
+        </VBox>
+        
+        <VBox styleClass="metric-card" prefWidth="200">
+            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+            <Label text="SCORE MOYEN" styleClass="metric-label"/>
+            <Label fx:id="avgRiskScoreLabel" text="—" styleClass="metric-value"/>
+        </VBox>
+    </HBox>
+    
+    <!-- Filters and Actions -->
+    <HBox spacing="12" alignment="CENTER_LEFT" styleClass="ui-card">
+        <padding><Insets top="12" right="12" bottom="12" left="12"/></padding>
+        
+        <Label text="Filtrer:"/>
+        <ComboBox fx:id="fraudFlagFilter" promptText="Tous les projets" prefWidth="180"/>
+        <ComboBox fx:id="riskLevelFilter" promptText="Niveau de risque" prefWidth="180"/>
+        
+        <Region HBox.hgrow="ALWAYS"/>
+        
+        <Button text="🔄 Actualiser" onAction="#handleRefresh" styleClass="ui-btn-secondary btn-sm"/>
+        <Button text="📥 Exporter CSV" onAction="#handleExport" styleClass="ui-btn-primary btn-sm"/>
+    </HBox>
+    
+    <!-- Projects Table -->
+    <VBox spacing="12" styleClass="ui-card">
+        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+        
+        <Label text="Projets avec Scoring de Fraude" styleClass="section-title"/>
+        
+        <TableView fx:id="projectsTable" prefHeight="400">
+            <columns>
+                <TableColumn fx:id="projectIdColumn" text="ID" prefWidth="60"/>
+                <TableColumn fx:id="projectNameColumn" text="Nom du Projet" prefWidth="200"/>
+                <TableColumn fx:id="statusColumn" text="Statut" prefWidth="120"/>
+                <TableColumn fx:id="riskScoreColumn" text="Score Risque" prefWidth="100"/>
+                <TableColumn fx:id="anomalyScoreColumn" text="Score Anomalie" prefWidth="120"/>
+                <TableColumn fx:id="fraudFlagColumn" text="Drapeau" prefWidth="100"/>
+                <TableColumn fx:id="modelVersionColumn" text="Version Modèle" prefWidth="120"/>
+                <TableColumn fx:id="scoredAtColumn" text="Analysé le" prefWidth="140"/>
+                <TableColumn fx:id="actionsColumn" text="Actions" prefWidth="120"/>
+            </columns>
+        </TableView>
+    </VBox>
+    
+    <!-- Fraud Details Section (shown when a project is selected) -->
+    <VBox fx:id="fraudDetailsSection" spacing="12" styleClass="ui-card" managed="false" visible="false">
+        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+        
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <Label text="Détails de la Fraude" styleClass="section-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="✖ Fermer" onAction="#handleCloseDetails" styleClass="ui-btn-ghost btn-sm"/>
+        </HBox>
+        
+        <Separator/>
+        
+        <GridPane hgap="16" vgap="12">
+            <Label text="Projet:" styleClass="label-bold" GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+            <Label fx:id="detailProjectName" text="—" GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+            
+            <Label text="Score de Risque:" styleClass="label-bold" GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+            <Label fx:id="detailRiskScore" text="—" GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+            
+            <Label text="Score d'Anomalie:" styleClass="label-bold" GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+            <Label fx:id="detailAnomalyScore" text="—" GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+            
+            <Label text="Drapeau de Fraude:" styleClass="label-bold" GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+            <Label fx:id="detailFraudFlag" text="—" GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+            
+            <Label text="Version du Modèle:" styleClass="label-bold" GridPane.columnIndex="0" GridPane.rowIndex="4"/>
+            <Label fx:id="detailModelVersion" text="—" GridPane.columnIndex="1" GridPane.rowIndex="4"/>
+            
+            <Label text="Analysé le:" styleClass="label-bold" GridPane.columnIndex="0" GridPane.rowIndex="5"/>
+            <Label fx:id="detailScoredAt" text="—" GridPane.columnIndex="1" GridPane.rowIndex="5"/>
+        </GridPane>
+        
+        <VBox spacing="8">
+            <Label text="Raisons de la Fraude:" styleClass="label-bold"/>
+            <TextArea fx:id="detailFraudReasons" editable="false" wrapText="true" prefHeight="120"/>
+        </VBox>
+    </VBox>
+    
+</VBox>

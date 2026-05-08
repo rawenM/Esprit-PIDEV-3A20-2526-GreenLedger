@@ -7,7 +7,8 @@
 <HBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.ExpertProjetController"
-      spacing="0" styleClass="app-container">
+      spacing="0" styleClass="app-container"
+            stylesheets="@../themes/admin-backoffice.css">
 
     <!-- LEFT SIDEBAR -->
     <VBox prefWidth="220" styleClass="sidebar" style="-fx-min-width: 220; -fx-max-width: 220;">

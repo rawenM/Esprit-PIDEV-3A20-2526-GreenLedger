@@ -9,7 +9,8 @@
       xmlns:fx="http://javafx.com/fxml"
       fx:controller="Controllers.UserStatisticsController"
       spacing="16"
-      styleClass="content-area">
+      styleClass="content-area"
+            stylesheets="@../themes/admin-backoffice.css">
 
     <padding>
         <Insets top="20" right="20" bottom="20" left="20"/>

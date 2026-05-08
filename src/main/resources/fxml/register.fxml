@@ -9,7 +9,8 @@
             fx:controller="Controllers.RegisterController"
             fx:id="rootPane"
             prefHeight="700" prefWidth="900"
-            styleClass="page">
+            styleClass="page"
+            stylesheets="@../themes/app-base.css">
 
     <center>
         <ScrollPane fitToWidth="true" style="-fx-background-color: transparent; -fx-background: transparent;">

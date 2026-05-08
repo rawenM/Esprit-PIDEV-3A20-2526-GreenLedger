@@ -7,7 +7,8 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="Controllers.InvestisseurPortfolioController"
             prefHeight="780" prefWidth="1100"
-            style="-fx-background-color:#F8FAFC;">
+            style="-fx-background-color:#F8FAFC;"
+            stylesheets="@../themes/app-base.css">
   <top>
     <HBox alignment="CENTER_LEFT" spacing="14"
           style="-fx-background-color:#10b981;-fx-padding:16 28;">

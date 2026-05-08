@@ -8,7 +8,8 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="Controllers.MainController"
             fx:id="rootPane"
-            styleClass="page">
+            styleClass="page"
+            stylesheets="@../themes/app-base.css">
 
     <top>
         <HBox spacing="12" alignment="CENTER_LEFT" styleClass="topbar">

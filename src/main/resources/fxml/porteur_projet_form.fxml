@@ -5,7 +5,8 @@
 <HBox xmlns="http://javafx.com/javafx/20.0.2" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.PorteurProjetFormController"
       prefHeight="820" prefWidth="1320"
-      style="-fx-background-color:#F8FAFC;">
+      style="-fx-background-color:#F8FAFC;"
+            stylesheets="@../themes/app-base.css">
 
   <!-- ═══ SIDEBAR ═══ -->
   <VBox prefWidth="240" minWidth="240" maxWidth="240" spacing="0"

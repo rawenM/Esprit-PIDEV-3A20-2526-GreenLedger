@@ -8,7 +8,8 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="Controllers.EditUserController"
             prefWidth="520" prefHeight="460"
-            styleClass="page">
+            styleClass="page"
+            stylesheets="@../themes/admin-backoffice.css">
 
     <center>
         <VBox spacing="12" styleClass="content-area">

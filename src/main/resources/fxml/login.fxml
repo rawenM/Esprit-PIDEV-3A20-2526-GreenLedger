@@ -11,7 +11,8 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="Controllers.LoginController"
             prefHeight="750" prefWidth="850"
-            styleClass="page">
+            styleClass="page"
+            stylesheets="@../themes/app-base.css">
 
     <!-- CENTRE: Formulaire de connexion avec ScrollPane -->
     <center>

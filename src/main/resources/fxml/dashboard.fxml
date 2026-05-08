@@ -9,7 +9,8 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="Controllers.DashboardController"
             prefHeight="700" prefWidth="1200"
-            styleClass="page">
+            styleClass="page"
+            stylesheets="@../themes/app-base.css">
 
     <!-- TOP: Header -->
     <top>

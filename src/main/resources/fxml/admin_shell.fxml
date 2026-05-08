@@ -2,109 +2,202 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.text.Text?>
 
 <BorderPane xmlns="http://javafx.com/javafx/20.0.2"
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="Controllers.AdminShellController"
-            prefHeight="700" prefWidth="1100"
-            styleClass="page">
+            prefHeight="760" prefWidth="1280"
+            stylesheets="@../themes/admin-backoffice.css">
 
-    <!-- ── Sidebar ── -->
+    <!-- ══════════════════════════════════════════
+         SIDEBAR  (300 px, dark gradient)
+    ══════════════════════════════════════════ -->
     <left>
-        <VBox prefWidth="230" spacing="6" styleClass="sidebar">
-            <padding><Insets top="16" right="10" bottom="16" left="10"/></padding>
+        <VBox prefWidth="260" minWidth="260" maxWidth="260"
+              styleClass="gl-sidebar" spacing="0">
 
-            <HBox alignment="CENTER_LEFT" spacing="8">
-                <Label text="🛡️" style="-fx-font-size:20px;"/>
-                <Label text="GreenLedger Admin" styleClass="sidebar-title"/>
+            <!-- Brand -->
+            <HBox styleClass="gl-brand" alignment="CENTER_LEFT" spacing="10">
+                <padding><Insets top="22" right="18" bottom="18" left="18"/></padding>
+                <Label text="GL" styleClass="gl-brand-mark"/>
+                <VBox spacing="1">
+                    <Label text="GreenLedger" styleClass="gl-brand-name"/>
+                    <Label text="BACK OFFICE"  styleClass="gl-brand-sub"/>
+                </VBox>
             </HBox>
-            <Separator styleClass="sidebar-sep"/>
 
-            <Button fx:id="btnUsers"       text="👥 Utilisateurs"        onAction="#onUsers"       styleClass="nav-btn nav-btn-active"/>
-            <Button fx:id="btnAudit"       text="📋 Journal d'audit"     onAction="#onAudit"       styleClass="nav-btn"/>
-            <Button fx:id="btnProjets"     text="📁 Projets"             onAction="#onProjets"     styleClass="nav-btn"/>
-            <Button fx:id="btnEvaluations" text="📊 Évaluations"         onAction="#onEvaluations" styleClass="nav-btn"/>
-            <Button fx:id="btnFraud"       text="🚨 Fraude"              onAction="#onFraud"       styleClass="nav-btn"/>
-            <Button fx:id="btnCredits"     text="🌿 Crédits verts"       onAction="#onCredits"     styleClass="nav-btn"/>
-            <Button fx:id="btnCriteres"    text="📐 Critères"            onAction="#onCriteres"    styleClass="nav-btn"/>
-            <Button fx:id="btnWallet"      text="💼 Wallets"             onAction="#onWallet"      styleClass="nav-btn"/>
+            <!-- ── OVERVIEW ── -->
+            <Label text="OVERVIEW" styleClass="gl-nav-section"/>
+            <Button fx:id="btnDashboard" text="  Tableau de bord"
+                    onAction="#onDashboard" styleClass="gl-nav-btn"/>
+            <Button fx:id="btnUsers" text="  Utilisateurs"
+                    onAction="#onUsers" styleClass="gl-nav-btn gl-nav-active"/>
+
+            <!-- ── MANAGEMENT ── -->
+            <Label text="MANAGEMENT" styleClass="gl-nav-section"/>
+            <Button fx:id="btnProjets"     text="  Projets"
+                    onAction="#onProjets"     styleClass="gl-nav-btn"/>
+            <Button fx:id="btnEvaluations" text="  Évaluations"
+                    onAction="#onEvaluations" styleClass="gl-nav-btn"/>
+
+            <!-- ── FINANCE ── -->
+            <Label text="FINANCE" styleClass="gl-nav-section"/>
+            <Button fx:id="btnCredits"  text="  Crédits verts"
+                    onAction="#onCredits"  styleClass="gl-nav-btn"/>
+            <Button fx:id="btnWallet"   text="  Wallets"
+                    onAction="#onWallet"   styleClass="gl-nav-btn"/>
+
+            <!-- ── SUPERVISION ── -->
+            <Label text="SUPERVISION" styleClass="gl-nav-section"/>
+            <Button fx:id="btnAuditNav"  text="  Journal d'audit"
+                    onAction="#onAudit"      styleClass="gl-nav-btn"/>
+            <Button fx:id="btnCarteConn" text="  Carte connexions"
+                    onAction="#onCarteConn"  styleClass="gl-nav-btn"/>
+            <Button fx:id="btnFraud"     text="  Fraude &amp; Risques"
+                    onAction="#onFraud"      styleClass="gl-nav-btn"/>
+            <Button fx:id="btnCriteres"  text="  Analytics"
+                    onAction="#onCriteres"   styleClass="gl-nav-btn"/>
 
             <Region VBox.vgrow="ALWAYS"/>
-            <Separator styleClass="sidebar-sep"/>
-            <VBox spacing="3" style="-fx-padding:8 0 0 4;">
-                <Label fx:id="lblProfileName" styleClass="page-title"/>
-                <Label fx:id="lblProfileType" styleClass="page-subtitle"/>
-                <Button text="✏️ Profil"       onAction="#onEditProfile" styleClass="btn-secondary"/>
-                <Button text="🚪 Déconnexion"  onAction="#onLogout"      styleClass="nav-btn"/>
+
+            <!-- Bottom actions -->
+            <VBox styleClass="gl-side-actions" spacing="2">
+                <padding><Insets top="12" right="12" bottom="16" left="12"/></padding>
+                <Separator styleClass="gl-sep"/>
+                <Button text="  Profil"       onAction="#onEditProfile" styleClass="gl-side-link"/>
+                <Button text="  Déconnexion"  onAction="#onLogout"      styleClass="gl-side-link gl-logout"/>
             </VBox>
         </VBox>
     </left>
 
-    <!-- ── Top bar ── -->
+    <!-- ══════════════════════════════════════════
+         TOP BAR
+    ══════════════════════════════════════════ -->
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="12" styleClass="topbar">
-            <padding><Insets top="12" right="24" bottom="12" left="24"/></padding>
-            <Button fx:id="btnBack" text="← Retour" onAction="#onBack"
-                    style="-fx-background-color:#F3F4F6; -fx-text-fill:#374151; -fx-font-size:12px; -fx-font-weight:600; -fx-background-radius:6; -fx-padding:7 14; -fx-cursor:hand; -fx-border-color:#E5E7EB; -fx-border-width:1; -fx-border-radius:6;"/>
-            <Separator orientation="VERTICAL" style="-fx-padding:0 4;"/>
-            <Label fx:id="lblPageTitle" text="🛡️ Administration" styleClass="page-title"/>
+        <HBox alignment="CENTER_LEFT" spacing="0" styleClass="gl-topbar">
+            <padding><Insets top="0" right="24" bottom="0" left="28"/></padding>
+
+            <!-- Breadcrumb -->
+            <VBox alignment="CENTER_LEFT" spacing="2">
+                <Label text="Back Office / Utilisateurs" styleClass="gl-breadcrumb"/>
+                <Label fx:id="lblPageTitle" text="Utilisateurs" styleClass="gl-topbar-title"/>
+            </VBox>
+
             <Region HBox.hgrow="ALWAYS"/>
-            <Label fx:id="lblNotifBadge" text="" styleClass="badge-danger"/>
-            <Button text="🔔" onAction="#onNotifications" styleClass="btn-icon"/>
+
+            <!-- Right: bell + avatar -->
+            <HBox alignment="CENTER" spacing="14">
+                <Button text="🔔" onAction="#onNotifications" styleClass="gl-icon-btn"/>
+                <HBox alignment="CENTER" spacing="10">
+                    <Label styleClass="gl-avatar" text="SA"/>
+                    <VBox alignment="CENTER_LEFT" spacing="1">
+                        <Label fx:id="lblProfileName" text="Super Admin" styleClass="gl-user-name"/>
+                        <Label fx:id="lblProfileType" text="Administrateur" styleClass="gl-user-role"/>
+                    </VBox>
+                </HBox>
+            </HBox>
         </HBox>
     </top>
 
-    <!-- ── Content area (swapped by navigation) ── -->
+    <!-- ══════════════════════════════════════════
+         MAIN CONTENT
+    ══════════════════════════════════════════ -->
     <center>
         <StackPane fx:id="contentArea">
-            <!-- Default: user management -->
-            <ScrollPane fitToWidth="true" styleClass="content-area">
-                <VBox spacing="20" styleClass="content-area">
-                    <padding><Insets top="30" right="30" bottom="30" left="30"/></padding>
+            <ScrollPane fitToWidth="true" styleClass="gl-scroll">
+                <VBox spacing="24" styleClass="gl-content">
+                    <padding><Insets top="28" right="28" bottom="28" left="28"/></padding>
 
-                    <!-- Stats row -->
-                    <HBox spacing="16">
-                        <VBox styleClass="card stat-card" prefWidth="160">
-                            <Label text="👥 Utilisateurs" styleClass="stat-label"/>
-                            <Label fx:id="statTotal"     text="—" styleClass="stat-value"/>
+                    <!-- ── 6 KPI CARDS ── -->
+                    <HBox spacing="14">
+                        <!-- Total -->
+                        <VBox styleClass="gl-kpi-card" HBox.hgrow="ALWAYS">
+                            <Label text="Utilisateurs" styleClass="gl-kpi-label"/>
+                            <Label fx:id="statTotal"   text="—"  styleClass="gl-kpi-value"/>
                         </VBox>
-                        <VBox styleClass="card stat-card" prefWidth="160">
-                            <Label text="✅ Actifs"       styleClass="stat-label"/>
-                            <Label fx:id="statActifs"    text="—" styleClass="stat-value"/>
+                        <!-- Actifs -->
+                        <VBox styleClass="gl-kpi-card gl-kpi-green" HBox.hgrow="ALWAYS">
+                            <Label text="Actifs"       styleClass="gl-kpi-label"/>
+                            <Label fx:id="statActifs"  text="—"  styleClass="gl-kpi-value gl-kpi-green-val"/>
                         </VBox>
-                        <VBox styleClass="card stat-card" prefWidth="160">
-                            <Label text="⏳ En attente"  styleClass="stat-label"/>
-                            <Label fx:id="statAttente"   text="—" styleClass="stat-value"/>
+                        <!-- En attente -->
+                        <VBox styleClass="gl-kpi-card gl-kpi-amber" HBox.hgrow="ALWAYS">
+                            <Label text="En attente"   styleClass="gl-kpi-label"/>
+                            <Label fx:id="statAttente" text="—"  styleClass="gl-kpi-value gl-kpi-amber-val"/>
                         </VBox>
-                        <VBox styleClass="card stat-card" prefWidth="160">
-                            <Label text="🚨 Fraude"      styleClass="stat-label"/>
-                            <Label fx:id="statFraud"     text="—" styleClass="stat-value"/>
+                        <!-- Bloqués -->
+                        <VBox styleClass="gl-kpi-card gl-kpi-red" HBox.hgrow="ALWAYS">
+                            <Label text="Bloqués"      styleClass="gl-kpi-label"/>
+                            <Label fx:id="statBloques" text="—"  styleClass="gl-kpi-value gl-kpi-red-val"/>
+                        </VBox>
+                        <!-- Suspendus -->
+                        <VBox styleClass="gl-kpi-card" HBox.hgrow="ALWAYS">
+                            <Label text="Suspendus"    styleClass="gl-kpi-label"/>
+                            <Label fx:id="statSuspendus" text="—" styleClass="gl-kpi-value"/>
+                        </VBox>
+                        <!-- Fraude -->
+                        <VBox styleClass="gl-kpi-card gl-kpi-orange" HBox.hgrow="ALWAYS">
+                            <Label text="Fraude"       styleClass="gl-kpi-label"/>
+                            <Label fx:id="statFraud"   text="—"  styleClass="gl-kpi-value gl-kpi-orange-val"/>
                         </VBox>
                     </HBox>
 
-                    <!-- Search + actions -->
-                    <HBox spacing="10" alignment="CENTER_LEFT">
-                        <TextField fx:id="txtSearch" promptText="🔍 Rechercher un utilisateur…" prefWidth="280"/>
-                        <ComboBox fx:id="cmbType"   promptText="Type"   prefWidth="140"/>
-                        <ComboBox fx:id="cmbStatut" promptText="Statut" prefWidth="140"/>
-                        <Button text="Rechercher" onAction="#onSearch" styleClass="btn btn-primary"/>
-                        <Region HBox.hgrow="ALWAYS"/>
-                        <Button text="➕ Nouvel utilisateur" onAction="#onNewUser"   styleClass="btn btn-primary"/>
-                        <Button text="📥 Export CSV"         onAction="#onExportCsv" styleClass="btn btn-secondary"/>
-                    </HBox>
+                    <!-- ── SEARCH & FILTER BAR ── -->
+                    <VBox styleClass="gl-surface" spacing="12">
+                        <padding><Insets top="16" right="18" bottom="16" left="18"/></padding>
+                        <HBox spacing="10" alignment="CENTER_LEFT">
+                            <TextField fx:id="txtSearch"
+                                       promptText="🔍  Rechercher un utilisateur…"
+                                       prefWidth="280" styleClass="gl-field"/>
+                            <ComboBox fx:id="cmbType"   promptText="Rôle"   prefWidth="160" styleClass="gl-combo"/>
+                            <ComboBox fx:id="cmbStatut" promptText="Statut" prefWidth="160" styleClass="gl-combo"/>
+                            <Button text="Rechercher" onAction="#onSearch" styleClass="gl-btn-search"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Button text="+ Nouvel utilisateur" onAction="#onNewUser"   styleClass="gl-btn-primary"/>
+                            <Button text="↓ Export CSV"         onAction="#onExportCsv" styleClass="gl-btn-ghost"/>
+                        </HBox>
+                        <Label text="Recherche en temps réel — résultats mis à jour automatiquement"
+                               styleClass="gl-hint"/>
+                    </VBox>
 
-                    <!-- User table -->
-                    <TableView fx:id="tableUsers" prefHeight="380" styleClass="card">
-                        <columns>
-                            <TableColumn fx:id="colId"     text="ID"     prefWidth="50"/>
-                            <TableColumn fx:id="colNom"    text="Nom"    prefWidth="140"/>
-                            <TableColumn fx:id="colEmail"  text="Email"  prefWidth="200"/>
-                            <TableColumn fx:id="colType"   text="Type"   prefWidth="130"/>
-                            <TableColumn fx:id="colStatut" text="Statut" prefWidth="100"/>
-                            <TableColumn fx:id="colFraud"  text="Fraude" prefWidth="80"/>
-                            <TableColumn fx:id="colActions" text="Actions" prefWidth="180"/>
-                        </columns>
-                    </TableView>
+                    <!-- ── TABLE CARD ── -->
+                    <VBox styleClass="gl-surface" spacing="0">
+
+                        <!-- Table header row -->
+                        <HBox styleClass="gl-table-header" alignment="CENTER_LEFT" spacing="0">
+                            <padding><Insets top="14" right="18" bottom="14" left="18"/></padding>
+                            <Label fx:id="lblCount" text="— utilisateur(s) trouvé(s)"
+                                   styleClass="gl-table-count"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                        </HBox>
+
+                        <TableView fx:id="tableUsers" prefHeight="420"
+                                   styleClass="gl-table">
+                            <columns>
+                                <TableColumn fx:id="colId"      text="ID"          prefWidth="55"/>
+                                <TableColumn fx:id="colNom"     text="Utilisateur" prefWidth="190"/>
+                                <TableColumn fx:id="colEmail"   text="Email"       prefWidth="210"/>
+                                <TableColumn fx:id="colType"    text="Rôle"        prefWidth="150"/>
+                                <TableColumn fx:id="colStatut"  text="Statut"      prefWidth="110"/>
+                                <TableColumn fx:id="colDate"    text="Inscription" prefWidth="110"/>
+                                <TableColumn fx:id="colFraud"   text="Fraude"      prefWidth="80"/>
+                                <TableColumn fx:id="colActions" text="Actions"     prefWidth="230"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                    <!-- ── PENDING ACTIVATION SECTION ── -->
+                    <VBox fx:id="pendingSection" styleClass="gl-pending-box" spacing="10">
+                        <padding><Insets top="16" right="18" bottom="16" left="18"/></padding>
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="⚠" styleClass="gl-pending-icon"/>
+                            <Label text="Comptes en attente d'activation"
+                                   styleClass="gl-pending-title"/>
+                        </HBox>
+                        <VBox fx:id="pendingList" spacing="8"/>
+                    </VBox>
+
                 </VBox>
             </ScrollPane>
         </StackPane>

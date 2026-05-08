@@ -8,7 +8,8 @@
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.AssistantChatController"
       spacing="10"
-      style="-fx-background-color: #f7f9fb;">
+      style="-fx-background-color: #f7f9fb;"
+            stylesheets="@../themes/app-base.css">
 
     <padding>
         <Insets top="12" right="12" bottom="12" left="12"/>

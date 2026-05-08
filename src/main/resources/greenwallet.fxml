@@ -28,7 +28,8 @@
 <StackPane xmlns="http://javafx.com/javafx/20.0.2"
            xmlns:fx="http://javafx.com/fxml/1"
            fx:controller="Controllers.GreenWalletController"
-           styleClass="root-pane">
+           styleClass="root-pane"
+            stylesheets="@../themes/app-base.css">
 
     <!-- MAIN LAYER: Fixed Layout -->
     <HBox fx:id="mainLayer" spacing="0" styleClass="page">

@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml"
+      fx:controller="Controllers.WalletSupervisionController"
+      spacing="20"
+      styleClass="content-area"
+      stylesheets="@../themes/admin-backoffice.css">
+    
+    <padding>
+        <Insets top="20" right="20" bottom="20" left="20"/>
+    </padding>
+    
+    <!-- Page Header -->
+    <VBox spacing="8">
+        <Label text="💰 Supervision des Wallets" styleClass="page-title"/>
+        <Label text="Surveillance des déficits et des wallets à risque" styleClass="page-subtitle"/>
+    </VBox>
+    
+    <!-- Overview Metrics -->
+    <HBox spacing="16">
+        <VBox styleClass="metric-card" prefWidth="200">
+            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+            <Label text="TOTAL WALLETS" styleClass="metric-label"/>
+            <Label fx:id="totalWalletsLabel" text="—" styleClass="metric-value"/>
+        </VBox>
+        
+        <VBox styleClass="metric-card" prefWidth="200">
+            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+            <Label text="WALLETS NÉGATIFS" styleClass="metric-label"/>
+            <Label fx:id="negativeWalletsLabel" text="—" styleClass="metric-value" style="-fx-text-fill: #DC2626;"/>
+        </VBox>
+        
+        <VBox styleClass="metric-card" prefWidth="200">
+            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+            <Label text="WALLETS À RISQUE" styleClass="metric-label"/>
+            <Label fx:id="atRiskWalletsLabel" text="—" styleClass="metric-value" style="-fx-text-fill: #EA580C;"/>
+        </VBox>
+        
+        <VBox styleClass="metric-card" prefWidth="200">
+            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+            <Label text="DÉFICIT CUMULÉ" styleClass="metric-label"/>
+            <Label fx:id="cumulativeDeficitLabel" text="—" styleClass="metric-value" style="-fx-text-fill: #DC2626;"/>
+        </VBox>
+    </HBox>
+    
+    <!-- Negative Wallets Section -->
+    <VBox spacing="12" styleClass="ui-card">
+        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+        
+        <HBox alignment="CENTER_LEFT" spacing="12">
+            <Label text="Top 25 Wallets Négatifs" styleClass="section-title"/>
+            <Region HBox.hgrow="ALWAYS"/>
+            <Button text="🔄 Actualiser" onAction="#handleRefresh" styleClass="ui-btn-secondary btn-sm"/>
+        </HBox>
+        
+        <TableView fx:id="negativeWalletsTable" prefHeight="300">
+            <columns>
+                <TableColumn fx:id="walletIdColumn" text="ID" prefWidth="60"/>
+                <TableColumn fx:id="walletNumberColumn" text="Numéro" prefWidth="120"/>
+                <TableColumn fx:id="walletNameColumn" text="Nom" prefWidth="150"/>
+                <TableColumn fx:id="ownerTypeColumn" text="Type Propriétaire" prefWidth="130"/>
+                <TableColumn fx:id="ownerIdColumn" text="ID Propriétaire" prefWidth="120"/>
+                <TableColumn fx:id="deficitColumn" text="Déficit" prefWidth="100"/>
+                <TableColumn fx:id="retiredColumn" text="Retiré" prefWidth="80"/>
+                <TableColumn fx:id="priorityColumn" text="Priorité" prefWidth="100"/>
+                <TableColumn fx:id="createdAtColumn" text="Créé le" prefWidth="140"/>
+            </columns>
+        </TableView>
+    </VBox>
+    
+    <!-- Priority Owners Section -->
+    <VBox spacing="12" styleClass="ui-card">
+        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+        
+        <Label text="Propriétaires Prioritaires" styleClass="section-title"/>
+        
+        <TableView fx:id="priorityOwnersTable" prefHeight="200">
+            <columns>
+                <TableColumn fx:id="ownerTypeCol" text="Type" prefWidth="150"/>
+                <TableColumn fx:id="ownerIdCol" text="ID" prefWidth="100"/>
+                <TableColumn fx:id="negativeCountCol" text="Wallets Négatifs" prefWidth="150"/>
+                <TableColumn fx:id="totalDeficitCol" text="Déficit Total" prefWidth="150"/>
+                <TableColumn fx:id="riskLevelCol" text="Niveau de Risque" prefWidth="150"/>
+            </columns>
+        </TableView>
+    </VBox>
+    
+    <!-- At-Risk Wallets Section -->
+    <VBox spacing="12" styleClass="ui-card">
+        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+        
+        <Label text="Wallets à Risque (Solde < 50)" styleClass="section-title"/>
+        
+        <TableView fx:id="atRiskWalletsTable" prefHeight="200">
+            <columns>
+                <TableColumn fx:id="riskWalletIdColumn" text="ID" prefWidth="60"/>
+                <TableColumn fx:id="riskWalletNumberColumn" text="Numéro" prefWidth="120"/>
+                <TableColumn fx:id="riskWalletNameColumn" text="Nom" prefWidth="200"/>
+                <TableColumn fx:id="riskAvailableColumn" text="Disponible" prefWidth="120"/>
+                <TableColumn fx:id="riskWarningColumn" text="Avertissement" prefWidth="250"/>
+            </columns>
+        </TableView>
+    </VBox>
+    
+</VBox>

@@ -31,6 +31,12 @@ public class User {
     // Détection de fraude
     private double fraudScore;
     private boolean fraudChecked;
+    
+    // Géolocalisation de la dernière connexion
+    private String lastLoginCountry;
+    private String lastLoginCity;
+    private Double lastLoginLat;
+    private Double lastLoginLng;
 
     // Constructeur par défaut
     public User() {
@@ -204,6 +210,38 @@ public class User {
 
     public void setFraudChecked(boolean fraudChecked) {
         this.fraudChecked = fraudChecked;
+    }
+
+    public String getLastLoginCountry() {
+        return lastLoginCountry;
+    }
+
+    public void setLastLoginCountry(String lastLoginCountry) {
+        this.lastLoginCountry = lastLoginCountry;
+    }
+
+    public String getLastLoginCity() {
+        return lastLoginCity;
+    }
+
+    public void setLastLoginCity(String lastLoginCity) {
+        this.lastLoginCity = lastLoginCity;
+    }
+
+    public Double getLastLoginLat() {
+        return lastLoginLat;
+    }
+
+    public void setLastLoginLat(Double lastLoginLat) {
+        this.lastLoginLat = lastLoginLat;
+    }
+
+    public Double getLastLoginLng() {
+        return lastLoginLng;
+    }
+
+    public void setLastLoginLng(Double lastLoginLng) {
+        this.lastLoginLng = lastLoginLng;
     }
 
     // Méthodes utilitaires

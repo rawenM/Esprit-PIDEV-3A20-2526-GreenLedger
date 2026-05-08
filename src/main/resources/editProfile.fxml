@@ -7,7 +7,8 @@
 <HBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.EditProfileController"
-      spacing="0" styleClass="page">
+      spacing="0" styleClass="page"
+            stylesheets="@../themes/app-base.css">
 
     <!-- Sidebar -->
     <VBox prefWidth="220" styleClass="sidebar">
