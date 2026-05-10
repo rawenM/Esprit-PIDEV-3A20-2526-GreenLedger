@@ -8,16 +8,16 @@
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="Controllers.ExpertCarbonController"
             style="-fx-font-family: 'Segoe UI'; -fx-font-size: 11;"
-            stylesheets="@../themes/admin-backoffice.css">
+            stylesheets="@../themes/app-base.css">
 
     <!-- Top: Header -->
     <top>
-        <VBox style="-fx-background-color: #1F2937; -fx-padding: 15;">
+        <VBox style="-fx-background-color: #ffffff; -fx-padding: 15;">
             <HBox spacing="20" alignment="CENTER_LEFT">
                 <Label text="🌍 Expert Carbone - Évaluation d'Émissions"
-                       style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: white;"/>
+                       style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #0f172a;"/>
                 <Region HBox.hgrow="ALWAYS"/>
-                <Label fx:id="userLabel" style="-fx-text-fill: #D1D5DB;"/>
+                <Label fx:id="userLabel" style="-fx-text-fill: #374151;"/>
                 <Button text="Déconnexion" onAction="#handleLogout" style="-fx-padding: 8 15;"/>
             </HBox>
         </VBox>
