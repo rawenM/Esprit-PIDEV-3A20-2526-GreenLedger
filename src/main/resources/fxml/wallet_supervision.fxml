@@ -94,7 +94,7 @@
     <VBox spacing="12" styleClass="ui-card">
         <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
         
-        <Label text="Wallets à Risque (Solde < 50)" styleClass="section-title"/>
+        <Label text="Wallets à Risque (Solde &lt; 50)" styleClass="section-title"/>
         
         <TableView fx:id="atRiskWalletsTable" prefHeight="200">
             <columns>

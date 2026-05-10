@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.web.WebView?>
+
+<VBox xmlns="http://javafx.com/javafx/20.0.2" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.AdminGreenCreditsController"
+      spacing="0"
+      stylesheets="@../themes/admin-backoffice.css">
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="gl-dark-scroll">
+        <VBox spacing="20">
+            <padding><Insets top="28" right="28" bottom="28" left="28"/></padding>
+
+            <!-- ── Header ── -->
+            <VBox spacing="4">
+                <Label text="Green Credits" styleClass="gl-audit-title"/>
+                <Label text="GREEN CREDIT WORKSPACE" style="-fx-font-size:10px; -fx-font-weight:700; -fx-text-fill:#34d399; -fx-letter-spacing:0.1em;"/>
+                <Label text="Navigate between dashboard, wallet dispatch, and project-level compute in a single analytical workspace."
+                       styleClass="gl-dark-card-sub"/>
+            </VBox>
+
+            <!-- ── Tab bar ── -->
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Button fx:id="btnTabDashboard" text="Dashboard"
+                        onAction="#onTabDashboard" styleClass="gl-tab-active"/>
+                <Button fx:id="btnTabDispatch"  text="Dispatch Wallet"
+                        onAction="#onTabDispatch"  styleClass="gl-tab"/>
+                <Button fx:id="btnTabAdvanced"  text="Accès Avancé"
+                        onAction="#onTabAdvanced"  styleClass="gl-tab"/>
+            </HBox>
+
+            <!-- ── GREEN CREDITS section label ── -->
+            <HBox alignment="CENTER_LEFT" spacing="10">
+                <Label text="● GREEN CREDITS" style="-fx-font-size:11px; -fx-font-weight:700; -fx-text-fill:#34d399;"/>
+                <Label text="6 projets" styleClass="gl-dark-card-sub"/>
+            </HBox>
+
+            <!-- ── Dashboard title + actions ── -->
+            <HBox alignment="CENTER_LEFT" spacing="12">
+                <VBox spacing="4">
+                    <Label text="Green Credit Dispatch Dashboard" styleClass="gl-dark-card-title"
+                           style="-fx-font-size:18px;"/>
+                    <Label fx:id="lblProjectCount" text="— Projets · — dispatchables"
+                           styleClass="gl-dark-card-sub"/>
+                </VBox>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="Tous les projets" onAction="#onAllProjects" styleClass="gl-dark-btn-ghost"/>
+                <Button text="↑ Dispatch to wallet" onAction="#onDispatchToWallet" styleClass="gl-btn-primary"/>
+            </HBox>
+
+            <!-- ── 4 KPI Cards ── -->
+            <HBox spacing="14">
+                <!-- RÉFÉRENCE -->
+                <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="RÉFÉRENCE" style="-fx-font-size:10px; -fx-font-weight:700; -fx-text-fill:#64748b;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label text="↗" style="-fx-text-fill:#64748b;"/>
+                    </HBox>
+                    <Label text="Baseline tCO₂e" styleClass="gl-dark-card-sub"/>
+                    <Label fx:id="lblBaseline" text="—" style="-fx-font-size:28px; -fx-font-weight:700; -fx-text-fill:#e2e8f0;"/>
+                    <Label text="Référence émissions before project interventions"
+                           styleClass="gl-dark-card-sub" wrapText="true"/>
+                </VBox>
+
+                <!-- RÉEL/ACTUEL -->
+                <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="RÉEL/ACTUEL" style="-fx-font-size:10px; -fx-font-weight:700; -fx-text-fill:#f87171;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label text="↘" style="-fx-text-fill:#f87171;"/>
+                    </HBox>
+                    <Label text="Actual tCO₂e" styleClass="gl-dark-card-sub"/>
+                    <Label fx:id="lblActual" text="—" style="-fx-font-size:28px; -fx-font-weight:700; -fx-text-fill:#f87171;"/>
+                    <Label text="Measured emissions after project interventions"
+                           styleClass="gl-dark-card-sub" wrapText="true"/>
+                </VBox>
+
+                <!-- POSITIVE DELTA -->
+                <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="POSITIVE DELTA" style="-fx-font-size:10px; -fx-font-weight:700; -fx-text-fill:#34d399;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label text="+" style="-fx-text-fill:#34d399;"/>
+                    </HBox>
+                    <Label text="Avoided tCO₂e" styleClass="gl-dark-card-sub"/>
+                    <Label fx:id="lblAvoided" text="—" style="-fx-font-size:28px; -fx-font-weight:700; -fx-text-fill:#34d399;"/>
+                    <Label text="Net carbon avoided across all active projects"
+                           styleClass="gl-dark-card-sub" wrapText="true"/>
+                </VBox>
+
+                <!-- READY TO DISPATCH -->
+                <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                    <HBox alignment="CENTER_LEFT" spacing="8">
+                        <Label text="READY TO DISPATCH" style="-fx-font-size:10px; -fx-font-weight:700; -fx-text-fill:#38bdf8;"/>
+                        <Region HBox.hgrow="ALWAYS"/>
+                        <Label text="✓" style="-fx-text-fill:#38bdf8;"/>
+                    </HBox>
+                    <Label text="Dispatchable Credits" styleClass="gl-dark-card-sub"/>
+                    <Label fx:id="lblDispatchable" text="—" style="-fx-font-size:28px; -fx-font-weight:700; -fx-text-fill:#38bdf8;"/>
+                    <Label text="Credits ready to dispatch to wallets"
+                           styleClass="gl-dark-card-sub" wrapText="true"/>
+                </VBox>
+            </HBox>
+
+            <!-- ── Bottom row: Eligibility + System Health ── -->
+            <HBox spacing="16">
+
+                <!-- Eligibility Breakdown -->
+                <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS" spacing="12">
+                    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                    <Label text="Eligibility Breakdown" styleClass="gl-dark-card-title"/>
+                    <Label fx:id="lblEligibilityTotal" text="— total projects" styleClass="gl-dark-card-sub"/>
+
+                    <VBox spacing="8">
+                        <!-- Eligible -->
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Eligible" styleClass="gl-dark-card-sub" prefWidth="130"/>
+                            <ProgressBar fx:id="pbEligible" progress="0" prefWidth="200" prefHeight="8"
+                                         style="-fx-accent:#34d399;"/>
+                            <Label fx:id="lblEligibleCount" text="0" styleClass="gl-dark-card-sub"/>
+                        </HBox>
+                        <!-- Needs Improvement -->
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Needs Improvement" styleClass="gl-dark-card-sub" prefWidth="130"/>
+                            <ProgressBar fx:id="pbNeedsImprovement" progress="0" prefWidth="200" prefHeight="8"
+                                         style="-fx-accent:#fbbf24;"/>
+                            <Label fx:id="lblNeedsImprovementCount" text="0" styleClass="gl-dark-card-sub"/>
+                        </HBox>
+                        <!-- Not Eligible -->
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Not Eligible" styleClass="gl-dark-card-sub" prefWidth="130"/>
+                            <ProgressBar fx:id="pbNotEligible" progress="0" prefWidth="200" prefHeight="8"
+                                         style="-fx-accent:#f87171;"/>
+                            <Label fx:id="lblNotEligibleCount" text="0" styleClass="gl-dark-card-sub"/>
+                        </HBox>
+                        <!-- Other -->
+                        <HBox alignment="CENTER_LEFT" spacing="10">
+                            <Label text="Other" styleClass="gl-dark-card-sub" prefWidth="130"/>
+                            <ProgressBar fx:id="pbOther" progress="0" prefWidth="200" prefHeight="8"
+                                         style="-fx-accent:#64748b;"/>
+                            <Label fx:id="lblOtherCount" text="0" styleClass="gl-dark-card-sub"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+                <!-- System Health -->
+                <VBox styleClass="gl-dark-card" prefWidth="340" spacing="12">
+                    <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                    <Label text="System Health" styleClass="gl-dark-card-title"/>
+                    <Label text="Pending system operations" styleClass="gl-dark-card-sub"/>
+
+                    <VBox fx:id="systemHealthBox" spacing="10">
+                        <!-- Health status shown dynamically -->
+                        <HBox styleClass="gl-health-error" alignment="CENTER_LEFT" spacing="10">
+                            <padding><Insets top="10" right="12" bottom="10" left="12"/></padding>
+                            <Label text="⚠" style="-fx-text-fill:#f87171; -fx-font-size:14px;"/>
+                            <Label fx:id="lblHealthStatus" text="Checking system status..."
+                                   styleClass="gl-dark-card-sub" wrapText="true" HBox.hgrow="ALWAYS"/>
+                            <Button text="Retry" onAction="#onRetryHealth" styleClass="gl-btn-danger"/>
+                        </HBox>
+                    </VBox>
+                </VBox>
+
+            </HBox>
+
+            <!-- ── Projects Table ── -->
+            <VBox styleClass="gl-dark-card" spacing="0">
+                <padding><Insets top="16" right="16" bottom="0" left="16"/></padding>
+
+                <HBox alignment="CENTER_LEFT" spacing="12">
+                    <VBox spacing="4">
+                        <Label text="Projets" styleClass="gl-dark-card-title"/>
+                        <Label text="Cliquez sur un projet pour ouvrir le dispatch wallet de ce projet"
+                               styleClass="gl-dark-card-sub"/>
+                    </VBox>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Label fx:id="lblTableCount" text="— / —" styleClass="gl-dark-card-sub"/>
+                </HBox>
+
+                <!-- Filters -->
+                <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding: 12 0 12 0;">
+                    <TextField fx:id="txtProjectSearch" promptText="Search a project..."
+                               prefWidth="200" styleClass="gl-dark-field"/>
+                    <ComboBox fx:id="cmbStatusFilter" promptText="All status" prefWidth="140"
+                              styleClass="gl-dark-combo"/>
+                    <ComboBox fx:id="cmbEligibilityFilter" promptText="All eligibility" prefWidth="160"
+                              styleClass="gl-dark-combo"/>
+                    <CheckBox fx:id="chkDispatchOnly" text="Dispatch only"
+                              style="-fx-text-fill:#94a3b8; -fx-font-size:12px;"/>
+                    <Region HBox.hgrow="ALWAYS"/>
+                    <Button text="↻ Actualiser" onAction="#onRefresh" styleClass="gl-dark-btn-ghost"/>
+                </HBox>
+
+                <!-- Table -->
+                <TableView fx:id="tableProjects" prefHeight="320" styleClass="gl-dark-table">
+                    <columns>
+                        <TableColumn fx:id="colProject"     text="PROJECT"     prefWidth="200"/>
+                        <TableColumn fx:id="colId"          text="ID"          prefWidth="80"/>
+                        <TableColumn fx:id="colStatus"      text="STATUS"      prefWidth="110"/>
+                        <TableColumn fx:id="colBaseline"    text="BASELINE"    prefWidth="100"/>
+                        <TableColumn fx:id="colActual"      text="ACTUAL"      prefWidth="100"/>
+                        <TableColumn fx:id="colAvoided"     text="AVOIDED"     prefWidth="100"/>
+                        <TableColumn fx:id="colDispatchable" text="DISPATCHABLE" prefWidth="110"/>
+                        <TableColumn fx:id="colEligibility" text="ELIGIBILITY" prefWidth="120"/>
+                        <TableColumn fx:id="colActions"     text="ACTIONS"     prefWidth="100"/>
+                    </columns>
+                </TableView>
+            </VBox>
+
+        </VBox>
+    </ScrollPane>
+</VBox>

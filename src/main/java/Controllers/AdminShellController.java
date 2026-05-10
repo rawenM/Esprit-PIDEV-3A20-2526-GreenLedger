@@ -13,6 +13,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.layout.Region;
+import javafx.scene.control.ScrollPane;
 
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -27,12 +28,13 @@ public class AdminShellController extends BaseController {
     @FXML private Button btnDashboard;
     @FXML private Button btnUsers;
     @FXML private Button btnAudit;
-    @FXML private Button btnAuditNav;   // alias in SUPERVISION section
+    @FXML private Button btnAuditNav;
     @FXML private Button btnCarteConn;
     @FXML private Button btnProjets;
     @FXML private Button btnEvaluations;
     @FXML private Button btnFraud;
     @FXML private Button btnCredits;
+    @FXML private Button btnDispatchWallet;
     @FXML private Button btnCriteres;
     @FXML private Button btnWallet;
 
@@ -42,7 +44,8 @@ public class AdminShellController extends BaseController {
     @FXML private Label lblProfileType;
 
     // ── Content area ─────────────────────────────────────────────────────────
-    @FXML private StackPane contentArea;
+    @FXML private StackPane  contentArea;
+    @FXML private ScrollPane usersScrollPane;  // the default users view inside contentArea
 
     // ── KPI labels ───────────────────────────────────────────────────────────
     @FXML private Label statTotal;
@@ -97,10 +100,11 @@ public class AdminShellController extends BaseController {
     @FXML private void onCarteConn()    { setActiveBtn(btnCarteConn);  loadContent("fxml/user_connection_map"); }
     @FXML private void onProjets()      { setActiveBtn(btnProjets);    loadContent("fxml/GestionProjet"); }
     @FXML private void onEvaluations()  { setActiveBtn(btnEvaluations); loadContent("fxml/expert_carbon_dashboard"); }
-    @FXML private void onFraud()        { setActiveBtn(btnFraud);      loadContent("fxml/project_fraud_scoring"); }
-    @FXML private void onCredits()      { setActiveBtn(btnCredits);    loadContent("fxml/greenwallet"); }
-    @FXML private void onCriteres()     { setActiveBtn(btnCriteres);   showUsersView(); }
-    @FXML private void onWallet()       { setActiveBtn(btnWallet);     loadContent("fxml/wallet_supervision"); }
+    @FXML private void onFraud()           { setActiveBtn(btnFraud);          loadContent("fxml/project_fraud_scoring"); }
+    @FXML private void onCriteres()        { setActiveBtn(btnCriteres);        showUsersView(); }
+    @FXML private void onCredits()         { setActiveBtn(btnCredits);         loadContent("fxml/admin_green_credits"); }
+    @FXML private void onDispatchWallet()  { setActiveBtn(btnDispatchWallet);  loadContent("fxml/admin_dispatch_wallet"); }
+    @FXML private void onWallet()          { setActiveBtn(btnWallet);          loadContent("fxml/wallet_supervision"); }
     @FXML private void onNotifications(){ /* notification panel */ }
     @FXML private void onEditProfile()  { navigate("editProfile"); }
 
@@ -164,7 +168,7 @@ public class AdminShellController extends BaseController {
 
                 VBox info = new VBox(1);
                 Label name = new Label(u.getNom() + " " + u.getPrenom());
-                name.setStyle("-fx-font-weight:600; -fx-text-fill:#161d2c; -fx-font-size:13px;");
+                name.setStyle("-fx-font-weight:600; -fx-text-fill:#e2e8f0; -fx-font-size:13px;");
                 info.getChildren().add(name);
 
                 HBox row = new HBox(9, avatar, info);
@@ -500,7 +504,8 @@ public class AdminShellController extends BaseController {
     private void setActiveBtn(Button active) {
         java.util.List<Button> allBtns = java.util.Arrays.asList(
             btnDashboard, btnUsers, btnAuditNav, btnCarteConn,
-            btnProjets, btnEvaluations, btnFraud, btnCredits, btnCriteres, btnWallet
+            btnProjets, btnEvaluations, btnFraud, btnCredits,
+            btnDispatchWallet, btnCriteres, btnWallet
         );
         for (Button b : allBtns) {
             if (b == null) continue;
