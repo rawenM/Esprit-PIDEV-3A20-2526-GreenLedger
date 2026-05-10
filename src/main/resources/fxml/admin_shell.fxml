@@ -8,6 +8,7 @@
             xmlns:fx="http://javafx.com/fxml/1"
             fx:controller="Controllers.AdminShellController"
             prefHeight="760" prefWidth="1280"
+            styleClass="gl-shell-root"
             stylesheets="@../themes/admin-backoffice.css">
 
     <!-- ══════════════════════════════════════════
@@ -43,10 +44,12 @@
 
             <!-- ── FINANCE ── -->
             <Label text="FINANCE" styleClass="gl-nav-section"/>
-            <Button fx:id="btnCredits"  text="  Crédits verts"
-                    onAction="#onCredits"  styleClass="gl-nav-btn"/>
-            <Button fx:id="btnWallet"   text="  Wallets"
-                    onAction="#onWallet"   styleClass="gl-nav-btn"/>
+            <Button fx:id="btnCredits"      text="  Crédits verts"
+                    onAction="#onCredits"      styleClass="gl-nav-btn"/>
+            <Button fx:id="btnDispatchWallet" text="  Dispatch Wallet"
+                    onAction="#onDispatchWallet" styleClass="gl-nav-btn"/>
+            <Button fx:id="btnWallet"       text="  Wallet supervision"
+                    onAction="#onWallet"       styleClass="gl-nav-btn"/>
 
             <!-- ── SUPERVISION ── -->
             <Label text="SUPERVISION" styleClass="gl-nav-section"/>
@@ -75,13 +78,13 @@
          TOP BAR
     ══════════════════════════════════════════ -->
     <top>
-        <HBox alignment="CENTER_LEFT" spacing="0" styleClass="gl-topbar">
+        <HBox alignment="CENTER_LEFT" spacing="0" styleClass="gl-dark-topbar">
             <padding><Insets top="0" right="24" bottom="0" left="28"/></padding>
 
             <!-- Breadcrumb -->
             <VBox alignment="CENTER_LEFT" spacing="2">
-                <Label text="Back Office / Utilisateurs" styleClass="gl-breadcrumb"/>
-                <Label fx:id="lblPageTitle" text="Utilisateurs" styleClass="gl-topbar-title"/>
+                <Label text="Back Office / Utilisateurs" styleClass="gl-dark-breadcrumb"/>
+                <Label fx:id="lblPageTitle" text="Utilisateurs" styleClass="gl-dark-topbar-title"/>
             </VBox>
 
             <Region HBox.hgrow="ALWAYS"/>
@@ -105,75 +108,72 @@
     ══════════════════════════════════════════ -->
     <center>
         <StackPane fx:id="contentArea">
-            <ScrollPane fitToWidth="true" styleClass="gl-scroll">
-                <VBox spacing="24" styleClass="gl-content">
+            <ScrollPane fx:id="usersScrollPane" fitToWidth="true" styleClass="gl-dark-scroll">
+                <VBox spacing="24" styleClass="gl-dark-content">
                     <padding><Insets top="28" right="28" bottom="28" left="28"/></padding>
 
                     <!-- ── 6 KPI CARDS ── -->
                     <HBox spacing="14">
-                        <!-- Total -->
-                        <VBox styleClass="gl-kpi-card" HBox.hgrow="ALWAYS">
-                            <Label text="Utilisateurs" styleClass="gl-kpi-label"/>
-                            <Label fx:id="statTotal"   text="—"  styleClass="gl-kpi-value"/>
+                        <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS">
+                            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                            <Label text="Utilisateurs"  styleClass="gl-dark-card-sub"/>
+                            <Label fx:id="statTotal"    text="—" styleClass="gl-dark-ind-val-blue"/>
                         </VBox>
-                        <!-- Actifs -->
-                        <VBox styleClass="gl-kpi-card gl-kpi-green" HBox.hgrow="ALWAYS">
-                            <Label text="Actifs"       styleClass="gl-kpi-label"/>
-                            <Label fx:id="statActifs"  text="—"  styleClass="gl-kpi-value gl-kpi-green-val"/>
+                        <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS">
+                            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                            <Label text="Actifs"        styleClass="gl-dark-card-sub"/>
+                            <Label fx:id="statActifs"   text="—" styleClass="gl-dark-ind-val-green"/>
                         </VBox>
-                        <!-- En attente -->
-                        <VBox styleClass="gl-kpi-card gl-kpi-amber" HBox.hgrow="ALWAYS">
-                            <Label text="En attente"   styleClass="gl-kpi-label"/>
-                            <Label fx:id="statAttente" text="—"  styleClass="gl-kpi-value gl-kpi-amber-val"/>
+                        <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS">
+                            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                            <Label text="En attente"    styleClass="gl-dark-card-sub"/>
+                            <Label fx:id="statAttente"  text="—" styleClass="gl-dark-ind-val-amber"/>
                         </VBox>
-                        <!-- Bloqués -->
-                        <VBox styleClass="gl-kpi-card gl-kpi-red" HBox.hgrow="ALWAYS">
-                            <Label text="Bloqués"      styleClass="gl-kpi-label"/>
-                            <Label fx:id="statBloques" text="—"  styleClass="gl-kpi-value gl-kpi-red-val"/>
+                        <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS">
+                            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                            <Label text="Bloqués"       styleClass="gl-dark-card-sub"/>
+                            <Label fx:id="statBloques"  text="—" styleClass="gl-dark-ind-val-red"/>
                         </VBox>
-                        <!-- Suspendus -->
-                        <VBox styleClass="gl-kpi-card" HBox.hgrow="ALWAYS">
-                            <Label text="Suspendus"    styleClass="gl-kpi-label"/>
-                            <Label fx:id="statSuspendus" text="—" styleClass="gl-kpi-value"/>
+                        <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS">
+                            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                            <Label text="Suspendus"       styleClass="gl-dark-card-sub"/>
+                            <Label fx:id="statSuspendus"  text="—" styleClass="gl-dark-ind-val"/>
                         </VBox>
-                        <!-- Fraude -->
-                        <VBox styleClass="gl-kpi-card gl-kpi-orange" HBox.hgrow="ALWAYS">
-                            <Label text="Fraude"       styleClass="gl-kpi-label"/>
-                            <Label fx:id="statFraud"   text="—"  styleClass="gl-kpi-value gl-kpi-orange-val"/>
+                        <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS">
+                            <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                            <Label text="Fraude"        styleClass="gl-dark-card-sub"/>
+                            <Label fx:id="statFraud"    text="—" styleClass="gl-dark-ind-val-orange"/>
                         </VBox>
                     </HBox>
 
                     <!-- ── SEARCH & FILTER BAR ── -->
-                    <VBox styleClass="gl-surface" spacing="12">
+                    <VBox styleClass="gl-dark-card" spacing="12">
                         <padding><Insets top="16" right="18" bottom="16" left="18"/></padding>
                         <HBox spacing="10" alignment="CENTER_LEFT">
                             <TextField fx:id="txtSearch"
                                        promptText="🔍  Rechercher un utilisateur…"
-                                       prefWidth="280" styleClass="gl-field"/>
-                            <ComboBox fx:id="cmbType"   promptText="Rôle"   prefWidth="160" styleClass="gl-combo"/>
-                            <ComboBox fx:id="cmbStatut" promptText="Statut" prefWidth="160" styleClass="gl-combo"/>
+                                       prefWidth="280" styleClass="gl-dark-field"/>
+                            <ComboBox fx:id="cmbType"   promptText="Rôle"   prefWidth="160" styleClass="gl-dark-combo"/>
+                            <ComboBox fx:id="cmbStatut" promptText="Statut" prefWidth="160" styleClass="gl-dark-combo"/>
                             <Button text="Rechercher" onAction="#onSearch" styleClass="gl-btn-search"/>
                             <Region HBox.hgrow="ALWAYS"/>
                             <Button text="+ Nouvel utilisateur" onAction="#onNewUser"   styleClass="gl-btn-primary"/>
-                            <Button text="↓ Export CSV"         onAction="#onExportCsv" styleClass="gl-btn-ghost"/>
+                            <Button text="↓ Export CSV"         onAction="#onExportCsv" styleClass="gl-dark-btn-ghost"/>
                         </HBox>
                         <Label text="Recherche en temps réel — résultats mis à jour automatiquement"
-                               styleClass="gl-hint"/>
+                               styleClass="gl-dark-card-sub"/>
                     </VBox>
 
                     <!-- ── TABLE CARD ── -->
-                    <VBox styleClass="gl-surface" spacing="0">
-
-                        <!-- Table header row -->
-                        <HBox styleClass="gl-table-header" alignment="CENTER_LEFT" spacing="0">
+                    <VBox styleClass="gl-dark-card" spacing="0">
+                        <HBox styleClass="gl-dark-table-header" alignment="CENTER_LEFT">
                             <padding><Insets top="14" right="18" bottom="14" left="18"/></padding>
                             <Label fx:id="lblCount" text="— utilisateur(s) trouvé(s)"
-                                   styleClass="gl-table-count"/>
+                                   styleClass="gl-dark-card-sub"/>
                             <Region HBox.hgrow="ALWAYS"/>
                         </HBox>
 
-                        <TableView fx:id="tableUsers" prefHeight="420"
-                                   styleClass="gl-table">
+                        <TableView fx:id="tableUsers" prefHeight="420" styleClass="gl-dark-table">
                             <columns>
                                 <TableColumn fx:id="colId"      text="ID"          prefWidth="55"/>
                                 <TableColumn fx:id="colNom"     text="Utilisateur" prefWidth="190"/>
@@ -188,12 +188,12 @@
                     </VBox>
 
                     <!-- ── PENDING ACTIVATION SECTION ── -->
-                    <VBox fx:id="pendingSection" styleClass="gl-pending-box" spacing="10">
+                    <VBox fx:id="pendingSection" styleClass="gl-dark-pending-box" spacing="10">
                         <padding><Insets top="16" right="18" bottom="16" left="18"/></padding>
                         <HBox alignment="CENTER_LEFT" spacing="8">
-                            <Label text="⚠" styleClass="gl-pending-icon"/>
+                            <Label text="⚠" style="-fx-text-fill:#f59e0b; -fx-font-size:16px;"/>
                             <Label text="Comptes en attente d'activation"
-                                   styleClass="gl-pending-title"/>
+                                   style="-fx-font-size:14px; -fx-font-weight:700; -fx-text-fill:#f59e0b;"/>
                         </HBox>
                         <VBox fx:id="pendingList" spacing="8"/>
                     </VBox>

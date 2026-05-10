@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox xmlns="http://javafx.com/javafx/20.0.2" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.AdminDispatchWalletController"
+      spacing="0">
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="gl-dark-scroll">
+        <VBox spacing="18">
+            <padding><Insets top="24" right="24" bottom="24" left="24"/></padding>
+
+            <!-- ── Workspace banner ── -->
+            <VBox styleClass="gl-workspace-banner" spacing="8">
+                <padding><Insets top="14" right="18" bottom="14" left="18"/></padding>
+                <HBox alignment="CENTER_LEFT" spacing="8">
+                    <Label text="GREEN CREDIT WORKSPACE"
+                           style="-fx-font-size:10px; -fx-font-weight:700; -fx-text-fill:#34d399; -fx-letter-spacing:0.1em;"/>
+                </HBox>
+                <Label text="Navigate between dashboard, wallet dispatch, and project-level compute in a single analytical workspace."
+                       styleClass="gl-dark-card-sub" wrapText="true"/>
+                <HBox spacing="10">
+                    <Button text="Dashboard"       onAction="#onTabDashboard"  styleClass="gl-tab"/>
+                    <Button text="Dispatch Wallet" onAction="#onTabDispatch"   styleClass="gl-tab-active"/>
+                    <Button text="Admin Avancé"    onAction="#onTabAdvanced"   styleClass="gl-tab"/>
+                </HBox>
+            </VBox>
+
+            <!-- ── Ledger sync bar ── -->
+            <HBox alignment="CENTER_LEFT" spacing="8"
+                  style="-fx-background-color:rgba(148,163,184,0.06); -fx-background-radius:8; -fx-padding:8 14 8 14;">
+                <Label text="Ledger Sync:" style="-fx-font-size:11px; -fx-text-fill:#64748b;"/>
+                <Label fx:id="lblLedgerSync" text="Block: 0 · Last block: —"
+                       style="-fx-font-size:11px; -fx-text-fill:#94a3b8;"/>
+            </HBox>
+
+            <!-- ── 4 KPI Cards ── -->
+            <HBox spacing="14">
+                <!-- Available Credits -->
+                <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+                    <Label text="AVAILABLE CREDITS" style="-fx-font-size:9px; -fx-font-weight:700; -fx-text-fill:#64748b;"/>
+                    <Label text="Available tCO₂e" styleClass="gl-dark-card-sub"/>
+                    <Label fx:id="lblAvailableCredits" text="0.000"
+                           style="-fx-font-size:24px; -fx-font-weight:700; -fx-text-fill:#38bdf8;"/>
+                    <Label text="Dispatchable from selected project" styleClass="gl-dark-card-sub" wrapText="true"/>
+                </VBox>
+                <!-- Calculated Amount -->
+                <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+                    <Label text="CALCULATED AMOUNT" style="-fx-font-size:9px; -fx-font-weight:700; -fx-text-fill:#64748b;"/>
+                    <Label text="tCO₂e" styleClass="gl-dark-card-sub"/>
+                    <Label fx:id="lblCalculatedAmount" text="0.000"
+                           style="-fx-font-size:24px; -fx-font-weight:700; -fx-text-fill:#34d399;"/>
+                    <Label text="Computed from project evaluation" styleClass="gl-dark-card-sub" wrapText="true"/>
+                </VBox>
+                <!-- Coins Minted -->
+                <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+                    <Label text="COINS MINTED" style="-fx-font-size:9px; -fx-font-weight:700; -fx-text-fill:#64748b;"/>
+                    <Label text="Total minted" styleClass="gl-dark-card-sub"/>
+                    <Label fx:id="lblCoinsMinted" text="0.000"
+                           style="-fx-font-size:24px; -fx-font-weight:700; -fx-text-fill:#e2e8f0;"/>
+                    <Label text="Issued onto blockchain link" styleClass="gl-dark-card-sub" wrapText="true"/>
+                </VBox>
+                <!-- Wallet Status -->
+                <VBox styleClass="gl-dark-card" HBox.hgrow="ALWAYS" spacing="6">
+                    <padding><Insets top="14" right="14" bottom="14" left="14"/></padding>
+                    <Label text="WALLET STATUS" style="-fx-font-size:9px; -fx-font-weight:700; -fx-text-fill:#64748b;"/>
+                    <Label text="Blockchain destination" styleClass="gl-dark-card-sub"/>
+                    <Label fx:id="lblWalletStatus" text="Disconnected"
+                           style="-fx-font-size:20px; -fx-font-weight:700; -fx-text-fill:#f87171;"/>
+                    <Label fx:id="lblWalletAddress" text="No address"
+                           styleClass="gl-dark-card-sub" wrapText="true"/>
+                </VBox>
+            </HBox>
+
+            <!-- ── Main content: Dispatch Form + Wallet Connect ── -->
+            <HBox spacing="16">
+
+                <!-- LEFT: Dispatch Form + Ledger Activity -->
+                <VBox spacing="14" HBox.hgrow="ALWAYS">
+
+                    <!-- Dispatch Form -->
+                    <VBox styleClass="gl-dark-card" spacing="14">
+                        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                        <Label text="Dispatch Form" styleClass="gl-dark-card-title"/>
+                        <Label text="Polygon Array" styleClass="gl-dark-card-sub"/>
+
+                        <!-- Project selector -->
+                        <VBox spacing="6">
+                            <Label text="Project" styleClass="gl-dark-card-sub"/>
+                            <ComboBox fx:id="cmbProject" promptText="Select a project..."
+                                      prefWidth="9999" styleClass="gl-dark-combo"
+                                      onAction="#onProjectSelected"/>
+                        </VBox>
+
+                        <!-- Credits + Destination info -->
+                        <HBox spacing="16">
+                            <VBox spacing="4" HBox.hgrow="ALWAYS">
+                                <Label fx:id="lblCreditsInfo" text="Credits: —"
+                                       styleClass="gl-dark-card-sub"/>
+                                <Label fx:id="lblDestinationInfo" text="Destination: —"
+                                       styleClass="gl-dark-card-sub"/>
+                            </VBox>
+                        </HBox>
+
+                        <!-- Action buttons -->
+                        <HBox spacing="10">
+                            <Button text="Issue credits" onAction="#onIssueCredits"
+                                    styleClass="gl-btn-primary"/>
+                            <Button text="Sync now"      onAction="#onSyncNow"
+                                    styleClass="gl-dark-btn-ghost"/>
+                            <Button text="Admin adjustment" onAction="#onAdminAdjustment"
+                                    styleClass="gl-tab"/>
+                        </HBox>
+                    </VBox>
+
+                    <!-- Recent Ledger Activity -->
+                    <VBox styleClass="gl-dark-card" spacing="10">
+                        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                        <Label text="Recent Ledger Activity" styleClass="gl-dark-card-title"/>
+                        <Label text="Latest blockchain transactions" styleClass="gl-dark-card-sub"/>
+
+                        <TableView fx:id="tableActivity" prefHeight="180" styleClass="gl-dark-table">
+                            <columns>
+                                <TableColumn fx:id="colTx"      text="TX"      prefWidth="60"/>
+                                <TableColumn fx:id="colType"    text="TYPE"    prefWidth="90"/>
+                                <TableColumn fx:id="colStatus"  text="STATUS"  prefWidth="100"/>
+                                <TableColumn fx:id="colCredits" text="CREDITS" prefWidth="90"/>
+                                <TableColumn fx:id="colBatch"   text="BATCH"   prefWidth="80"/>
+                                <TableColumn fx:id="colUpdated" text="UPDATED" prefWidth="160"/>
+                            </columns>
+                        </TableView>
+                    </VBox>
+
+                </VBox>
+
+                <!-- RIGHT: Wallet Connect + Transaction Preview -->
+                <VBox spacing="14" prefWidth="320">
+
+                    <!-- Wallet Connect -->
+                    <VBox styleClass="gl-dark-card" spacing="12">
+                        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                        <HBox alignment="CENTER_LEFT" spacing="8">
+                            <Label text="Wallet Connect" styleClass="gl-dark-card-title"/>
+                            <Region HBox.hgrow="ALWAYS"/>
+                            <Label fx:id="lblConnectStatus" text="DISCONNECTED"
+                                   style="-fx-background-color:rgba(248,113,113,0.15); -fx-text-fill:#f87171; -fx-background-radius:6; -fx-padding:3 8 3 8; -fx-font-size:10px; -fx-font-weight:700;"/>
+                        </HBox>
+                        <Label text="Blockchain destination" styleClass="gl-dark-card-sub"/>
+
+                        <GridPane hgap="12" vgap="10">
+                            <Label text="Wallet" styleClass="gl-dark-card-sub"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                            <TextField fx:id="txtWalletName" text="mehdi"
+                                       styleClass="gl-dark-field" prefWidth="160"
+                                       GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                            <Label text="Network" styleClass="gl-dark-card-sub"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                            <Label fx:id="lblNetwork" text="Polygon Array"
+                                   style="-fx-text-fill:#a78bfa; -fx-font-weight:600;"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                            <Label text="Address" styleClass="gl-dark-card-sub"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                            <Label fx:id="lblAddress" text="—"
+                                   styleClass="gl-dark-card-sub"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+                        </GridPane>
+
+                        <Button text="Switch wallet" onAction="#onSwitchWallet"
+                                styleClass="gl-dark-btn-ghost" prefWidth="9999"/>
+                    </VBox>
+
+                    <!-- Transaction Preview -->
+                    <VBox styleClass="gl-dark-card" spacing="12">
+                        <padding><Insets top="16" right="16" bottom="16" left="16"/></padding>
+                        <Label text="Transaction Preview" styleClass="gl-dark-card-title"/>
+                        <Label text="Review before dispatching" styleClass="gl-dark-card-sub"/>
+
+                        <GridPane hgap="12" vgap="10">
+                            <Label text="Project" styleClass="gl-dark-card-sub"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="0"/>
+                            <Label fx:id="lblPreviewProject" text="—"
+                                   style="-fx-text-fill:#e2e8f0; -fx-font-size:12px;"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="0"/>
+
+                            <Label text="Recipient" styleClass="gl-dark-card-sub"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="1"/>
+                            <Label fx:id="lblPreviewRecipient" text="—"
+                                   style="-fx-text-fill:#e2e8f0; -fx-font-size:12px;"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+
+                            <Label text="Credits" styleClass="gl-dark-card-sub"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="2"/>
+                            <Label fx:id="lblPreviewCredits" text="0.000 tCO₂"
+                                   style="-fx-text-fill:#34d399; -fx-font-weight:700; -fx-font-size:13px;"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+
+                            <Label text="Gas fee" styleClass="gl-dark-card-sub"
+                                   GridPane.columnIndex="0" GridPane.rowIndex="3"/>
+                            <Label fx:id="lblPreviewGas" text="0.002 MATIC"
+                                   style="-fx-text-fill:#fbbf24; -fx-font-size:12px;"
+                                   GridPane.columnIndex="1" GridPane.rowIndex="3"/>
+                        </GridPane>
+
+                        <Label fx:id="lblPreviewNote" text="How Project → Smart Contract → Wallet (Polygon Array)"
+                               styleClass="gl-dark-card-sub" wrapText="true"
+                               style="-fx-font-style:italic; -fx-text-fill:#475569;"/>
+
+                        <!-- Coverage + Dispatchable -->
+                        <HBox spacing="10">
+                            <VBox styleClass="gl-dark-indicator" HBox.hgrow="ALWAYS" spacing="4">
+                                <Label text="COVERAGE" style="-fx-font-size:9px; -fx-font-weight:700; -fx-text-fill:#64748b;"/>
+                                <Label fx:id="lblCoverage" text="100%"
+                                       style="-fx-font-size:22px; -fx-font-weight:700; -fx-text-fill:#34d399;"/>
+                                <Label text="Pourcentage de crédits dispatchables" styleClass="gl-dark-card-sub" wrapText="true"/>
+                            </VBox>
+                            <VBox styleClass="gl-dark-indicator" HBox.hgrow="ALWAYS" spacing="4">
+                                <Label text="DISPATCHABLE" style="-fx-font-size:9px; -fx-font-weight:700; -fx-text-fill:#64748b;"/>
+                                <Label fx:id="lblDispatchableCount" text="—"
+                                       style="-fx-font-size:22px; -fx-font-weight:700; -fx-text-fill:#38bdf8;"/>
+                                <Label text="# projects of 5" styleClass="gl-dark-card-sub" wrapText="true"/>
+                            </VBox>
+                        </HBox>
+                    </VBox>
+
+                </VBox>
+            </HBox>
+
+        </VBox>
+    </ScrollPane>
+</VBox>
