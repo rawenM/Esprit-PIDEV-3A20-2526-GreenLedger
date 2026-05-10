@@ -12,73 +12,71 @@
 
   <!-- ═══ SIDEBAR ═══ -->
   <VBox prefWidth="240" spacing="0"
-        style="-fx-background-color:#0F172A;-fx-border-color:#1E293B;-fx-border-width:0 1 0 0;">
+        style="-fx-background-color:#ffffff; -fx-border-color:#e5e7eb; -fx-border-width:0 1 0 0;">
     <!-- Brand -->
-    <VBox style="-fx-padding:22 18 18 18;-fx-spacing:4;">
+    <VBox style="-fx-padding:22 18 18 18; -fx-spacing:4; -fx-border-color:#e5e7eb; -fx-border-width:0 0 1 0;">
       <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="GL"
-               style="-fx-background-color:#10b981;-fx-text-fill:white;-fx-font-size:13px;-fx-font-weight:800;-fx-background-radius:8;-fx-min-width:36;-fx-min-height:36;-fx-alignment:CENTER;"/>
+               style="-fx-background-color:#059669; -fx-text-fill:white; -fx-font-size:13px; -fx-font-weight:800; -fx-background-radius:8; -fx-min-width:36; -fx-min-height:36; -fx-max-width:36; -fx-max-height:36; -fx-alignment:CENTER;"/>
         <VBox spacing="1">
-          <Label text="GreenLedger" style="-fx-font-size:14px;-fx-font-weight:800;-fx-text-fill:white;"/>
-          <Label text="Investisseur" style="-fx-font-size:9px;-fx-text-fill:rgba(16,185,129,0.7);-fx-font-weight:600;"/>
+          <Label text="GreenLedger" style="-fx-font-size:14px; -fx-font-weight:800; -fx-text-fill:#064e3b;"/>
+          <Label text="Investisseur" style="-fx-font-size:9px; -fx-text-fill:#059669; -fx-font-weight:600;"/>
         </VBox>
       </HBox>
     </VBox>
-    <Separator style="-fx-background-color:#1E293B;-fx-opacity:1;"/>
 
     <!-- Nav -->
     <VBox style="-fx-padding:14 14 6 14;">
-      <Label text="PRINCIPAL" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.25);"/>
+      <Label text="PRINCIPAL" style="-fx-font-size:9px; -fx-font-weight:700; -fx-text-fill:#9ca3af;"/>
     </VBox>
     <VBox spacing="2" style="-fx-padding:0 10 0 10;">
       <Button fx:id="btnDashboard" text="  Tableau de bord" onAction="#onDashboard"
               maxWidth="Infinity" alignment="CENTER_LEFT"
-              style="-fx-background-color:#1E3A2F;-fx-text-fill:#10b981;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-color:#10b981;-fx-border-width:0 0 0 3;"/>
+              style="-fx-background-color:#f0fdf4; -fx-text-fill:#059669; -fx-font-size:12px; -fx-font-weight:700; -fx-background-radius:8; -fx-padding:11 14; -fx-cursor:hand; -fx-border-width:0 0 0 3; -fx-border-color:#059669; -fx-background-insets:0; -fx-effect:none;"/>
       <Button fx:id="btnFinancing" text="  Découvrir projets" onAction="#onFinancing"
               maxWidth="Infinity" alignment="CENTER_LEFT"
-              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;"/>
+              style="-fx-background-color:transparent; -fx-text-fill:#374151; -fx-font-size:12px; -fx-font-weight:500; -fx-background-radius:8; -fx-padding:11 14; -fx-cursor:hand; -fx-border-width:0; -fx-background-insets:0;"/>
       <Button fx:id="btnPortfolio" text="  Mon portefeuille" onAction="#onPortfolio"
               maxWidth="Infinity" alignment="CENTER_LEFT"
-              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;"/>
+              style="-fx-background-color:transparent; -fx-text-fill:#374151; -fx-font-size:12px; -fx-font-weight:500; -fx-background-radius:8; -fx-padding:11 14; -fx-cursor:hand; -fx-border-width:0; -fx-background-insets:0;"/>
       <Button fx:id="btnWallet" text="  Wallet credits" onAction="#onWallet"
               maxWidth="Infinity" alignment="CENTER_LEFT"
-              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;"/>
+              style="-fx-background-color:transparent; -fx-text-fill:#374151; -fx-font-size:12px; -fx-font-weight:500; -fx-background-radius:8; -fx-padding:11 14; -fx-cursor:hand; -fx-border-width:0; -fx-background-insets:0;"/>
       <Button fx:id="btnMarketplace" text="  Marche carbone" onAction="#onMarketplace"
               maxWidth="Infinity" alignment="CENTER_LEFT"
-              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;"/>
+              style="-fx-background-color:transparent; -fx-text-fill:#374151; -fx-font-size:12px; -fx-font-weight:500; -fx-background-radius:8; -fx-padding:11 14; -fx-cursor:hand; -fx-border-width:0; -fx-background-insets:0;"/>
     </VBox>
 
     <VBox style="-fx-padding:14 14 6 14;">
-      <Label text="COMMUNICATION" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.25);"/>
+      <Label text="COMMUNICATION" style="-fx-font-size:9px; -fx-font-weight:700; -fx-text-fill:#9ca3af;"/>
     </VBox>
     <VBox spacing="2" style="-fx-padding:0 10 0 10;">
       <Button fx:id="btnMessages" text="  Messages" onAction="#onMessages"
               maxWidth="Infinity" alignment="CENTER_LEFT"
-              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;"/>
+              style="-fx-background-color:transparent; -fx-text-fill:#374151; -fx-font-size:12px; -fx-font-weight:500; -fx-background-radius:8; -fx-padding:11 14; -fx-cursor:hand; -fx-border-width:0; -fx-background-insets:0;"/>
       <Button text="  Notifications" onAction="#onNotifications"
               maxWidth="Infinity" alignment="CENTER_LEFT"
-              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;"/>
+              style="-fx-background-color:transparent; -fx-text-fill:#374151; -fx-font-size:12px; -fx-font-weight:500; -fx-background-radius:8; -fx-padding:11 14; -fx-cursor:hand; -fx-border-width:0; -fx-background-insets:0;"/>
       <Button fx:id="btnAssistant" text="  Assistant IA" onAction="#onAssistant"
               maxWidth="Infinity" alignment="CENTER_LEFT"
-              style="-fx-background-color:transparent;-fx-text-fill:rgba(255,255,255,0.65);-fx-font-size:12px;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;"/>
+              style="-fx-background-color:transparent; -fx-text-fill:#374151; -fx-font-size:12px; -fx-font-weight:500; -fx-background-radius:8; -fx-padding:11 14; -fx-cursor:hand; -fx-border-width:0; -fx-background-insets:0;"/>
     </VBox>
 
     <Region VBox.vgrow="ALWAYS"/>
 
     <!-- Profile footer -->
-    <VBox style="-fx-background-color:#070F1A;-fx-padding:14;-fx-spacing:10;">
-      <Separator style="-fx-background-color:#1E293B;-fx-opacity:1;"/>
-      <HBox spacing="10" alignment="CENTER_LEFT" style="-fx-padding:6 0 0 0;">
+    <VBox style="-fx-background-color:#f9fafb; -fx-padding:14; -fx-spacing:10; -fx-border-color:#e5e7eb; -fx-border-width:1 0 0 0;">
+      <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="I"
-               style="-fx-background-color:#10b981;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:800;-fx-background-radius:20;-fx-min-width:38;-fx-min-height:38;-fx-alignment:CENTER;"/>
+               style="-fx-background-color:#dcfce7; -fx-text-fill:#059669; -fx-font-size:12px; -fx-font-weight:800; -fx-background-radius:20; -fx-min-width:38; -fx-min-height:38; -fx-max-width:38; -fx-max-height:38; -fx-alignment:CENTER;"/>
         <VBox spacing="2" HBox.hgrow="ALWAYS">
-          <Label fx:id="lblProfileName" style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:white;"/>
-          <Label fx:id="lblProfileType" style="-fx-font-size:9px;-fx-text-fill:rgba(16,185,129,0.6);"/>
+          <Label fx:id="lblProfileName" style="-fx-font-size:12px; -fx-font-weight:700; -fx-text-fill:#111827;"/>
+          <Label fx:id="lblProfileType" style="-fx-font-size:9px; -fx-text-fill:#059669;"/>
         </VBox>
       </HBox>
       <HBox spacing="6">
         <Button text="Profil" onAction="#onEditProfile" HBox.hgrow="ALWAYS" maxWidth="Infinity"
-                style="-fx-background-color:#1E293B;-fx-text-fill:rgba(255,255,255,0.8);-fx-font-size:11px;-fx-font-weight:600;-fx-background-radius:7;-fx-padding:7 10;-fx-cursor:hand;"/>
+                style="-fx-background-color:#f3f4f6; -fx-text-fill:#374151; -fx-font-size:11px; -fx-font-weight:600; -fx-background-radius:7; -fx-padding:7 10; -fx-cursor:hand; -fx-border-width:0; -fx-background-insets:0;"/>
         <Button text="Quitter" onAction="#onLogout"
                 style="-fx-background-color:rgba(244,63,94,0.15);-fx-text-fill:#f43f5e;-fx-font-size:11px;-fx-font-weight:600;-fx-background-radius:7;-fx-padding:7 10;-fx-cursor:hand;-fx-border-color:rgba(244,63,94,0.3);-fx-border-width:1;"/>
       </HBox>
