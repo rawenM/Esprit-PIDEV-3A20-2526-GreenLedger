@@ -5,19 +5,16 @@ import Models.Wallet;
 import Models.User;
 import Services.ProjetService;
 import Services.WalletService;
+import Utils.NavigationContext;
+import Utils.SessionManager;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.control.*;
-import javafx.stage.Modality;
-import javafx.stage.Stage;
 import org.GreenLedger.MainFX;
-import Utils.SessionManager;
 
 import java.util.List;
 
@@ -254,19 +251,9 @@ public class ProjetController extends BaseController {
 
     private void openDetailWindow(Projet projet) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/ProjetDetail.fxml"));
-            Parent root = loader.load();
-
-            ProjetDetailController ctrl = loader.getController();
-            ctrl.setProjet(projet);
-            ctrl.setOnChanged(this::refresh);
-
-            Stage stage = new Stage();
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setTitle("Détails Projet #" + projet.getId());
-            stage.setScene(new javafx.scene.Scene(root, 520, 520));
-            stage.showAndWait();
-
+            // Use NavigationContext to pass the project ID, then navigate
+            NavigationContext.getInstance().setCurrentProjectId(projet.getId());
+            org.GreenLedger.MainFX.setRoot("ProjetDetail");
         } catch (Exception ex) {
             showError("Impossible d'ouvrir détail: " + ex.getMessage());
         }

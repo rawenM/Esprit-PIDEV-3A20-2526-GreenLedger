@@ -19,6 +19,8 @@ public class Projet {
     private String  activityType;
     private Double  latitude;
     private Double  longitude;
+    private java.time.LocalDateTime geocodedAt;
+    private Integer airQualityIndex;
     private String  secteur;
     private String  typeProjet;
     private String  localisation;
@@ -127,6 +129,10 @@ public class Projet {
     public void    setLatitude(Double v)         { this.latitude = v; }
     public Double  getLongitude()                { return longitude; }
     public void    setLongitude(Double v)        { this.longitude = v; }
+    public java.time.LocalDateTime getGeocodedAt()          { return geocodedAt; }
+    public void    setGeocodedAt(java.time.LocalDateTime v) { this.geocodedAt = v; }
+    public Integer getAirQualityIndex()          { return airQualityIndex; }
+    public void    setAirQualityIndex(Integer v) { this.airQualityIndex = v; }
     public String  getSecteur()                  { return secteur; }
     public void    setSecteur(String v)          { this.secteur = v; }
     public String  getTypeProjet()               { return typeProjet; }
