@@ -1,0 +1,270 @@
+# Implementation Plan: Symfony-to-Java Blockchain Migration
+
+## Overview
+
+Migrate the blockchain, wallet, and marketplace business logic from the Symfony/PHP project into the existing Java/JavaFX desktop application. Seven new service classes are created in `src/main/java/Services/`, mirroring the Symfony source of truth. The four existing SQL-only services (`WalletService`, `MarketplaceListingService`, `MarketplaceOrderService`, `TransferService`) are replaced or delegated to the new services. All on-chain arithmetic uses `java.math.BigInteger`; no `float`/`double` for base-unit amounts. Database access uses `MyConnection.getConnection()` (plain JDBC, no DI framework).
+
+---
+
+## Tasks
+
+- [x] 1. Create `CreditUnitConverter` utility and `BigIntegerArithmetic` helpers
+  - Create `src/main/java/Services/CreditUnitConverter.java`
+  - Implement `toBaseUnits(String credits)` → multiply by 10^18 using `BigInteger`; input is a decimal string (e.g. `"1000.5"`)
+  - Implement `fromBaseUnits(String baseUnits)` → divide by 10^18 using `BigDecimal` with scale 18, return `double`
+  - Implement `normalizeBaseUnits(String raw)` → strip non-digits, strip leading zeros, return `"0"` for empty
+  - Implement `addBaseUnits(String a, String b)`, `subtractBaseUnits(String a, String b)` (floor at `"0"`), `compareBaseUnits(String a, String b)` using `BigInteger`
+  - _Requirements: 5.3, 8.4, 8.8_
+
+- [x] 2. Implement `TransactionService`
+  - Create `src/main/java/Services/TransactionService.java`
+  - [x] 2.1 Implement table auto-creation on first use
+    - `ensureTransactionsTableExists()` — CREATE TABLE IF NOT EXISTS `blockchain_transactions` with columns: `id`, `tx_hash`, `type`, `status`, `wallet_id`, `batch_id`, `from_wallet_id`, `to_wallet_id`, `amount_base_units DECIMAL(65,0)`, `reason`, `request_payload_json`, `error_message`, `block_number`, `log_index`, `created_at`, `updated_at`; UNIQUE KEY on `(tx_hash, log_index)`
+    - `ensureSyncStateTableExists()` — CREATE TABLE IF NOT EXISTS `blockchain_sync_state` with columns: `listener_name PK`, `last_processed_block`, `last_processed_tx_hash`, `last_processed_log_index`, `updated_at`
+    - `ensureEventLogTableExists()` — CREATE TABLE IF NOT EXISTS `blockchain_event_log` with columns: `id`, `tx_hash`, `log_index`, `event_name`, `block_number`, `processed_at`; UNIQUE KEY on `(tx_hash, log_index)`
+    - Call all three from a public `ensureTablesExist()` method; use a boolean flag per table to avoid redundant DDL
+    - _Requirements: 6.1, 6.2, 6.3_
+  - [x] 2.2 Implement `createPendingTransaction`
+    - Signature: `Map<String,Object> createPendingTransaction(String type, Integer walletId, Integer batchId, String amountBaseUnits, Map<String,Object> requestPayload, Integer fromWalletId, Integer toWalletId, String reason)`
+    - INSERT into `blockchain_transactions` with `status = PENDING`; return the inserted row as a `Map`
+    - _Requirements: 6.4_
+  - [x] 2.3 Implement status-transition methods
+    - `markSubmitted(int transactionId, String txHash, Integer blockNumber, Integer logIndex)` — UPDATE WHERE `id = transactionId AND status = PENDING`; throw `RuntimeException` if row not found or already in wrong state
+    - `markFailed(int transactionId, String error)` — UPDATE WHERE `id = transactionId AND status = PENDING`; if already FAILED, update `error_message` only
+    - `markConfirmedByTxHash(String txHash, int blockNumber, int logIndex)` — UPDATE WHERE `tx_hash = txHash AND status = SUBMITTED`; no-op if already CONFIRMED
+    - _Requirements: 6.5, 6.6, 6.7_
+  - [x] 2.4 Implement query and sync-state methods
+    - `findById(int id)` → `Map<String,Object>` or null
+    - `findByTxHash(String txHash)` → `Map<String,Object>` or null
+    - `recordEventIfNew(String txHash, int logIndex, String eventName, int blockNumber)` → INSERT IGNORE; return `true` if inserted
+    - `getSyncState(String listenerName)` → fetch or insert default row; return `Map`
+    - `saveSyncState(String listenerName, int lastBlock, String lastTxHash, Integer lastLogIndex)` → INSERT … ON DUPLICATE KEY UPDATE
+    - `findStaleSubmittedTransactions(int olderThanMinutes)` → SELECT WHERE `status = SUBMITTED AND TIMESTAMPDIFF(MINUTE, updated_at, NOW()) >= olderThanMinutes`
+    - _Requirements: 6.8, 6.9, 6.10_
+
+- [x] 3. Checkpoint — verify `TransactionService` compiles and all table-creation DDL runs without error
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 4. Implement `GreenWalletCrudService`
+  - Create `src/main/java/Services/GreenWalletCrudService.java`
+  - [x] 4.1 Implement wallet CRUD methods
+    - `createWallet(String name, Integer walletNumber, String ownerType, int ownerId)` → INSERT into `wallet`; generate `walletNumber` via `SELECT COALESCE(MAX(wallet_number),100000)+1 FROM wallet` if null; return generated `id`
+    - `listWallets(boolean isAdmin, Integer ownerId)` → SELECT with COALESCE for `name` and `blockchain_address`; filter by `owner_id` when not admin; cap at 100 (admin) / 20 (user)
+    - `findWalletById(int walletId, boolean isAdmin, Integer ownerId)` → SELECT with owner check when not admin; return null if not found
+    - `updateWalletName(int walletId, String name, String ownerType, boolean isAdmin, Integer ownerId)` → UPDATE `wallet.name` and `owner_type`; apply owner check
+    - `deleteWallet(int walletId, boolean isAdmin, Integer ownerId)` → SELECT `available_credits` first; throw `RuntimeException` if > 0; then DELETE with owner check
+    - `transferWalletOwnership(int walletId, int newOwnerId, String newOwnerType)` → UPDATE `owner_id` and `owner_type`
+    - _Requirements: 10.1, 10.2, 10.3, 10.4, 10.5, 10.6, 10.7_
+  - [x] 4.2 Enforce balance-mutation boundary
+    - Do NOT add any method that writes to `wallet.available_credits` or `wallet.retired_credits`
+    - _Requirements: 10.8_
+
+- [x] 5. Implement `EventListenerService`
+  - Create `src/main/java/Services/EventListenerService.java`
+  - [x] 5.1 Implement idempotency guard
+    - `isEventAlreadyApplied(String txHash, String eventType)` → SELECT COUNT(*) FROM `blockchain_transactions` WHERE `tx_hash = ? AND type = ? AND status = CONFIRMED`; return `true` if count > 0
+    - _Requirements: 7.10_
+  - [x] 5.2 Implement `upsertWalletBatchBalance`
+    - `upsertWalletBatchBalance(int walletId, int batchId, double delta, String deltaBaseUnits)` → SELECT 1 FROM `wallet_batch_balances` WHERE `wallet_id = ? AND batch_id = ?`; if exists UPDATE `balance = GREATEST(0, balance + delta)` and `balance_base_units = GREATEST(0, balance_base_units + deltaBaseUnits)`; else INSERT new row with `balance = max(0, delta)` and `balance_base_units`
+    - _Requirements: 7.9_
+  - [x] 5.3 Implement `applyMintEvent`
+    - Check idempotency; if already applied return
+    - UPDATE `wallet SET available_credits = available_credits + ? WHERE id = ?`
+    - Call `upsertWalletBatchBalance(walletId, batchId, amount, amountBaseUnits)`
+    - UPDATE `carbon_credit_batches SET status = 'active' WHERE id = ?`
+    - Call `transactionService.markConfirmedByTxHash(txHash, 0, 0)`
+    - INSERT into `wallet_transactions (wallet_id, type, amount, tx_hash, created_at)` with `type = MINT`
+    - _Requirements: 7.1, 7.2, 7.5_
+  - [x] 5.4 Implement `applyTransferEvent`
+    - Check idempotency; if already applied return
+    - UPDATE `wallet SET available_credits = GREATEST(0, available_credits - ?) WHERE id = fromWalletId`
+    - UPDATE `wallet SET available_credits = available_credits + ? WHERE id = toWalletId`
+    - Call `upsertWalletBatchBalance` for both wallets (negative delta for seller, positive for buyer)
+    - Call `transactionService.markConfirmedByTxHash(txHash, 0, 0)`
+    - UPDATE `marketplace_orders SET status = 'COMPLETED' WHERE transfer_tx_hash = ? AND status IN ('PAID','SUBMITTED')`
+    - INSERT two rows into `wallet_transactions`: `TRANSFER_OUT` for seller, `TRANSFER_IN` for buyer
+    - _Requirements: 7.1, 7.3, 7.6_
+  - [x] 5.5 Implement `applyRetireEvent`
+    - Check idempotency; if already applied return
+    - UPDATE `wallet SET available_credits = GREATEST(0, available_credits - ?) WHERE id = ?`
+    - Call `upsertWalletBatchBalance(walletId, batchId, -amount, negativeBaseUnits)`
+    - UPDATE `carbon_credit_batches SET status = 'retired' WHERE id = ?`
+    - Call `transactionService.markConfirmedByTxHash(txHash, 0, 0)`
+    - INSERT into `wallet_transactions` with `type = RETIRE`
+    - _Requirements: 7.1, 7.4, 7.7_
+  - [x] 5.6 Implement dev-mode simulation methods
+    - `simulateMint(String txHash, int batchId, int walletId, double amount)` — call `applyMintEvent` body directly, skipping idempotency check
+    - `simulateTransfer(String txHash, int batchId, int fromWalletId, int toWalletId, double amount)` — call `applyTransferEvent` body directly
+    - `simulateRetire(String txHash, int batchId, int walletId, double amount)` — call `applyRetireEvent` body directly
+    - _Requirements: 7.8_
+  - [x] 5.7 Implement `backfillWalletSummaryColumns`
+    - SELECT all wallet IDs; for each, SELECT `COALESCE(SUM(balance), 0) FROM wallet_batch_balances WHERE wallet_id = ?`; UPDATE `wallet.available_credits`
+    - _Requirements: 7.11_
+
+- [x] 6. Checkpoint — verify `EventListenerService` compiles; manually confirm wallet balance updates are isolated to this class
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 7. Implement `BlockchainService`
+  - Create `src/main/java/Services/BlockchainService.java`
+  - Constructor accepts `EventListenerService` and `TransactionService`; reads env vars via `System.getenv()`
+  - [x] 7.1 Implement `isDevModeEnabled()`
+    - Read `APP_BLOCKCHAIN_DEV_MODE`; return `true` if value (case-insensitive) is one of `1`, `true`, `yes`, `on`
+    - _Requirements: 2.1_
+  - [x] 7.2 Implement `getHealthStatus()`
+    - Return a `Map` with three keys: `rpc` (ready, url, issue), `contract` (ready, address, issue), `signer` (ready, issue)
+    - RPC check: POST `{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}` to `CHAIN_RPC_URL` via `HttpURLConnection`; timeout 5 s; ready if response is non-empty
+    - Contract check: POST `eth_getCode` for `CHAIN_CARBON_TOKEN_ADDRESS`; ready if result is non-empty and not `"0x"`; if result is empty/`"0x"` set issue to "contract not deployed at that address"
+    - Signer check: `CHAIN_PRIVATE_KEY` env var present and non-empty
+    - _Requirements: 1.1, 1.2, 1.3, 1.4, 1.6_
+  - [x] 7.3 Implement `preflightCheck()`
+    - Call `getHealthStatus()`; throw `RuntimeException` with descriptive message if any sub-check has `ready = false`
+    - _Requirements: 1.5_
+  - [x] 7.4 Implement `requireWalletBlockchainAddress(int walletId)`
+    - SELECT `blockchain_address FROM wallet WHERE id = ?`; validate `0x[a-f0-9]{40}` pattern
+    - If missing/invalid and dev mode enabled: return `"0x" + sha256("dev:wallet:" + walletId).substring(0, 40)`
+    - If missing/invalid and dev mode disabled: throw `RuntimeException`
+    - _Requirements: 2.7, 4.4_
+  - [x] 7.5 Implement `mintBatch`, `transferBatch`, `retireBatch`
+    - `mintBatch(int walletId, int batchId, String amountBaseUnits, Map metadata)` → resolve address, call `submitTransaction` with `method=mint`
+    - `transferBatch(int fromWalletId, int toWalletId, int batchId, String amountBaseUnits, Map metadata)` → resolve both addresses, call `submitTransaction` with `method=transfer`
+    - `retireBatch(int walletId, int batchId, String amountBaseUnits, String reason, Map metadata)` → resolve address, call `submitTransaction` with `method=burn`
+    - _Requirements: 4.1, 4.2, 4.3, 4.5_
+  - [x] 7.6 Implement `submitTransaction` routing
+    - If dev mode: call `buildSimulatedResult(payload)`
+    - Else: call `preflightCheck()`, then `runNodeScript(payload)`
+    - _Requirements: 4.5_
+  - [x] 7.7 Implement `buildSimulatedResult(Map payload)`
+    - Generate `txHash = "dev_" + randomHex(8)`
+    - If `metadata.transaction_id` present and > 0: call `transactionService.markSubmitted(transactionId, txHash, 0, 0)`
+    - Convert `amountBaseUnits` to credits via `CreditUnitConverter.fromBaseUnits()`
+    - Dispatch to `eventListenerService.simulateMint/simulateTransfer/simulateRetire` based on `method`
+    - Return map with `txHash`, `tx_hash`, `blockNumber=0`, `simulated=true`
+    - _Requirements: 2.2, 2.3, 2.4, 2.5, 2.6_
+  - [x] 7.8 Implement `runNodeScript(Map payload)`
+    - Write payload as JSON to a temp file via `File.createTempFile`
+    - Execute `node symfonysrc/blockchain/scripts/carbon-batch-token.js <tempfile>` via `ProcessBuilder`
+    - On exit code 0: parse stdout as JSON and return as `Map`
+    - On non-zero exit or unparseable output: throw `RuntimeException` with raw output and exit code
+    - Delete temp file in `finally` block
+    - _Requirements: 3.1, 3.2, 3.3, 3.4_
+
+- [x] 8. Checkpoint — verify `BlockchainService` compiles; test dev-mode simulation path end-to-end with a mock `EventListenerService`
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [x] 9. Implement `BlockchainBatchIssuanceService`
+  - Create `src/main/java/Services/BlockchainBatchIssuanceService.java`
+  - Constructor accepts `TransactionService`, `BlockchainService`, `GreenWalletCrudService`
+  - [x] 9.1 Implement `issueProjectCredits(int projectId, double creditsAmount)`
+    - Validate `creditsAmount > 0` and `projectId > 0`
+    - Load project: `SELECT * FROM projet WHERE id = ?`; resolve owner via `entreprise_id`, then `created_by`, then `user_id`
+    - Ensure wallet: `SELECT * FROM wallet WHERE owner_id = ? LIMIT 1`; if none, call `greenWalletCrudService.createWallet(...)` then re-fetch
+    - Convert credits to base units: `CreditUnitConverter.toBaseUnits(String.valueOf(creditsAmount))`
+    - _Requirements: 5.1, 5.2, 5.3_
+  - [x] 9.2 Implement idempotency and retry logic
+    - `SELECT * FROM carbon_credit_batches WHERE project_id = ? LIMIT 1`
+    - If exists with `issuance_status = FAILED`: delete old row and re-create (retry path)
+    - If exists with any other status: return existing issuance payload without new batch or transaction
+    - _Requirements: 5.4, 5.5, 5.7_
+  - [x] 9.3 Implement batch and transaction creation (commit-before-blockchain pattern)
+    - Open JDBC transaction; INSERT into `carbon_credit_batches` with fields: `project_id`, `wallet_id`, `total_amount`, `remaining_amount`, `total_amount_base_units`, `remaining_amount_base_units`, `status = AVAILABLE`, `batch_type = ISSUANCE`, `issuance_status = PENDING_TX`
+    - Call `transactionService.createPendingTransaction(MINT, walletId, batchId, baseUnits, payload)`
+    - COMMIT the JDBC transaction BEFORE calling `blockchainService.mintBatch()`
+    - _Requirements: 5.6, 5.10_
+  - [x] 9.4 Implement mint submission and status update
+    - Call `blockchainService.mintBatch(walletId, batchId, baseUnits, metadata)`
+    - On success: call `transactionService.markSubmitted(txId, txHash, blockNumber, logIndex)`; UPDATE `carbon_credit_batches SET issuance_status = SUBMITTED, tx_hash_on_batch = ?, issuance_submitted_at = NOW() WHERE id = ?`
+    - On exception: call `transactionService.markFailed(txId, errorMessage)`; UPDATE `carbon_credit_batches SET issuance_status = FAILED WHERE id = ?`; rethrow
+    - _Requirements: 5.8, 5.9_
+
+- [x] 10. Implement `MarketplaceService`
+  - Create `src/main/java/Services/MarketplaceService.java`
+  - [x] 10.1 Implement `createListing(Map payload)`
+    - Validate `seller_id`, `seller_wallet_id`, `batch_id`, `total_amount_base_units` are present and non-zero
+    - INSERT into `marketplace_listings` with fields: `seller_id`, `seller_wallet_id`, `batch_id`, `asset_type`, `wallet_id`, `quantity_or_id`, `price_per_unit`, `currency_code`, `status = ACTIVE`, `total_amount_base_units`, `reserved_amount_base_units = 0`, `filled_amount_base_units = 0`, `created_at`, `updated_at`
+    - Return the inserted row via `getListing(id)`
+    - _Requirements: 8.1_
+  - [x] 10.2 Implement `getListing(int listingId)`
+    - SELECT * FROM `marketplace_listings WHERE id = ?`; return `Map` or null
+    - _Requirements: 8.2_
+  - [x] 10.3 Implement `reserveListingAmount(int listingId, String amountBaseUnits, int reservationMinutes)`
+    - Open JDBC transaction; `SELECT … FOR UPDATE` on the listing row
+    - Compute `available = total - filled - reserved` using `CreditUnitConverter.subtractBaseUnits`
+    - If `available < amountBaseUnits`: throw `RuntimeException("Insufficient available amount")`; rollback
+    - Compute `reservedAfter = reserved + amountBaseUnits`; set `status = RESERVED` if `reservedAfter >= total`, else `PARTIALLY_RESERVED`
+    - UPDATE `reserved_amount_base_units`, `reservation_expires_at = NOW() + reservationMinutes`, `status`, `updated_at`; COMMIT
+    - _Requirements: 8.3, 8.4, 8.5, 8.6, 8.8_
+  - [x] 10.4 Implement `releaseReservation(int listingId, String amountBaseUnits)`
+    - Open JDBC transaction; `SELECT … FOR UPDATE`
+    - Compute `reservedAfter = reserved - amountBaseUnits` (floor at `"0"`)
+    - Set `status = FILLED` if `filled >= total`, else `ACTIVE`
+    - UPDATE `reserved_amount_base_units`, `status`, `updated_at`; COMMIT
+    - _Requirements: 8.7, 8.8_
+
+- [x] 11. Implement `TradeExecutionService`
+  - Create `src/main/java/Services/TradeExecutionService.java`
+  - Constructor accepts `BlockchainService`, `TransactionService`
+  - [x] 11.1 Implement `submitOrderTransfer(int orderId)`
+    - Call `transactionService.ensureTablesExist()` BEFORE opening the JDBC transaction
+    - Open JDBC transaction; `SELECT * FROM marketplace_orders WHERE id = ? FOR UPDATE`
+    - Validate `payment_status = CONFIRMED` and `status IN ('PAID','SUBMITTED')`; throw if not
+    - Read `buyer_wallet_id`, `seller_wallet_id`, `batch_id`, `amount_base_units` from locked row
+    - SELECT `COALESCE(SUM(balance_base_units),0) FROM wallet_batch_balances WHERE wallet_id = sellerWalletId AND batch_id = batchId`; throw if `available < amountBaseUnits`
+    - Idempotency: if `transfer_tx_hash` already set on order, COMMIT and return `{txHash, idempotent:true}`
+    - Call `transactionService.createPendingTransaction(TRANSFER, null, batchId, amountBaseUnits, payload, sellerWalletId, buyerWalletId)`
+    - Call `blockchainService.transferBatch(sellerWalletId, buyerWalletId, batchId, amountBaseUnits, metadata)`
+    - On success: call `transactionService.markSubmitted(txId, txHash, blockNumber, logIndex)`; UPDATE `marketplace_orders SET status = SUBMITTED, transfer_tx_hash = ?, updated_at = NOW() WHERE id = ?`; COMMIT
+    - On exception: rollback; call `transactionService.markFailed(txId, error)`; rethrow
+    - _Requirements: 9.1, 9.2, 9.3, 9.4, 9.5, 9.6_
+  - [x] 11.2 Implement `retryOrderTransfer(int orderId)`
+    - Fetch order; if `transfer_tx_hash` already set or `status IN (SUBMITTED, COMPLETED)`: return idempotent result
+    - Validate `payment_status = CONFIRMED`; throw otherwise
+    - Call `submitOrderTransfer(orderId)`
+    - _Requirements: 9.7_
+  - [x] 11.3 Implement `retryPendingTransfers(int limit)`
+    - SELECT `id FROM marketplace_orders WHERE payment_status = CONFIRMED AND status = PAID AND (transfer_tx_hash IS NULL OR transfer_tx_hash = '') ORDER BY updated_at ASC LIMIT ?`
+    - For each row: call `retryOrderTransfer(orderId)`; on exception log and continue; track processed/submitted/failed counts
+    - Return summary map
+    - _Requirements: 9.8_
+  - [x] 11.4 Implement dev-mode inventory recovery
+    - If `submitOrderTransfer` throws with message containing "does not have enough available balance" and dev mode is enabled: call `blockchainService.mintBatch(sellerWalletId, batchId, batchTotalBaseUnits, metadata)` to reissue, then retry `submitOrderTransfer` once
+    - _Requirements: 9.9_
+
+- [x] 12. Checkpoint — verify `BlockchainBatchIssuanceService`, `MarketplaceService`, and `TradeExecutionService` compile
+  - Ensure all tests pass, ask the user if questions arise.
+
+- [-] 13. Wire startup preflight check and replace legacy services
+  - [-] 13.1 Add startup preflight in application entry point
+    - Locate the JavaFX `Application.start()` or `main()` entry point
+    - Instantiate `BlockchainService` and call `blockchainService.preflightCheck()` wrapped in try/catch; log the result of `getHealthStatus()` regardless of outcome
+    - _Requirements: 11.5, 11.6_
+  - [-] 13.2 Replace `WalletService` credit-mutation methods
+    - In `WalletService.java`, remove or stub out `issueCredits`, `retireCredits`, `transferCredits`, and `transferCreditsWithMode` so they throw `UnsupportedOperationException("Use EventListenerService")`
+    - Update all call sites that previously called these methods to use `BlockchainBatchIssuanceService.issueProjectCredits()` (for issuance) or `BlockchainService.retireBatch()` + `EventListenerService.applyRetireEvent()` (for retirement)
+    - _Requirements: 11.1_
+  - [-] 13.3 Replace `MarketplaceListingService` with `MarketplaceService`
+    - Update call sites that create listings to use `MarketplaceService.createListing()`
+    - Update call sites that read listings to use `MarketplaceService.getListing()`
+    - Update reservation/release call sites to use `MarketplaceService.reserveListingAmount()` and `releaseReservation()`
+    - _Requirements: 11.2_
+  - [-] 13.4 Replace `MarketplaceOrderService` order-completion logic with `TradeExecutionService`
+    - Update the order-completion flow (previously `completeOrder`) to call `TradeExecutionService.submitOrderTransfer(orderId)` instead of directly mutating wallet balances
+    - _Requirements: 11.3_
+  - [ ] 13.5 Replace `TransferService` with blockchain-routed transfers
+    - Update call sites that previously called `TransferService.transferCredits()` to call `BlockchainService.transferBatch()` followed by `EventListenerService.applyTransferEvent()` (or rely on the simulated path in dev mode)
+    - _Requirements: 11.4_
+
+- [ ] 14. Final checkpoint — full integration smoke test
+  - In dev mode (`APP_BLOCKCHAIN_DEV_MODE=1`): issue credits for a project, verify `wallet.available_credits` is updated, create a marketplace listing, place and complete an order, verify buyer wallet balance increases and seller decreases
+  - Ensure all tests pass, ask the user if questions arise.
+
+---
+
+## Notes
+
+- Tasks marked with `*` are optional and can be skipped for faster MVP
+- All base-unit arithmetic must use `java.math.BigInteger` or `CreditUnitConverter` helpers — never `double`/`float` for on-chain amounts
+- `MyConnection.getConnection()` returns a fresh `Connection` per call; each service should obtain a connection in its constructor or per-operation as needed, and close it in a `finally` block for short-lived operations
+- The `EventListenerService` is the ONLY class permitted to write `wallet.available_credits` or `wallet.retired_credits`
+- The commit-before-blockchain pattern in `BlockchainBatchIssuanceService` is critical: always commit the DB transaction before calling `blockchainService.mintBatch()`
+- Dev-mode simulation (`APP_BLOCKCHAIN_DEV_MODE=1`) bypasses the Node.js script entirely and calls `EventListenerService.simulate*` methods directly
+- The Node.js script path is `symfonysrc/blockchain/scripts/carbon-batch-token.js` relative to the project root

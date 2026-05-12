@@ -29,72 +29,19 @@ public class MarketplaceListingService {
     /**
      * Create a new marketplace listing
      */
+    // DEPRECATED: Use MarketplaceService instead
     public int createListing(int sellerId, String assetType, Integer walletId,
                             double quantityOrTokens, double pricePerUnit,
                             double minPriceUsd, Double autoAcceptPriceUsd, String description) {
-        int listingId = -1;
-
-        try {
-            if (conn == null) return listingId;
-
-            String sql = "INSERT INTO marketplace_listings " +
-                    "(seller_id, asset_type, wallet_id, quantity_or_id, price_per_unit, " +
-                    "min_price_usd, auto_accept_price_usd, description, status) " +
-                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'ACTIVE')";
-
-            try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-                stmt.setInt(1, sellerId);
-                stmt.setString(2, assetType);
-                stmt.setObject(3, walletId);
-                stmt.setDouble(4, quantityOrTokens);
-                stmt.setDouble(5, pricePerUnit);
-                stmt.setDouble(6, minPriceUsd);
-                if (autoAcceptPriceUsd != null) {
-                    stmt.setDouble(7, autoAcceptPriceUsd);
-                } else {
-                    stmt.setNull(7, Types.DECIMAL);
-                }
-                stmt.setString(8, description);
-
-                stmt.executeUpdate();
-
-                try (ResultSet rs = stmt.getGeneratedKeys()) {
-                    if (rs.next()) {
-                        listingId = rs.getInt(1);
-                        System.out.println(LOG_TAG + " Listing created: ID " + listingId + 
-                            " by seller " + sellerId);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println(LOG_TAG + " ERROR creating listing: " + e.getMessage());
-        }
-
-        return listingId;
+        throw new UnsupportedOperationException("Use MarketplaceService instead");
     }
 
     /**
      * Get listing by ID
      */
+    // DEPRECATED: Use MarketplaceService instead
     public MarketplaceListing getListingById(int listingId) {
-        try {
-            if (conn == null) return null;
-
-            String sql = "SELECT * FROM marketplace_listings WHERE id = ?";
-            try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-                stmt.setInt(1, listingId);
-
-                try (ResultSet rs = stmt.executeQuery()) {
-                    if (rs.next()) {
-                        return mapResultToListing(rs);
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            System.err.println(LOG_TAG + " ERROR fetching listing: " + e.getMessage());
-        }
-
-        return null;
+        throw new UnsupportedOperationException("Use MarketplaceService instead");
     }
 
     /**
@@ -108,7 +55,7 @@ public class MarketplaceListingService {
             if (conn == null) return listings;
 
             StringBuilder sql = new StringBuilder(
-                "SELECT * FROM marketplace_listings WHERE status = 'ACTIVE' AND expires_at IS NULL"
+                "SELECT * FROM marketplace_listings WHERE status = 'ACTIVE'"
             );
 
             if (assetType != null && !assetType.isEmpty()) {
@@ -313,7 +260,9 @@ public class MarketplaceListingService {
     }
 
     /**
-     * Map ResultSet to MarketplaceListing object
+     * Map ResultSet to MarketplaceListing object.
+     * Reads only columns that are guaranteed to exist in the current schema.
+     * Optional / legacy columns are read defensively via getObject() null checks.
      */
     private MarketplaceListing mapResultToListing(ResultSet rs) throws SQLException {
         MarketplaceListing listing = new MarketplaceListing();
@@ -321,19 +270,41 @@ public class MarketplaceListingService {
         listing.setSellerId(rs.getInt("seller_id"));
         listing.setAssetType(rs.getString("asset_type"));
         listing.setWalletId(rs.getObject("wallet_id") != null ? rs.getInt("wallet_id") : null);
-        listing.setQuantityOrTokens(rs.getDouble("quantity_or_id"));
-        listing.setPricePerUnit(rs.getDouble("price_per_unit"));
-        Object minPrice = rs.getObject("min_price_usd");
-        listing.setMinPriceUsd(minPrice != null ? rs.getDouble("min_price_usd") : null);
-        Object autoAccept = rs.getObject("auto_accept_price_usd");
-        listing.setAutoAcceptPriceUsd(autoAccept != null ? rs.getDouble("auto_accept_price_usd") : null);
-        listing.setTotalPriceUsd(rs.getDouble("total_price_usd"));
+
+        double qty = rs.getDouble("quantity_or_id");
+        listing.setQuantityOrTokens(qty);
+
+        double price = rs.getDouble("price_per_unit");
+        listing.setPricePerUnit(price);
+
+        // total_price_usd may not exist in the current schema — compute it instead
+        listing.setTotalPriceUsd(qty * price);
+
+        // Optional legacy columns — skip gracefully if absent
+        try { Object v = rs.getObject("min_price_usd");
+              listing.setMinPriceUsd(v != null ? rs.getDouble("min_price_usd") : null); }
+        catch (SQLException ignored) {}
+
+        try { Object v = rs.getObject("auto_accept_price_usd");
+              listing.setAutoAcceptPriceUsd(v != null ? rs.getDouble("auto_accept_price_usd") : null); }
+        catch (SQLException ignored) {}
+
         listing.setStatus(rs.getString("status"));
-        listing.setDescription(rs.getString("description"));
-        listing.setMinimumBuyerRating(rs.getInt("minimum_buyer_rating"));
+
+        try { listing.setDescription(rs.getString("description")); }
+        catch (SQLException ignored) {}
+
+        try { listing.setMinimumBuyerRating(rs.getInt("minimum_buyer_rating")); }
+        catch (SQLException ignored) {}
+
         listing.setCreatedAt(rs.getTimestamp("created_at"));
-        listing.setExpiresAt(rs.getTimestamp("expires_at"));
-        listing.setUpdatedAt(rs.getTimestamp("updated_at"));
+
+        try { listing.setExpiresAt(rs.getTimestamp("expires_at")); }
+        catch (SQLException ignored) {}
+
+        try { listing.setUpdatedAt(rs.getTimestamp("updated_at")); }
+        catch (SQLException ignored) {}
+
         return listing;
     }
 }

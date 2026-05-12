@@ -1,6 +1,9 @@
 package org.GreenLedger;
 
 import DataBase.MyConnection;
+import Services.TransactionService;
+import Services.EventListenerService;
+import Services.BlockchainService;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -13,6 +16,7 @@ import Utils.ResetHttpServer;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.Map;
 
 public class MainFX extends Application {
 
@@ -21,6 +25,20 @@ public class MainFX extends Application {
 
     @Override
     public void start(Stage primaryStage) throws IOException {
+
+        // Blockchain preflight check
+        try {
+            TransactionService txService = new TransactionService();
+            EventListenerService eventService = new EventListenerService(txService);
+            BlockchainService blockchainService = new BlockchainService(eventService, txService);
+            Map<String, Map<String, Object>> healthStatus = blockchainService.getHealthStatus();
+            System.out.println("[Startup] Blockchain health status: " + healthStatus);
+            blockchainService.preflightCheck();
+            System.out.println("[Startup] Blockchain preflight check passed");
+        } catch (Exception e) {
+            System.err.println("[Startup] Blockchain preflight check failed: " + e.getMessage());
+            // Continue startup — dev mode may be active
+        }
 
         // Test de la connexion a la base de donnees
         MyConnection db = MyConnection.getInstance();

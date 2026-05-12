@@ -1718,6 +1718,19 @@ public class MarketplaceController extends BaseController {
 
     @FXML
     private void handleBack() {
-        navigateBack();
+        try {
+            org.GreenLedger.MainFX.setRoot("greenwallet");
+        } catch (Exception e) {
+            System.err.println(LOG_TAG + " handleBack error: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    private void handleGoDashboard() {
+        try {
+            org.GreenLedger.MainFX.setRoot("greenwallet");
+        } catch (Exception e) {
+            System.err.println(LOG_TAG + " handleGoDashboard error: " + e.getMessage());
+        }
     }
 }

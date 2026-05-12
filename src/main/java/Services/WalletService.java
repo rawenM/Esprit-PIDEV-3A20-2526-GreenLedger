@@ -249,8 +249,9 @@ public class WalletService {
     /**
      * Issue credits to a wallet from a project (legacy method without audit linkage).
      */
+    // DEPRECATED: Use EventListenerService for credit mutations
     public boolean issueCredits(int walletId, int projectId, double amount, String referenceNote) {
-        return issueCredits(walletId, projectId, amount, referenceNote, null, "SYSTEM");
+        throw new UnsupportedOperationException("Use EventListenerService for credit mutations");
     }
 
     /**
@@ -264,64 +265,10 @@ public class WalletService {
      * @param actor User or system performing the issuance
      * @return true if successful, false otherwise
      */
+    // DEPRECATED: Use EventListenerService for credit mutations
     public boolean issueCredits(int walletId, int projectId, double amount, String referenceNote, 
                                String calculationAuditId, String actor) {
-        if (amount <= 0) {
-            System.out.println("Amount must be positive");
-            return false;
-        }
-
-        try {
-            conn.setAutoCommit(false);
-            BatchEventService eventService = new BatchEventService();
-            
-            // 1. Create credit batch with traceability
-            int batchId = createCreditBatch(projectId, walletId, amount, calculationAuditId, Models.BatchType.PRIMARY);
-            if (batchId == -1) {
-                conn.rollback();
-                return false;
-            }
-            
-            // 2. Update wallet available credits
-            String updateWallet = "UPDATE wallet SET available_credits = available_credits + ? WHERE id = ?";
-            try (PreparedStatement ps = conn.prepareStatement(updateWallet)) {
-                ps.setDouble(1, amount);
-                ps.setInt(2, walletId);
-                ps.executeUpdate();
-            }
-            
-            // 3. Record transaction
-            recordTransaction(walletId, batchId, "ISSUE", amount, referenceNote);
-            
-            // 4. Record ISSUED event for traceability
-            JsonObject eventData = new JsonObject();
-            eventData.addProperty("total_amount", amount);
-            eventData.addProperty("wallet_id", walletId);
-            eventData.addProperty("project_id", projectId);
-            eventData.addProperty("batch_type", "PRIMARY");
-            if (calculationAuditId != null) {
-                eventData.addProperty("calculation_audit_id", calculationAuditId);
-            }
-            eventService.recordEvent(batchId, BatchEventType.ISSUED, eventData, actor);
-            
-            conn.commit();
-            return true;
-            
-        } catch (SQLException ex) {
-            try {
-                conn.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            System.out.println("Error issuing credits: " + ex.getMessage());
-            return false;
-        } finally {
-            try {
-                conn.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        throw new UnsupportedOperationException("Use EventListenerService for credit mutations");
     }
 
     /**
@@ -410,8 +357,9 @@ public class WalletService {
     /**
      * Retire credits from a wallet (legacy method).
      */
+    // DEPRECATED: Use EventListenerService for credit mutations
     public boolean retireCredits(int walletId, double amount, String referenceNote) {
-        return retireCredits(walletId, amount, referenceNote, "SYSTEM");
+        throw new UnsupportedOperationException("Use EventListenerService for credit mutations");
     }
 
     /**
@@ -424,93 +372,9 @@ public class WalletService {
      * @param actor User or system performing retirement
      * @return true if successful, false otherwise
      */
+    // DEPRECATED: Use EventListenerService for credit mutations
     public boolean retireCredits(int walletId, double amount, String referenceNote, String actor) {
-        if (amount <= 0) {
-            System.out.println("Amount must be positive");
-            return false;
-        }
-
-        Wallet wallet = getWalletById(walletId);
-        if (wallet == null || wallet.getAvailableCredits() < amount) {
-            System.out.println("Insufficient available credits");
-            return false;
-        }
-
-        try {
-            conn.setAutoCommit(false);
-            BatchEventService eventService = new BatchEventService();
-            
-            // Track batches consumed during retirement
-            List<BatchRetirementInfo> retirementDetails = new ArrayList<>();
-            
-            // 1. Update batches (FIFO - retire oldest credits first)
-            double remainingToRetire = amount;
-            List<CarbonCreditBatch> batches = getAvailableBatches(walletId);
-            
-            for (CarbonCreditBatch batch : batches) {
-                if (remainingToRetire == 0) break;
-                
-                double retireFromBatch = Math.min(remainingToRetire, batch.getRemainingAmount().doubleValue());
-                updateBatchRetirement(batch.getId(), retireFromBatch);
-                
-                // Track this retirement for later recording
-                retirementDetails.add(new BatchRetirementInfo(batch.getId(), retireFromBatch));
-                
-                remainingToRetire = remainingToRetire - retireFromBatch;
-            }
-            
-            // 2. Update wallet balances
-            String updateWallet = "UPDATE wallet SET available_credits = available_credits - ?, " +
-                                  "retired_credits = retired_credits + ? WHERE id = ?";
-            try (PreparedStatement ps = conn.prepareStatement(updateWallet)) {
-                ps.setDouble(1, amount);
-                ps.setDouble(2, amount);
-                ps.setInt(3, walletId);
-                ps.executeUpdate();
-            }
-            
-            // 3. Record transaction and get its ID
-            long transactionId = recordTransactionWithId(walletId, 
-                retirementDetails.isEmpty() ? null : retirementDetails.get(0).batchId, 
-                "RETIRE", amount, referenceNote);
-            
-            if (transactionId == -1) {
-                conn.rollback();
-                return false;
-            }
-            
-            // 4. Record batch retirement details (link transaction to batches)
-            for (BatchRetirementInfo detail : retirementDetails) {
-                recordBatchRetirementDetail(transactionId, detail.batchId, detail.amount);
-                
-                // Record RETIRED event for each batch
-                JsonObject eventData = new JsonObject();
-                eventData.addProperty("amount_retired", detail.amount);
-                eventData.addProperty("transaction_id", transactionId);
-                eventData.addProperty("wallet_id", walletId);
-                eventData.addProperty("reference_note", referenceNote);
-                eventService.recordEvent(detail.batchId, BatchEventType.RETIRED, eventData, actor);
-            }
-            
-            conn.commit();
-            return true;
-            
-        } catch (SQLException ex) {
-            try {
-                conn.rollback();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-            System.out.println("Error retiring credits: " + ex.getMessage());
-            ex.printStackTrace();
-            return false;
-        } finally {
-            try {
-                conn.setAutoCommit(true);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
+        throw new UnsupportedOperationException("Use EventListenerService for credit mutations");
     }
 
     /**
@@ -529,8 +393,9 @@ public class WalletService {
     /**
      * Transfer credits between wallets (legacy method - direct transfer).
      */
+    // DEPRECATED: Use EventListenerService for credit mutations
     public boolean transferCredits(int fromWalletId, int toWalletId, double amount, String referenceNote) {
-        return transferCreditsWithMode(fromWalletId, toWalletId, amount, referenceNote, TransferMode.DIRECT, "SYSTEM");
+        throw new UnsupportedOperationException("Use EventListenerService for credit mutations");
     }
 
     /**
@@ -552,104 +417,10 @@ public class WalletService {
      * @param actor User or system performing transfer
      * @return true if successful
      */
+    // DEPRECATED: Use EventListenerService for credit mutations
     public boolean transferCreditsWithMode(int fromWalletId, int toWalletId, double amount, 
                                           String referenceNote, TransferMode mode, String actor) {
-        if (amount <= 0) {
-            System.out.println("Amount must be positive");
-            return false;
-        }
-
-        Wallet fromWallet = getWalletById(fromWalletId);
-        if (fromWallet == null || fromWallet.getAvailableCredits() < amount) {
-            System.out.println("Insufficient credits in source wallet");
-            return false;
-        }
-
-        Wallet toWallet = getWalletById(toWalletId);
-        if (toWallet == null) {
-            System.out.println("Destination wallet not found");
-            return false;
-        }
-
-        // Check if we're already in a transaction (autocommit is false)
-        boolean wasInTransaction = false;
-        try {
-            wasInTransaction = !conn.getAutoCommit();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-
-        try {
-            // Only manage transaction if we're not already in one
-            if (!wasInTransaction) {
-                conn.setAutoCommit(false);
-            }
-            
-            BatchEventService eventService = new BatchEventService();
-            
-            // Generate transfer pair ID to link IN/OUT transactions
-            String transferPairId = java.util.UUID.randomUUID().toString();
-            
-            if (mode == TransferMode.DIRECT) {
-                // DIRECT MODE: Transfer existing batches (change wallet_id)
-                transferBatchesDirect(fromWalletId, toWalletId, amount, eventService, actor, referenceNote);
-            } else {
-                // SPLIT_CHILD MODE: Create child batches for destination
-                transferBatchesSplitChild(fromWalletId, toWalletId, amount, eventService, actor, referenceNote);
-            }
-            
-            // Deduct from source wallet
-            String deductSql = "UPDATE wallet SET available_credits = available_credits - ? WHERE id = ?";
-            try (PreparedStatement ps = conn.prepareStatement(deductSql)) {
-                ps.setDouble(1, amount);
-                ps.setInt(2, fromWalletId);
-                ps.executeUpdate();
-            }
-            
-            // Add to destination wallet
-            String addSql = "UPDATE wallet SET available_credits = available_credits + ? WHERE id = ?";
-            try (PreparedStatement ps = conn.prepareStatement(addSql)) {
-                ps.setDouble(1, amount);
-                ps.setInt(2, toWalletId);
-                ps.executeUpdate();
-            }
-            
-            // Record linked transactions with transfer_pair_id
-            String note = String.format("%s (Transfer to Wallet #%s)", referenceNote, safeWalletNumber(toWallet.getWalletNumber()));
-            recordTransferTransaction(fromWalletId, null, "TRANSFER_OUT", amount, note, transferPairId);
-            
-            String noteIn = String.format("%s (Transfer from Wallet #%s)", referenceNote, safeWalletNumber(fromWallet.getWalletNumber()));
-            recordTransferTransaction(toWalletId, null, "TRANSFER_IN", amount, noteIn, transferPairId);
-            
-            // Only commit if we started the transaction
-            if (!wasInTransaction) {
-                conn.commit();
-            }
-            return true;
-            
-        } catch (SQLException ex) {
-            // Only rollback if we started the transaction
-            if (!wasInTransaction) {
-                try {
-                    conn.rollback();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            System.out.println("Error transferring credits: " + ex.getMessage());
-            ex.printStackTrace();
-            return false;
-        } finally {
-            // Only restore autocommit if we changed it
-            if (!wasInTransaction) {
-                try {
-                    conn.setAutoCommit(true);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+        throw new UnsupportedOperationException("Use EventListenerService for credit mutations");
     }
 
     /**

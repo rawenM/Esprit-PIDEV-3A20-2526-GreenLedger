@@ -1,377 +1,292 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
+﻿<?xml version="1.0" encoding="UTF-8"?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.chart.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<?import java.lang.String?>
+<HBox xmlns="http://javafx.com/javafx/20.0.2" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.MarketplaceController"
+      prefHeight="780" prefWidth="1320"
+      style="-fx-background-color:#F8FAFC;"
+      stylesheets="@../themes/app-base.css">
 
-<!--
-    MARKETPLACE UI - Classy & Modern Design
-    Matches GreenWallet design system with sidebar navigation
-    Production Ready v2.0
--->
+  <!-- SIDEBAR -->
+  <VBox prefWidth="240" minWidth="240" maxWidth="240" spacing="0"
+        style="-fx-background-color:#ffffff; -fx-border-color:#e5e7eb; -fx-border-width:0 1 0 0;">
+    <!-- Brand -->
+    <VBox style="-fx-padding:22 18 18 18;-fx-spacing:4;-fx-border-color:#e5e7eb;-fx-border-width:0 0 1 0;">
+      <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="GL" style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:13px;-fx-font-weight:800;-fx-background-radius:8;-fx-min-width:36;-fx-min-height:36;-fx-max-width:36;-fx-max-height:36;-fx-alignment:CENTER;"/>
+        <VBox spacing="1">
+          <Label text="GreenLedger" style="-fx-font-size:14px;-fx-font-weight:800;-fx-text-fill:#064e3b;"/>
+          <Label text="Marche Carbone" style="-fx-font-size:9px;-fx-text-fill:#059669;-fx-font-weight:600;"/>
+        </VBox>
+      </HBox>
+    </VBox>
+    <!-- Nav -->
+    <VBox style="-fx-padding:14 14 6 14;">
+      <Label text="PRINCIPAL" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#9ca3af;"/>
+    </VBox>
+    <VBox spacing="2" style="-fx-padding:0 10 0 10;">
+      <Button fx:id="backButton" text="  Retour" onAction="#handleBack"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:#374151;-fx-font-size:12px;-fx-font-weight:500;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+      <Button text="  Tableau de bord" onAction="#handleGoDashboard"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:#374151;-fx-font-size:12px;-fx-font-weight:500;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+      <Button text="  Marche carbone"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:#f0fdf4;-fx-text-fill:#059669;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0 0 0 3;-fx-border-color:#059669;-fx-background-insets:0;-fx-effect:none;"/>
+    </VBox>
+    <VBox style="-fx-padding:14 14 6 14;">
+      <Label text="MARCHE" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#9ca3af;"/>
+    </VBox>
+    <VBox spacing="2" style="-fx-padding:0 10 0 10;">
+      <Button fx:id="refreshButton" text="  Actualiser" onAction="#handleRefresh"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:#374151;-fx-font-size:12px;-fx-font-weight:500;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+      <Button fx:id="testPaymentButton" text="  Test Paiement" onAction="#handleTestPayment"
+              maxWidth="Infinity" alignment="CENTER_LEFT"
+              style="-fx-background-color:transparent;-fx-text-fill:#374151;-fx-font-size:12px;-fx-font-weight:500;-fx-background-radius:8;-fx-padding:11 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+    </VBox>
+    <!-- Quick stats -->
+    <VBox style="-fx-padding:14 14 6 14;">
+      <Label text="PRIX MARCHE" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#9ca3af;"/>
+    </VBox>
+    <VBox spacing="6" style="-fx-padding:0 14 10 14;">
+      <Label fx:id="currentCarbonPriceLabel" text="Prix: Chargement..."
+             style="-fx-font-size:13px;-fx-font-weight:700;-fx-text-fill:#059669;"/>
+      <Label text="Credits carbone verifies" style="-fx-font-size:10px;-fx-text-fill:#94A3B8;"/>
+    </VBox>
+    <Region VBox.vgrow="ALWAYS"/>
+    <!-- Profile footer -->
+    <VBox style="-fx-background-color:#f9fafb;-fx-padding:14;-fx-spacing:10;-fx-border-color:#e5e7eb;-fx-border-width:1 0 0 0;">
+      <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="M" style="-fx-background-color:#dcfce7;-fx-text-fill:#059669;-fx-font-size:12px;-fx-font-weight:800;-fx-background-radius:20;-fx-min-width:38;-fx-min-height:38;-fx-max-width:38;-fx-max-height:38;-fx-alignment:CENTER;"/>
+        <VBox spacing="2" HBox.hgrow="ALWAYS">
+          <Label text="Marketplace" style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:#111827;"/>
+          <Label text="Carbon Trading" style="-fx-font-size:9px;-fx-text-fill:#059669;"/>
+        </VBox>
+      </HBox>
+    </VBox>
+  </VBox>
 
-<StackPane xmlns="http://javafx.com/javafx/20.0.2"
-           xmlns:fx="http://javafx.com/fxml/1"
-           fx:controller="Controllers.MarketplaceController"
-           styleClass="root-pane"
-            stylesheets="@../themes/app-base.css">
+  <!-- MAIN CONTENT -->
+  <VBox HBox.hgrow="ALWAYS" spacing="0" style="-fx-background-color:#F8FAFC;">
+    <!-- Top bar -->
+    <HBox alignment="CENTER_LEFT" spacing="14"
+          style="-fx-background-color:white;-fx-padding:14 28;-fx-border-color:#E2E8F0;-fx-border-width:0 0 1 0;-fx-effect:dropshadow(gaussian,rgba(15,23,42,0.04),8,0,0,2);">
+      <Label text="Marche Carbone" style="-fx-font-size:17px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+      <Region HBox.hgrow="ALWAYS"/>
+      <Button fx:id="refreshPriceButton" text="Actualiser Prix" onAction="#handleRefreshPrice"
+              style="-fx-background-color:linear-gradient(to bottom right,#059669,#047857);-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:9 18;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+    </HBox>
 
-    <!-- MAIN LAYER: Sidebar + Content -->
-    <HBox spacing="0" styleClass="page">
+    <!-- Scrollable body -->
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background:#F8FAFC;-fx-background-color:#F8FAFC;-fx-border-width:0;">
+      <VBox spacing="24">
+        <padding><Insets top="28" right="32" bottom="32" left="32"/></padding>
 
-        <!-- LEFT SIDEBAR -->
-        <VBox prefWidth="220" styleClass="sidebar" style="-fx-min-width: 220; -fx-max-width: 220;">
-
-            <HBox alignment="CENTER_LEFT" spacing="8">
-                <padding>
-                    <Insets top="20" right="16" bottom="8" left="16"/>
-                </padding>
-                <Label text="🛒" styleClass="sidebar-icon"/>
-                <Label text="Marketplace" styleClass="sidebar-title"/>
+        <!-- HERO BANNER -->
+        <VBox spacing="16"
+              style="-fx-background-color:linear-gradient(to bottom right,#059669,#10b981,#14b8a6);-fx-background-radius:18;-fx-padding:24 28;-fx-effect:dropshadow(gaussian,rgba(5,150,105,0.18),40,0,0,18);">
+          <HBox alignment="CENTER_LEFT" spacing="20">
+            <VBox spacing="6" HBox.hgrow="ALWAYS">
+              <HBox>
+                <Label text="MARCHE CARBONE"
+                       style="-fx-background-color:rgba(255,255,255,0.15);-fx-border-color:rgba(255,255,255,0.30);-fx-border-width:1;-fx-background-radius:999;-fx-border-radius:999;-fx-padding:5 12;-fx-text-fill:white;-fx-font-size:10px;-fx-font-weight:700;"/>
+              </HBox>
+              <Label text="Carbon Credit Marketplace"
+                     style="-fx-font-size:24px;-fx-font-weight:800;-fx-text-fill:white;"/>
+              <Label text="Achetez, vendez et echangez des credits carbone verifies sur la plateforme GreenLedger."
+                     style="-fx-font-size:12px;-fx-text-fill:rgba(255,255,255,0.80);" wrapText="true"/>
+            </VBox>
+            <HBox spacing="12">
+              <VBox alignment="CENTER" spacing="4"
+                    style="-fx-background-color:rgba(255,255,255,0.12);-fx-border-color:rgba(255,255,255,0.18);-fx-border-width:1;-fx-background-radius:14;-fx-border-radius:14;-fx-padding:16 18;">
+                <Label text="PRIX ACTUEL" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.84);"/>
+                <Label fx:id="marketPanelPriceLabel" text="—" style="-fx-font-size:22px;-fx-font-weight:800;-fx-text-fill:white;"/>
+                <Label text="USD/tCO2" style="-fx-font-size:9px;-fx-text-fill:rgba(255,255,255,0.5);"/>
+              </VBox>
+              <VBox alignment="CENTER" spacing="4"
+                    style="-fx-background-color:rgba(255,255,255,0.12);-fx-border-color:rgba(255,255,255,0.18);-fx-border-width:1;-fx-background-radius:14;-fx-border-radius:14;-fx-padding:16 18;">
+                <Label text="PLATEFORME" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.84);"/>
+                <Label text="Securisee" style="-fx-font-size:16px;-fx-font-weight:800;-fx-text-fill:white;"/>
+                <Label fx:id="marketPanelNoteLabel" text="Escrow actif" style="-fx-font-size:9px;-fx-text-fill:rgba(255,255,255,0.5);"/>
+              </VBox>
             </HBox>
-
-            <Separator styleClass="sidebar-sep"/>
-
-            <VBox spacing="6" styleClass="sidebar-section-padding">
-                <Button fx:id="backButton"
-                        text="← Retour"
-                        styleClass="btn btn-secondary"
-                        onAction="#handleBack"
-                        maxWidth="Infinity"/>
-            </VBox>
-
-            <Separator styleClass="sidebar-sep sidebar-margin"/>
-
-            <!-- Quick Stats in Sidebar -->
-            <VBox spacing="8" styleClass="sidebar-section-padding">
-                <Label text="Market Info" styleClass="sidebar-info-label"/>
-                <VBox spacing="4">
-                    <Label fx:id="currentCarbonPriceLabel" 
-                           text="Price: Loading..." 
-                           styleClass="price-accent"/>
-                    <Label text="Live Carbon Credit Trading" 
-                           styleClass="sidebar-footer-subtitle"/>
-                </VBox>
-            </VBox>
-
-            <Separator styleClass="sidebar-sep sidebar-margin"/>
-
-            <!-- Action Buttons -->
-            <VBox spacing="8" styleClass="sidebar-section-padding">
-                <Label text="Quick Actions" styleClass="sidebar-action-label"/>
-                <Button fx:id="refreshButton"
-                        text="🔄 Refresh Data"
-                        styleClass="nav-btn"
-                        onAction="#handleRefresh"
-                        maxWidth="Infinity"/>
-                <Button fx:id="refreshPriceButton"
-                        text="💰 Update Price"
-                        styleClass="nav-btn"
-                        onAction="#handleRefreshPrice"
-                        maxWidth="Infinity"/>
-                <Button fx:id="testPaymentButton"
-                        text="💳 Test Payment"
-                        styleClass="nav-btn"
-                        onAction="#handleTestPayment"
-                        maxWidth="Infinity"/>
-            </VBox>
-
-            <Region VBox.vgrow="ALWAYS"/>
-
-            <!-- Footer Info -->
-            <VBox spacing="4" styleClass="sidebar-footer" style="-fx-margin: 8;">
-                <Label text="Carbon Marketplace" styleClass="sidebar-footer-title"/>
-                <Label text="Secure Trading Platform" styleClass="sidebar-footer-subtitle"/>
-            </VBox>
+          </HBox>
         </VBox>
 
-        <!-- MAIN CONTENT AREA -->
-        <BorderPane HBox.hgrow="ALWAYS" styleClass="content-wrapper">
+        <!-- MINI PRICE CHART -->
+        <VBox spacing="8"
+              style="-fx-background-color:white;-fx-background-radius:14;-fx-padding:18 20;-fx-border-color:#e5e7eb;-fx-border-width:1;-fx-border-radius:14;">
+          <Label text="Evolution du prix (30 jours)" style="-fx-font-size:13px;-fx-font-weight:700;-fx-text-fill:#374151;"/>
+          <LineChart fx:id="marketMiniChart" prefHeight="120" animated="false"
+                     style="-fx-background-color:transparent;-fx-padding:0;">
+            <xAxis><NumberAxis label="" tickLabelsVisible="false" tickMarkVisible="false" minorTickVisible="false"/></xAxis>
+            <yAxis><NumberAxis label="USD/tCO2" tickLabelsVisible="true"/></yAxis>
+          </LineChart>
+        </VBox>
 
-            <!-- TOP BAR with Title -->
-            <top>
-                <VBox spacing="0">
-                    <HBox alignment="CENTER_LEFT" spacing="12" style="-fx-padding: 24 28; -fx-background-color: linear-gradient(to right, #ecfdf5, #d1fae5); -fx-border-width: 0 0 1 0; -fx-border-color: #10b981;">
-                        <Label text="💎" style="-fx-font-size: 28px;"/>
-                        <VBox spacing="4" HBox.hgrow="ALWAYS">
-                            <Label text="Carbon Credit Marketplace" style="-fx-font-size: 26px; -fx-font-weight: 700; -fx-text-fill: #065f46;"/>
-                            <Label text="Buy, sell, and trade verified carbon credits" style="-fx-font-size: 12px; -fx-text-fill: #059669; -fx-font-weight: 500;"/>
-                        </VBox>
-                    </HBox>
-                </VBox>
-            </top>
+        <!-- FILTERS ROW -->
+        <HBox spacing="14" alignment="CENTER_LEFT"
+              style="-fx-background-color:white;-fx-background-radius:12;-fx-padding:14 18;-fx-border-color:#e5e7eb;-fx-border-width:1;-fx-border-radius:12;">
+          <Label text="Filtres:" style="-fx-font-size:12px;-fx-font-weight:700;-fx-text-fill:#374151;"/>
+          <ComboBox fx:id="assetTypeFilter" prefWidth="160"
+                    style="-fx-background-radius:8;-fx-border-radius:8;-fx-font-size:12px;"/>
+          <Label text="Prix min:" style="-fx-font-size:12px;-fx-text-fill:#6b7280;"/>
+          <Slider fx:id="priceMinSlider" min="0" max="1000" value="0" prefWidth="120"/>
+          <Label text="Prix max:" style="-fx-font-size:12px;-fx-text-fill:#6b7280;"/>
+          <Slider fx:id="priceMaxSlider" min="0" max="1000" value="1000" prefWidth="120"/>
+          <Label fx:id="priceRangeLabel" text="0 - 1000 USD"
+                 style="-fx-font-size:12px;-fx-font-weight:600;-fx-text-fill:#059669;"/>
+          <Region HBox.hgrow="ALWAYS"/>
+          <Button fx:id="buyButton" text="Acheter" onAction="#handleBuyClick"
+                  style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:9 20;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+        </HBox>
 
-            <!-- CENTER: Marketplace Content -->
-            <center>
-                <ScrollPane fitToWidth="true" fitToHeight="true" styleClass="scroll-pane-light">
-                    <VBox spacing="16" styleClass="content-spacing">
+        <!-- MAIN TAB PANE -->
+        <TabPane fx:id="marketplaceTabPane" VBox.vgrow="ALWAYS"
+                 style="-fx-background-color:white;-fx-background-radius:14;-fx-border-color:#e5e7eb;-fx-border-width:1;-fx-border-radius:14;-fx-tab-min-height:38px;">
 
-                        <TabPane fx:id="marketplaceTabPane" tabClosingPolicy="UNAVAILABLE" styleClass="custom-tab-pane">
-                            <tabs>
-                                <!-- BROWSE LISTINGS TAB -->
-                                <Tab fx:id="browseListingsTab" text="🔍 Browse Listings">
-                                    <content>
-                                        <VBox spacing="16" styleClass="content-padding">
-                                            <!-- Filter Section -->
-                                            <VBox spacing="14" style="-fx-padding: 24; -fx-background-color: #ffffff; -fx-border-width: 1; -fx-border-color: #e5e7eb; -fx-border-radius: 10; -fx-background-radius: 10;">
-                                                <Label text="Filter Listings" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1f2937;"/>
-                                                <GridPane hgap="20" vgap="14">
-                                                    <columnConstraints>
-                                                        <ColumnConstraints percentWidth="25"/>
-                                                        <ColumnConstraints percentWidth="25"/>
-                                                        <ColumnConstraints percentWidth="25"/>
-                                                        <ColumnConstraints percentWidth="25"/>
-                                                    </columnConstraints>
+          <!-- TAB 1: Browse Listings -->
+          <Tab fx:id="browseListingsTab" text="Annonces actives" closable="false">
+            <VBox spacing="0">
+              <TableView fx:id="listingsTable" prefHeight="380" VBox.vgrow="ALWAYS"
+                         style="-fx-background-color:transparent;-fx-border-width:0;">
+                <columns>
+                  <TableColumn fx:id="listingIdColumn" text="ID" prefWidth="60"/>
+                  <TableColumn fx:id="assetTypeColumn" text="Type" prefWidth="140"/>
+                  <TableColumn fx:id="quantityColumn" text="Quantite (tCO2)" prefWidth="150"/>
+                  <TableColumn fx:id="pricePerUnitColumn" text="Prix/unite ($)" prefWidth="130"/>
+                  <TableColumn fx:id="totalPriceColumn" text="Total ($)" prefWidth="130"/>
+                </columns>
+                <placeholder>
+                  <Label text="Aucune annonce active" style="-fx-text-fill:#9ca3af;-fx-font-size:13px;"/>
+                </placeholder>
+              </TableView>
+            </VBox>
+          </Tab>
 
-                                                    <VBox spacing="6" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                                                        <Label text="Asset Type" styleClass="field-label"/>
-                                                        <ComboBox fx:id="assetTypeFilter" prefWidth="99999" maxWidth="Infinity" styleClass="field"/>
-                                                    </VBox>
+          <!-- TAB 2: My Listings -->
+          <Tab fx:id="myListingsTab" text="Mes annonces" closable="false">
+            <VBox spacing="10" style="-fx-padding:14;">
+              <HBox spacing="10">
+                <Button fx:id="createListingButton" text="+ Nouvelle annonce" onAction="#handleCreateListing"
+                        style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:8 16;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+                <Button fx:id="editListingButton" text="Modifier" onAction="#handleEditListing"
+                        style="-fx-background-color:#f3f4f6;-fx-text-fill:#374151;-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:8 16;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+                <Button fx:id="deleteListingButton" text="Supprimer" onAction="#handleDeleteListing"
+                        style="-fx-background-color:#fee2e2;-fx-text-fill:#dc2626;-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:8 16;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+              </HBox>
+              <TableView fx:id="myListingsTable" prefHeight="340" VBox.vgrow="ALWAYS"
+                         style="-fx-background-color:transparent;-fx-border-width:0;">
+                <columns>
+                  <TableColumn fx:id="myListingAssetColumn" text="Type" prefWidth="160"/>
+                  <TableColumn fx:id="myListingQuantityColumn" text="Quantite" prefWidth="140"/>
+                  <TableColumn fx:id="myListingPriceColumn" text="Prix/unite ($)" prefWidth="140"/>
+                  <TableColumn fx:id="myListingStatusColumn" text="Statut" prefWidth="120"/>
+                </columns>
+                <placeholder>
+                  <Label text="Aucune annonce" style="-fx-text-fill:#9ca3af;-fx-font-size:13px;"/>
+                </placeholder>
+              </TableView>
+            </VBox>
+          </Tab>
 
-                                                    <VBox spacing="6" GridPane.columnIndex="1" GridPane.rowIndex="0">
-                                                        <Label text="Min Price (USD)" styleClass="field-label"/>
-                                                        <Slider fx:id="priceMinSlider" min="0" max="1000" value="0" blockIncrement="10" majorTickUnit="100" minorTickCount="5" showTickMarks="true" showTickLabels="true" snapToTicks="false" maxWidth="Infinity"/>
-                                                    </VBox>
+          <!-- TAB 3: Order History -->
+          <Tab fx:id="orderHistoryTab" text="Historique commandes" closable="false">
+            <VBox spacing="10" style="-fx-padding:14;">
+              <HBox spacing="20">
+                <Label fx:id="totalSpendingLabel" text="Total depense: 0.00 USD"
+                       style="-fx-font-size:13px;-fx-font-weight:700;-fx-text-fill:#059669;"/>
+                <Label fx:id="completedOrdersLabel" text="Commandes terminees: 0"
+                       style="-fx-font-size:13px;-fx-font-weight:600;-fx-text-fill:#374151;"/>
+              </HBox>
+              <TableView fx:id="ordersTable" prefHeight="340" VBox.vgrow="ALWAYS"
+                         style="-fx-background-color:transparent;-fx-border-width:0;">
+                <columns>
+                  <TableColumn fx:id="orderIdColumn" text="ID" prefWidth="70"/>
+                  <TableColumn fx:id="orderAmountColumn" text="Montant ($)" prefWidth="150"/>
+                  <TableColumn fx:id="orderStatusColumn" text="Statut" prefWidth="150"/>
+                  <TableColumn fx:id="orderDateColumn" text="Date" prefWidth="180"/>
+                </columns>
+                <placeholder>
+                  <Label text="Aucune commande" style="-fx-text-fill:#9ca3af;-fx-font-size:13px;"/>
+                </placeholder>
+              </TableView>
+            </VBox>
+          </Tab>
 
-                                                    <VBox spacing="6" GridPane.columnIndex="2" GridPane.rowIndex="0">
-                                                        <Label text="Max Price (USD)" styleClass="field-label"/>
-                                                        <Slider fx:id="priceMaxSlider" min="0" max="1000" value="1000" blockIncrement="10" majorTickUnit="100" minorTickCount="5" showTickMarks="true" showTickLabels="true" snapToTicks="false" maxWidth="Infinity"/>
-                                                    </VBox>
+          <!-- TAB 4: Offers -->
+          <Tab text="Offres" closable="false">
+            <VBox spacing="14" style="-fx-padding:14;">
 
-                                                    <VBox spacing="6" GridPane.columnIndex="3" GridPane.rowIndex="0" alignment="CENTER" style="-fx-padding: 0 12;">
-                                                        <Label text="Price Range" style="-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-font-weight: 600;"/>
-                                                        <Label fx:id="priceRangeLabel" text="0.00 - 1000.00" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #10b981;"/>
-                                                    </VBox>
-                                                </GridPane>
-                                            </VBox>
+              <!-- Offers Received -->
+              <Label text="Offres recues" style="-fx-font-size:13px;-fx-font-weight:700;-fx-text-fill:#374151;"/>
+              <HBox spacing="10">
+                <Button fx:id="acceptOfferButton" text="Accepter" onAction="#handleAcceptOffer"
+                        style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:8 16;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+                <Button fx:id="counterOfferButton" text="Contre-offre" onAction="#handleCounterOffer"
+                        style="-fx-background-color:#f3f4f6;-fx-text-fill:#374151;-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:8 16;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+                <Button fx:id="rejectOfferButton" text="Rejeter" onAction="#handleRejectOffer"
+                        style="-fx-background-color:#fee2e2;-fx-text-fill:#dc2626;-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:8 16;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+              </HBox>
+              <TableView fx:id="offersReceivedTable" prefHeight="180" VBox.vgrow="ALWAYS"
+                         style="-fx-background-color:transparent;-fx-border-width:0;">
+                <columns>
+                  <TableColumn fx:id="offerListingColumn" text="Annonce" prefWidth="100"/>
+                  <TableColumn fx:id="offerBuyerColumn" text="Acheteur" prefWidth="120"/>
+                  <TableColumn fx:id="offerQuantityColumn" text="Quantite" prefWidth="110"/>
+                  <TableColumn fx:id="offerPriceColumn" text="Prix offert ($)" prefWidth="130"/>
+                  <TableColumn fx:id="offerStatusColumn" text="Statut" prefWidth="110"/>
+                </columns>
+                <placeholder>
+                  <Label text="Aucune offre recue" style="-fx-text-fill:#9ca3af;-fx-font-size:13px;"/>
+                </placeholder>
+              </TableView>
 
-                                            <!-- Main Content: Table + Market View -->
-                                            <HBox spacing="16">
-                                                <!-- Listings Table -->
-                                                <VBox spacing="12" HBox.hgrow="ALWAYS">
-                                                    <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 0 4;">
-                                                        <Label text="Available Listings" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1f2937;"/>
-                                                        <Region HBox.hgrow="ALWAYS"/>
-                                                        <Button fx:id="makeOfferButton"
-                                                                text="💬 Make Offer"
-                                                                onAction="#handleMakeOffer"
-                                                                style="-fx-padding: 8 14; -fx-font-size: 12px; -fx-background-color: #f3f4f6; -fx-text-fill: #374151; -fx-border-width: 1; -fx-border-color: #d1d5db; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;"/>
-                                                        <Button fx:id="buyButton"
-                                                                text="🛒 Buy Now"
-                                                                onAction="#handleBuyClick"
-                                                                style="-fx-padding: 8 16; -fx-font-size: 12px; -fx-background-color: #10b981; -fx-text-fill: #ffffff; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-weight: 600; -fx-cursor: hand;"/>
-                                                    </HBox>
+              <!-- Offers Sent -->
+              <Label text="Offres envoyees" style="-fx-font-size:13px;-fx-font-weight:700;-fx-text-fill:#374151;"/>
+              <HBox spacing="10">
+                <Button fx:id="payNowButton" text="Payer maintenant" onAction="#handlePayNow"
+                        style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:8 16;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+                <Button fx:id="cancelOfferButton" text="Annuler offre" onAction="#handleCancelOffer"
+                        style="-fx-background-color:#fee2e2;-fx-text-fill:#dc2626;-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:8 16;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+              </HBox>
+              <TableView fx:id="offersSentTable" prefHeight="180" VBox.vgrow="ALWAYS"
+                         style="-fx-background-color:transparent;-fx-border-width:0;">
+                <columns>
+                  <TableColumn fx:id="sentListingColumn" text="Annonce" prefWidth="100"/>
+                  <TableColumn fx:id="sentSellerColumn" text="Vendeur" prefWidth="120"/>
+                  <TableColumn fx:id="sentQuantityColumn" text="Quantite" prefWidth="110"/>
+                  <TableColumn fx:id="sentPriceColumn" text="Prix offert ($)" prefWidth="130"/>
+                  <TableColumn fx:id="sentStatusColumn" text="Statut" prefWidth="110"/>
+                </columns>
+                <placeholder>
+                  <Label text="Aucune offre envoyee" style="-fx-text-fill:#9ca3af;-fx-font-size:13px;"/>
+                </placeholder>
+              </TableView>
 
-                                                    <!-- Escrow Info Banner -->
-                                                    <VBox spacing="4" style="-fx-padding: 10 12; -fx-background-color: #f0fdf4; -fx-border-color: #10b981; -fx-border-width: 1; -fx-border-radius: 6; -fx-background-radius: 6;">
-                                                        <HBox spacing="8" alignment="CENTER_LEFT">
-                                                            <Label text="🔒" style="-fx-font-size: 14px;"/>
-                                                            <Label text="Secure Escrow Protection" style="-fx-font-size: 12px; -fx-font-weight: 600; -fx-text-fill: #15803d;"/>
-                                                        </HBox>
-                                                        <Label text="Orders ≥ $10,000 automatically held in escrow for 24h. Buyer receives credits immediately while payment is verified." style="-fx-font-size: 11px; -fx-text-fill: #4b5563; -fx-wrap-text: true;"/>
-                                                    </VBox>
+            </VBox>
+          </Tab>
 
-                                                    <TableView fx:id="listingsTable" style="-fx-border-width: 1; -fx-border-color: #e5e7eb; -fx-background-color: #ffffff;" prefHeight="400">
-                                                        <columns>
-                                                            <TableColumn fx:id="listingIdColumn" text="ID" prefWidth="60"/>
-                                                            <TableColumn fx:id="assetTypeColumn" text="Asset Type" prefWidth="150"/>
-                                                            <TableColumn fx:id="quantityColumn" text="Quantity (tCO₂)" prefWidth="130"/>
-                                                            <TableColumn fx:id="pricePerUnitColumn" text="Price/Unit (USD)" prefWidth="130"/>
-                                                            <TableColumn fx:id="totalPriceColumn" text="Total Price (USD)" prefWidth="130"/>
-                                                        </columns>
-                                                    </TableView>
-                                                </VBox>
+        </TabPane>
 
-                                                <!-- Market View Panel -->
-                                                <VBox spacing="16" prefWidth="340" style="-fx-padding: 24; -fx-background-color: #ffffff; -fx-border-width: 1; -fx-border-color: #e5e7eb; -fx-border-radius: 10; -fx-background-radius: 10;">
-                                                    <Label text="📊 Market Overview" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1f2937;"/>
-                                                    <Separator style="-fx-padding: 0; -fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;"/>
-                                                    <Label fx:id="marketPanelPriceLabel" text="14.86/tCO₂" style="-fx-font-size: 24px; -fx-font-weight: 700; -fx-text-fill: #10b981;"/>
-                                                    <LineChart fx:id="marketMiniChart" animated="false" prefHeight="160" legendVisible="false" style="-fx-border-width: 0;">
-                                                        <xAxis>
-                                                            <NumberAxis label="Time" side="BOTTOM" tickLabelFill="#6b7280"/>
-                                                        </xAxis>
-                                                        <yAxis>
-                                                            <NumberAxis label="USD/tCO₂" side="LEFT" tickLabelFill="#6b7280"/>
-                                                        </yAxis>
-                                                    </LineChart>
-                                                    <Label fx:id="marketPanelNoteLabel" text="Real-time carbon credit prices" style="-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-font-weight: 500;"/>
-                                                    <Button text="📈 View Full Market" onAction="#handleOpenMarketTab" style="-fx-padding: 10 14; -fx-font-size: 12px; -fx-background-color: #f3f4f6; -fx-text-fill: #374151; -fx-border-width: 1; -fx-border-color: #d1d5db; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand; -fx-font-weight: 600;" maxWidth="Infinity"/>
-                                                </VBox>
-                                            </HBox>
-                                        </VBox>
-                                    </content>
-                                            </Tab>
+        <!-- FULL PRICE CHART -->
+        <VBox spacing="8"
+              style="-fx-background-color:white;-fx-background-radius:14;-fx-padding:18 20;-fx-border-color:#e5e7eb;-fx-border-width:1;-fx-border-radius:14;">
+          <Label text="Historique des prix du marche carbone" style="-fx-font-size:13px;-fx-font-weight:700;-fx-text-fill:#374151;"/>
+          <LineChart fx:id="marketChart" prefHeight="200" animated="false"
+                     style="-fx-background-color:transparent;-fx-padding:0;">
+            <xAxis><NumberAxis label="Jours" tickLabelsVisible="true"/></xAxis>
+            <yAxis><NumberAxis label="USD/tCO2" tickLabelsVisible="true"/></yAxis>
+          </LineChart>
+        </VBox>
 
-                                <!-- MY LISTINGS TAB -->
-                                <Tab fx:id="myListingsTab" text="📋 My Listings">
-                                    <content>
-                                        <VBox spacing="16" style="-fx-padding: 0;">
-                                            <!-- Action Buttons -->
-                                            <HBox spacing="12" alignment="CENTER_LEFT" style="-fx-padding: 20 24; -fx-background-color: #ffffff; -fx-border-width: 1; -fx-border-color: #e5e7eb; -fx-border-radius: 10; -fx-background-radius: 10;">
-                                                <Label text="Manage Your Listings" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1f2937;"/>
-                                                <Region HBox.hgrow="ALWAYS"/>
-                                                <Button fx:id="createListingButton"
-                                                        text="➕ Create Listing"
-                                                        onAction="#handleCreateListing"
-                                                        style="-fx-padding: 8 16; -fx-font-size: 12px; -fx-background-color: #10b981; -fx-text-fill: #ffffff; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-weight: 600; -fx-cursor: hand;"/>
-                                                <Button fx:id="editListingButton"
-                                                        text="✏️ Edit"
-                                                        onAction="#handleEditListing"
-                                                        style="-fx-padding: 8 14; -fx-font-size: 12px; -fx-background-color: #f3f4f6; -fx-text-fill: #374151; -fx-border-width: 1; -fx-border-color: #d1d5db; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;"/>
-                                                <Button fx:id="deleteListingButton"
-                                                        text="🗑️ Delete"
-                                                        onAction="#handleDeleteListing"
-                                                        style="-fx-padding: 8 14; -fx-font-size: 12px; -fx-background-color: #fee2e2; -fx-text-fill: #dc2626; -fx-border-width: 1; -fx-border-color: #fca5a5; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;"/>
-                                            </HBox>
+      </VBox>
+    </ScrollPane>
+  </VBox>
 
-                                            <!-- My Listings Table -->
-                                            <VBox spacing="12" style="-fx-padding: 0;">
-                                                <Label text="Your Active Listings" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1f2937; -fx-padding: 0 4;"/>
-                                                <TableView fx:id="myListingsTable" style="-fx-border-width: 1; -fx-border-color: #e5e7eb; -fx-background-color: #ffffff;" prefHeight="450">
-                                                    <columns>
-                                                        <TableColumn fx:id="myListingAssetColumn" text="Asset Type" prefWidth="250"/>
-                                                        <TableColumn fx:id="myListingQuantityColumn" text="Quantity (tCO₂)" prefWidth="180"/>
-                                                        <TableColumn fx:id="myListingPriceColumn" text="Price/Unit (USD)" prefWidth="180"/>
-                                                        <TableColumn fx:id="myListingStatusColumn" text="Status" prefWidth="150"/>
-                                                    </columns>
-                                                </TableView>
-                                            </VBox>
-                                        </VBox>
-                                    </content>
-                                </Tab>
-
-                                <!-- OFFERS TAB -->
-                                <Tab fx:id="offersTab" text="💬 Offers">
-                                    <content>
-                                        <VBox spacing="16" styleClass="content-padding">
-                                            <!-- Offers Received -->
-                                            <VBox spacing="12" style="-fx-padding: 20 24; -fx-background-color: #ffffff; -fx-border-width: 1; -fx-border-color: #e5e7eb; -fx-border-radius: 10; -fx-background-radius: 10;">
-                                                <HBox spacing="12" alignment="CENTER_LEFT">
-                                                    <Label text="📥 Offers Received" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1f2937;"/>
-                                                    <Region HBox.hgrow="ALWAYS"/>
-                                                    <Label text="(As Seller)" style="-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-font-weight: 500;"/>
-                                                </HBox>
-                                                <TableView fx:id="offersReceivedTable" style="-fx-border-width: 1; -fx-border-color: #e5e7eb; -fx-background-color: #ffffff;" prefHeight="200">
-                                                    <columns>
-                                                        <TableColumn fx:id="offerListingColumn" text="Listing" prefWidth="120"/>
-                                                        <TableColumn fx:id="offerBuyerColumn" text="Buyer" prefWidth="120"/>
-                                                        <TableColumn fx:id="offerQuantityColumn" text="Quantity" prefWidth="120"/>
-                                                        <TableColumn fx:id="offerPriceColumn" text="Offer Price (USD)" prefWidth="150"/>
-                                                        <TableColumn fx:id="offerStatusColumn" text="Status" prefWidth="120"/>
-                                                    </columns>
-                                                </TableView>
-                                                <HBox spacing="12" alignment="CENTER_LEFT">
-                                                    <Button fx:id="acceptOfferButton" text="✅ Accept" onAction="#handleAcceptOffer" style="-fx-padding: 8 14; -fx-font-size: 12px; -fx-background-color: #10b981; -fx-text-fill: #ffffff; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-weight: 600; -fx-cursor: hand;"/>
-                                                    <Button fx:id="counterOfferButton" text="💬 Counter" onAction="#handleCounterOffer" style="-fx-padding: 8 14; -fx-font-size: 12px; -fx-background-color: #f3f4f6; -fx-text-fill: #374151; -fx-border-width: 1; -fx-border-color: #d1d5db; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;"/>
-                                                    <Button fx:id="rejectOfferButton" text="❌ Reject" onAction="#handleRejectOffer" style="-fx-padding: 8 14; -fx-font-size: 12px; -fx-background-color: #fee2e2; -fx-text-fill: #dc2626; -fx-border-width: 1; -fx-border-color: #fca5a5; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;"/>
-                                                </HBox>
-                                            </VBox>
-
-                                            <!-- Offers Sent -->
-                                            <VBox spacing="12" style="-fx-padding: 20 24; -fx-background-color: #ffffff; -fx-border-width: 1; -fx-border-color: #e5e7eb; -fx-border-radius: 10; -fx-background-radius: 10;">
-                                                <HBox spacing="12" alignment="CENTER_LEFT">
-                                                    <Label text="📤 Offers Sent" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1f2937;"/>
-                                                    <Region HBox.hgrow="ALWAYS"/>
-                                                    <Label text="(As Buyer)" style="-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-font-weight: 500;"/>
-                                                </HBox>
-                                                <TableView fx:id="offersSentTable" style="-fx-border-width: 1; -fx-border-color: #e5e7eb; -fx-background-color: #ffffff;" prefHeight="200">
-                                                    <columns>
-                                                        <TableColumn fx:id="sentListingColumn" text="Listing" prefWidth="120"/>
-                                                        <TableColumn fx:id="sentSellerColumn" text="Seller" prefWidth="120"/>
-                                                        <TableColumn fx:id="sentQuantityColumn" text="Quantity" prefWidth="120"/>
-                                                        <TableColumn fx:id="sentPriceColumn" text="Offer Price (USD)" prefWidth="150"/>
-                                                        <TableColumn fx:id="sentStatusColumn" text="Status" prefWidth="120"/>
-                                                    </columns>
-                                                </TableView>
-                                                <HBox spacing="12" alignment="CENTER_LEFT">
-                                                    <Button fx:id="payNowButton" text="💳 Pay Now" onAction="#handlePayNow" style="-fx-padding: 8 14; -fx-font-size: 12px; -fx-background-color: #0891b2; -fx-text-fill: #ffffff; -fx-border-radius: 6; -fx-background-radius: 6; -fx-font-weight: 600; -fx-cursor: hand;"/>
-                                                    <Button fx:id="cancelOfferButton" text="🚶 Cancel Offer" onAction="#handleCancelOffer" style="-fx-padding: 8 14; -fx-font-size: 12px; -fx-background-color: #f3f4f6; -fx-text-fill: #374151; -fx-border-width: 1; -fx-border-color: #d1d5db; -fx-border-radius: 6; -fx-background-radius: 6; -fx-cursor: hand;"/>
-                                                </HBox>
-                                            </VBox>
-                                        </VBox>
-                                    </content>
-                                            </Tab>
-
-                                <!-- MARKET TAB -->
-                                <Tab fx:id="marketTab" text="📈 Market">
-                                    <content>
-                                        <VBox spacing="16" style="-fx-padding: 0;">
-                                            <VBox spacing="12" style="-fx-padding: 20 24; -fx-background-color: #ffffff; -fx-border-width: 1; -fx-border-color: #e5e7eb; -fx-border-radius: 10; -fx-background-radius: 10;">
-                                                <HBox spacing="12" alignment="CENTER_LEFT">
-                                                    <Label text="📊 Carbon Credit Market Analysis" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1f2937;"/>
-                                                    <Region HBox.hgrow="ALWAYS"/>
-                                                    <Label text="Real-time market data" style="-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-font-weight: 500;"/>
-                                                </HBox>
-                                                <Separator style="-fx-padding: 0; -fx-border-color: #e5e7eb; -fx-border-width: 0 0 1 0;"/>
-                                                <LineChart fx:id="marketChart" animated="false" prefHeight="500" legendVisible="true" style="-fx-border-width: 0;">
-                                                    <xAxis>
-                                                        <NumberAxis label="Time Period" side="BOTTOM" tickLabelFill="#6b7280"/>
-                                                    </xAxis>
-                                                    <yAxis>
-                                                        <NumberAxis label="Price (USD/tCO₂)" side="LEFT" tickLabelFill="#6b7280"/>
-                                                    </yAxis>
-                                                </LineChart>
-                                                <HBox spacing="16" alignment="CENTER" style="-fx-padding: 16 0 0 0;">
-                                                    <VBox spacing="4" alignment="CENTER" style="-fx-padding: 12; -fx-background-color: #ecfdf5; -fx-border-width: 1; -fx-border-color: #d1fae5; -fx-background-radius: 8; -fx-border-radius: 8; -fx-min-width: 140;">
-                                                        <Label text="Current Price" style="-fx-font-size: 10px; -fx-text-fill: #6b7280; -fx-font-weight: 500;"/>
-                                                        <Label text="25.50" style="-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #10b981;"/>
-                                                    </VBox>
-                                                    <VBox spacing="4" alignment="CENTER" style="-fx-padding: 12; -fx-background-color: #dbeafe; -fx-border-width: 1; -fx-border-color: #bfdbfe; -fx-background-radius: 8; -fx-border-radius: 8; -fx-min-width: 140;">
-                                                        <Label text="24h Change" style="-fx-font-size: 10px; -fx-text-fill: #6b7280; -fx-font-weight: 500;"/>
-                                                        <Label text="+2.4%" style="-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #3b82f6;"/>
-                                                    </VBox>
-                                                    <VBox spacing="4" alignment="CENTER" style="-fx-padding: 12; -fx-background-color: #fef3c7; -fx-border-width: 1; -fx-border-color: #fde68a; -fx-background-radius: 8; -fx-border-radius: 8; -fx-min-width: 140;">
-                                                        <Label text="Trading Volume" style="-fx-font-size: 10px; -fx-text-fill: #6b7280; -fx-font-weight: 500;"/>
-                                                        <Label text="1,234 tCO₂" style="-fx-font-size: 18px; -fx-font-weight: 700; -fx-text-fill: #f59e0b;"/>
-                                                    </VBox>
-                                                </HBox>
-                                            </VBox>
-                                        </VBox>
-                                    </content>
-                                </Tab>
-
-                                <!-- ORDER HISTORY TAB -->
-                                <Tab fx:id="orderHistoryTab" text="📜 Order History">
-                                    <content>
-                                        <VBox spacing="16" style="-fx-padding: 0;">
-                                            <!-- Stats Summary -->
-                                            <HBox spacing="16" alignment="CENTER" style="-fx-padding: 0;">
-                                                <VBox spacing="8" HBox.hgrow="ALWAYS" style="-fx-padding: 20 24; -fx-background-color: #ffffff; -fx-border-width: 1; -fx-border-color: #e5e7eb; -fx-border-radius: 10; -fx-background-radius: 10; -fx-alignment: CENTER;">
-                                                    <Label text="💰" style="-fx-font-size: 24px;"/>
-                                                    <Label text="Total Spending" style="-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-font-weight: 500;"/>
-                                                    <Label fx:id="totalSpendingLabel" text="0.00" style="-fx-font-size: 22px; -fx-font-weight: 700; -fx-text-fill: #1f2937;"/>
-                                                </VBox>
-                                                <VBox spacing="8" HBox.hgrow="ALWAYS" style="-fx-padding: 20 24; -fx-background-color: #ffffff; -fx-border-width: 1; -fx-border-color: #e5e7eb; -fx-border-radius: 10; -fx-background-radius: 10; -fx-alignment: CENTER;">
-                                                    <Label text="✅" style="-fx-font-size: 24px;"/>
-                                                    <Label text="Completed Orders" style="-fx-font-size: 11px; -fx-text-fill: #6b7280; -fx-font-weight: 500;"/>
-                                                    <Label fx:id="completedOrdersLabel" text="0" style="-fx-font-size: 22px; -fx-font-weight: 700; -fx-text-fill: #10b981;"/>
-                                                </VBox>
-                                            </HBox>
-
-                                            <!-- Orders Table -->
-                                            <VBox spacing="12" style="-fx-padding: 0;">
-                                                <Label text="Transaction History" style="-fx-font-size: 16px; -fx-font-weight: 700; -fx-text-fill: #1f2937; -fx-padding: 0 4;"/>
-                                                <TableView fx:id="ordersTable" style="-fx-border-width: 1; -fx-border-color: #e5e7eb; -fx-background-color: #ffffff;" prefHeight="400">
-                                                    <columns>
-                                                        <TableColumn fx:id="orderIdColumn" text="Order ID" prefWidth="120"/>
-                                                        <TableColumn fx:id="orderAmountColumn" text="Amount (USD)" prefWidth="200"/>
-                                                        <TableColumn fx:id="orderStatusColumn" text="Status" prefWidth="180"/>
-                                                        <TableColumn fx:id="orderDateColumn" text="Date" prefWidth="240"/>
-                                                    </columns>
-                                                </TableView>
-                                            </VBox>
-                                        </VBox>
-                                    </content>
-                                </Tab>
-                            </tabs>
-                        </TabPane>
-
-                    </VBox>
-                </ScrollPane>
-            </center>
-        </BorderPane>
-    </HBox>
-</StackPane>
+</HBox>
