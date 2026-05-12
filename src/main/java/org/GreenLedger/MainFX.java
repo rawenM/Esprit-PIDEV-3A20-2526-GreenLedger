@@ -1,9 +1,12 @@
 package org.GreenLedger;
 
 import DataBase.MyConnection;
+<<<<<<< HEAD
 import Services.TransactionService;
 import Services.EventListenerService;
 import Services.BlockchainService;
+=======
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -16,7 +19,10 @@ import Utils.ResetHttpServer;
 
 import java.io.IOException;
 import java.net.URL;
+<<<<<<< HEAD
 import java.util.Map;
+=======
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
 
 public class MainFX extends Application {
 
@@ -26,6 +32,7 @@ public class MainFX extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
 
+<<<<<<< HEAD
         // Blockchain preflight check
         try {
             TransactionService txService = new TransactionService();
@@ -56,6 +63,24 @@ public class MainFX extends Application {
         }
         Parent root = FXMLLoader.load(fxmlUrl);
 
+=======
+        // Test de la connexion a la base de donnees
+        MyConnection db = MyConnection.getInstance();
+        if (!db.testConnection()) {
+            System.err.println("[CLEAN] ERREUR: Impossible de se connecter a la base de donnees !");
+            System.err.println("Verifiez que le serveur de base de donnees est demarr et que l'URL/les identifiants sont corrects.");
+            return;
+        }
+
+        // Charger la page de connexion
+        URL fxmlUrl = getClass().getResource("/fxml/login.fxml");
+        if (fxmlUrl == null) {
+            System.err.println("[CLEAN] Fichier FXML '/fxml/login.fxml' introuvable sur le classpath");
+            return;
+        }
+        Parent root = FXMLLoader.load(fxmlUrl);
+
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
         scene = new Scene(root);
         // Charger la feuille de style de maniere robuste
         URL cssUrl = getClass().getResource("/css/style.css");

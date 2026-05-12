@@ -9,7 +9,13 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+<<<<<<< HEAD
 
+=======
+import javafx.scene.layout.StackPane;
+
+import java.util.Arrays;
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
 import java.util.List;
 import java.util.Locale;
 
@@ -26,6 +32,21 @@ public class InvestisseurShellController extends BaseController {
     @FXML private Label lblHeroGreeting;
     @FXML private Label lblHealthScore;
 
+<<<<<<< HEAD
+=======
+    // Sidebar nav buttons (for active state)
+    @FXML private Button btnDashboard;
+    @FXML private Button btnFinancing;
+    @FXML private Button btnPortfolio;
+    @FXML private Button btnWallet;
+    @FXML private Button btnMarketplace;
+    @FXML private Button btnMessages;
+
+    // Content area for in-shell navigation
+    @FXML private StackPane mainArea;
+    @FXML private javafx.scene.control.ScrollPane dashboardScroll;
+
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
     // KPI Row 1
     @FXML private Label statCredits;
     @FXML private Label statCreditsRetired;
@@ -64,6 +85,7 @@ public class InvestisseurShellController extends BaseController {
 
     // ── Navigation ────────────────────────────────────────────────────────────
 
+<<<<<<< HEAD
     @FXML private void onDashboard()     { loadDashboard(); lblPageTitle.setText("Tableau de bord"); }
     @FXML private void onFinancing()     { navigate("fxml/swipe_invest"); }
     @FXML private void onPortfolio()     { navigate("fxml/investisseur_portfolio"); }
@@ -72,6 +94,16 @@ public class InvestisseurShellController extends BaseController {
     @FXML private void onMessages()      { navigate("fxml/investisseur_messages"); }
     @FXML private void onAssistant()     { navigate("AssistantChat"); }
     @FXML private void onNotifications() { navigate("fxml/investisseur_notifications"); }
+=======
+    @FXML private void onDashboard()     { setActiveBtn(btnDashboard); showDashboard(); lblPageTitle.setText("Tableau de bord"); }
+    @FXML private void onFinancing()     { setActiveBtn(btnFinancing);  loadContent("fxml/investor_financing"); lblPageTitle.setText("Financement"); }
+    @FXML private void onPortfolio()     { setActiveBtn(btnPortfolio);  loadContent("fxml/investisseur_portfolio"); lblPageTitle.setText("Mon portefeuille"); }
+    @FXML private void onWallet()        { setActiveBtn(btnWallet);     navigate("greenwallet"); }
+    @FXML private void onMarketplace()   { setActiveBtn(btnMarketplace); loadContent("fxml/marketplace"); lblPageTitle.setText("Marché carbone"); }
+    @FXML private void onMessages()      { setActiveBtn(btnMessages);   loadContent("fxml/investisseur_messages"); lblPageTitle.setText("Messages"); }
+    @FXML private void onAssistant()     { navigate("AssistantChat"); }
+    @FXML private void onNotifications() { loadContent("fxml/investisseur_notifications"); lblPageTitle.setText("Notifications"); }
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
     @FXML private void onEditProfile()   { navigate("editProfile"); }
 
     @FXML private void onBack() {
@@ -86,6 +118,41 @@ public class InvestisseurShellController extends BaseController {
         navigate("fxml/login");
     }
 
+<<<<<<< HEAD
+=======
+    // ── Content loading (keeps sidebar) ──────────────────────────────────────
+
+    private void showDashboard() {
+        if (mainArea != null && dashboardScroll != null) {
+            mainArea.getChildren().setAll(dashboardScroll);
+        }
+        loadDashboard();
+    }
+
+    private void loadContent(String fxmlPath) {
+        if (mainArea == null) { navigate(fxmlPath); return; }
+        try {
+            java.net.URL resource = getClass().getResource("/" + fxmlPath + ".fxml");
+            if (resource == null) { System.err.println("[InvestisseurShell] FXML not found: " + fxmlPath); return; }
+            javafx.fxml.FXMLLoader loader = new javafx.fxml.FXMLLoader(resource);
+            javafx.scene.Parent content = loader.load();
+            mainArea.getChildren().setAll(content);
+        } catch (Exception e) {
+            System.err.println("[InvestisseurShell] loadContent error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void setActiveBtn(Button active) {
+        java.util.List<Button> all = Arrays.asList(
+            btnDashboard, btnFinancing, btnPortfolio, btnWallet, btnMarketplace, btnMessages);
+        String inactive = "-fx-background-color:transparent; -fx-text-fill:#374151; -fx-font-size:12px; -fx-font-weight:500; -fx-background-radius:8; -fx-padding:11 14; -fx-cursor:hand; -fx-border-width:0; -fx-background-insets:0;";
+        String activeStyle = "-fx-background-color:#f0fdf4; -fx-text-fill:#059669; -fx-font-size:12px; -fx-font-weight:700; -fx-background-radius:8; -fx-padding:11 14; -fx-cursor:hand; -fx-border-width:0 0 0 3; -fx-border-color:#059669; -fx-background-insets:0; -fx-effect:none;";
+        for (Button b : all) { if (b != null) b.setStyle(inactive); }
+        if (active != null) active.setStyle(activeStyle);
+    }
+
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
     // ── Dashboard ─────────────────────────────────────────────────────────────
 
     private void loadDashboard() {

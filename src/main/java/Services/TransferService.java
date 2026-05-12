@@ -51,10 +51,119 @@ public class TransferService {
      * @return TransferResult with success status and details
      * @throws Exception if transfer fails for any reason
      */
+<<<<<<< HEAD
     // DEPRECATED: Use BlockchainService.transferBatch() + EventListenerService.applyTransferEvent() instead
     public TransferResult transferCredits(int fromWalletId, int toWalletId, 
                                          double amount, String referenceNote) throws Exception {
         throw new UnsupportedOperationException("Use BlockchainService.transferBatch() + EventListenerService.applyTransferEvent() instead");
+=======
+    public TransferResult transferCredits(int fromWalletId, int toWalletId, 
+                                         double amount, String referenceNote) throws Exception {
+        
+        if (amount <= 0) {
+            throw new IllegalArgumentException("Transfer amount must be greater than 0");
+        }
+        
+        if (fromWalletId == toWalletId) {
+            throw new IllegalArgumentException("Cannot transfer to same wallet");
+        }
+        
+        try {
+            // Start atomic transaction
+            conn.setAutoCommit(false);
+            
+            // 1. Lock both wallets in consistent order (prevent deadlock)
+            String lockSql = "SELECT id FROM green_wallets WHERE id = ? FOR UPDATE";
+            try (PreparedStatement ps = conn.prepareStatement(lockSql)) {
+                ps.setInt(1, Math.min(fromWalletId, toWalletId));
+                ps.executeQuery();
+                ps.setInt(1, Math.max(fromWalletId, toWalletId));
+                ps.executeQuery();
+            }
+            
+            // 2. Validate source wallet exists and has credits
+            Wallet sourceWallet = getWalletWithLock(fromWalletId);
+            if (sourceWallet == null) {
+                conn.rollback();
+                throw new Exception("Source wallet not found: " + fromWalletId);
+            }
+            
+            if (sourceWallet.getAvailableCredits() < amount) {
+                conn.rollback();
+                throw new Exception(
+                    String.format("Insufficient credits. Available: %.2f, Required: %.2f",
+                    sourceWallet.getAvailableCredits(), amount)
+                );
+            }
+            
+            // 3. Validate destination wallet exists
+            Wallet destWallet = getWalletWithLock(toWalletId);
+            if (destWallet == null) {
+                conn.rollback();
+                throw new Exception("Destination wallet not found: " + toWalletId);
+            }
+            
+            // 4. Deduct from source
+            String deductSql = "UPDATE green_wallets SET available_credits = available_credits - ? WHERE id = ?";
+            try (PreparedStatement ps = conn.prepareStatement(deductSql)) {
+                ps.setDouble(1, amount);
+                ps.setInt(2, fromWalletId);
+                int updateCount = ps.executeUpdate();
+                if (updateCount == 0) {
+                    conn.rollback();
+                    throw new Exception("Failed to deduct from source wallet");
+                }
+            }
+            
+            // 5. Add to destination
+            String addSql = "UPDATE green_wallets SET available_credits = available_credits + ? WHERE id = ?";
+            try (PreparedStatement ps = conn.prepareStatement(addSql)) {
+                ps.setDouble(1, amount);
+                ps.setInt(2, toWalletId);
+                int updateCount = ps.executeUpdate();
+                if (updateCount == 0) {
+                    conn.rollback();
+                    throw new Exception("Failed to add to destination wallet");
+                }
+            }
+            
+            // 6. Record transaction
+            String transferId = createTransferId();
+            recordTransfer(fromWalletId, toWalletId, amount, referenceNote, transferId);
+            
+            // 7. Record batch events for traceability
+            if (eventService != null) {
+                JsonObject eventData = new JsonObject();
+                eventData.addProperty("from_wallet_id", fromWalletId);
+                eventData.addProperty("to_wallet_id", toWalletId);
+                eventData.addProperty("amount", amount);
+                eventData.addProperty("transfer_id", transferId);
+                eventData.addProperty("reference", referenceNote);
+            }
+            
+            // Commit successful transaction
+            conn.commit();
+            conn.setAutoCommit(true);
+            
+            return new TransferResult(
+                true,
+                "Transfer successful",
+                transferId,
+                amount,
+                fromWalletId,
+                toWalletId
+            );
+            
+        } catch (Exception ex) {
+            try {
+                conn.rollback();
+                conn.setAutoCommit(true);
+            } catch (SQLException e) {
+                System.err.println("Error during rollback: " + e.getMessage());
+            }
+            throw ex;
+        }
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
     }
     
     /**

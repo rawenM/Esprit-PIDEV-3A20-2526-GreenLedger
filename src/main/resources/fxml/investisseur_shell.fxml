@@ -97,9 +97,17 @@
               style="-fx-background-color:#10b981;-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:9 18;-fx-cursor:hand;"/>
     </HBox>
 
+<<<<<<< HEAD
     <!-- Scrollable body -->
     <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
                 style="-fx-background:#F8FAFC;-fx-background-color:#F8FAFC;">
+=======
+    <!-- Content area — default shows dashboard, swapped by nav -->
+    <StackPane fx:id="mainArea" VBox.vgrow="ALWAYS">
+      <!-- Default dashboard content -->
+      <ScrollPane fx:id="dashboardScroll" fitToWidth="true"
+                  style="-fx-background:#F8FAFC;-fx-background-color:#F8FAFC;">
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
       <VBox spacing="22">
         <padding><Insets top="28" right="32" bottom="32" left="32"/></padding>
 
@@ -245,6 +253,10 @@
 
       </VBox>
     </ScrollPane>
+<<<<<<< HEAD
+=======
+    </StackPane>
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
   </VBox>
 
 </HBox>

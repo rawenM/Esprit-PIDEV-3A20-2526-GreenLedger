@@ -20,12 +20,20 @@ public class ProjetService {
             String sql = "SELECT p.id, p.entreprise_id, p.titre, p.description, p.statut, p.score_esg, " +
                     "       p.company_address, p.company_email, p.company_phone, " +
                     "       p.secteur, p.type_projet, p.localisation, p.date_creation, " +
+<<<<<<< HEAD
+=======
+                    "       p.latitude, p.longitude, p.geocoded_at, p.air_quality_index, " +
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
                     "       p.consommation_energie, p.unite_energie, p.distance_transport, " +
                     "       p.type_transport, p.type_materiau, p.quantite_materiau, " +
                     "       p.consommation_eau, p.dechets_generes, p.emissions_estimees, p.source_emissions, " +
                     "       p.fraud_risk_score, p.fraud_flag, p.fraud_reasons, " +
                     "       p.baseline_tco2, p.actual_tco2, p.avoided_tco2, " +
+<<<<<<< HEAD
                     "       p.dispatched_green_credits, p.statut_financement, p.montant_demande, " +
+=======
+                    "       p.dispatched_green_credits, p.statut_financement, p.montant_demande, p.funded_at, " +
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
                     "       b.id_budget, b.montant, b.raison, b.devise " +
                     "FROM projet p " +
                     "LEFT JOIN budget b ON b.id_projet = p.id " +
@@ -52,12 +60,20 @@ public class ProjetService {
             String sql = "SELECT p.id, p.entreprise_id, p.titre, p.description, p.statut, p.score_esg, " +
                     "       p.company_address, p.company_email, p.company_phone, " +
                     "       p.secteur, p.type_projet, p.localisation, p.date_creation, " +
+<<<<<<< HEAD
+=======
+                    "       p.latitude, p.longitude, p.geocoded_at, p.air_quality_index, " +
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
                     "       p.consommation_energie, p.unite_energie, p.distance_transport, " +
                     "       p.type_transport, p.type_materiau, p.quantite_materiau, " +
                     "       p.consommation_eau, p.dechets_generes, p.emissions_estimees, p.source_emissions, " +
                     "       p.fraud_risk_score, p.fraud_flag, p.fraud_reasons, " +
                     "       p.baseline_tco2, p.actual_tco2, p.avoided_tco2, " +
+<<<<<<< HEAD
                     "       p.dispatched_green_credits, p.statut_financement, p.montant_demande, " +
+=======
+                    "       p.dispatched_green_credits, p.statut_financement, p.montant_demande, p.funded_at, " +
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
                     "       b.id_budget, b.montant, b.raison, b.devise " +
                     "FROM projet p " +
                     "LEFT JOIN budget b ON b.id_projet = p.id " +
@@ -95,12 +111,20 @@ public class ProjetService {
         String sql = "SELECT p.id, p.entreprise_id, p.titre, p.description, p.statut, p.score_esg, " +
                 "       p.company_address, p.company_email, p.company_phone, " +
                 "       p.secteur, p.type_projet, p.localisation, p.date_creation, " +
+<<<<<<< HEAD
+=======
+                "       p.latitude, p.longitude, p.geocoded_at, p.air_quality_index, " +
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
                 "       p.consommation_energie, p.unite_energie, p.distance_transport, " +
                 "       p.type_transport, p.type_materiau, p.quantite_materiau, " +
                 "       p.consommation_eau, p.dechets_generes, p.emissions_estimees, p.source_emissions, " +
                 "       p.fraud_risk_score, p.fraud_flag, p.fraud_reasons, " +
                 "       p.baseline_tco2, p.actual_tco2, p.avoided_tco2, " +
+<<<<<<< HEAD
                 "       p.dispatched_green_credits, p.statut_financement, p.montant_demande, " +
+=======
+                "       p.dispatched_green_credits, p.statut_financement, p.montant_demande, p.funded_at, " +
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
                 "       b.id_budget, b.montant, b.raison, b.devise " +
                 "FROM projet p " +
                 "LEFT JOIN budget b ON b.id_projet = p.id " +
@@ -414,6 +438,25 @@ public class ProjetService {
         } catch (Exception e) {
             System.err.println("[ProjetService] date_creation read failed: " + e.getMessage());
         }
+<<<<<<< HEAD
+=======
+        // Geocoding fields
+        safeSet(() -> p.setLatitude(getDoubleOrNull(rs, "latitude")));
+        safeSet(() -> p.setLongitude(getDoubleOrNull(rs, "longitude")));
+        safeSet(() -> {
+            Timestamp gts = rs.getTimestamp("geocoded_at");
+            if (gts != null) p.setGeocodedAt(gts.toLocalDateTime());
+        });
+        safeSet(() -> {
+            Object aqi = rs.getObject("air_quality_index");
+            if (aqi != null) p.setAirQualityIndex(((Number) aqi).intValue());
+        });
+        // funded_at
+        safeSet(() -> {
+            Timestamp fts = rs.getTimestamp("funded_at");
+            if (fts != null) p.setFundedAt(fts.toLocalDateTime());
+        });
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
 
         // Environmental data
         safeSet(() -> p.setConsommationEnergie(getDoubleOrNull(rs, "consommation_energie")));

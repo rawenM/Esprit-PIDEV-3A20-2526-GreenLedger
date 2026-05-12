@@ -236,7 +236,11 @@ public class EvaluationQueueController extends BaseController {
             }
         });
 
+<<<<<<< HEAD
         // SUGGEST ML — APPROVED/REJECTED badge + credibility %
+=======
+        // SUGGEST ML — read from ml_predictions/ml_decision_snapshots, not ESG score
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
         colMlDecision.setCellFactory(col -> new TableCell<>() {
             @Override protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -244,6 +248,7 @@ public class EvaluationQueueController extends BaseController {
                     setText("—"); setStyle("-fx-text-fill:#9CA3AF;"); setGraphic(null); return;
                 }
                 Projet p = (Projet) getTableRow().getItem();
+<<<<<<< HEAD
                 Integer esg = p.getScoreEsg();
                 if (esg == null) { setText("—"); setStyle("-fx-text-fill:#9CA3AF;"); setGraphic(null); return; }
 
@@ -253,6 +258,24 @@ public class EvaluationQueueController extends BaseController {
                     + ";-fx-text-fill:" + (approved ? "#065F46" : "#991B1B")
                     + ";-fx-font-size:9px;-fx-font-weight:700;-fx-background-radius:4;-fx-padding:2 6;");
                 Label cred = new Label("0,000%");
+=======
+                // Load ML decision from DB
+                String decision = loadMlDecision(p.getId());
+                if (decision == null || decision.isBlank()) {
+                    setText("—"); setStyle("-fx-text-fill:#9CA3AF;"); setGraphic(null); return;
+                }
+                boolean approved = "APPROVED".equalsIgnoreCase(decision);
+                boolean rejected = "REJECTED".equalsIgnoreCase(decision);
+                String bg    = approved ? "#D1FAE5" : rejected ? "#FEE2E2" : "#FEF3C7";
+                String color = approved ? "#065F46" : rejected ? "#991B1B" : "#92400E";
+                Label badge = new Label(decision.toUpperCase());
+                badge.setStyle("-fx-background-color:" + bg + ";-fx-text-fill:" + color
+                    + ";-fx-font-size:9px;-fx-font-weight:700;-fx-background-radius:4;-fx-padding:2 6;");
+                // Confidence from ml_decision_snapshots
+                double conf = loadMlConfidence(p.getId());
+                Label cred = new Label(conf > 0
+                    ? String.format("%.3f%%", conf * 100) : "—");
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
                 cred.setStyle("-fx-font-size:9px;-fx-text-fill:#9CA3AF;");
                 javafx.scene.layout.VBox box = new javafx.scene.layout.VBox(2, badge, cred);
                 setGraphic(box);
@@ -277,6 +300,75 @@ public class EvaluationQueueController extends BaseController {
         });
     }
 
+<<<<<<< HEAD
+=======
+    // ── ML helpers ───────────────────────────────────────────────────────────
+
+    /** Query ml_decision_snapshots first, then ml_predictions.
+     *  Only returns a value if confidence > 0 (ML was actually run). */
+    private String loadMlDecision(int projectId) {
+        // Only show if ML was actually run with a real confidence score
+        String sql1 = "SELECT decision, confidence FROM ml_decision_snapshots " +
+                      "WHERE project_id=? AND decision IS NOT NULL AND decision != '' " +
+                      "ORDER BY id DESC LIMIT 1";
+        try (java.sql.Connection conn = DataBase.MyConnection.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql1)) {
+            ps.setInt(1, projectId);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String v = rs.getString("decision");
+                    double conf = rs.getDouble("confidence");
+                    // Only show if confidence > 0 (ML was actually run)
+                    if (v != null && !v.isBlank() && conf > 0) return v;
+                }
+            }
+        } catch (java.sql.SQLException e) { /* try next */ }
+
+        String sql2 = "SELECT decision, confidence FROM ml_predictions " +
+                      "WHERE project_id=? AND decision IS NOT NULL AND decision != '' " +
+                      "ORDER BY id DESC LIMIT 1";
+        try (java.sql.Connection conn = DataBase.MyConnection.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql2)) {
+            ps.setInt(1, projectId);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String v = rs.getString("decision");
+                    double conf = rs.getDouble("confidence");
+                    if (v != null && !v.isBlank() && conf > 0) return v;
+                }
+            }
+        } catch (java.sql.SQLException e) { /* ignore */ }
+        return null;
+    }
+
+    /** Returns true if an evaluation row exists for this project. */
+    private boolean hasEvaluation(int projectId) {
+        String sql = "SELECT COUNT(*) FROM evaluation WHERE id_projet=?";
+        try (java.sql.Connection conn = DataBase.MyConnection.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, projectId);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) return rs.getInt(1) > 0;
+            }
+        } catch (java.sql.SQLException e) { /* ignore */ }
+        return false;
+    }
+
+    /** Returns confidence (0-1) from ml_decision_snapshots, or 0 if not found or zero. */
+    private double loadMlConfidence(int projectId) {
+        String sql = "SELECT confidence FROM ml_decision_snapshots " +
+                     "WHERE project_id=? AND confidence > 0 ORDER BY id DESC LIMIT 1";
+        try (java.sql.Connection conn = DataBase.MyConnection.getConnection();
+             java.sql.PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, projectId);
+            try (java.sql.ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) { double v = rs.getDouble(1); return rs.wasNull() ? 0 : v; }
+            }
+        } catch (java.sql.SQLException e) { /* ignore */ }
+        return 0;
+    }
+
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
     // ── Start evaluation ─────────────────────────────────────────────────────
 
     private void startEvaluation(Projet projet) {

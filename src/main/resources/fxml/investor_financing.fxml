@@ -3,6 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.geometry.Insets?>
 
+<<<<<<< HEAD
 <HBox xmlns="http://javafx.com/javafx/20.0.2"
       xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="Controllers.InvestorFinancingController"
@@ -299,3 +300,135 @@
   </VBox>
 
 </HBox>
+=======
+<VBox xmlns="http://javafx.com/javafx/20.0.2"
+      xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="Controllers.InvestorFinancingController"
+      stylesheets="@../themes/app-base.css">
+
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS"
+                style="-fx-background:#F8FAFC;-fx-background-color:#F8FAFC;-fx-border-width:0;">
+      <VBox spacing="24">
+        <padding><Insets top="0" right="0" bottom="32" left="0"/></padding>
+
+        <!-- ── HERO BANNER ── -->
+        <VBox spacing="10"
+              style="-fx-background-color:linear-gradient(to bottom right,#059669,#10b981,#14b8a6);-fx-padding:28 32 28 32;">
+          <Label text="GREENLEDGER · FINANCEMENT"
+                 style="-fx-font-size:10px;-fx-font-weight:700;-fx-text-fill:rgba(255,255,255,0.7);-fx-letter-spacing:0.1em;"/>
+          <Label text="Tableau de bord investisseur"
+                 style="-fx-font-size:26px;-fx-font-weight:800;-fx-text-fill:white;"/>
+          <Label text="Financez des projets carbone approuvés et suivez votre impact en temps réel."
+                 style="-fx-font-size:12px;-fx-text-fill:rgba(255,255,255,0.8);" wrapText="true"/>
+          <HBox spacing="12" style="-fx-padding:8 0 0 0;">
+            <Button text="Investir maintenant" onAction="#onInvestNow"
+                    style="-fx-background-color:white;-fx-text-fill:#059669;-fx-font-size:12px;-fx-font-weight:700;-fx-background-radius:8;-fx-padding:10 20;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+            <Button text="Swipe projets" onAction="#onSwipeProjects"
+                    style="-fx-background-color:rgba(255,255,255,0.15);-fx-text-fill:white;-fx-font-size:12px;-fx-font-weight:600;-fx-background-radius:8;-fx-padding:10 20;-fx-cursor:hand;-fx-border-color:rgba(255,255,255,0.4);-fx-border-width:1;-fx-background-insets:0;"/>
+          </HBox>
+        </VBox>
+
+        <VBox spacing="20">
+          <padding><Insets top="4" right="32" bottom="0" left="32"/></padding>
+
+          <!-- ── 4 KPI CARDS ── -->
+          <HBox spacing="16">
+            <!-- Total investi -->
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
+              <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+              <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="💰" style="-fx-font-size:18px;"/>
+                <Label text="TOTAL INVESTI" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
+              </HBox>
+              <Label fx:id="lblTotalInvested" text="—"
+                     style="-fx-font-size:26px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+              <Label fx:id="lblInvestedSub" text="+0%"
+                     style="-fx-font-size:10px;-fx-text-fill:#10b981;"/>
+              <Label text="Capital déployé" style="-fx-font-size:10px;-fx-text-fill:#94A3B8;"/>
+            </VBox>
+            <!-- CO2 impact -->
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
+              <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+              <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="🌿" style="-fx-font-size:18px;"/>
+                <Label text="CO2 IMPACT" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
+              </HBox>
+              <Label fx:id="lblCo2Impact" text="—"
+                     style="-fx-font-size:26px;-fx-font-weight:800;-fx-text-fill:#10b981;"/>
+              <Label fx:id="lblCo2Sub" text="tCO2 / invest"
+                     style="-fx-font-size:10px;-fx-text-fill:#10b981;"/>
+              <Label text="Impact carbone" style="-fx-font-size:10px;-fx-text-fill:#94A3B8;"/>
+            </VBox>
+            <!-- Financements actifs -->
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
+              <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+              <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="📊" style="-fx-font-size:18px;"/>
+                <Label text="FINANCEMENTS ACTIFS" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
+              </HBox>
+              <Label fx:id="lblActiveFinancements" text="—"
+                     style="-fx-font-size:26px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+              <Label fx:id="lblActiveSub" text="0% en cours"
+                     style="-fx-font-size:10px;-fx-text-fill:#94A3B8;"/>
+              <Label text="Dossiers en cours" style="-fx-font-size:10px;-fx-text-fill:#94A3B8;"/>
+            </VBox>
+            <!-- ROI moyen -->
+            <VBox styleClass="stat-card" HBox.hgrow="ALWAYS" spacing="6">
+              <padding><Insets top="18" right="18" bottom="18" left="18"/></padding>
+              <HBox alignment="CENTER_LEFT" spacing="8">
+                <Label text="📈" style="-fx-font-size:18px;"/>
+                <Label text="ROI MOYEN" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
+              </HBox>
+              <Label fx:id="lblRoiMoyen" text="—"
+                     style="-fx-font-size:26px;-fx-font-weight:800;-fx-text-fill:#f59e0b;"/>
+              <Label text="Rendement estimé" style="-fx-font-size:10px;-fx-text-fill:#94A3B8;"/>
+              <Label text="Sur portefeuille actif" style="-fx-font-size:10px;-fx-text-fill:#94A3B8;"/>
+            </VBox>
+          </HBox>
+
+          <!-- ── BOTTOM ROW: Opportunities + Recent History ── -->
+          <HBox spacing="16">
+
+            <!-- LEFT: Investment opportunities -->
+            <VBox spacing="0" HBox.hgrow="ALWAYS"
+                  style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-border-radius:14;-fx-background-radius:14;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.05),8,0,0,2);">
+              <HBox alignment="CENTER_LEFT" spacing="10"
+                    style="-fx-padding:16 20;-fx-border-color:#E2E8F0;-fx-border-width:0 0 1 0;">
+                <VBox spacing="2" HBox.hgrow="ALWAYS">
+                  <Label text="PROJETS DISPONIBLES" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
+                  <Label text="Opportunités d'investissement"
+                         style="-fx-font-size:14px;-fx-font-weight:800;-fx-text-fill:#0F172A;"/>
+                </VBox>
+                <Button text="Swipe" onAction="#onSwipeProjects"
+                        style="-fx-background-color:#059669;-fx-text-fill:white;-fx-font-size:11px;-fx-font-weight:700;-fx-background-radius:7;-fx-padding:7 14;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+              </HBox>
+              <VBox fx:id="boxOpportunities" spacing="0"/>
+              <HBox style="-fx-padding:12 20;">
+                <Button text="Voir tous les projets →" onAction="#onViewAllProjects"
+                        style="-fx-background-color:transparent;-fx-text-fill:#059669;-fx-font-size:11px;-fx-font-weight:600;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+              </HBox>
+            </VBox>
+
+            <!-- RIGHT: Recent history -->
+            <VBox spacing="0" prefWidth="380"
+                  style="-fx-background-color:white;-fx-border-color:#E2E8F0;-fx-border-width:1;-fx-border-radius:14;-fx-background-radius:14;-fx-effect:dropshadow(gaussian,rgba(0,0,0,0.05),8,0,0,2);">
+              <HBox alignment="CENTER_LEFT"
+                    style="-fx-padding:16 20;-fx-border-color:#E2E8F0;-fx-border-width:0 0 1 0;">
+                <Label text="MES PLACEMENTS" style="-fx-font-size:9px;-fx-font-weight:700;-fx-text-fill:#94A3B8;"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Label text="Historique récent" style="-fx-font-size:13px;-fx-font-weight:700;-fx-text-fill:#0F172A;"/>
+              </HBox>
+              <VBox fx:id="boxHistory" spacing="0" VBox.vgrow="ALWAYS"/>
+              <HBox style="-fx-padding:12 20;">
+                <Button text="Voir tout l'historique →" onAction="#onViewHistory"
+                        style="-fx-background-color:transparent;-fx-text-fill:#059669;-fx-font-size:11px;-fx-font-weight:600;-fx-cursor:hand;-fx-border-width:0;-fx-background-insets:0;"/>
+              </HBox>
+            </VBox>
+
+          </HBox>
+        </VBox>
+      </VBox>
+    </ScrollPane>
+  
+</VBox>
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44

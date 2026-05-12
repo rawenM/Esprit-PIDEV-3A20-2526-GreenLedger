@@ -244,9 +244,205 @@ public class MarketplaceOrderService {
      * Complete an order after successful payment
      * Transfers credits and releases escrow
      */
+<<<<<<< HEAD
     // DEPRECATED: Use TradeExecutionService.submitOrderTransfer(orderId) instead
     public boolean completeOrder(int orderId, String stripeChargeId) {
         throw new UnsupportedOperationException("Use TradeExecutionService.submitOrderTransfer() instead");
+=======
+    public boolean completeOrder(int orderId, String stripeChargeId) {
+        System.out.println(LOG_TAG + " ===== completeOrder() CALLED =====");
+        System.out.println(LOG_TAG + " Order ID: " + orderId);
+        System.out.println(LOG_TAG + " Stripe Charge ID: " + stripeChargeId);
+        
+        if (conn == null) {
+            System.err.println(LOG_TAG + " ERROR: Database connection is null");
+            return false;
+        }
+
+        boolean originalAutoCommit = true;
+        try {
+            // Save original autocommit state and disable it
+            originalAutoCommit = conn.getAutoCommit();
+            conn.setAutoCommit(false);
+
+            try {
+                // Get order details
+                MarketplaceOrder order = getOrderById(orderId);
+                if (order == null) {
+                    conn.rollback();
+                    return false;
+                }
+
+                // Get listing details to access seller wallet
+                Models.MarketplaceListing listing = listingService.getListingById(order.getListingId());
+                if (listing == null) {
+                    System.err.println(LOG_TAG + " ERROR: Listing not found for order " + orderId);
+                    conn.rollback();
+                    return false;
+                }
+
+                // Determine transfer mode based on order amount
+                // < $10k = DIRECT (instant, transfers batches directly)
+                // >= $10k = SPLIT_CHILD (escrow, creates child batches for auditability)
+                WalletService walletService = new WalletService();
+                WalletService.TransferMode transferMode = order.getTotalAmountUsd() >= ESCROW_THRESHOLD_USD 
+                    ? WalletService.TransferMode.SPLIT_CHILD 
+                    : WalletService.TransferMode.DIRECT;
+
+                // Get buyer wallet
+                List<Models.Wallet> buyerWallets = walletService.getWalletsByOwnerId(order.getBuyerId());
+                if (buyerWallets.isEmpty()) {
+                    System.err.println(LOG_TAG + " ERROR: Buyer wallet not found");
+                    conn.rollback();
+                    return false;
+                }
+                int buyerWalletId = buyerWallets.get(0).getId();
+
+                // Transfer credits from seller to buyer with batch traceability
+                String transferNote = String.format("Marketplace Order #%s - %.2f tCO2", 
+                    order.getId(), order.getQuantity());
+                String actor = "MARKETPLACE_ORDER_" + order.getId();
+
+                boolean transferSuccess = walletService.transferCreditsWithMode(
+                    listing.getWalletId(), 
+                    buyerWalletId, 
+                    order.getQuantity(), 
+                    transferNote, 
+                    transferMode,
+                    actor
+                );
+
+                if (!transferSuccess) {
+                    System.err.println(LOG_TAG + " ERROR: Credit transfer failed for order " + orderId);
+                    conn.rollback();
+                    return false;
+                }
+                
+                // Record marketplace_sold event on transferred batches
+                try {
+                    List<CarbonCreditBatch> buyerBatches = walletService.getWalletBatches(buyerWalletId);
+                    BatchEventService batchEventService = new BatchEventService();
+                    
+                    for (CarbonCreditBatch batch : buyerBatches) {
+                        if (batch.getStatus() != null && batch.getStatus().equals("AVAILABLE")) {
+                            com.google.gson.JsonObject eventData = new com.google.gson.JsonObject();
+                            eventData.addProperty("order_id", orderId);
+                            eventData.addProperty("buyer_id", order.getBuyerId());
+                            eventData.addProperty("seller_id", order.getSellerId());
+                            eventData.addProperty("amount", order.getQuantity());
+                            eventData.addProperty("price_usd", order.getTotalAmountUsd());
+                            batchEventService.recordEvent(batch.getId(), 
+                                BatchEventType.MARKETPLACE_SOLD, eventData, actor);
+                            break; // Record event on first available batch
+                        }
+                    }
+                } catch (Exception e) {
+                    System.err.println(LOG_TAG + " Warning: Could not record batch event: " + e.getMessage());
+                    // Don't fail the whole transaction for event logging
+                }
+
+                // Record marketplace_order_batches linkage
+                recordOrderBatches(orderId, buyerWalletId, order.getQuantity());
+
+                // Check if escrow is required (only for orders >= $10k)
+                boolean requiresEscrow = order.getTotalAmountUsd() >= ESCROW_THRESHOLD_USD;
+                int escrowId = -1;
+                String finalStatus;
+                
+                if (requiresEscrow) {
+                    // Create escrow record for high-value orders
+                    System.out.println(LOG_TAG + " Order amount $" + order.getTotalAmountUsd() + " >= $" + ESCROW_THRESHOLD_USD + " - CREATING ESCROW");
+                    System.out.println(LOG_TAG + " Creating escrow for order " + orderId);
+                    System.out.println(LOG_TAG + "   Buyer: " + order.getBuyerId() + ", Seller: " + order.getSellerId());
+                    System.out.println(LOG_TAG + "   Amount: $" + order.getTotalAmountUsd());
+                    
+                    escrowId = createEscrow(orderId, null, order.getBuyerId(), 
+                        order.getSellerId(), order.getTotalAmountUsd());
+
+                    System.out.println(LOG_TAG + " Escrow creation returned ID: " + escrowId);
+                    
+                    if (escrowId <= 0) {
+                        System.err.println(LOG_TAG + " ERROR: Escrow creation failed!");
+                        conn.rollback();
+                        return false;
+                    }
+                    
+                    System.out.println(LOG_TAG + " ✓ Escrow created successfully: ID " + escrowId);
+                    finalStatus = "ESCROWED";
+                } else {
+                    // No escrow needed for orders < $10k
+                    System.out.println(LOG_TAG + " Order amount $" + order.getTotalAmountUsd() + " < $" + ESCROW_THRESHOLD_USD + " - NO ESCROW (instant payment)");
+                    finalStatus = "COMPLETED";
+                }
+
+                // Mark listing as sold if quantity depleted
+                if (order.getQuantity() >= listing.getQuantityOrTokens()) {
+                    listingService.markAsSold(order.getListingId());
+                }
+
+                // Update order status
+                System.out.println(LOG_TAG + " Updating order status to " + finalStatus);
+                String sql = "UPDATE marketplace_orders SET status = ?, " +
+                        "stripe_payment_id = ?, completion_date = NOW(), updated_at = NOW() WHERE id = ?";
+
+                try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+                    stmt.setString(1, finalStatus);
+                    stmt.setString(2, stripeChargeId);
+                    stmt.setInt(3, orderId);
+                    int rowsUpdated = stmt.executeUpdate();
+                    System.out.println(LOG_TAG + " Order status updated: " + rowsUpdated + " rows affected");
+                }
+
+                // Escrow is now HELD and awaiting admin verification (if applicable)
+                // Admin can release manually via UI, or auto-release after 24 hours
+                // Credits transferred to buyer, but seller won't receive payment until escrow is released (for escrow orders)
+
+                // Create transaction fee record (PENDING until escrow releases)
+                recordTransactionFee(orderId, null, order.getSellerId(), 
+                    stripeService.calculatePlatformFee(order.getTotalAmountUsd()));
+
+                System.out.println(LOG_TAG + " ===== COMMITTING TRANSACTION =====");
+                System.out.println(LOG_TAG + " Order #" + orderId + " completed successfully");
+                System.out.println(LOG_TAG + "   - Credits transferred to buyer wallet #" + buyerWalletId);
+                if (requiresEscrow) {
+                    System.out.println(LOG_TAG + "   - Escrow #" + escrowId + " created with HELD status");
+                    System.out.println(LOG_TAG + "   - Order status: ESCROWED (awaiting admin release)");
+                } else {
+                    System.out.println(LOG_TAG + "   - No escrow needed (amount < $" + ESCROW_THRESHOLD_USD + ")");
+                    System.out.println(LOG_TAG + "   - Order status: COMPLETED (instant payment)");
+                }
+                System.out.println(LOG_TAG + " ========================================");
+                
+                conn.commit();
+                System.out.println(LOG_TAG + " Order completed: ID " + orderId + 
+                    " (Transfer mode: " + transferMode + ")");
+                return true;
+
+            } catch (Exception e) {
+                try {
+                    conn.rollback();
+                } catch (SQLException rollbackEx) {
+                    System.err.println(LOG_TAG + " ERROR: Rollback failed: " + rollbackEx.getMessage());
+                }
+                System.err.println(LOG_TAG + " ERROR completing order: " + e.getMessage());
+                e.printStackTrace();
+                return false;
+            }
+        } catch (SQLException e) {
+            System.err.println(LOG_TAG + " ERROR: Database transaction setup failed: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } finally {
+            // Always restore original autocommit state
+            try {
+                if (conn != null && !conn.isClosed()) {
+                    conn.setAutoCommit(originalAutoCommit);
+                }
+            } catch (SQLException e) {
+                System.err.println(LOG_TAG + " ERROR: Failed to restore autocommit state: " + e.getMessage());
+            }
+        }
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
     }
 
     /**
@@ -750,6 +946,7 @@ public class MarketplaceOrderService {
     }
 
     /**
+<<<<<<< HEAD
      * Map ResultSet to MarketplaceOrder.
      * Optional / legacy columns (stripe_payment_id, platform_fee_usd,
      * seller_proceeds_usd, completion_date) are read defensively so that
@@ -797,6 +994,27 @@ public class MarketplaceOrderService {
         try { order.setUpdatedAt(rs.getTimestamp("updated_at")); }
         catch (SQLException ignored) {}
 
+=======
+     * Map ResultSet to MarketplaceOrder
+     */
+    private MarketplaceOrder mapResultToOrder(ResultSet rs) throws SQLException {
+        MarketplaceOrder order = new MarketplaceOrder(
+            rs.getInt("listing_id"),
+            rs.getInt("buyer_id"),
+            rs.getInt("seller_id"),
+            rs.getDouble("quantity"),
+            rs.getDouble("unit_price_usd")
+        );
+        order.setId(rs.getInt("id"));
+        order.setTotalAmountUsd(rs.getDouble("total_amount_usd"));
+        order.setPlatformFeeUsd(rs.getDouble("platform_fee_usd"));
+        order.setSellerProceedsUsd(rs.getDouble("seller_proceeds_usd"));
+        order.setStripePaymentId(rs.getString("stripe_payment_id"));
+        order.setStatus(rs.getString("status"));
+        order.setCreatedAt(rs.getTimestamp("created_at"));
+        order.setCompletionDate(rs.getTimestamp("completion_date"));
+        order.setUpdatedAt(rs.getTimestamp("updated_at"));
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
         return order;
     }
 }

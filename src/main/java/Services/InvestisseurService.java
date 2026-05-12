@@ -31,6 +31,7 @@ public class InvestisseurService {
 
     public DashboardData getDashboardData(long userId) {
         DashboardData d = new DashboardData();
+<<<<<<< HEAD
         String sql =
             "SELECT " +
             "(SELECT COALESCE(SUM(available_credits),0) FROM wallet WHERE owner_id=?) AS avail," +
@@ -73,6 +74,133 @@ public class InvestisseurService {
             (d.totalWallets > 0 ? 40 : 0) + (d.fundedProjects > 0 ? 40 : 0) + (d.totalAvailable > 0 ? 20 : 0)));
 
         // Unread messages
+=======
+
+        // ── 1. Investor's own wallet credits ──────────────────────────────────
+        // Investors have INDIVIDUAL wallets. ENTERPRISE wallets belong to porteurs.
+        // The web app correctly shows 0 for investors who have no INDIVIDUAL wallet.
+        String walletSql =
+            "SELECT COALESCE(SUM(available_credits),0) AS avail, " +
+            "       COALESCE(SUM(retired_credits),0)   AS retired, " +
+            "       COUNT(*)                            AS wallets, " +
+            "       SUM(CASE WHEN available_credits=0 THEN 1 ELSE 0 END) AS zero_bal " +
+            "FROM wallet WHERE owner_id=? AND owner_type='INDIVIDUAL'";
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(walletSql)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    d.totalAvailable = rs.getDouble("avail");
+                    d.totalRetired   = rs.getDouble("retired");
+                    d.totalWallets   = rs.getInt("wallets");
+                    d.zeroBalance    = rs.getInt("zero_bal");
+                }
+            }
+            System.out.println("[InvestisseurService] userId=" + userId
+                + " avail=" + d.totalAvailable + " wallets=" + d.totalWallets);
+        } catch (SQLException e) {
+            System.err.println("[InvestisseurService] wallet query: " + e.getMessage());
+        }
+
+        // ── 2. Projets portfolio — distinct projects this investor funded ─────
+        String portfolioSql =
+            "SELECT COUNT(DISTINCT project_id) AS funded_projects " +
+            "FROM financements WHERE investisseur_id=?";
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(portfolioSql)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) d.fundedProjects = rs.getInt("funded_projects");
+            }
+            System.out.println("[InvestisseurService] fundedProjects=" + d.fundedProjects);
+        } catch (SQLException e) {
+            System.err.println("[InvestisseurService] portfolio query: " + e.getMessage());
+            // Fallback: try with different column name
+            try (Connection conn2 = MyConnection.getConnection();
+                 PreparedStatement ps2 = conn2.prepareStatement(
+                     "SELECT COUNT(DISTINCT projet_id) AS funded_projects " +
+                     "FROM financements WHERE investisseur_id=?")) {
+                ps2.setLong(1, userId);
+                try (ResultSet rs2 = ps2.executeQuery()) {
+                    if (rs2.next()) d.fundedProjects = rs2.getInt("funded_projects");
+                }
+                System.out.println("[InvestisseurService] fundedProjects(fallback)=" + d.fundedProjects);
+            } catch (SQLException e2) {
+                System.err.println("[InvestisseurService] portfolio fallback: " + e2.getMessage());
+            }
+        }
+
+        // ── 3. Pipeline — all financing rows for this investor ────────────────
+        String pipelineSql =
+            "SELECT COUNT(*) AS total_fin FROM financements WHERE investisseur_id=?";
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement(pipelineSql)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) d.totalFinancements = rs.getInt("total_fin");
+            }
+        } catch (SQLException e) {
+            System.err.println("[InvestisseurService] pipeline query: " + e.getMessage());
+        }
+
+        // ── 4. Marketplace listings (platform-wide) + investor's own orders ───
+        String marketSql =
+            "(SELECT COUNT(*) FROM marketplace_listings WHERE status='active') AS listings," +
+            "(SELECT COUNT(*) FROM marketplace_orders WHERE buyer_id=?) AS orders";
+        try (Connection conn = MyConnection.getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT " + marketSql)) {
+            ps.setLong(1, userId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    d.activeListings = rs.getInt("listings");
+                    d.myOrders       = rs.getInt("orders");
+                }
+            }
+        } catch (SQLException e) {
+            System.err.println("[InvestisseurService] market query: " + e.getMessage());
+        }
+
+        // ── 5. Approved count among investor's funded projects ────────────────
+        int approvedCount = 0;
+        // Try project_id column first, then projet_id as fallback
+        String[] approvedSqls = {
+            "SELECT COUNT(DISTINCT f.project_id) AS approved_count " +
+            "FROM financements f JOIN projet p ON p.id = f.project_id " +
+            "WHERE f.investisseur_id=? AND p.statut='APPROVED'",
+            "SELECT COUNT(DISTINCT f.projet_id) AS approved_count " +
+            "FROM financements f JOIN projet p ON p.id = f.projet_id " +
+            "WHERE f.investisseur_id=? AND p.statut='APPROVED'"
+        };
+        for (String sql : approvedSqls) {
+            try (Connection conn = MyConnection.getConnection();
+                 PreparedStatement ps = conn.prepareStatement(sql)) {
+                ps.setLong(1, userId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) approvedCount = rs.getInt("approved_count");
+                }
+                System.out.println("[InvestisseurService] approvedCount=" + approvedCount);
+                break; // success, stop trying
+            } catch (SQLException e) {
+                System.err.println("[InvestisseurService] approved query attempt: " + e.getMessage());
+            }
+        }
+
+        // ── 6. Health score ───────────────────────────────────────────────────
+        // Match web app: uses funded project ratio + capital efficiency
+        double capitalBase = d.totalAvailable + d.totalRetired;
+        double capitalEff  = capitalBase > 0 ? (d.totalAvailable / capitalBase * 100.0) : 0.0;
+        // Web formula (reverse-engineered): weighted blend of approval rate and capital
+        double approvalRate = (double) approvedCount / Math.max(1, d.fundedProjects);
+        double pipelineRate = (double) d.fundedProjects / Math.max(1, d.totalFinancements);
+        d.healthScore = Math.min(100, Math.max(0, Math.round(
+            (approvalRate * 0.5 + pipelineRate * 0.3 + capitalEff / 100.0 * 0.2) * 100)));
+
+        // ── 7. Readiness score ────────────────────────────────────────────────
+        // min(100, approvedCount * 10)
+        d.readinessScore = Math.min(100, approvedCount * 10);
+
+        // ── 8. Unread messages ────────────────────────────────────────────────
+>>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
         try (Connection conn = MyConnection.getConnection();
              PreparedStatement ps = conn.prepareStatement(
                  "SELECT COUNT(*) FROM thread_messages tm " +
