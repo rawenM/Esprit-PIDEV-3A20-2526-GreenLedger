@@ -1,12 +1,10 @@
 package org.GreenLedger;
 
 import DataBase.MyConnection;
-<<<<<<< HEAD
+
 import Services.TransactionService;
 import Services.EventListenerService;
 import Services.BlockchainService;
-=======
->>>>>>> 697f7351277b2a6316572ab9077f2061a493ce44
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
